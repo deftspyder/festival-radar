@@ -170,7 +170,8 @@
 "section": "Local",
 "start": "",
 "status": "Watch",
-"id": "crssd-spring-2027"
+"id": "crssd-spring-2027",
+"expected_sale": "2026-11-19"
 },
 {
 "artists": "Above & Beyond (Anjunabeats Classics), ARTBAT, Enrico Sangiuliano, Paul van Dyk, Ferry Corsten b2b Marsh, Vini Vici, Infected Mushroom, Dash Berlin, Reinier Zonneveld (live), Aly & Fila",
@@ -246,7 +247,8 @@
 "section": "USA",
 "start": "2027-06-24",
 "status": "Watch",
-"id": "electric-forest-2027"
+"id": "electric-forest-2027",
+"expected_sale": "2026-12-03"
 },
 {
 "artists": "Zedd, Dimitri Vegas & Like Mike, Excision, ALOK, Cloonee, Benny Benassi, Richie Hawtin, Maddix, Cascada, Ice Cube",
