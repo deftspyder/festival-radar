@@ -1,0 +1,1033 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Festival Radar: electronic festivals and SoCal shows, with presale alerts and crew picks."><meta name="theme-color" content="#120a24"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%23120a24%27/%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%2710%27 fill=%27none%27 stroke=%27%2329d3f5%27 stroke-width=%272%27/%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%274%27 fill=%27%23ff3d9a%27/%3E%3C/svg%3E"><style>*,*::before,*::after{box-sizing:border-box}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>Festival Radar</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: synthwave night sky. Sunset header with next presale, section counts, alerts beside crew favorites, a calendar strip, then festival cards with picks. Single dark look by design. */
+:root {
+  --bg: #120a24; --panel: #1c1135; --panel-2: #241645; --line: #3a2763;
+  --fg: #f4ecff; --muted: #b6a6d6;
+  --pink: #ff3d9a; --violet: #a86bff; --cyan: #29d3f5; --orange: #ff9a4a;
+  --ok: #4be3a3; --warn: #ffb547; --going: #29d3f5; --maybe: #ff9a4a; --pass: #8a7aa8;
+  --display: "Audiowide", "Trebuchet MS", sans-serif;
+  --body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+html { background: var(--bg); }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.45; }
+.wrap { max-width: 1120px; margin-inline: auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px; display: flex; flex-direction: column; gap: 20px; }
+a { color: var(--cyan); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+.hero { position: relative; overflow: hidden; border-radius: 16px; padding: 30px 26px 28px; min-height: 230px; box-sizing: border-box; border: 1px solid var(--line);
+  background: radial-gradient(90% 130% at 72% 50%, #1d0a3d 0%, #0b0419 60%, #05020c 100%); box-shadow: 0 0 40px -18px var(--pink); }
+.hero > .radar { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.radar .rings, .radar .sweep { position: absolute; left: calc(68% - 700px); top: calc(50% - 700px); width: 1400px; height: 1400px; border-radius: 50%; }
+.radar .rings { background: repeating-radial-gradient(circle at center, transparent 0 69px, rgba(41,211,245,.34) 69px 70px); }
+.radar .sweep { background: conic-gradient(from 0deg, rgba(255,61,154,0) 0deg, rgba(255,61,154,.05) 15deg, rgba(255,61,154,.4) 50deg, rgba(255,61,154,0) 50.3deg); }
+.radar .hline { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: linear-gradient(90deg, transparent 30%, rgba(41,211,245,.3) 55%); }
+.radar .vline { position: absolute; top: 0; bottom: 0; left: 68%; width: 1px; background: rgba(41,211,245,.3); }
+.radar .hub { position: absolute; left: calc(68% - 6px); top: calc(50% - 6px); width: 12px; height: 12px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 14px 3px var(--cyan); }
+.radar .scrim { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(5,2,12,.92) 0%, rgba(5,2,12,.7) 28%, rgba(5,2,12,0) 44%); }
+.radar .blips { position: absolute; inset: 0; }
+.radar .blip { position: absolute; display: flex; gap: 6px; align-items: center; opacity: .22; white-space: nowrap; }
+.radar .blip i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: block; flex: none; }
+.radar .blip span { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+@keyframes r-spin { to { transform: rotate(360deg); } }
+@keyframes r-blip { 0%, 12% { opacity: 1; } 75%, 100% { opacity: .22; } }
+@keyframes r-dot { 0% { transform: scale(2.2); box-shadow: 0 0 16px 5px currentColor; } 15% { transform: scale(1); box-shadow: 0 0 6px 1px currentColor; } 100% { transform: scale(1); box-shadow: none; } }
+@media (prefers-reduced-motion: no-preference) { .radar .sweep { animation: r-spin 6s linear infinite; } .radar .blip { animation: r-blip 6s linear infinite; } .radar .blip i { animation: r-dot 6s linear infinite; animation-delay: inherit; } }
+@media (prefers-reduced-motion: reduce) { .radar .blip { opacity: .9; } }
+@media (max-width: 700px) {
+  .hero { padding-bottom: 210px; }
+  .radar .rings, .radar .sweep { left: calc(50% - 700px); top: calc(100% - 110px - 700px); }
+  .radar .vline { left: 50%; }
+  .radar .hline { top: calc(100% - 110px); background: rgba(41,211,245,.3); }
+  .radar .hub { left: calc(50% - 6px); top: calc(100% - 116px); }
+  .radar .scrim { background: linear-gradient(180deg, rgba(5,2,12,.94) 0%, rgba(5,2,12,.75) 48%, rgba(5,2,12,0) 64%); }
+  .hero h1 { max-width: none; }
+  .hero h1 { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; filter: none; }
+  .hero h1 + p { margin-top: 0; }
+}
+.hero .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .28em; text-transform: uppercase; color: var(--cyan); margin-bottom: 10px; }
+.hero > * { position: relative; z-index: 1; }
+.hero h1 { font-family: var(--display); font-weight: 400; font-size: clamp(24px, 3.6vw, 38px); line-height: 1.05; filter: drop-shadow(0 0 12px rgba(255,61,154,.45)); margin: 0; letter-spacing: .02em;
+  background: linear-gradient(90deg, var(--pink), var(--violet) 55%, var(--cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero p { margin: 8px 0 0; color: #c9b8ea; max-width: 360px; font-size: 13px; line-height: 1.4; }
+.hero .next { font-size: 13px; padding: 6px 10px; margin-top: 12px; }
+.hero .who { font-size: 12px; }
+.next { margin-top: 14px; display: inline-flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; padding: 8px 12px; border-radius: 10px; background: rgba(18,10,36,.55); border: 1px solid rgba(255,61,154,.45); max-width: 100%; background: rgba(13,6,34,.75); }
+.next .k { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pink); }
+.next b { font-weight: 700; }
+.next span { color: var(--muted); }
+.hero > .cd { position: absolute; top: 14px; right: 16px; z-index: 2; padding: 6px 8px; border-radius: 12px; background: rgba(5,2,12,.7); display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.hero h1 { padding-right: 0; }
+@media (min-width: 701px) { .hero h1 { max-width: 40%; } }
+.cd .cd-l { font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--cyan); text-align: right; }
+.cd .cd-l small { display: block; letter-spacing: .02em; text-transform: none; font-weight: 500; color: var(--muted); font-size: 9px; }
+.cd .cd-u { display: flex; gap: 4px; align-items: stretch; }
+.cd .cd-badge { width: 34px; height: 34px; flex: none; border-radius: 9px; box-shadow: 0 0 12px -4px var(--pink); align-self: center; margin-right: 2px; }
+
+.cd .cd-b { min-width: 36px; text-align: center; padding: 3px 4px 2px; border-radius: 7px; background: rgba(18,10,36,.6); border: 1px solid rgba(41,211,245,.45); box-shadow: 0 0 10px -5px var(--cyan); }
+.cd .cd-n { font-family: var(--display); font-size: 14px; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--fg); }
+.cd .cd-t { font-size: 8px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+@media (max-width: 560px) { .hero > .cd { position: relative; top: auto; right: auto; margin-top: 12px; align-items: flex-start; } .hero h1 { padding-right: 0; } .cd .cd-l { text-align: left; } }
+.mnav { display: none; }
+@media (max-width: 700px) {
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60; background: #120a24; }
+  .mnav { display: flex; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50; align-items: center; justify-content: space-between; gap: 10px;
+    margin: -20px calc(-1 * max(16px, env(safe-area-inset-left, 0px))) 0; padding: 8px max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px));
+    background: rgba(18,10,36,.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .mnav .mn-title { font-family: var(--display); font-size: 17px; letter-spacing: .03em; background: linear-gradient(90deg, var(--pink), var(--violet) 55%, var(--cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; text-decoration: none; }
+  .mnav .mn-btn { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; cursor: pointer; padding: 0; }
+  .mnav .mn-btn span { display: block; width: 20px; height: 2px; border-radius: 2px; background: var(--fg); transition: transform .2s, opacity .2s; }
+  .mnav .mn-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .mnav .mn-btn[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .mnav .mn-btn[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .mnav .mn-panel { position: absolute; top: calc(100% + 6px); right: max(12px, env(safe-area-inset-right, 0px)); width: min(280px, calc(100vw - 24px)); max-height: calc(100vh - 90px); overflow-y: auto;
+    background: #1a0f33; border: 1px solid var(--line); border-radius: 14px; padding: 8px; box-shadow: 0 18px 40px rgba(0,0,0,.55), 0 0 24px -12px var(--pink); display: flex; flex-direction: column; gap: 2px; }
+  .mnav .mn-panel button, .mnav .mn-panel a { font: inherit; font-size: 15px; font-weight: 600; text-align: left; padding: 12px; border-radius: 10px; border: none; background: transparent; color: var(--fg); cursor: pointer; text-decoration: none; display: block; }
+  .mnav .mn-panel button:hover, .mnav .mn-panel a:hover, .mnav .mn-panel button:focus-visible { background: rgba(255,61,154,.12); }
+  .mnav .mn-sub { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 12px 10px; }
+  .mnav .mn-sub button { font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); }
+  .mnav .mn-sep { height: 1px; background: var(--line); margin: 6px 4px; }
+  .mnav .mn-panel .mn-cta { color: var(--cyan); }
+  .wrap > section, .wrap > header, .wrap > div { scroll-margin-top: 72px; }
+}
+@media (max-width: 700px) and (prefers-reduced-motion: reduce) { .mnav .mn-btn span { transition: none; } }
+.who { margin-top: 12px; font-size: 13px; color: var(--muted); }
+.who b { color: var(--fg); }
+.who .login-cta { color: var(--pink); font-weight: 700; }
+
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.tile { background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--tc); border-radius: 12px; padding: 12px 14px; box-shadow: 0 8px 22px -14px var(--tc); }
+.tile:nth-child(1) { --tc: var(--pink); } .tile:nth-child(2) { --tc: var(--violet); } .tile:nth-child(3) { --tc: var(--cyan); }
+.tile { font: inherit; color: inherit; text-align: left; cursor: pointer; width: 100%; display: block; transition: transform .15s, box-shadow .15s; }
+.tile .lbl, .tile .big, .tile .sub { display: block; }
+.tile:hover { transform: translateY(-2px); box-shadow: 0 10px 26px -12px var(--tc); }
+.tile:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .tile { transition: none; } .tile:hover { transform: none; } }
+.tile .lbl { font-size: 12px; color: var(--muted); }
+.tile .big { font-family: var(--display); font-size: 30px; color: var(--tc); font-variant-numeric: tabular-nums; line-height: 1.2; }
+.tile .sub { font-size: 12px; color: var(--muted); }
+
+.two { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; min-width: 0; }
+h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spacing: .03em; margin: 0 0 4px; }
+.sub-h { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+.empty { color: var(--muted); font-size: 14px; padding: 6px 0; }
+
+.alerts { display: flex; flex-direction: column; gap: 10px; }
+.alert { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; align-items: baseline; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.alert:last-child { border-bottom: none; padding-bottom: 0; }
+.alert .n { font-weight: 700; }
+.alert .w { grid-column: 2; font-size: 13px; color: var(--muted); }
+
+.pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+.st-presale { color: var(--pink); } .st-onsale { color: var(--ok); } .st-wait { color: var(--warn); } .st-watch { color: var(--muted); }
+
+.board { display: flex; flex-direction: column; gap: 8px; }
+.board-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; }
+.board-row .n { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.board-row .c { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bar { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: var(--panel-2); overflow: hidden; display: flex; }
+.bar i { display: block; height: 100%; }
+.board-row .who-list { grid-column: 1 / -1; font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+.board-row .who-list .g { color: var(--going); font-weight: 700; }
+.board-row .who-list .m { color: var(--maybe); font-weight: 700; } .bar .g { background: var(--going); } .bar .m { background: var(--maybe); }
+
+.cal { position: relative; min-height: 200px; }
+.cal svg { display: block; width: 100%; height: auto; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 8px; }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.tip { position: absolute; pointer-events: none; z-index: 5; background: #0d0620; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 12px; max-width: 18rem; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+.tip .t2 { color: var(--muted); }
+
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.tabs button { font: inherit; font-size: 14px; font-weight: 600; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; }
+.tabs button[aria-pressed="true"] { background: linear-gradient(90deg, var(--pink), var(--violet)); border-color: transparent; box-shadow: 0 0 14px -4px var(--pink); }
+.list-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 14px; margin-top: 14px; }
+.cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 14px; align-items: start; }
+.col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.col-h { font-family: var(--display); font-size: 14px; letter-spacing: .04em; padding-bottom: 6px; border-bottom: 2px solid var(--colc); color: var(--colc); }
+.col:nth-child(1) { --colc: var(--pink); } .col:nth-child(2) { --colc: var(--violet); } .col:nth-child(3) { --colc: var(--cyan); }
+
+.card { background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 9px; min-width: 0; }
+.card.mine-going { border-color: rgba(41,211,245,.6); box-shadow: 0 0 18px -10px var(--going); }
+.card-top { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+.card h3 { margin: 0; font-size: 16px; font-weight: 700; text-wrap: balance; }
+.card h3 a { color: inherit; text-decoration: none; } .card h3 a:hover { text-decoration: underline; }
+.meta { font-size: 13px; color: var(--muted); }
+.socal-tag { display: inline-block; font-size: 12px; font-weight: 700; color: var(--pink); background: rgba(255,61,154,.14); padding: 2px 8px; border-radius: 8px; }
+.genre { display: inline-block; font-size: 12px; font-weight: 600; color: var(--violet); background: rgba(168,107,255,.14); padding: 2px 8px; border-radius: 8px; }
+.tix { font-size: 13px; }
+.tix .price { color: var(--ok); font-weight: 600; }
+.lineup { font-size: 13px; }
+.lineup a { color: var(--pink); text-decoration: none; } .lineup a:hover { text-decoration: underline; }
+.lineup.tba { color: var(--muted); font-style: italic; }
+.choice { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.choice button { font: inherit; font-size: 13px; font-weight: 600; padding: 7px 4px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
+.choice button:hover:not(:disabled) { color: var(--fg); border-color: var(--muted); }
+.choice button[aria-pressed="true"][data-v="going"] { background: var(--going); border-color: var(--going); color: #0d0620; }
+.choice button[aria-pressed="true"][data-v="maybe"] { background: var(--maybe); border-color: var(--maybe); color: #0d0620; }
+.choice button[aria-pressed="true"][data-v="pass"] { background: var(--pass); border-color: var(--pass); color: #0d0620; }
+.choice button:disabled { cursor: not-allowed; opacity: .5; }
+.crew { display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; }
+.crew span { padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); }
+.crew .g { color: var(--going); border-color: rgba(41,211,245,.5); }
+.crew .m { color: var(--maybe); border-color: rgba(255,154,74,.5); }
+.crew .none { color: var(--muted); border: none; padding: 2px 0; }
+.notice { font-size: 13px; color: var(--orange); margin: 10px 0 0; }
+.foot { font-size: 12px; color: var(--muted); text-align: center; }
+
+.sf-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.sf-box { background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.sf-box h3 { margin: 0; font-size: 15px; display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.sf-box h3 small { font-weight: 500; color: var(--muted); font-size: 12px; }
+.sf-selected { display: flex; flex-wrap: wrap; gap: 6px; min-height: 30px; }
+.sf-selected .empty { padding: 4px 0; font-size: 13px; }
+.sf-chip { font: inherit; font-size: 13px; font-weight: 600; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; display: inline-flex; gap: 6px; align-items: center; max-width: 100%; }
+.sf-chip:hover:not(:disabled) { border-color: var(--pink); }
+.sf-chip[aria-pressed="true"] { background: linear-gradient(90deg, var(--pink), var(--violet)); border-color: transparent; color: #fff; }
+.sf-chip:disabled { opacity: .5; cursor: not-allowed; }
+.sf-chip .b { font-size: 10px; font-weight: 700; color: var(--cyan); letter-spacing: .04em; }
+.sf-chip[aria-pressed="true"] .b { color: #fff; opacity: .85; }
+.sf-chip.sel::after { content: "×"; opacity: .8; }
+.sf-q { font: inherit; font-size: 15px; width: 100%; box-sizing: border-box; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: #120a24; color: var(--fg); }
+.sf-q:focus { outline: 2px solid var(--violet); outline-offset: 1px; }
+.sf-genres { display: flex; gap: 6px; flex-wrap: wrap; }
+.sf-genres button { font: inherit; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
+.sf-genres button[aria-pressed="true"] { color: #0d0620; background: var(--cyan); border-color: var(--cyan); }
+.sf-results { display: flex; flex-wrap: wrap; gap: 6px; max-height: 260px; overflow-y: auto; padding-right: 4px; }
+.sf-more { font-size: 12px; color: var(--muted); }
+.sf-crew-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.sf-crew-row:last-child { border-bottom: none; }
+.sf-crew-row .n { font-weight: 700; overflow-wrap: anywhere; }
+.sf-crew-row .c { font-size: 13px; color: var(--pink); font-weight: 700; font-variant-numeric: tabular-nums; }
+.sf-crew-row .w { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
+.sf-crew-row .w b { color: var(--cyan); font-weight: 600; }
+.sf-tag { font-size: 12px; font-weight: 700; color: var(--pink); }
+.card-top { flex-wrap: wrap; }
+.card-top h3 { flex: 1 1 auto; min-width: 0; }
+.fav-badge { display: inline-flex; align-items: center; font-size: 12px; font-weight: 800; padding: 2px 9px; border-radius: 999px; white-space: nowrap; color: #fff; background: var(--pink); font-variant-numeric: tabular-nums; }
+.fav-badge.lvl1 { background: rgba(255,61,154,.55); }
+.fav-badge.lvl2 { background: var(--pink); box-shadow: 0 0 10px -2px var(--pink); }
+.fav-badge.lvl3 { background: linear-gradient(90deg, var(--pink), var(--orange)); box-shadow: 0 0 14px -1px var(--pink); font-size: 13px; padding: 3px 11px; }
+.fav-badge.lvl4 { background: linear-gradient(90deg, var(--pink), var(--orange)); box-shadow: 0 0 20px 0 var(--pink); font-size: 14px; padding: 4px 12px; }
+.card.hot { border-color: rgba(255,61,154,.6); box-shadow: 0 0 22px -10px var(--pink); }
+@media (prefers-reduced-motion: no-preference) { .fav-badge.lvl4 { animation: favpulse 2.4s ease-in-out infinite; } @keyframes favpulse { 50% { box-shadow: 0 0 28px 2px var(--pink); } } }
+.lineup .fav-n { font-size: 11px; font-weight: 800; }
+.lineup a.fav { color: #fff; background: rgba(255,61,154,.25); border-radius: 4px; padding: 0 3px; }
+@media (max-width: 900px) { .two, .cols, .sf-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .hero p { padding-right: 0; } .next { max-width: 100%; } .tile .big { font-size: 24px; } .tiles { gap: 8px; } .tile { padding: 10px; } }
+@media (prefers-reduced-motion: no-preference) { .choice button { transition: background .15s, color .15s, border-color .15s; } }
+.showbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+.showbar label { font-weight: 700; cursor: pointer; }
+.showbar-sub { font-size: 12px; color: var(--muted); }
+.sw { position: relative; width: 44px; height: 26px; flex: none; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2); cursor: pointer; padding: 0; }
+.sw .knob { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--muted); }
+.sw[aria-checked="true"] { background: linear-gradient(90deg, var(--pink), var(--violet)); border-color: transparent; box-shadow: 0 0 12px -3px var(--pink); }
+.sw[aria-checked="true"] .knob { left: 21px; background: #fff; }
+@media (prefers-reduced-motion: no-preference) { .sw .knob { transition: left .15s, background .15s; } }
+.show-tag { display: inline-block; font-size: 12px; font-weight: 700; color: var(--cyan); background: rgba(41,211,245,.14); padding: 2px 8px; border-radius: 8px; }
+.btabs { display: none; }
+@media (max-width: 700px) {
+  .btabs { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 55;
+    padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px));
+    background: rgba(18,10,36,.96); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-top: 1px solid var(--line); }
+  .btabs button { font: inherit; font-size: 11px; font-weight: 600; letter-spacing: .02em; color: var(--muted); background: transparent; border: none; border-radius: 10px;
+    min-height: 48px; padding: 4px 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; }
+  .btabs svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .btabs button[aria-current="true"] { color: var(--pink); background: rgba(255,61,154,.12); }
+  .btabs button[aria-current="true"] svg { filter: drop-shadow(0 0 6px rgba(255,61,154,.6)); }
+  .wrap { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+}
+.authbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+.abtn { font: inherit; font-size: 13px; font-weight: 700; padding: 7px 14px; border-radius: 999px; border: none; cursor: pointer; color: #fff; background: linear-gradient(90deg, var(--pink), var(--violet)); }
+.abtn.alt { background: transparent; color: var(--cyan); border: 1px solid var(--line); font-weight: 600; }
+dialog.signin { background: var(--panel); color: var(--fg); border: 1px solid var(--line); border-radius: 16px; padding: 22px; width: min(420px, calc(100vw - 32px)); box-shadow: 0 20px 60px rgba(0,0,0,.6), 0 0 30px -12px var(--pink); }
+dialog.signin::backdrop { background: rgba(5,2,12,.7); }
+dialog.signin h2 { margin-bottom: 6px; }
+dialog.signin label { display: block; font-size: 13px; font-weight: 600; margin: 12px 0 4px; }
+dialog.signin input[type=email], dialog.signin input[type=text] { font: inherit; font-size: 16px; width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: #120a24; color: var(--fg); }
+dialog.signin .opt { display: flex; gap: 10px; align-items: flex-start; font-weight: 500; color: var(--muted); }
+dialog.signin .opt input { margin-top: 3px; accent-color: var(--pink); width: 18px; height: 18px; flex: none; }
+dialog.signin .row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap; }
+dialog.signin .msg { font-size: 13px; margin-top: 12px; color: var(--ok); }
+dialog.signin .msg.err { color: var(--orange); }
+dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
+</style>
+
+<div class="wrap">
+  <nav class="mnav" aria-label="Sections">
+    <a class="mn-title" href="#top" id="mn-home">Festival Radar</a>
+    <button type="button" class="mn-btn" id="mn-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mn-panel"><span></span><span></span><span></span></button>
+    <div class="mn-panel" id="mn-panel" hidden></div>
+  </nav>
+  <header class="hero" id="top">
+    <div class="radar" aria-hidden="true"><div class="rings"></div><div class="hline"></div><div class="vline"></div><div class="sweep"></div><div class="hub"></div><div class="scrim"></div><div class="blips" id="blips"></div></div>
+    <div class="eyebrow">Scanning · Local · USA · World</div>
+    <h1>Festival Radar</h1>
+    <p>Festivals near Hermosa, around the USA, and worldwide, with presale alerts so the crew buys early and saves.</p>
+    <div class="next" id="next" hidden></div>
+    <div class="cd" id="cd" hidden aria-live="off">
+      <div class="cd-l" id="cd-l"></div>
+      <div class="cd-u"><svg class="cd-badge" viewBox="0 0 40 40" role="img" aria-label="Poolside sunset"><defs><linearGradient id="cdSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1452"/><stop offset="1" stop-color="#5a1d4a"/></linearGradient><linearGradient id="cdSun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a4a"/><stop offset="1" stop-color="#ff3d9a"/></linearGradient><clipPath id="cdClip"><rect width="40" height="40" rx="9"/></clipPath><mask id="cdStripes"><rect width="40" height="40" fill="#fff"/><rect x="0" y="21" width="40" height="1.4" fill="#000"/><rect x="0" y="24.5" width="40" height="1.8" fill="#000"/><rect x="0" y="28" width="40" height="2.2" fill="#000"/></mask></defs><g clip-path="url(#cdClip)"><rect width="40" height="40" fill="url(#cdSky)"/><circle cx="17" cy="25" r="11" fill="url(#cdSun)" mask="url(#cdStripes)"/><path d="M28.5 32 C28 25 27.2 19 25.6 13.6" stroke="#120a24" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M25.6 13.6 C22 11.6 18.6 12.4 16.4 14.6 C19.6 13.4 22.6 13.8 25.6 13.6Z M25.6 13.6 C27.4 10 31 9 34 10.4 C30.8 10.6 28.2 11.8 25.6 13.6Z M25.6 13.6 C29.4 13 32.6 15 33.8 18.2 C31.4 16.2 28.6 14.8 25.6 13.6Z M25.6 13.6 C23.8 10.6 23.8 7.6 25.4 5.4 C25.2 8.2 25.4 11 25.6 13.6Z M25.6 13.6 C21.8 15 19.6 17.8 19.4 21 C21 18.2 23.2 15.8 25.6 13.6Z" fill="#120a24"/><path d="M0 31 Q5 28.6 10 31 T20 31 T30 31 T40 31 V40 H0Z" fill="#29d3f5" opacity=".9"/><path d="M0 34.5 Q5 32.3 10 34.5 T20 34.5 T30 34.5 T40 34.5 V40 H0Z" fill="#1ba3c4"/><path d="M3 33 h5 M15 36.5 h6 M27 33 h4" stroke="#e8fbff" stroke-width=".9" stroke-linecap="round" opacity=".8"/></g></svg><div class="cd-b"><div class="cd-n" id="cd-d">0</div><div class="cd-t">days</div></div><div class="cd-b"><div class="cd-n" id="cd-h">0</div><div class="cd-t">hrs</div></div><div class="cd-b"><div class="cd-n" id="cd-m">0</div><div class="cd-t">min</div></div><div class="cd-b"><div class="cd-n" id="cd-s">0</div><div class="cd-t">sec</div></div></div>
+    </div>
+    <div class="who" id="who">Connecting…</div>
+  </header>
+
+  <div class="showbar" id="showbar">
+    <button type="button" class="sw" id="show-toggle" role="switch" aria-checked="false"><span class="knob"></span></button>
+    <label for="show-toggle">Include local shows</label>
+    <span class="showbar-sub" id="show-sub">Club nights and concerts in SoCal, next 60 days</span>
+  </div>
+
+  <section class="tiles" id="tiles" aria-label="Festivals by section">
+    <button type="button" class="tile" data-goto="Local" aria-label="Show Local festivals"><span class="lbl">Local · SoCal</span><span class="big" data-sec="Local">–</span><span class="sub" data-sub="Local">&nbsp;</span></button>
+    <button type="button" class="tile" data-goto="USA" aria-label="Show all USA festivals"><span class="lbl">USA · incl. SoCal</span><span class="big" data-sec="USA">–</span><span class="sub" data-sub="USA">&nbsp;</span></button>
+    <button type="button" class="tile" data-goto="Worldwide" aria-label="Show Worldwide festivals"><span class="lbl">Worldwide</span><span class="big" data-sec="Worldwide">–</span><span class="sub" data-sub="Worldwide">&nbsp;</span></button>
+  </section>
+
+  <div class="two">
+    <section class="panel" id="alerts-panel">
+      <h2>Presale alerts</h2>
+      <p class="sub-h">Presales opening soon, tickets on sale now, and festivals to watch before the cheap tiers drop.</p>
+      <div class="alerts" id="alerts"><div class="empty">Loading…</div></div>
+    </section>
+    <section class="panel" id="leaderboard">
+      <h2>Crew favorites</h2>
+      <p class="sub-h">Festivals with the most people going or maybe going.</p>
+      <div class="board" id="board"><div class="empty">No picks yet. Be the first: mark a festival below.</div></div>
+    </section>
+  </div>
+
+  <section class="panel" id="calendar">
+    <h2>Festival calendar</h2>
+    <p class="sub-h">When each festival runs. Hover or tap a bar for details. Festivals without dates are left off.</p>
+    <div class="cal" id="cal"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section class="panel" id="spotifavs">
+    <h2>Add your favorites</h2>
+    <p class="sub-h">Pick the artists you love most. Festivals with crew favorites on the lineup get a heart badge that grows as more of the crew loves those artists, so you can see at a glance which events to prioritize.</p>
+    <div class="sf-grid">
+      <div class="sf-box">
+        <h3>Your fav artists <small id="sf-count"></small></h3>
+        <div class="sf-selected" id="sf-selected"></div>
+        <input class="sf-q" id="sf-q" type="search" placeholder="Search 1,100+ artists, or type any name to add it" aria-label="Search artists" autocomplete="off">
+        <div class="sf-genres" id="sf-genres" role="group" aria-label="Browse by genre"></div>
+        <div class="sf-results" id="sf-results"></div>
+      </div>
+      <div class="sf-box">
+        <h3>Crew fav artists <small>most loved first</small></h3>
+        <div id="sf-crew"><div class="empty">No fav artists yet. Pick a few to get it started.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="festivals">
+    <div class="list-head">
+      <div>
+        <h2>Festivals and picks</h2>
+        <p class="sub-h">Tap Going, Maybe, or Pass. Tap your choice again to clear it. Tap an artist to hear them on Spotify. Distances are straight-line miles from Hermosa Beach.</p>
+      </div>
+      <div class="tabs" id="tabs">
+        <button type="button" data-sec="All" aria-pressed="false">All</button>
+        <button type="button" data-sec="Local" aria-pressed="true">Local</button>
+        <button type="button" data-sec="USA" aria-pressed="false">USA</button>
+        <button type="button" data-sec="Worldwide" aria-pressed="false">Worldwide</button>
+      </div>
+    </div>
+    <p class="notice" id="notice" hidden></p>
+    <div class="cards" id="cards"><div class="empty">Loading festivals…</div></div>
+  </section>
+
+  <p class="foot">Festival details from official announcements, music press, 19hz and Resident Advisor. Updated <span id="updated"></span>. <a href="privacy.html">Privacy</a></p>
+</div>
+
+<dialog class="signin" id="signin" aria-labelledby="signin-h">
+  <form id="signin-form" method="dialog">
+    <h2 id="signin-h">Sign in to Festival Radar</h2>
+    <p class="sub-h" style="margin:0">We'll email you a sign-in link. No password needed.</p>
+    <label for="si-email">Email</label>
+    <input type="email" id="si-email" required autocomplete="email" maxlength="200">
+    <label for="si-name">Your name, shown to the crew</label>
+    <input type="text" id="si-name" autocomplete="nickname" maxlength="60" placeholder="First name or nickname">
+    <label class="opt"><input type="checkbox" id="si-optin"> <span>Email me festival deals and presale offers. Optional, and you can change it any time.</span></label>
+    <div class="row"><button type="button" class="abtn alt" id="si-cancel">Cancel</button><button type="submit" class="abtn" id="si-send">Email me a link</button></div>
+    <p class="msg" id="si-msg" hidden aria-live="polite"></p>
+    <p class="fine">By signing in you agree to the <a href="privacy.html">privacy policy</a>. Your name, picks and favorite artists are visible to other signed-in members.</p>
+  </form>
+</dialog>
+<nav class="btabs" id="btabs" aria-label="Jump to section">
+  <button type="button" data-go="festivals"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8a2 2 0 0 0 0 4v4h16v-4a2 2 0 0 1 0-4V4H4z"/><path d="M10 4v12" stroke-dasharray="2 2"/></svg>Festivals</button>
+  <button type="button" data-go="alerts-panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>Alerts</button>
+  <button type="button" data-go="calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendar</button>
+  <button type="button" data-go="spotifavs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>Favorites</button>
+</nav>
+<script>
+(() => {
+  const bar = document.getElementById('btabs'); if (!bar) return;
+  const btns = [...bar.querySelectorAll('button')];
+  const secs = btns.map(b => document.getElementById(b.dataset.go));
+  let reduce = false; try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+  const mark = id => btns.forEach(b => b.setAttribute('aria-current', String(b.dataset.go === id)));
+  btns.forEach(b => b.addEventListener('click', () => { const t = document.getElementById(b.dataset.go); if (!t) return; mark(b.dataset.go); t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); }));
+  let ticking = false;
+  const update = () => { ticking = false; let cur = null; secs.forEach(sec => { if (sec && sec.getBoundingClientRect().top <= 140) cur = sec.id; }); mark(cur); };
+  window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+  update();
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+// Festival Radar data layer: Supabase sign-in, picks and favorites, plus the festival list from festivals.json.
+// Exposes window.claude.use('db' | 'user') in the shape the page already expects, and window.FR for sign-in.
+(() => {
+  const SB_URL = 'https://jgxxrmvhjnwpzlxmmgvs.supabase.co';
+  const SB_KEY = 'sb_publishable_ssrd2j825Mi3CJVEMxBvwA_eq4OHvkY';
+  const sb = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'implicit' } }) : null;
+
+  const loadFest = fetch('festivals.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).catch(() => null).then(d => {
+    const tag = document.getElementById('festival-data');
+    let out = null;
+    if (d && Array.isArray(d.festivals)) { out = d; if (tag) tag.textContent = JSON.stringify(d); }
+    else { try { out = JSON.parse(tag.textContent); } catch (e) { out = { festivals: [] }; } }
+    const u = document.getElementById('updated'); if (u && out.updated) u.textContent = out.updated;
+    return out;
+  });
+  const sessionP = sb ? sb.auth.getSession().then(r => (r && r.data && r.data.session) || null).catch(() => null) : Promise.resolve(null);
+  if (sb) sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_OUT') location.reload(); });
+
+  let uid = null, myName = '';
+  const caches = { picks: {}, favs: {} };
+  const subs = { picks: [], favs: [] };
+  const snap = g => ({ docs: Object.keys(g).map(id => ({ id, data: () => g[id] })) });
+  const denied = e => e && (e.code === '42501' || e.status === 401 || e.status === 403);
+
+  async function loadPicks() {
+    const { data, error } = await sb.from('picks').select('user_id,festival_id,choice').limit(20000);
+    if (error) throw error;
+    const g = {}; data.forEach(r => { (g[r.user_id] = g[r.user_id] || { choices: {} }).choices[r.festival_id] = r.choice; });
+    caches.picks = g; subs.picks.forEach(cb => cb(snap(g)));
+  }
+  async function loadFavs() {
+    const { data, error } = await sb.from('favs').select('user_id,artist,created_at').order('created_at').limit(20000);
+    if (error) throw error;
+    const g = {}; data.forEach(r => { (g[r.user_id] = g[r.user_id] || { artists: [] }).artists.push(r.artist); });
+    caches.favs = g; subs.favs.forEach(cb => cb(snap(g)));
+  }
+  async function savePicks(choices) {
+    const prev = (caches.picks[uid] && caches.picks[uid].choices) || {};
+    const ups = Object.keys(choices).filter(k => prev[k] !== choices[k]).map(k => ({ user_id: uid, festival_id: k, choice: choices[k], updated_at: new Date().toISOString() }));
+    const dels = Object.keys(prev).filter(k => !(k in choices));
+    if (ups.length) { const { error } = await sb.from('picks').upsert(ups, { onConflict: 'user_id,festival_id' }); if (error) throw denied(error) ? { code: 'not_granted' } : error; }
+    if (dels.length) { const { error } = await sb.from('picks').delete().eq('user_id', uid).in('festival_id', dels); if (error) throw denied(error) ? { code: 'not_granted' } : error; }
+    caches.picks[uid] = { choices: { ...choices } };
+  }
+  async function saveFavs(artists) {
+    const prev = (caches.favs[uid] && caches.favs[uid].artists) || [];
+    const adds = artists.filter(a => !prev.includes(a)).map(a => ({ user_id: uid, artist: a }));
+    const dels = prev.filter(a => !artists.includes(a));
+    if (adds.length) { const { error } = await sb.from('favs').upsert(adds, { onConflict: 'user_id,artist', ignoreDuplicates: true }); if (error) throw denied(error) ? { code: 'not_granted' } : error; }
+    if (dels.length) { const { error } = await sb.from('favs').delete().eq('user_id', uid).in('artist', dels); if (error) throw denied(error) ? { code: 'not_granted' } : error; }
+    caches.favs[uid] = { artists: [...artists] };
+  }
+  setInterval(() => { if (uid && document.visibilityState === 'visible') { loadPicks().catch(() => {}); loadFavs().catch(() => {}); } }, 45000);
+
+  const db = {
+    collection(name) {
+      return {
+        onSnapshot(cb, err) {
+          if (name === 'festivals') { loadFest.then(d => cb({ docs: (d.festivals || []).filter(f => f && f.id).map(f => ({ id: f.id, data: () => f })) })); return () => {}; }
+          if (!subs[name]) return () => {};
+          subs[name].push(cb);
+          (name === 'picks' ? loadPicks : loadFavs)().catch(e => { if (err) err(e); });
+          return () => {};
+        },
+        doc(id) {
+          return { async set(v) {
+            if (id !== uid) throw { code: 'not_granted' };
+            if (name === 'picks') return savePicks((v && v.choices) || {});
+            if (name === 'favs') return saveFavs((v && v.artists) || []);
+          } };
+        }
+      };
+    }
+  };
+  const user = {
+    async id() { return uid; },
+    async me() { return { name: myName }; },
+    async can() { return true; },
+    async profiles(ids) {
+      const out = {}; if (!ids || !ids.length) return out;
+      const { data } = await sb.from('profiles').select('id,display_name').in('id', ids.slice(0, 500));
+      (data || []).forEach(p => { out[p.id] = { name: p.display_name || '' }; });
+      return out;
+    }
+  };
+
+  window.claude = { use: async name => {
+    const session = await sessionP; await loadFest;
+    if (!session || !sb) return null;
+    if (!uid) {
+      uid = session.user.id;
+      const { data } = await sb.from('profiles').select('display_name').eq('id', uid).maybeSingle();
+      myName = (data && data.display_name) || '';
+    }
+    return name === 'db' ? db : name === 'user' ? user : null;
+  } };
+
+  // Sign-in dialog
+  window.FR = {
+    openSignIn() { const d = document.getElementById('signin'); if (d && d.showModal) { d.showModal(); setTimeout(() => { const e = document.getElementById('si-email'); if (e) e.focus(); }, 30); } },
+    async signOut() { if (sb) await sb.auth.signOut(); location.reload(); },
+    async setName(n) {
+      const v = String(n || '').trim().slice(0, 60); if (!v || !uid) return false;
+      const { error } = await sb.from('profiles').update({ display_name: v, updated_at: new Date().toISOString() }).eq('id', uid);
+      if (!error) myName = v; return !error;
+    }
+  };
+  const wire = () => {
+    const d = document.getElementById('signin'), f = document.getElementById('signin-form'); if (!d || !f) return;
+    const msg = document.getElementById('si-msg'), send = document.getElementById('si-send');
+    const say = (t, err) => { msg.textContent = t; msg.hidden = false; msg.classList.toggle('err', !!err); };
+    document.getElementById('si-cancel').addEventListener('click', () => d.close());
+    f.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!sb) { say('Sign-in could not load. Check your connection and reload the page.', true); return; }
+      const email = document.getElementById('si-email').value.trim();
+      const name = document.getElementById('si-name').value.trim().slice(0, 60);
+      const optin = document.getElementById('si-optin').checked;
+      if (!email) return;
+      send.disabled = true; say('Sending…');
+      const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname, data: { full_name: name, marketing_opt_in: optin } } });
+      send.disabled = false;
+      if (error) say(error.status === 429 ? 'Too many sign-in emails just now. Wait a few minutes and try again.' : 'That didn\'t work: ' + error.message, true);
+      else say('Check your email for a sign-in link from Supabase. Open it on this device.');
+    });
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire); else wire();
+})();
+
+</script>
+<script id="festival-data" type="application/json">{"updated": "Oct 19, 2026", "festivals": [{"artists": "Lineup TBA", "city": "Redondo Beach, CA", "dates": "Early May 2027 (unconfirmed)", "distance": "1 mi", "end": "2027-05-02", "festival": "BeachLife 2027", "genre": "Rock / pop / reggae", "link": "https://www.beachlifefestival.com", "miles": 1, "next_sale": "", "next_sale_label": "2027 dates and passes not announced yet", "note": "Oceanfront at Redondo Beach. 2026 ran May 1–3 with Duran Duran, The Chainsmokers, My Morning Jacket, The Offspring.", "price_from": "", "section": "Local", "start": "2027-04-30", "status": "Watch", "id": "beachlife-2027"}, {"artists": "Lineup TBA", "city": "George, WA", "dates": "Jun 26–27, 2027", "distance": "920 mi", "end": "2027-06-27", "festival": "Beyond Wonderland at the Gorge 2027", "genre": "EDM", "link": "https://gorge.beyondwonderland.com", "miles": 920, "next_sale": "", "next_sale_label": "Passes listed", "note": "Camping Jun 24–27.", "price_from": "", "section": "USA", "start": "2027-06-26", "status": "On sale", "id": "beyond-wonderland-at-the-gorge-2027"}, {"artists": "Lineup TBA", "city": "San Bernardino, CA", "dates": "Mar 26–27, 2027", "distance": "65 mi", "end": "2027-03-27", "festival": "Beyond Wonderland SoCal 2027", "genre": "EDM", "link": "https://socal.beyondwonderland.com", "miles": 65, "next_sale": "", "next_sale_label": "Passes on sale now", "note": "Lineup not out yet. Same weekend as Ultra Miami.", "price_from": "", "section": "Local", "start": "2027-03-26", "status": "On sale", "id": "beyond-wonderland-socal-2027"}, {"artists": "Lineup TBA", "city": "Napa, CA", "dates": "May 28–30, 2027", "distance": "380 mi", "end": "2027-05-30", "festival": "BottleRock Napa 2027", "genre": "Rock / pop", "link": "https://www.bottlerocknapavalley.com", "miles": 380, "next_sale": "", "next_sale_label": "Presale 3-day GA on sale", "note": "$436 billed as the lowest price.", "price_from": "$436", "section": "USA", "start": "2027-05-28", "status": "On sale", "id": "bottlerock-napa-2027"}, {"artists": "Lineup TBA", "city": "Tampa, FL", "dates": "Apr 16–17, 2027", "distance": "2,160 mi", "end": "2027-04-17", "festival": "Breakaway Tampa 2027", "genre": "EDM", "link": "https://breakawayfestival.com", "miles": 2160, "next_sale": "", "next_sale_label": "On sale since Aug 19", "note": "Season opener of the Breakaway tour.", "price_from": "", "section": "USA", "start": "2027-04-16", "status": "On sale", "id": "breakaway-tampa-2027"}, {"artists": "Lineup TBA", "city": "Indio, CA", "dates": "Apr 9–11 & 16–18, 2027", "distance": "120 mi", "end": "2027-04-18", "festival": "Coachella 2027", "genre": "Multi-genre", "link": "https://www.coachella.com", "miles": 120, "next_sale": "", "next_sale_label": "Advance passes gone; next sale after lineup reveal", "note": "Advance sale was May 1 and is no longer available. Waitlist via AXS.", "price_from": "", "section": "Local", "start": "2027-04-09", "status": "Waitlist", "id": "coachella-2027"}, {"artists": "DJ Snake, Marshmello, Alesso, Subtronics, Seven Lions, James Hype, Tchami, Oliver Heldens, NGHTMRE, TroyBoi", "city": "San Bernardino, CA", "dates": "Dec 31, 2026 – Jan 1, 2027", "distance": "65 mi", "end": "2027-01-01", "festival": "Countdown NYE 2026", "genre": "EDM", "link": "https://countdownnye.com", "miles": 65, "next_sale": "", "next_sale_label": "2-day GA, GA+ and VIP passes on sale now", "note": "Now two days at NOS Events Center. Official site says Dec 31–Jan 1; EDM Identity listed Dec 30–31.", "price_from": "", "section": "Local", "start": "2026-12-31", "status": "On sale", "id": "countdown-nye-2026"}, {"artists": "The Prodigy (more TBA)", "city": "Daresbury, UK", "dates": "Aug 26–29, 2027", "distance": "5,290 mi", "end": "2027-08-29", "festival": "Creamfields 2027", "genre": "EDM", "link": "https://www.creamfields.com", "miles": 5290, "next_sale": "", "next_sale_label": "On sale now", "note": "30-year edition. The Prodigy headlining.", "price_from": "£250", "section": "Worldwide", "start": "2027-08-26", "status": "On sale", "id": "creamfields-2027"}, {"artists": "Lineup TBA", "city": "San Diego, CA", "dates": "Dates TBA (usually early March)", "distance": "110 mi", "end": "", "festival": "CRSSD Spring 2027", "genre": "House / techno", "link": "https://crssdfest.com", "miles": 110, "next_sale": "", "next_sale_label": "Watch for alumni presale (was mid-Nov last cycle)", "note": "21+. Last cycle: alumni presale Nov 19, general Nov 20.", "price_from": "", "section": "Local", "start": "", "status": "Watch", "id": "crssd-spring-2027"}, {"artists": "Above & Beyond (Anjunabeats Classics), ARTBAT, Enrico Sangiuliano, Paul van Dyk, Ferry Corsten b2b Marsh, Vini Vici, Infected Mushroom, Dash Berlin, Reinier Zonneveld (live), Aly & Fila", "city": "Long Beach, CA", "dates": "Nov 20–21, 2026", "distance": "14 mi", "end": "2026-11-21", "festival": "Dreamstate SoCal 2026", "genre": "Trance", "link": "https://socal.dreamstateusa.com", "miles": 14, "next_sale": "", "next_sale_label": "Passes on sale now", "note": "Above & Beyond (Anjunabeats Classics), ARTBAT, Vini Vici. Queen Mary Waterfront.", "price_from": "", "section": "Local", "start": "2026-11-20", "status": "On sale", "id": "dreamstate-socal-2026"}, {"artists": "Lineup TBA", "city": "Las Vegas, NV", "dates": "May 14–16 & 21–23, 2027", "distance": "250 mi", "end": "2027-05-23", "festival": "EDC Las Vegas 2027", "genre": "EDM", "link": "https://lasvegas.electricdaisycarnival.com", "miles": 250, "next_sale": "", "next_sale_label": "Passes on sale since May 22", "note": "First year with two weekends, lower capacity. GA $399.99 all-in.", "price_from": "$399.99", "section": "USA", "start": "2027-05-14", "status": "On sale", "id": "edc-las-vegas-2027"}, {"artists": "Kaskade, Martin Garrix, David Guetta, Hardwell, Alesso, Afrojack, Alison Wonderland", "city": "Orlando, FL", "dates": "Nov 6–8, 2026", "distance": "2,210 mi", "end": "2026-11-08", "festival": "EDC Orlando 2026", "genre": "EDM", "link": "https://orlando.edc.com", "miles": 2210, "next_sale": "", "next_sale_label": "3-day and single-day passes on sale now", "note": "Crew favorite on the lineup: Kaskade. Tinker Field.", "price_from": "", "section": "USA", "start": "2026-11-06", "status": "On sale", "id": "edc-orlando-2026"}, {"artists": "Lineup TBA", "city": "Rothbury, MI", "dates": "Late June 2027 (unconfirmed)", "distance": "1,840 mi", "end": "2027-06-27", "festival": "Electric Forest 2027", "genre": "Electronic / jam", "link": "https://electricforestfestival.com", "miles": 1840, "next_sale": "", "next_sale_label": "Loyalty sale usually early Dec", "note": "Festival has not confirmed 2027 dates. Check loyalty status.", "price_from": "", "section": "USA", "start": "2027-06-24", "status": "Watch", "id": "electric-forest-2027"}, {"artists": "Zedd, Dimitri Vegas & Like Mike, Excision, ALOK, Cloonee, Benny Benassi, Richie Hawtin, Maddix, Cascada, Ice Cube", "city": "San Bernardino, CA", "dates": "Oct 30–31, 2026", "distance": "65 mi", "end": "2026-10-31", "festival": "Escape Psycho Circus 2026", "genre": "EDM", "link": "https://escapehalloween.com", "miles": 65, "next_sale": "", "next_sale_label": "Single-day passes on sale now", "note": "Insomniac's 15th-anniversary Halloween fest at NOS Events Center. Found on 19hz.", "price_from": "", "section": "Local", "start": "2026-10-30", "status": "On sale", "id": "escape-psycho-circus-2026"}, {"artists": "Lineup TBA", "city": "Somerset, UK", "dates": "Jun 23–27, 2027", "distance": "5,390 mi", "end": "2027-06-27", "festival": "Glastonbury 2027", "genre": "Multi-genre", "link": "https://glastonburyfestivals.co.uk", "miles": 5390, "next_sale": "", "next_sale_label": "Main sale was Oct 4; resale April 2027", "note": "Registration required for the resale.", "price_from": "£408", "section": "Worldwide", "start": "2027-06-23", "status": "Waitlist", "id": "glastonbury-2027"}, {"artists": "Lineup TBA", "city": "Clarks Grove, MN", "dates": "May 13–16, 2027", "distance": "1,500 mi", "end": "2027-05-16", "festival": "Infrasound 2027", "genre": "Bass / dubstep", "link": "https://infrasoundfestival.com", "miles": 1500, "next_sale": "", "next_sale_label": "Cheapest tier on sale since Oct 15", "note": "First tier is the lowest price before the lineup drops.", "price_from": "", "section": "USA", "start": "2027-05-13", "status": "On sale", "id": "infrasound-2027"}, {"artists": "Lineup TBA", "city": "Bakersfield, CA", "dates": "May 26–30, 2027", "distance": "110 mi", "end": "2027-05-30", "festival": "Lightning in a Bottle 2027", "genre": "Electronic / transformational", "link": "https://lightninginabottle.org", "miles": 110, "next_sale": "", "next_sale_label": "Presale closed; waitlist on Tixr", "note": "Presale passes started at $395 and are sold out.", "price_from": "$395", "section": "Local", "start": "2027-05-26", "status": "Waitlist", "id": "lightning-in-a-bottle-2027"}, {"artists": "Lineup TBA", "city": "Detroit, MI", "dates": "Memorial Day weekend 2027", "distance": "1,990 mi", "end": "2027-05-31", "festival": "Movement Detroit 2027", "genre": "Techno / house", "link": "https://movementfestival.com", "miles": 1990, "next_sale": "", "next_sale_label": "Early access sold Sep 17; wave 1 next", "note": "Dates per ticket listings; Hart Plaza.", "price_from": "", "section": "USA", "start": "2027-05-29", "status": "On sale", "id": "movement-detroit-2027"}, {"artists": "Kaskade, Marshmello, Subtronics, Fat Joe, The Fray, Big Boi, Three 6 Mafia, Freddie Gibbs, Cobra Starship, Joyce Manor", "city": "Las Vegas, NV", "dates": "Nov 20–22, 2026", "distance": "240 mi", "end": "2026-11-22", "festival": "Neon City Festival 2026", "genre": "Multi-genre / EDM", "link": "https://vegasexperience.com/downtown-insider/what-is-the-neon-city-festival", "miles": 240, "next_sale": "", "next_sale_label": "Free, all ages; no ticket needed", "note": "Crew favorite on the lineup: Kaskade. Free downtown fest on Fremont Street during F1 weekend.", "price_from": "Free", "section": "USA", "start": "2026-11-20", "status": "On sale", "id": "neon-city-festival-2026"}, {"artists": "Lineup TBA", "city": "Lake Perris, CA", "dates": "Sep 24–26, 2027", "distance": "70 mi", "end": "2027-09-26", "festival": "Same Same But Different 2027", "genre": "Electronic / jam", "link": "https://www.ssbdfest.com", "miles": 70, "next_sale": "", "next_sale_label": "General on sale opens spring 2027", "note": "Fan-owned boutique camping fest at Lake Perris State Park, 7,500 cap, all ages. 2027 Community Tier ($295 GA) already closed.", "price_from": "", "section": "Local", "start": "2027-09-24", "status": "Watch", "id": "same-same-but-different-2027"}, {"artists": "Afrojack", "city": "Los Angeles, CA", "dates": "Fri Nov 27, 2026", "distance": "13 mi", "end": "2026-11-27", "festival": "Afrojack at Shrine Expo Hall", "genre": "EDM", "kind": "show", "link": "https://www.tickpick.com/buy-afrojack-tickets-shrine-expo-hall-11-27-26-8pm/8081284/", "miles": 13, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "Shrine Expo Hall, Los Angeles. 8pm.", "price_from": "", "section": "Local", "start": "2026-11-27", "status": "On sale", "id": "show-afrojack-at-shrine-expo-hall-2026-11-27"}, {"artists": "Benny Benassi", "city": "Costa Mesa, CA", "dates": "Sat Oct 24, 2026", "distance": "32 mi", "end": "2026-10-24", "festival": "Benny Benassi at Time Nightclub", "genre": "House / EDM", "kind": "show", "link": "https://19hz.info/eventlisting_LosAngeles.php", "miles": 32, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "Time Nightclub, Costa Mesa. 21+. Per 19hz.", "price_from": "", "section": "Local", "start": "2026-10-24", "status": "On sale", "id": "show-benny-benassi-at-time-nightclub-2026-10-24"}, {"artists": "Bonobo", "city": "Los Angeles, CA", "dates": "Wed Nov 11, 2026", "distance": "15 mi", "end": "2026-11-11", "festival": "Bonobo at The Wiltern", "genre": "Downtempo / electronic", "kind": "show", "link": "https://www.tickpick.com/buy-bonobo-tickets-the-wiltern-11-11-26-7pm/8038586/", "miles": 15, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "The Wiltern, Koreatown. Second night Thu Nov 12.", "price_from": "", "section": "Local", "start": "2026-11-11", "status": "On sale", "id": "show-bonobo-at-the-wiltern-2026-11-11"}, {"artists": "Channel Tres, &Friends, Fifi", "city": "Los Angeles, CA", "dates": "Fri Oct 23, 2026", "distance": "13 mi", "end": "2026-10-23", "festival": "Channel Tres at Shrine Expo Hall", "genre": "House", "kind": "show", "link": "https://19hz.info/eventlisting_LosAngeles.php", "miles": 13, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "Shrine Expo Hall, Los Angeles. 18+. Per 19hz.", "price_from": "", "section": "Local", "start": "2026-10-23", "status": "On sale", "id": "show-channel-tres-at-shrine-expo-hall-2026-10-23"}, {"artists": "Chromeo", "city": "Los Angeles, CA", "dates": "Fri Oct 23, 2026", "distance": "17 mi", "end": "2026-10-23", "festival": "Chromeo (DJ set) at Avalon Hollywood", "genre": "Electrofunk / dance", "kind": "show", "link": "https://19hz.info/eventlisting_LosAngeles.php", "miles": 17, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "Avalon Hollywood. 21+. Per 19hz.", "price_from": "", "section": "Local", "start": "2026-10-23", "status": "On sale", "id": "show-chromeo-dj-set-at-avalon-hollywood-2026-10-23"}, {"artists": "MAURER, Dylan Fogarty", "city": "Los Angeles, CA", "dates": "Sat Oct 24, 2026", "distance": "15 mi", "end": "2026-10-24", "festival": "CLOSER THERMAL (MAURER, Dylan Fogarty)", "genre": "Techno", "kind": "show", "link": "https://ra.co/events/us/losangeles", "miles": 15, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "Venue TBA, DTLA. CLOSER 5-year anniversary, both US debuts. Per RA.", "price_from": "", "section": "Local", "start": "2026-10-24", "status": "On sale", "id": "show-closer-thermal-maurer-dylan-fogarty-2026-10-24"}, {"artists": "Deep Dish", "city": "Los Angeles, CA", "dates": "Fri Oct 30, 2026", "distance": "17 mi", "end": "2026-10-30", "festival": "Deep Dish at Sound Nightclub", "genre": "Tech house / techno", "kind": "show", "link": "https://19hz.info/eventlisting_LosAngeles.php", "miles": 17, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "Sound Nightclub, Hollywood. 21+. Sound Halloween weekend. Per 19hz.", "price_from": "", "section": "Local", "start": "2026-10-30", "status": "On sale", "id": "show-deep-dish-at-sound-nightclub-2026-10-30"}, {"artists": "Dillon Francis", "city": "Los Angeles, CA", "dates": "Sat Oct 31, 2026", "distance": "15 mi", "end": "2026-10-31", "festival": "Dillon Francis at Exchange LA", "genre": "EDM / moombahton", "kind": "show", "link": "https://www.jambase.com/concerts/us/california/edm-concerts-in-los-angeles-area", "miles": 15, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "Exchange LA, Downtown LA. Halloween night. Per JamBase listing.", "price_from": "", "section": "Local", "start": "2026-10-31", "status": "On sale", "id": "show-dillon-francis-at-exchange-la-2026-10-31"}, {"artists": "Dimitri Vegas", "city": "Los Angeles, CA", "dates": "Fri Oct 30, 2026", "distance": "15 mi", "end": "2026-10-30", "festival": "Dimitri Vegas at Exchange LA", "genre": "Big room house", "kind": "show", "link": "https://19hz.info/eventlisting_LosAngeles.php", "miles": 15, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "Exchange LA, Downtown LA. 21+. Escape afterparty night. Per 19hz.", "price_from": "", "section": "Local", "start": "2026-10-30", "status": "On sale", "id": "show-dimitri-vegas-at-exchange-la-2026-10-30"}, {"artists": "Flying Lotus", "city": "Los Angeles, CA", "dates": "Fri Oct 23, 2026", "distance": "17 mi", "end": "2026-10-23", "festival": "Flying Lotus at Fonda Theatre", "genre": "Electronic / beats", "kind": "show", "link": "https://19hz.info/eventlisting_LosAngeles.php", "miles": 17, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "Fonda Theatre, Hollywood. All ages. Per 19hz.", "price_from": "", "section": "Local", "start": "2026-10-23", "status": "On sale", "id": "show-flying-lotus-at-fonda-theatre-2026-10-23"}, {"artists": "Gryffin, Lost Frequencies, Alesso", "city": "Los Angeles, CA", "dates": "Fri Oct 23, 2026", "distance": "12 mi", "end": "2026-10-23", "festival": "Gryffin at Exposition Park", "genre": "Melodic house / EDM", "kind": "show", "link": "https://19hz.info/eventlisting_LosAngeles.php", "miles": 12, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "Exposition Park, Los Angeles. 18+. Gryffin 10-year show, night 1. Per 19hz.", "price_from": "", "section": "Local", "start": "2026-10-23", "status": "On sale", "id": "show-gryffin-at-exposition-park-2026-10-23"}, {"artists": "Gryffin, Lost Frequencies, Daniel Allan", "city": "Los Angeles, CA", "dates": "Sat Oct 24, 2026", "distance": "12 mi", "end": "2026-10-24", "festival": "Gryffin at Exposition Park", "genre": "Melodic house / EDM", "kind": "show", "link": "https://19hz.info/eventlisting_LosAngeles.php", "miles": 12, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "Exposition Park, Los Angeles. 18+. Night 2. Per 19hz.", "price_from": "", "section": "Local", "start": "2026-10-24", "status": "On sale", "id": "show-gryffin-at-exposition-park-2026-10-24"}, {"artists": "Madeon", "city": "Los Angeles, CA", "dates": "Sat Oct 24, 2026", "distance": "13 mi", "end": "2026-10-24", "festival": "Madeon at Shrine Auditorium", "genre": "Electro / EDM", "kind": "show", "link": "https://19hz.info/eventlisting_LosAngeles.php", "miles": 13, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "Shrine Auditorium, Los Angeles. 18+. Victory Live tour. Per 19hz.", "price_from": "", "section": "Local", "start": "2026-10-24", "status": "On sale", "id": "show-madeon-at-shrine-auditorium-2026-10-24"}, {"artists": "Marshmello, Alison Wonderland", "city": "Inglewood, CA", "dates": "Sat Oct 24, 2026", "distance": "7 mi", "end": "2026-10-24", "festival": "Pokemon Night Out (Marshmello, Alison Wonderland) at Intuit Dome", "genre": "EDM", "kind": "show", "link": "https://secretlosangeles.com/pokemon-night-out-edm-show/", "miles": 7, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "Intuit Dome, Inglewood. Pokemon 30th anniversary show. Per 19hz.", "price_from": "", "section": "Local", "start": "2026-10-24", "status": "On sale", "id": "show-pokemon-night-out-marshmello-alison-wonderland-at-intuit-dome-2026-10-24"}, {"artists": "Steve Aoki", "city": "Los Angeles, CA", "dates": "Thu Oct 29, 2026", "distance": "17 mi", "end": "2026-10-29", "festival": "Steve Aoki at Academy LA", "genre": "Big room / trap", "kind": "show", "link": "https://19hz.info/eventlisting_LosAngeles.php", "miles": 17, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "Academy LA, Hollywood. 21+. Per 19hz.", "price_from": "", "section": "Local", "start": "2026-10-29", "status": "On sale", "id": "show-steve-aoki-at-academy-la-2026-10-29"}, {"artists": "Lineup TBA", "city": "Los Angeles, CA", "dates": "Fri Oct 23, 2026", "distance": "15 mi", "end": "2026-10-23", "festival": "TUFF 3 Year Anniversary Masquerade Ball", "genre": "Club / house", "kind": "show", "link": "https://ra.co/events/us/losangeles", "miles": 15, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "Venue TBA, Los Angeles. Top RA Popular pick (about 428 interested). Per RA.", "price_from": "", "section": "Local", "start": "2026-10-23", "status": "On sale", "id": "show-tuff-3-year-anniversary-masquerade-ball-2026-10-23"}, {"artists": "Two Friends, Avello", "city": "Los Angeles, CA", "dates": "Fri Oct 23, 2026", "distance": "17 mi", "end": "2026-10-23", "festival": "Two Friends at Hollywood Palladium", "genre": "EDM", "kind": "show", "link": "https://19hz.info/eventlisting_LosAngeles.php", "miles": 17, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "Hollywood Palladium, Los Angeles. All ages. Second night Sat Oct 24. Per 19hz.", "price_from": "", "section": "Local", "start": "2026-10-23", "status": "On sale", "id": "show-two-friends-at-hollywood-palladium-2026-10-23"}, {"artists": "Sub Focus, Dimension, Culture Shock, 1991", "city": "Inglewood, CA", "dates": "Fri Oct 23, 2026", "distance": "7 mi", "end": "2026-10-23", "festival": "Worship (Sub Focus, Dimension, Culture Shock, 1991) at Kia Forum", "genre": "Drum and bass", "kind": "show", "link": "https://19hz.info/eventlisting_LosAngeles.php", "miles": 7, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "Kia Forum, Inglewood. 18+. Per 19hz.", "price_from": "", "section": "Local", "start": "2026-10-23", "status": "On sale", "id": "show-worship-sub-focus-dimension-culture-shock-1991-at-kia-forum-2026-10-23"}, {"artists": "ZHU", "city": "Los Angeles, CA", "dates": "Fri Dec 4, 2026", "distance": "19 mi", "end": "2026-12-04", "festival": "ZHU at Reframe Studios", "genre": "Electronic / house", "kind": "show", "link": "https://thisisframework.com/reframe/", "miles": 19, "next_sale": "", "next_sale_label": "Tickets on sale", "note": "Reframe Studios, Atwater Village. Framework Season 2 opener, also Sat Dec 5.", "price_from": "", "section": "Local", "start": "2026-12-04", "status": "On sale", "id": "show-zhu-at-reframe-studios-2026-12-04"}, {"artists": "Lineup TBA", "city": "Palm Springs, CA", "dates": "Two weekends in mid-August 2027 (unconfirmed)", "distance": "110 mi", "end": "2027-08-15", "festival": "Splash House 2027", "genre": "House / dance", "link": "https://www.tixr.com/groups/splashhouse", "miles": 110, "next_sale": "", "next_sale_label": "2027 dates and passes not announced yet; watch for the early-bird drop", "note": "Poolside parties at Palm Springs hotels plus After Hours at the Air Museum. 2026 ran Aug 7–9 and 14–16 with Kettama, Josh Baker, Alison Wonderland. 21+.", "price_from": "", "section": "Local", "start": "2027-08-06", "status": "Watch", "id": "splash-house-2027"}, {"artists": "Lineup TBA", "city": "Boom, Belgium", "dates": "Two weekends in late July (unconfirmed)", "distance": "5,620 mi", "end": "2027-07-26", "festival": "Tomorrowland Belgium 2027", "genre": "EDM", "link": "https://www.tomorrowland.com", "miles": 5620, "next_sale": "", "next_sale_label": "Pre-register; sales usually early 2027", "note": "Reports differ on exact weekends. Global Journey sale comes first.", "price_from": "", "section": "Worldwide", "start": "2027-07-16", "status": "Watch", "id": "tomorrowland-belgium-2027"}, {"artists": "Lineup TBA", "city": "Itu, Brazil", "dates": "Apr 30 – May 2, 2027", "distance": "6,110 mi", "end": "2027-05-02", "festival": "Tomorrowland Brasil 2027", "genre": "EDM", "link": "https://brasil.tomorrowland.com", "miles": 6110, "next_sale": "", "next_sale_label": "Worldwide sale opened Sep 24", "note": "Theme: Consciencia.", "price_from": "", "section": "Worldwide", "start": "2027-04-30", "status": "On sale", "id": "tomorrowland-brasil-2027"}, {"artists": "Lineup TBA", "city": "Alpe d'Huez, France", "dates": "Mar 20–27, 2027", "distance": "5,970 mi", "end": "2027-03-27", "festival": "Tomorrowland Winter 2027", "genre": "EDM", "link": "https://www.tomorrowland.com", "miles": 5970, "next_sale": "", "next_sale_label": "Packages on sale since Oct 3 / Oct 10", "note": "Ski + festival packages.", "price_from": "", "section": "Worldwide", "start": "2027-03-20", "status": "On sale", "id": "tomorrowland-winter-2027"}, {"artists": "Calvin Harris, Martin Garrix, Marshmello b2b Subtronics, Boris Brejcha b2b Eric Prydz (Cirez D), Dom Dolla, Armin van Buuren, Afrojack, Adam Beyer, Sara Landry, Mau P", "city": "Miami, FL", "dates": "Mar 26–28, 2027", "distance": "2,340 mi", "end": "2027-03-28", "festival": "Ultra Miami 2027", "genre": "EDM", "link": "https://ultramusicfestival.com", "miles": 2340, "next_sale": "", "next_sale_label": "GA on sale; phase 1 lineup out", "note": "Phase 1 out (about 26 acts plus a mystery headliner). GA about $479 incl. fees.", "price_from": "$479", "section": "USA", "start": "2027-03-26", "status": "On sale", "id": "ultra-miami-2027"}]}</script>
+<script id="dj-data" type="application/json">[["David Guetta","EDM",1,0],["Martin Garrix","EDM",2,0],["Anyma","Melodic techno",3,1],["Alok","House",4,1],["Dimitri Vegas & Like Mike","EDM",5,1],["Charlotte de Witte","Techno",6,1],["Armin van Buuren","Trance",7,1],["Timmy Trumpet","EDM",8,0],["FISHER","Tech house",9,1],["Vintage Culture","House",10,1],["Calvin Harris","EDM",11,0],["Don Diablo","EDM",12,0],["Peggy Gou","House",13,0],["Black Coffee","Afro house",14,0],["Afrojack","EDM",15,0],["Fred again..","Electronic",16,1],["Lost Frequencies","House",17,0],["Steve Aoki","EDM",18,1],["KSHMR","EDM",19,1],["W&W","EDM",20,0],["Reinier Zonneveld","Techno",21,1],["Tiësto","EDM",22,1],["Carl Cox","Techno",23,0],["John Summit","Tech house",24,1],["Skrillex","Bass",25,1],["Indira Paganotto","Techno",26,1],["Nicky Romero","EDM",27,0],["The Martinez Brothers","Tech house",28,0],["Hardwell","EDM",29,0],["Illenium","Bass",30,1],["Keinemusik","Afro house",31,0],["Alan Walker","EDM",32,0],["Jamie Jones","Tech house",33,1],["Swedish House Mafia","EDM",34,0],["Paul van Dyk","Trance",35,0],["Korolova","Melodic techno",36,0],["Michael Bibi","Tech house",37,0],["Dom Dolla","Tech house",38,1],["Oliver Heldens","House",39,1],["Josh Baker","Tech house",40,1],["Solomun","Melodic techno",41,1],["Mahmut Orhan","House",42,0],["Claptone","House",43,0],["Joel Corry","House",44,0],["R3hab","EDM",45,1],["Mochakk","Tech house",46,1],["Amelie Lens","Techno",47,1],["HUGEL","House",48,1],["Lilly Palmer","Techno",49,1],["GORDO","Tech house",50,1],["James Hype","House",51,1],["Maddix","Techno",52,1],["Marshmello","EDM",53,1],["Zedd","EDM",54,1],["Mau P","Tech house",55,1],["Alesso","EDM",56,1],["Boris Brejcha","Techno",57,1],["Bassjackers","EDM",58,0],["Chris Stussy","House",59,1],["DJ Snake","EDM",60,1],["Miss Monique","Melodic techno",61,0],["Eric Prydz","Progressive",62,1],["ATB","Trance",63,0],["Sara Landry","Techno",64,0],["Kölsch","Melodic techno",65,0],["Ben Nicky","Trance",66,1],["Sub Zero Project","Hard dance",67,0],["Joseph Capriati","Techno",68,1],["Liu","Hard dance",69,0],["ARTBAT","Melodic techno",70,0],["Vini Vici","Trance",71,1],["Wade","Tech house",72,0],["Nora En Pure","House",73,0],["B Jones","EDM",74,0],["Shimza","Afro house",75,0],["Quintino","EDM",76,0],["Lucas & Steve","House",77,0],["Giuseppe Ottaviani","Trance",78,1],["Padre Guilherme","Melodic techno",79,0],["Sonny Fodera","House",80,1],["Deborah De Luca","Techno",81,1],["Nico Moreno","Techno",82,1],["Ferry Corsten","Trance",83,0],["Cloonee","Tech house",84,1],["Mosimann","House",85,0],["PAWSA","Tech house",86,0],["Above & Beyond","Trance",87,1],["Marnik","EDM",88,0],["The Chainsmokers","EDM",89,1],["Plastik Funk","House",90,0],["deadmau5","Progressive",91,1],["MATTN","EDM",92,0],["Nils van Zandt","House",93,0],["Prospa","House",94,1],["¥ØU$UK€ ¥UK1MAT$U","Hard dance",95,1],["Cuebrick","EDM",96,0],["Marlon Hoffstadt","House",97,1],["Honey Dijon","House",98,0],["DubVision","EDM",99,0],["KI/KI","Techno",100,0],["Wuki","House",0,1],["Chris Lake","House",0,1],["Disclosure","House",0,1],["Duke Dumont","House",0,1],["Gorgon City","House",0,1],["MK","House",0,1],["Purple Disco Machine","House",0,1],["Kaytranada","House",0,1],["Diplo","House",0,1],["Kaskade","House",0,1],["Claude VonStroke","House",0,0],["Green Velvet","House",0,1],["Chris Lorenzo","House",0,1],["Jauz","House",0,1],["Malaa","House",0,1],["Tchami","House",0,1],["AC Slater","House",0,1],["Walker & Royce","House",0,1],["Shiba San","House",0,0],["Mihalis Safras","House",0,0],["Patrick Topping","House",0,1],["Hot Since 82","House",0,1],["Seth Troxler","House",0,1],["Lee Foss","House",0,1],["Eats Everything","House",0,0],["Joris Voorn","House",0,0],["Sam Divine","House",0,0],["Riva Starr","House",0,0],["Armand Van Helden","House",0,1],["Todd Terry","House",0,0],["Louie Vega","House",0,0],["Masters at Work","House",0,0],["Kerri Chandler","House",0,1],["DJ Pierre","House",0,0],["Derrick Carter","House",0,0],["Mark Farina","House",0,0],["Doc Martin","House",0,1],["Pete Tong","House",0,1],["Gene Farris","House",0,1],["Kenny Dope","House",0,0],["Roger Sanchez","House",0,0],["David Morales","House",0,0],["Robin Schulz","House",0,0],["Felix Jaehn","House",0,0],["Kygo","House",0,0],["Sam Feldt","House",0,0],["Meduza","House",0,0],["Tensnake","House",0,0],["Gryffin","House",0,0],["Cassian","House",0,1],["Lane 8","House",0,1],["Yotto","House",0,0],["Ben Böhmer","House",0,1],["Nora Van Elken","House",0,0],["Bob Moses","House",0,0],["Rüfüs Du Sol","House",0,0],["Elderbrook","House",0,1],["Jungle","House",0,1],["Westend","House",0,1],["Max Styler","House",0,1],["Ranger Trucco","House",0,1],["Noizu","House",0,1],["Biscits","House",0,1],["Dennis Cruz","House",0,1],["Nic Fanciulli","House",0,0],["Loco Dice","House",0,1],["Marco Carola","House",0,0],["Paco Osuna","House",0,0],["Richy Ahmed","House",0,0],["Darius Syrossian","House",0,0],["Hannah Wants","House",0,0],["Hannah Laing","House",0,1],["LP Giobbi","House",0,1],["Anna Lunoe","House",0,0],["Benny Benassi","House",0,1],["Bob Sinclar","House",0,0],["Martin Solveig","House",0,0],["Dimitri From Paris","House",0,0],["Joey Negro","House",0,0],["Crazy P","House",0,0],["Folamour","House",0,0],["Paul Woolford","House",0,0],["Special Request","House",0,0],["Chase & Status","House",0,1],["Riordan","House",0,1],["Mall Grab","House",0,1],["DJ Seinfeld","House",0,1],["Ross From Friends","House",0,0],["Skream","House",0,1],["Jayda G","House",0,1],["Kettama","House",0,1],["Interplanetary Criminal","House",0,1],["Salute","House",0,1],["Barry Can't Swim","House",0,1],["Overmono","House",0,1],["Sammy Virji","House",0,1],["Joy Anonymous","House",0,0],["Franky Wah","House",0,0],["Sultan + Shepard","House",0,1],["Matroda","House",0,1],["SIDEPIECE","House",0,1],["Two Friends","House",0,0],["Odd Mob","House",0,1],["Ben Hemsley","House",0,1],["Max Dean","House",0,1],["Luke Dean","House",0,0],["Sammy Porter","House",0,0],["Max Chapman","House",0,0],["Alisha","House",0,0],["Dombresky","House",0,1],["Will Clarke","House",0,0],["Kyle Walker","House",0,0],["J. Worra","House",0,1],["Solardo","Tech house",0,0],["Eli Brown","Tech house",0,1],["Wax Motif","Tech house",0,1],["Dateless","Tech house",0,0],["Kyle Watson","Tech house",0,1],["Ilario Alicante","Tech house",0,0],["Fatboy Slim","Tech house",0,0],["Camelphat","Tech house",0,0],["Sidney Charles","Tech house",0,1],["Jansons","Tech house",0,0],["Dom Whiting","Tech house",0,0],["Andruss","Tech house",0,1],["Vinter","Tech house",0,0],["Adam Beyer","Techno",0,1],["Richie Hawtin","Techno",0,1],["Jeff Mills","Techno",0,0],["Ben Klock","Techno",0,0],["Marcel Dettmann","Techno",0,0],["Nina Kraviz","Techno",0,1],["Enrico Sangiuliano","Techno",0,0],["Adriatique","Techno",0,1],["Pan-Pot","Techno",0,0],["Chris Liebing","Techno",0,1],["Sven Väth","Techno",0,0],["Dax J","Techno",0,0],["I Hate Models","Techno",0,1],["Kobosil","Techno",0,1],["Paula Temple","Techno",0,0],["Rødhåd","Techno",0,0],["Ellen Allien","Techno",0,0],["Laurent Garnier","Techno",0,0],["Dubfire","Techno",0,0],["Nicole Moudaber","Techno",0,0],["Anfisa Letyago","Techno",0,1],["Alignment","Techno",0,1],["SNTS","Techno",0,0],["Rebekah","Techno",0,0],["999999999","Techno",0,1],["Kas:st","Techno",0,1],["T78","Techno",0,0],["Héctor Oaks","Techno",0,0],["Patrick Mason","Techno",0,1],["Stephan Bodzin","Techno",0,0],["Tale Of Us","Techno",0,0],["Adam Ten","Techno",0,1],["Len Faki","Techno",0,0],["Ben Sims","Techno",0,0],["Surgeon","Techno",0,0],["Blawan","Techno",0,1],["Ancient Methods","Techno",0,0],["Perc","Techno",0,0],["DVS1","Techno",0,0],["Robert Hood","Techno",0,0],["Derrick May","Techno",0,0],["Juan Atkins","Techno",0,0],["Kevin Saunderson","Techno",0,0],["Carl Craig","Techno",0,0],["Moodymann","Techno",0,0],["Stacey Pullen","Techno",0,0],["DJ Stingray","Techno",0,0],["Dave Clarke","Techno",0,0],["Maceo Plex","Techno",0,1],["Dimmish","Techno",0,0],["Clara Cuvé","Techno",0,1],["Shlømo","Techno",0,1],["Bart Skils","Techno",0,0],["Ida Engberg","Techno",0,1],["Spfdj","Techno",0,0],["Vel","Techno",0,0],["Øtta","Techno",0,1],["Yung Singh","Techno",0,0],["Klangkuenstler","Techno",0,1],["Funk Tribu","Techno",0,1],["Trym","Techno",0,1],["Fatima Hajji","Techno",0,0],["Joyhauser","Techno",0,0],["Kevin de Vries","Techno",0,1],["Coyu","Techno",0,0],["Mathame","Melodic techno",0,1],["Massano","Melodic techno",0,1],["Innellea","Melodic techno",0,1],["Argy","Melodic techno",0,1],["Agents Of Time","Melodic techno",0,0],["Colyn","Melodic techno",0,0],["Monolink","Melodic techno",0,1],["WhoMadeWho","Melodic techno",0,1],["Tinlicker","Melodic techno",0,1],["Fideles","Melodic techno",0,0],["Mind Against","Melodic techno",0,1],["Stephan Jolk","Melodic techno",0,0],["Âme","Melodic techno",0,0],["Dixon","Melodic techno",0,1],["Frankey & Sandrino","Melodic techno",0,0],["Recondite","Melodic techno",0,0],["Worakls","Melodic techno",0,0],["N'to","Melodic techno",0,0],["Joachim Pastor","Melodic techno",0,0],["Hraach","Melodic techno",0,0],["Layton Giordani","Melodic techno",0,1],["Marino Canal","Melodic techno",0,0],["Rafael Cerato","Melodic techno",0,0],["&ME","Afro house",0,0],["Rampa","Afro house",0,0],["Adam Port","Afro house",0,0],["Black Motion","Afro house",0,0],["Da Capo","Afro house",0,0],["Themba","Afro house",0,0],["Caiiro","Afro house",0,0],["Enoo Napa","Afro house",0,0],["Atmos Blaq","Afro house",0,0],["Francis Mercier","Afro house",0,1],["Kitty Amor","Afro house",0,0],["Bun Xapa","Afro house",0,0],["Mörda","Afro house",0,0],["Sebjak","Afro house",0,0],["Oscar L","Afro house",0,0],["Uncle Waffles","Afro house",0,0],["Kabza De Small","Afro house",0,0],["DJ Maphorisa","Afro house",0,0],["Major League DJz","Afro house",0,0],["Sasha","Progressive",0,0],["John Digweed","Progressive",0,0],["Hernan Cattaneo","Progressive",0,0],["Guy J","Progressive",0,0],["Nick Warren","Progressive",0,0],["James Holden","Progressive",0,0],["Jeremy Olander","Progressive",0,0],["Cristoph","Progressive",0,1],["Spencer Brown","Progressive",0,0],["Gai Barone","Progressive",0,0],["Kasablanca","Progressive",0,0],["Ilan Bluestone","Progressive",0,1],["Jason Ross","Progressive",0,0],["Seven Lions","Progressive",0,1],["Grum","Progressive",0,0],["Ruben de Ronde","Progressive",0,0],["Andrew Bayer","Progressive",0,0],["Aly & Fila","Trance",0,1],["Markus Schulz","Trance",0,0],["Gareth Emery","Trance",0,1],["Cosmic Gate","Trance",0,1],["Dash Berlin","Trance",0,1],["Andrew Rayel","Trance",0,0],["Solarstone","Trance",0,1],["John O'Callaghan","Trance",0,1],["Bryan Kearney","Trance",0,1],["Sean Tyas","Trance",0,1],["Simon Patterson","Trance",0,1],["Craig Connelly","Trance",0,0],["Alpha 9","Trance",0,1],["BT","Trance",0,1],["Paul Oakenfold","Trance",0,0],["Sander van Doorn","Trance",0,0],["Gabriel & Dresden","Trance",0,0],["Matt Fax","Trance",0,1],["Estiva","Trance",0,0],["Super8 & Tab","Trance",0,0],["Orjan Nilsen","Trance",0,0],["Rank 1","Trance",0,0],["Jorn van Deynhoven","Trance",0,0],["Allen Watts","Trance",0,1],["Indecent Noise","Trance",0,0],["Marlo","Trance",0,1],["Blastoyz","Trance",0,0],["Infected Mushroom","Trance",0,1],["Astrix","Trance",0,1],["Ace Ventura","Trance",0,1],["Neelix","Trance",0,1],["Ritmo","Trance",0,0],["Captain Hook","Trance",0,0],["Ummet Ozcan","Trance",0,0],["Mark Sixma","Trance",0,0],["Paul Thomas","Trance",0,0],["Tenishia","Trance",0,0],["Emma Hewitt","Trance",0,0],["Christopher Lawrence","Trance",0,0],["Menno de Jong","Trance",0,0],["Sneijder","Trance",0,0],["Factor B","Trance",0,1],["Daxson","Trance",0,0],["Jordin Post","Trance",0,0],["Key4050","Trance",0,1],["Will Atkinson","Trance",0,1],["Darren Porter","Trance",0,1],["John 00 Fleming","Trance",0,1],["Marsh","Trance",0,1],["Excision","Bass",0,1],["Subtronics","Bass",0,1],["Zeds Dead","Bass",0,1],["Rezz","Bass",0,1],["Liquid Stranger","Bass",0,1],["Griz","Bass",0,1],["Svdden Death","Bass",0,1],["Wooli","Bass",0,1],["Kai Wachi","Bass",0,1],["Sullivan King","Bass",0,1],["Space Laces","Bass",0,0],["Virtual Riot","Bass",0,1],["Zomboy","Bass",0,0],["Eptic","Bass",0,0],["Marauda","Bass",0,0],["Ray Volpe","Bass",0,0],["Level Up","Bass",0,1],["Champagne Drip","Bass",0,0],["Of The Trees","Bass",0,1],["Tape B","Bass",0,1],["Peekaboo","Bass",0,1],["Effin","Bass",0,0],["Hamdi","Bass",0,1],["Isoxo","Bass",0,0],["Knock2","Bass",0,1],["Chee","Bass",0,0],["Ivy Lab","Bass",0,1],["Mr. Carmack","Bass",0,0],["Ganja White Night","Bass",0,0],["Barclay Crenshaw","Bass",0,0],["Said The Sky","Bass",0,1],["Slander","Bass",0,1],["Kayzo","Bass",0,1],["Dabin","Bass",0,1],["Louis The Child","Bass",0,1],["Porter Robinson","Bass",0,1],["Madeon","Bass",0,1],["San Holo","Bass",0,1],["ODESZA","Bass",0,1],["Flume","Bass",0,0],["Alison Wonderland","Bass",0,1],["NGHTMRE","Bass",0,1],["RL Grime","Bass",0,1],["Baauer","Bass",0,0],["What So Not","Bass",0,0],["Herobust","Bass",0,0],["Snails","Bass",0,0],["Boogie T","Bass",0,1],["Space Jesus","Bass",0,0],["Mport","Bass",0,0],["LSDREAM","Bass",0,0],["Kompany","Bass",0,1],["Deadcrow","Bass",0,0],["Jessica Audiffred","Bass",0,1],["Nostalgix","Bass",0,1],["Zingara","Bass",0,0],["Black Tiger Sex Machine","Bass",0,1],["Ookay","Bass",0,1],["Yellow Claw","Bass",0,1],["Getter","Bass",0,1],["Trivecta","Bass",0,1],["Blanke","Bass",0,1],["Andy C","Drum & bass",0,1],["Sub Focus","Drum & bass",0,1],["Wilkinson","Drum & bass",0,1],["Pendulum","Drum & bass",0,0],["Netsky","Drum & bass",0,1],["Hedex","Drum & bass",0,1],["Bou","Drum & bass",0,1],["Kanine","Drum & bass",0,0],["Dimension","Drum & bass",0,1],["Culture Shock","Drum & bass",0,1],["Delta Heavy","Drum & bass",0,1],["Camo & Krooked","Drum & bass",0,1],["Friction","Drum & bass",0,1],["DJ Hazard","Drum & bass",0,0],["Shy FX","Drum & bass",0,0],["Goldie","Drum & bass",0,0],["LTJ Bukem","Drum & bass",0,0],["Calibre","Drum & bass",0,0],["High Contrast","Drum & bass",0,0],["Hybrid Minds","Drum & bass",0,1],["Dillinja","Drum & bass",0,0],["Mefjus","Drum & bass",0,0],["Imanu","Drum & bass",0,0],["Alix Perez","Drum & bass",0,0],["Nia Archives","Drum & bass",0,1],["Bensley","Drum & bass",0,0],["Grafix","Drum & bass",0,1],["Metrik","Drum & bass",0,1],["Turno","Drum & bass",0,0],["Galantis","EDM",0,1],["Cheat Codes","EDM",0,0],["Lost Kings","EDM",0,0],["Showtek","EDM",0,1],["Headhunterz","EDM",0,0],["Kura","EDM",0,0],["Blasterjaxx","EDM",0,0],["Fedde Le Grand","EDM",0,0],["Laidback Luke","EDM",0,0],["Deorro","EDM",0,1],["Borgore","EDM",0,0],["Krewella","EDM",0,0],["Steve Angello","EDM",0,1],["Axwell","EDM",0,1],["Sebastian Ingrosso","EDM",0,0],["3LAU","EDM",0,1],["Audien","EDM",0,1],["Vicetone","EDM",0,0],["Morgan Page","EDM",0,0],["Dillon Francis","EDM",0,1],["Major Lazer","EDM",0,1],["Valentino Khan","EDM",0,0],["Party Favor","EDM",0,0],["GTA","EDM",0,0],["Mike Williams","EDM",0,0],["Brooks","EDM",0,0],["Julian Jordan","EDM",0,0],["Tujamo","EDM",0,0],["Throttle","EDM",0,0],["Nervo","EDM",0,0],["Sigala","EDM",0,0],["Jax Jones","EDM",0,0],["Topic","EDM",0,0],["Regard","EDM",0,0],["Chuckie","EDM",0,0],["Firebeatz","EDM",0,0],["Kream","EDM",0,1],["Ofenbach","EDM",0,0],["Angerfist","Hard dance",0,0],["Wildstylez","Hard dance",0,0],["Brennan Heart","Hard dance",0,0],["Da Tweekaz","Hard dance",0,1],["Coone","Hard dance",0,0],["Sound Rush","Hard dance",0,0],["D-Block & S-te-Fan","Hard dance",0,0],["Phuture Noize","Hard dance",0,0],["Warface","Hard dance",0,0],["Act of Rage","Hard dance",0,0],["Rebelion","Hard dance",0,0],["Sefa","Hard dance",0,0],["Dr. Peacock","Hard dance",0,0],["Miss K8","Hard dance",0,0],["Rooler","Hard dance",0,1],["Cryex","Hard dance",0,0],["Ran-D","Hard dance",0,0],["Frontliner","Hard dance",0,1],["Mish","Hard dance",0,0],["Adrenalize","Hard dance",0,0],["Andy Svge","Hard dance",0,0],["Dual Damage","Hard dance",0,0],["Partyraiser","Hard dance",0,0],["Neophyte","Hard dance",0,0],["Restricted","Hard dance",0,0],["Kutski","Hard dance",0,0],["Darren Styles","Hard dance",0,1],["S3RL","Hard dance",0,0],["Adaro","Hard dance",0,0],["Clockartz","Hard dance",0,0],["Toneshifterz","Hard dance",0,0],["Justice","Electronic",0,1],["The Chemical Brothers","Electronic",0,0],["The Prodigy","Electronic",0,1],["Underworld","Electronic",0,1],["Moby","Electronic",0,1],["Kraftwerk","Electronic",0,1],["Aphex Twin","Electronic",0,0],["Four Tet","Electronic",0,1],["Floating Points","Electronic",0,1],["Caribou","Electronic",0,1],["Jamie xx","Electronic",0,1],["Bonobo","Electronic",0,0],["Moderat","Electronic",0,0],["Apparat","Electronic",0,0],["Bicep","Electronic",0,1],["Kavinsky","Electronic",0,0],["SBTRKT","Electronic",0,0],["Gesaffelstein","Electronic",0,1],["Boys Noize","Electronic",0,1],["Röyksopp","Electronic",0,1],["Air","Electronic",0,0],["Massive Attack","Electronic",0,0],["Orbital","Electronic",0,1],["Leftfield","Electronic",0,0],["Groove Armada","Electronic",0,1],["Basement Jaxx","Electronic",0,1],["Faithless","Electronic",0,0],["Paul Kalkbrenner","Electronic",0,0],["Nicolas Jaar","Electronic",0,0],["Polo & Pan","Electronic",0,1],["Parcels","Electronic",0,1],["Glass Animals","Electronic",0,0],["Big Wild","Electronic",0,0],["Tycho","Electronic",0,1],["Totally Enormous Extinct Dinosaurs","Electronic",0,0],["Pretty Lights","Electronic",0,0],["STS9","Electronic",0,0],["The Glitch Mob","Electronic",0,0],["Emancipator","Electronic",0,0],["Gramatik","Electronic",0,0],["Big Gigantic","Electronic",0,0],["CloZee","Electronic",0,0],["Tipper","Electronic",0,0],["Shpongle","Electronic",0,0],["Dirty South","Electronic",0,0],["VTSS","Techno",0,1],["Tiga","Techno",0,1],["RØZ","Techno",0,1],["Brutalismus 3000","Techno",0,1],["Adiel","Techno",0,1],["AZYR","Techno",0,1],["Cera Khin","Techno",0,1],["Silvie Loto","Techno",0,1],["Rommii","Techno",0,1],["Hi-Lo","Techno",0,1],["Horsegiirl","Techno",0,1],["Helena Hauff","Techno",0,1],["Rivka M","Techno",0,1],["FJAAK","Techno",0,1],["Charlie Sparks","Techno",0,1],["Space 92","Techno",0,1],["Bullet Tooth","Techno",0,1],["Cirez D","Techno",0,1],["Speedy J","Techno",0,1],["Victor Ruiz","Techno",0,1],["Kaufmann","Techno",0,1],["Polygonia","Techno",0,1],["Marie Nyx","Techno",0,1],["Starjunk 95","Techno",0,1],["Odymel","Techno",0,1],["OGUZ","Techno",0,1],["Elli Acula","Techno",0,1],["MCR-T","Techno",0,1],["DJ Gigola","Techno",0,1],["Linska","Techno",0,1],["Marie Vaunt","Techno",0,1],["Bad Boombox","Techno",0,1],["Collabs3000","Techno",0,1],["Arodes","Melodic techno",0,1],["Giorgia Angiuli","Melodic techno",0,1],["Eli & Fur","Melodic techno",0,1],["MNTRA","Melodic techno",0,1],["Bedouin","Melodic techno",0,1],["Chris Luno","Melodic techno",0,1],["Rodriguez Jr.","Melodic techno",0,1],["DJ Tennis","Melodic techno",0,1],["Kiasmos","Melodic techno",0,1],["Mary Droppinz","Tech house",0,1],["Disco Lines","Tech house",0,1],["OMNOM","Tech house",0,1],["San Pacho","Tech house",0,1],["Pedroz","Tech house",0,1],["SOSA","Tech house",0,1],["Franky Rizardo","Tech house",0,1],["Alex Chapman","Tech house",0,1],["Zoe Gitter","Tech house",0,1],["Juos","Tech house",0,1],["Joshwa","Tech house",0,1],["Tini Gessler","Tech house",0,1],["CID","Tech house",0,1],["Chasewest","Tech house",0,1],["Discip","Tech house",0,1],["Greg 99","Tech house",0,1],["JIA","Tech house",0,1],["Julian Fijma","Tech house",0,1],["Layla Benitez","Tech house",0,1],["L.P. Rhythm","Tech house",0,1],["Locky","Tech house",0,1],["Morgan Seatree","Tech house",0,1],["Obskür","Tech house",0,1],["Roddy Lima","Tech house",0,1],["Rossi.","Tech house",0,1],["Tsu Nami","Tech house",0,1],["Fleetmac Wood","House",0,1],["1tbsp","House",0,1],["Omar+","House",0,1],["Miguelle & Tons","House",0,1],["TELYKAST","House",0,1],["Donald Glaude","House",0,1],["Thee-O","House",0,1],["Ely Oaks","House",0,1],["Fleur Shore","House",0,1],["M-High","House",0,1],["Partiboi69","House",0,1],["Bunt.","House",0,1],["Champion","House",0,1],["D.O.D","House",0,1],["Gaskin","House",0,1],["Hayden James","House",0,1],["It's Murph","House",0,1],["Jaguar","House",0,1],["Kolter","House",0,1],["Olive F","House",0,1],["Notion","House",0,1],["Silva Bumpa","House",0,1],["Swimming Paul","House",0,1],["Carlita","House",0,1],["Ahadadream","House",0,1],["Ben UFO","House",0,1],["MPH","House",0,1],["Son of Son","House",0,1],["JEV","House",0,1],["Kaleena Zanders","House",0,1],["Destructo","House",0,1],["Henry Fong","House",0,1],["Bijou","House",0,1],["Mikey Lion","House",0,1],["Lee Reynolds","House",0,1],["Marbs","House",0,1],["Rybo","House",0,1],["Sacha Robotti","House",0,1],["Born Dirty","House",0,1],["Habstrakt","House",0,1],["Ship Wrek","House",0,1],["Chloé Caillet","House",0,1],["INVT","House",0,1],["Channel Tres","House",0,1],["Sofi Tukker","House",0,1],["HoneyLuv","House",0,1],["Lee Burridge","House",0,1],["Avalon Emerson","House",0,1],["Midnight Generation","House",0,1],["Tripolism","House",0,1],["AYYBO","House",0,1],["jigitz","House",0,1],["Oppidan","House",0,1],["Casey Club","House",0,1],["1-800 GIRLS","House",0,1],["EREZ","House",0,1],["Justin Hawkes","House",0,1],["Mark Knight","House",0,1],["Main Phase","House",0,1],["Dennis Ferrer","House",0,1],["Cool Hand Luke","House",0,1],["Ky William","House",0,1],["Not Not","House",0,1],["BOLO","House",0,1],["DJ Susan","House",0,1],["Tom & Collins","House",0,1],["LF System","House",0,1],["Danny Avila","House",0,1],["Fester","House",0,1],["HOL!","House",0,1],["YDG","House",0,1],["OFFAIAH","House",0,1],["Lucati","House",0,1],["Rohaan","House",0,1],["AIRGLO","House",0,1],["Neil Frances","House",0,1],["nimino","House",0,1],["GENESI","House",0,1],["Jackie Hollander","House",0,1],["BLOND:ISH","House",0,1],["Ben Sterling","House",0,1],["Franc Moody","House",0,1],["Franck","House",0,1],["Shermanology","House",0,1],["KILIMANJARO","House",0,1],["Mita Gami","House",0,1],["Zimmer90","House",0,1],["Pegassi","House",0,1],["AK SPORTS","House",0,1],["Close Friends Only","House",0,1],["AR/CO","House",0,1],["southstar","House",0,1],["Bay Ledges","House",0,1],["beginagain","House",0,1],["Tobiahs","House",0,1],["Alex Wann","House",0,1],["Darius","House",0,1],["Mindchatter","House",0,1],["Ma Sha","House",0,1],["Beltran","House",0,1],["Moon Boots","House",0,1],["Austin Millz","House",0,1],["Ahmed Spins","House",0,1],["Damian Lazarus","House",0,1],["Jimi Jules","House",0,1],["Sparrow & Barbossa","House",0,1],["AMÉMÉ","House",0,1],["Yulia Niko","House",0,1],["DESIREE","House",0,1],["Glixen","House",0,1],["Coco & Breezy","House",0,1],["Tinzo + Jojo","House",0,1],["Maribou State","House",0,1],["Black House Radio","House",0,1],["Jo Jones","House",0,1],["KNGSPRNGS","House",0,1],["Mira","House",0,1],["Taiki Nulight","House",0,1],["Brijean","House",0,1],["Kito","House",0,1],["Azzecca","House",0,1],["Bianca Oblivion","House",0,1],["Gru.di","House",0,1],["Cesco","House",0,1],["The Librarian","House",0,1],["Sicaria","House",0,1],["Yaw Appiah","House",0,1],["Joy Orbison","House",0,1],["The Blessed Madonna","House",0,1],["Jessica Brankka","House",0,1],["East End Dubs","House",0,1],["Kenny Beats","House",0,1],["Two Shell","House",0,1],["Benga","House",0,1],["SPINALL","House",0,1],["Jyoty","House",0,1],["Brunello","House",0,1],["Haute & Freddy","House",0,1],["Cut Copy","House",0,1],["TOKiMONSTA","House",0,1],["Angrybaby","Bass",0,1],["Barely Alive","Bass",0,1],["Basstripper","Bass",0,1],["Callen","Bass",0,1],["Sektor 8","Bass",0,1],["Chyl","Bass",0,1],["Eliminate","Bass",0,1],["Gainz","Bass",0,1],["Gravagerz","Bass",0,1],["Infekt","Bass",0,1],["Jkyl & Hyde","Bass",0,1],["JSTJR","Bass",0,1],["Samplifire","Bass",0,1],["Layz","Bass",0,1],["Ragie Ban","Bass",0,1],["Reid Speed","Bass",0,1],["Sabai","Bass",0,1],["Shima","Bass",0,1],["Sippy","Bass",0,1],["Star Eyes","Bass",0,1],["TroyBoi","Bass",0,1],["Whethan","Bass",0,1],["Ghastly","Bass",0,1],["Crankdat","Bass",0,1],["Kaivon","Bass",0,1],["Nitti Gritti","Bass",0,1],["Crizzly","Bass",0,1],["Ace Aura","Bass",0,1],["Daily Bread","Bass",0,1],["ALLEYCVT","Bass",0,1],["INZO","Bass",0,1],["Madam X","Bass",0,1],["Mindex","Bass",0,1],["Cyclops","Bass",0,1],["Calcium","Bass",0,1],["ARMNHMR","Bass",0,1],["Kurei","Bass",0,1],["Mersiv","Bass",0,1],["Juelz","Bass",0,1],["Levity","Bass",0,1],["1991","Bass",0,1],["Jade Cicada","Bass",0,1],["Dimond Saints","Bass",0,1],["Holy Priest","Bass",0,1],["ATLiens","Bass",0,1],["Apashe","Bass",0,1],["VNSSA","Bass",0,1],["NALA","Bass",0,1],["ACRAZE","Bass",0,1],["Introspekt","Bass",0,1],["Nightstalker","Drum & bass",0,1],["Conducta","Drum & bass",0,1],["Flava D","Drum & bass",0,1],["Dieselboy","Drum & bass",0,1],["Braydon Terzo","Hard dance",0,1],["Lady Faith","Hard dance",0,1],["LNY TNZ","Hard dance",0,1],["DJ Isaac","Hard dance",0,1],["MORTEN","EDM",0,1],["Pryda","EDM",0,1],["Stanton Warriors","Electronic",0,1],["Simply Jeff","Electronic",0,1],["Khruangbin","Electronic",0,1],["Empire of the Sun","Electronic",0,1],["DARKSIDE","Electronic",0,1],["Modeselektor","Electronic",0,1],["Fcukers","Electronic",0,1],["Nine Inch Noize","Electronic",0,1],["Miike Snow","Electronic",0,1],["Glass Beams","Electronic",0,1],["MEUTE","Electronic",0,1],["Kumo 99","Electronic",0,1],["Snow Strippers","Electronic",0,1],["A.G. Cook","Electronic",0,1],["Arca","Electronic",0,1],["HAAi","Electronic",0,1],["Effy","Electronic",0,1],["Noga Erez","Electronic",0,1],["La Roux","Electronic",0,1],["Magdalena Bay","Electronic",0,1],["Sofia Kourtesis","Electronic",0,1],["Shygirl","Electronic",0,1],["Sama' Abdulhadi","Electronic",0,1],["Amaarae","Electronic",0,1],["Jockstrap","Electronic",0,1],["Grimes","Electronic",0,1],["Billy Gillies","Trance",0,1],["David Forbes","Trance",0,1],["Mark Sherry","Trance",0,1],["Lostly's Lost Minds","Trance",0,1],["Chicane","Trance",0,1],["Jeffrey Sutorius","Trance",0,1],["Freedom Fighters","Trance",0,1],["Coexist","Trance",0,1],["Mad Maxx","Trance",0,1],["Trance Wax","Trance",0,1],["Kristina Sky","Trance",0,1],["Cold Blue","Trance",0,1],["Amy Wiles","Trance",0,1],["Shingo Nakamura","Trance",0,1],["Sarah De Warren","Trance",0,1],["Andy Moor","Trance",0,1],["Talla 2XLC","Trance",0,1],["John Askew","Trance",0,1],["Eddie Halliwell","Trance",0,1],["Judge Jules","Trance",0,1],["Animato","Trance",0,1],["Perfect Stranger","Trance",0,1],["Barakuda","Trance",0,1],["Mauro Picotto","Trance",0,1],["DJ HEARTSTRING","Trance",0,1],["ÆON:MODE","Trance",0,1],["Sabrina Carpenter","Pop",0,1],["Justin Bieber","Pop",0,1],["Lady Gaga","Pop",0,1],["Charli xcx","Pop",0,1],["Addison Rae","Pop",0,1],["Katseye","Pop",0,1],["Teddy Swims","Pop",0,1],["Laufey","Pop",0,1],["PinkPantheress","Pop",0,1],["Holly Humberstone","Pop",0,1],["Lykke Li","Pop",0,1],["FKA twigs","Pop",0,1],["Benson Boone","Pop",0,1],["LISA","Pop",0,1],["JENNIE","Pop",0,1],["BIGBANG","Pop",0,1],["BINI","Pop",0,1],["XG","Pop",0,1],["ENHYPEN","Pop",0,1],["MARINA","Pop",0,1],["Tyla","Pop",0,1],["d4vd","Pop",0,1],["Artemas","Pop",0,1],["Lola Young","Pop",0,1],["Jessie Murph","Pop",0,1],["beabadoobee","Pop",0,1],["Keshi","Pop",0,1],["Still Woozy","Pop",0,1],["Doja Cat","Pop",0,1],["Lana Del Rey","Pop",0,1],["No Doubt","Pop",0,1],["DJ Trixie Mattel","Pop",0,1],["Sugar Ray","Pop",0,1],["Train","Pop",0,1],["Fitz and The Tantrums","Pop",0,1],["Grouplove","Pop",0,1],["Børns","Pop",0,1],["Peach Pit","Pop",0,1],["Poolside","Pop",0,1],["Duran Duran","Pop",0,1],["Sheryl Crow","Pop",0,1],["Alanis Morissette","Pop",0,1],["Susanna Hoffs","Pop",0,1],["Mt. Joy","Pop",0,1],["The Go-Go's","Pop",0,1],["Fuji Kaze","Pop",0,1],["Labrinth","Pop",0,1],["Djo","Pop",0,1],["The Marías","Pop",0,1],["Clairo","Pop",0,1],["Japanese Breakfast","Pop",0,1],["Wisp","Pop",0,1],["GIVĒON","Pop",0,1],["Ravyn Lenae","Pop",0,1],["Muni Long","Pop",0,1],["Hope Tala","Pop",0,1],["Audrey Nuna","Pop",0,1],["Priya Ragu","Pop",0,1],["Tinashe","Pop",0,1],["Victoria Monét","Pop",0,1],["Ethel Cain","Pop",0,1],["Foster the People","Pop",0,1],["Blood Orange","Pop",0,1],["Sam Fender","Pop",0,1],["Ginger Root","Pop",0,1],["Atarashii Gakko!","Pop",0,1],["Radiohead","Rock / indie",0,1],["The xx","Rock / indie",0,1],["Turnstile","Rock / indie",0,1],["Devo","Rock / indie",0,1],["The Strokes","Rock / indie",0,1],["David Byrne","Rock / indie",0,1],["Interpol","Rock / indie",0,1],["Iggy Pop","Rock / indie",0,1],["Wet Leg","Rock / indie",0,1],["The Rapture","Rock / indie",0,1],["Suicidal Tendencies","Rock / indie",0,1],["French Police","Rock / indie",0,1],["Glitterer","Rock / indie",0,1],["Freak Slug","Rock / indie",0,1],["Green Day","Rock / indie",0,1],["Misfits","Rock / indie",0,1],["Jimmy Eat World","Rock / indie",0,1],["Viagra Boys","Rock / indie",0,1],["Blonde Redhead","Rock / indie",0,1],["Beth Gibbons","Rock / indie",0,1],["Circle Jerks","Rock / indie",0,1],["Amyl and the Sniffers","Rock / indie",0,1],["The Beaches","Rock / indie",0,1],["Together Pangea","Rock / indie",0,1],["Bob Vylan","Rock / indie",0,1],["Medium Build","Rock / indie",0,1],["underscores","Rock / indie",0,1],["Eyedress","Rock / indie",0,1],["TOPS","Rock / indie",0,1],["Blur","Rock / indie",0,1],["The Offspring","Rock / indie",0,1],["My Morning Jacket","Rock / indie",0,1],["Joan Jett & The Blackhearts","Rock / indie",0,1],["Switchfoot","Rock / indie",0,1],["Bad Suns","Rock / indie",0,1],["Flipturn","Rock / indie",0,1],["Lenny Kravitz","Rock / indie",0,1],["Pretenders","Rock / indie",0,1],["Jackson Browne","Rock / indie",0,1],["CAKE","Rock / indie",0,1],["The Beach Boys","Rock / indie",0,1],["The Struts","Rock / indie",0,1],["Marcus King","Rock / indie",0,1],["James Taylor","Rock / indie",0,1],["Ben Harper & The Innocent Criminals","Rock / indie",0,1],["Mike Watt","Rock / indie",0,1],["The Schizophonics","Rock / indie",0,1],["Kneecap","Rock / indie",0,1],["Thee Sacred Souls","Rock / indie",0,1],["Los Mirlos","Rock / indie",0,1],["SOFT PLAY","Rock / indie",0,1],["2hollis","Rock / indie",0,1],["The Dare","Rock / indie",0,1],["Prison Affair","Rock / indie",0,1],["Talón","Rock / indie",0,1],["Rawayana","Rock / indie",0,1],["Seun Kuti & Egypt 80","Rock / indie",0,1],["Gustavo Dudamel","Rock / indie",0,1],["Sublime","Reggae / ska",0,1],["Slightly Stoopid","Reggae / ska",0,1],["Fortunate Youth","Reggae / ska",0,1],["Skip Marley","Reggae / ska",0,1],["O.A.R.","Reggae / ska",0,1],["Landon McNamara","Reggae / ska",0,1],["Hendrix Frankenreiter","Reggae / ska",0,1],["Travis Scott","Hip-hop / R&B",0,1],["Post Malone","Hip-hop / R&B",0,1],["Missy Elliott","Hip-hop / R&B",0,1],["Megan Thee Stallion","Hip-hop / R&B",0,1],["Tyler, The Creator","Hip-hop / R&B",0,1],["Lil Uzi Vert","Hip-hop / R&B",0,1],["Ice Spice","Hip-hop / R&B",0,1],["Coi Leray","Hip-hop / R&B",0,1],["Lil Yachty","Hip-hop / R&B",0,1],["Skepta","Hip-hop / R&B",0,1],["Central Cee","Hip-hop / R&B",0,1],["Sexy Red","Hip-hop / R&B",0,1],["Swae Lee","Hip-hop / R&B",0,1],["Young Thug","Hip-hop / R&B",0,1],["Clipse","Hip-hop / R&B",0,1],["Little Simz","Hip-hop / R&B",0,1],["Busta Rhymes","Hip-hop / R&B",0,1],["Juvenile","Hip-hop / R&B",0,1],["GloRilla","Hip-hop / R&B",0,1],["Yeat","Hip-hop / R&B",0,1],["Mustard","Hip-hop / R&B",0,1],["Three 6 Mafia","Hip-hop / R&B",0,1],["SAINT JHN","Hip-hop / R&B",0,1],["4batz","Hip-hop / R&B",0,1],["Tink","Hip-hop / R&B",0,1],["T-Pain","Hip-hop / R&B",0,1],["Shoreline Mafia","Hip-hop / R&B",0,1],["Ty Dolla $ign","Hip-hop / R&B",0,1],["BigXthaPlug","Hip-hop / R&B",0,1],["Hanumankind","Hip-hop / R&B",0,1],["Aloe Blacc","Hip-hop / R&B",0,1],["Digable Planets","Hip-hop / R&B",0,1],["Karol G","Latin",0,1],["Peso Pluma","Latin",0,1],["J Balvin","Latin",0,1],["Feid","Latin",0,1],["Junior H","Latin",0,1],["Anitta","Latin",0,1],["Iván Cornejo","Latin",0,1],["El Malilla","Latin",0,1],["Judeline","Latin",0,1],["Ca7riel & Paco Amoroso","Latin",0,1],["Los Hermanos Flores","Latin",0,1],["Tokischa","Latin",0,1],["Kali Uchis","Latin",0,1],["Davido","Latin",0,1],["Rema","Latin",0,1],["Sarz","Latin",0,1]]</script>
+<script>
+(async () => {
+  // ---- Mobile menu ----
+  (function () {
+    const btn = document.getElementById('mn-btn'), panel = document.getElementById('mn-panel');
+    if (!btn || !panel) return;
+    const SECTIONS_NAV = [['alerts-panel', 'Presale alerts'], ['leaderboard', 'Crew favorites'], ['calendar', 'Festival calendar'], ['spotifavs', 'Add your favorites'], ['favorites', 'Add your favorites'], ['festivals', 'Festivals']];
+    const close = () => { panel.hidden = true; btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-label', 'Open menu'); };
+    const open = () => { panel.hidden = false; btn.setAttribute('aria-expanded', 'true'); btn.setAttribute('aria-label', 'Close menu'); const f = panel.querySelector('button, a'); if (f) f.focus(); };
+    const go = id => { const t = document.getElementById(id); close(); if (t) t.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); };
+    SECTIONS_NAV.forEach(([id, label]) => {
+      if (!document.getElementById(id)) return;
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = label;
+      b.addEventListener('click', () => go(id));
+      panel.appendChild(b);
+      if (id === 'festivals') {
+        const sub = document.createElement('div'); sub.className = 'mn-sub';
+        [['Local', 'Local'], ['USA', 'USA'], ['Worldwide', 'Worldwide'], ['All', 'All']].forEach(([sec, lab]) => {
+          const t = document.createElement('button'); t.type = 'button'; t.textContent = lab;
+          t.addEventListener('click', () => { const tab = document.querySelector('#tabs button[data-sec="' + sec + '"]'); if (tab) tab.click(); go('festivals'); });
+          sub.appendChild(t);
+        });
+        panel.appendChild(sub);
+      }
+    });
+    const extra = document.getElementById('mn-extra-link');
+    if (extra) { const sep = document.createElement('div'); sep.className = 'mn-sep'; panel.appendChild(sep); const a = extra.cloneNode(true); a.removeAttribute('id'); a.hidden = false; a.className = 'mn-cta'; panel.appendChild(a); }
+    btn.addEventListener('click', e => { e.stopPropagation(); panel.hidden ? open() : close(); });
+    document.addEventListener('click', e => { if (!panel.hidden && !panel.contains(e.target) && e.target !== btn) close(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) { close(); btn.focus(); } });
+    document.getElementById('mn-home').addEventListener('click', e => { e.preventDefault(); close(); document.getElementById('top').scrollIntoView({ behavior: 'smooth' }); });
+  })();
+
+  const SECTIONS = ['Local', 'USA', 'Worldwide'];
+  const SEC_COLOR = ['#ff3d9a', '#a86bff', '#29d3f5'];
+  const LABEL = { going: 'Going', maybe: 'Maybe', pass: 'Pass' };
+  const state = { festivals: [], picks: {}, favs: {}, me: null, section: 'Local', canWrite: true, names: {}, sfGenre: 'SoCal scene', sfQuery: '' };
+  let SHOWS = false; try { SHOWS = localStorage.getItem('fr-show-shows') === '1'; } catch (e) {}
+  state._all = [];
+  Object.defineProperty(state, 'festivals', { configurable: true, get() { return SHOWS ? state._all : state._all.filter(f => f.kind !== 'show'); }, set(v) { state._all = Array.isArray(v) ? v : []; } });
+  function renderShowToggle() {
+    const n = state._all.filter(f => f.kind === 'show').length;
+    const b = document.getElementById('show-toggle'); if (b) b.setAttribute('aria-checked', String(SHOWS));
+    const s = document.getElementById('show-sub'); if (s) s.textContent = 'Club nights and concerts in SoCal, next 60 days' + (n ? ' (' + n + ' listed)' : ' (none listed yet)');
+  }
+  const DJS = JSON.parse(document.getElementById('dj-data').textContent).map(([name, genre, top, socal]) => ({ name, genre, top, socal: !!socal }));
+  const norm = n => String(n).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/&/g, 'and').replace(/[^a-z0-9]/g, '');
+  const $ = id => document.getElementById(id);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const statusClass = s => s === 'Presale soon' ? 'st-presale' : s === 'On sale' ? 'st-onsale' : s === 'Waitlist' ? 'st-wait' : 'st-watch';
+  const dist = f => {
+    const m = typeof f.miles === 'number' ? f.miles : parseInt(String(f.distance || '').replace(/[^0-9]/g, ''), 10);
+    if (!m && m !== 0) return '';
+    return m >= 1000 ? String(Math.round(m / 100) / 10).replace(/\.0$/, '') + 'k mi' : m + ' mi';
+  };
+  const byStart = (a, b) => (a.start || '9999').localeCompare(b.start || '9999');
+  const safeLink = u => typeof u === 'string' && u.startsWith('https://') ? u : null;
+  const showNotice = t => { $('notice').textContent = t; $('notice').hidden = false; };
+
+  const db = await claude.use('db');
+  const user = await claude.use('user');
+  if (!db) {
+    const login = el('b', 'login-cta', 'Sign in to pick festivals, add your favorite artists, and see who in the crew is going.');
+    const bar = el('div', 'authbar'); const sb = el('button', 'abtn', 'Sign in'); sb.type = 'button'; sb.addEventListener('click', () => FR.openSignIn()); bar.appendChild(sb);
+    $('who').replaceChildren(login, bar);
+    showNotice('Sign in to pick Going, Maybe or Pass and save your favorite artists.');
+    state.signedOut = true; state.canWrite = false;
+  }
+
+  if (!state.signedOut) {
+  state.me = user ? await user.id() : null;
+  if (user && state.me) {
+    const me = await user.me();
+    const bar = el('div', 'authbar');
+    const nb = el('button', 'abtn alt', 'Change name'); nb.type = 'button'; nb.addEventListener('click', async () => { const n = prompt('Your name, shown to the crew:', me.name || ''); if (n == null) return; const ok = await FR.setName(n); if (ok) { state.names[state.me] = n.trim().slice(0, 60); $('who').firstChild && ($('who').querySelector('b').textContent = n.trim().slice(0, 60)); renderBoard(); renderCards(); } });
+    const ob = el('button', 'abtn alt', 'Sign out'); ob.type = 'button'; ob.addEventListener('click', () => FR.signOut());
+    bar.append(nb, ob);
+    $('who').replaceChildren('Picking as ', el('b', null, me.name || 'you'), bar);
+  } else { $('who').textContent = 'View only. Sign in to make your own picks.'; state.canWrite = false; }
+  if (user) { const c = await user.can('data.write'); if (c === false) { state.canWrite = false; const vmsg = 'View-only access: you can see the crew\'s picks but not add your own. Try signing out and back in.'; showNotice(vmsg); $('who').replaceChildren(el('b', 'login-cta', vmsg)); } }
+  }
+
+  async function resolveNames() {
+    if (!user) return;
+    const ids = [...new Set([...Object.keys(state.picks), ...Object.keys(state.favs)])].filter(id => !(id in state.names));
+    if (!ids.length) return;
+    try { const ps = await user.profiles(ids); ids.forEach(id => { state.names[id] = (ps[id] && ps[id].name) || 'Someone'; }); } catch (e) {}
+    renderBoard(); renderCards(); renderSpotifavs();
+  }
+  const nameOf = id => id === state.me ? 'You' : (state.names[id] || 'Someone');
+
+  function votesFor(slug) {
+    const out = { going: [], maybe: [], pass: [] };
+    for (const [uid, doc] of Object.entries(state.picks)) {
+      const v = doc.choices && doc.choices[slug];
+      if (v === 'going' || v === 'maybe' || v === 'pass') out[v].push(uid);
+    }
+    return out;
+  }
+
+  // ---- Splash House countdown ----
+  let cdTarget = null, cdTimer = null;
+  function renderCountdown() {
+    const f = state.festivals.find(x => /^splash house/i.test(x.festival || '') && x.start);
+    const box = $('cd');
+    if (!f) { box.hidden = true; cdTarget = null; return; }
+    cdTarget = Date.parse(f.start + 'T12:00:00-07:00');
+    const lbl = $('cd-l'); lbl.textContent = 'Countdown to ' + f.festival.replace(/ 20\d\d$/, '');
+    const unconfirmed = /unconfirmed|expected|tba/i.test(f.dates || '');
+    lbl.appendChild(el('small', null, unconfirmed ? 'Expected ' + new Date(cdTarget).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/Los_Angeles' }) + ', dates not confirmed yet' : f.dates));
+    box.hidden = false; tick();
+    if (!cdTimer) cdTimer = setInterval(tick, 1000);
+  }
+  function tick() {
+    if (!cdTarget) return;
+    let ms = Math.max(0, cdTarget - Date.now());
+    const d = Math.floor(ms / 864e5); ms -= d * 864e5;
+    const h = Math.floor(ms / 36e5); ms -= h * 36e5;
+    const m = Math.floor(ms / 6e4); ms -= m * 6e4;
+    const s = Math.floor(ms / 1e3);
+    $('cd-d').textContent = d; $('cd-h').textContent = String(h).padStart(2, '0'); $('cd-m').textContent = String(m).padStart(2, '0'); $('cd-s').textContent = String(s).padStart(2, '0');
+  }
+
+  function renderNext() {
+    const box = $('next');
+    const next = state.festivals.filter(f => f.next_sale).sort((a, b) => a.next_sale.localeCompare(b.next_sale))[0];
+    if (!next) { box.hidden = true; return; }
+    box.replaceChildren(el('span', 'k', 'Next presale'), el('b', null, next.festival), el('span', null, next.next_sale_label));
+    box.hidden = false;
+  }
+
+  function renderTiles() {
+    SECTIONS.forEach(sec => {
+      const list = state.festivals.filter(f => f.section === sec || (sec === 'USA' && f.section === 'Local'));
+      document.querySelector(`.big[data-sec="${sec}"]`).textContent = list.length;
+      const onSale = list.filter(f => f.status === 'On sale').length;
+      document.querySelector(`.sub[data-sub="${sec}"]`).textContent = onSale + ' on sale now' + (sec === 'USA' ? ' · ' + list.filter(f => f.section === 'Local').length + ' in SoCal' : '');
+    });
+  }
+
+  function renderAlerts() {
+    const box = $('alerts'); box.replaceChildren();
+    const order = { 'Presale soon': 0, 'On sale': 1, 'Watch': 2 };
+    const rows = state.festivals.filter(f => f.status in order)
+      .sort((a, b) => order[a.status] - order[b.status] || (a.next_sale || 'z').localeCompare(b.next_sale || 'z') || byStart(a, b));
+    if (!rows.length) { box.appendChild(el('div', 'empty', 'Nothing to watch right now.')); return; }
+    rows.forEach(f => {
+      const row = el('div', 'alert');
+      row.append(el('span', 'pill ' + statusClass(f.status), f.status), el('span', 'n', f.festival), el('span', 'w', f.next_sale_label + (f.price_from ? ' · from ' + f.price_from : '') + ' · ' + f.section));
+      box.appendChild(row);
+    });
+  }
+
+  function renderBoard() {
+    const board = $('board');
+    const rows = state.festivals.map(f => ({ f, v: votesFor(f.id) })).filter(r => r.v.going.length + r.v.maybe.length > 0)
+      .sort((a, b) => (b.v.going.length - a.v.going.length) || (b.v.maybe.length - a.v.maybe.length)).slice(0, 8);
+    board.replaceChildren();
+    if (!rows.length) { board.appendChild(el('div', 'empty', 'No picks yet. Be the first: mark a festival below.')); return; }
+    const max = Math.max(...rows.map(r => r.v.going.length + r.v.maybe.length));
+    rows.forEach(({ f, v }) => {
+      const row = el('div', 'board-row');
+      const bar = el('div', 'bar'); const g = el('i', 'g'); const m = el('i', 'm');
+      g.style.width = (v.going.length / max * 100) + '%'; m.style.width = (v.maybe.length / max * 100) + '%';
+      bar.append(g, m);
+      const who = el('div', 'who-list');
+      if (v.going.length) { who.appendChild(el('span', 'g', 'Going: ')); who.append(v.going.map(nameOf).join(', ')); }
+      if (v.going.length && v.maybe.length) who.append(' · ');
+      if (v.maybe.length) { who.appendChild(el('span', 'm', 'Maybe: ')); who.append(v.maybe.map(nameOf).join(', ')); }
+      row.append(el('div', 'n', f.festival), el('div', 'c', v.going.length + ' going · ' + v.maybe.length + ' maybe'), bar, who);
+      board.appendChild(row);
+    });
+  }
+
+  function renderCalendar() {
+    const box = $('cal'); box.replaceChildren();
+    const data = state.festivals.filter(f => f.start && f.end).map(f => ({ ...f, s: Date.parse(f.start + 'T00:00:00Z'), e: Date.parse(f.end + 'T23:59:59Z') }));
+    if (!data.length) { box.appendChild(el('div', 'empty', 'No dated festivals yet.')); return; }
+    const W = Math.max(320, box.clientWidth || 700), rowH = 24, top = 6, left = 84, right = 12;
+    const lanes = {}, offs = {};
+    SECTIONS.forEach(sec => {
+      const ends = [];
+      data.filter(d => d.section === sec).sort((a, b) => a.s - b.s).forEach(d => {
+        let i = ends.findIndex(e => e < d.s); if (i < 0) { i = ends.length; ends.push(0); }
+        ends[i] = d.e + 9 * 864e5; d.lane = i;
+      });
+      lanes[sec] = Math.max(1, ends.length);
+    });
+    let y = top; SECTIONS.forEach(sec => { offs[sec] = y; y += lanes[sec] * rowH + 14; });
+    const H = y + 20;
+    const d0 = new Date(Math.min(...data.map(d => d.s))); const d1 = new Date(Math.max(...data.map(d => d.e)));
+    const t0 = Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth(), 1), t1 = Date.UTC(d1.getUTCFullYear(), d1.getUTCMonth() + 1, 1);
+    const x = t => left + (t - t0) / (t1 - t0) * (W - left - right);
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', 'Festival calendar');
+    const mk = (tag, attrs) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; };
+    const step = W < 560 ? 3 : 1;
+    const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    for (let dt = new Date(t0), i = 0; +dt <= t1; dt = new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth() + 1, 1)), i++) {
+      if (i % step) continue;
+      const xx = x(+dt);
+      svg.appendChild(mk('line', { x1: xx, x2: xx, y1: top, y2: H - 20, stroke: '#3a2763', 'stroke-width': 1 }));
+      const lab = mk('text', { x: xx, y: H - 5, 'text-anchor': 'middle', fill: '#b6a6d6', 'font-size': 11 });
+      lab.textContent = dt.getUTCMonth() === 0 ? MON[0] + " '" + String(dt.getUTCFullYear()).slice(2) : MON[dt.getUTCMonth()];
+      svg.appendChild(lab);
+    }
+    SECTIONS.forEach(sec => { const t = mk('text', { x: 0, y: offs[sec] + lanes[sec] * rowH / 2 + 4, fill: '#b6a6d6', 'font-size': 12 }); t.textContent = sec; svg.appendChild(t); });
+    const now = Date.now();
+    if (now >= t0 && now <= t1) svg.appendChild(mk('line', { x1: x(now), x2: x(now), y1: top, y2: H - 20, stroke: '#ff9a4a', 'stroke-dasharray': '3 3' }));
+    const tip = el('div', 'tip'); tip.hidden = true; box.appendChild(tip);
+    const show = (ev, d) => {
+      tip.replaceChildren(el('div', 't2', d.dates), el('div', null, d.festival), el('div', 't2', d.city + (dist(d) ? ' · ' + dist(d) + ' from Hermosa' : '') + ' · ' + d.genre));
+      tip.hidden = false;
+      const r = box.getBoundingClientRect(); const mx = ev.clientX - r.left, my = ev.clientY - r.top;
+      tip.style.left = Math.min(Math.max(0, mx + 12), box.clientWidth - tip.offsetWidth) + 'px'; tip.style.top = (my + 12) + 'px';
+    };
+    data.forEach(d => {
+      const r = mk('rect', { x: x(d.s), y: offs[d.section] + d.lane * rowH + 4, width: Math.max(8, x(d.e) - x(d.s)), height: rowH - 8, rx: 4,
+        fill: SEC_COLOR[SECTIONS.indexOf(d.section)], opacity: d.status === 'Watch' ? .45 : 1 });
+      r.style.cursor = 'pointer';
+      r.addEventListener('mousemove', ev => show(ev, d));
+      r.addEventListener('click', ev => show(ev, d));
+      r.addEventListener('mouseleave', () => { tip.hidden = true; });
+      svg.appendChild(r);
+    });
+    box.appendChild(svg);
+    const lg = $('legend'); lg.replaceChildren();
+    SECTIONS.forEach((sec, i) => { const s = el('span'); const dot = el('i'); dot.style.background = SEC_COLOR[i]; s.append(dot, sec); lg.appendChild(s); });
+    lg.appendChild(el('span', null, 'Faded: dates not confirmed · Dashed line: today'));
+  }
+
+  function makeCard(f) {
+    const mine = (state.picks[state.me] && state.picks[state.me].choices) || {};
+    const v = votesFor(f.id);
+    const card = el('article', 'card' + (mine[f.id] === 'going' ? ' mine-going' : ''));
+    const top = el('div', 'card-top');
+    const h = el('h3'); const href = safeLink(f.link);
+    if (href) { const a = el('a', null, f.festival); a.href = href; a.target = '_blank'; a.rel = 'noopener'; h.appendChild(a); } else h.textContent = f.festival;
+    top.append(h, el('span', 'pill ' + statusClass(f.status), f.status));
+    const meta = el('div', 'meta', f.dates + ' · ' + f.city + (dist(f) ? ' · ' + dist(f) + ' from Hermosa' : ''));
+    const gw = el('div'); gw.appendChild(el('span', 'genre', f.genre)); if (f.kind === 'show') { gw.append(' '); gw.appendChild(el('span', 'show-tag', 'Show')); }
+    if (state.section === 'USA' && f.section === 'Local') { gw.append(' '); gw.appendChild(el('span', 'socal-tag', 'SoCal')); }
+    const tix = el('div', 'tix', f.next_sale_label || '');
+    if (f.price_from) { tix.append(' · from '); tix.appendChild(el('span', 'price', f.price_from)); }
+    const lu = el('div', 'lineup');
+    if (!f.artists || f.artists === 'Lineup TBA') { lu.classList.add('tba'); lu.textContent = 'Lineup not announced yet'; }
+    else f.artists.split(', ').forEach((a, i) => {
+      if (i) lu.append(', ');
+      const link = el('a', null, a); link.target = '_blank'; link.rel = 'noopener'; link.title = 'Search on Spotify';
+      const fc = Math.max(0, ...artistNames(a).map(x => favCounts().get(norm(x)) || 0));
+      if (fc) { link.classList.add('fav'); link.append(el('span', 'fav-n', ' ♥' + fc)); }
+      link.href = 'https://open.spotify.com/search/' + encodeURIComponent(a.split(' (')[0].replace(/ b2b .*/i, ''));
+      lu.appendChild(link);
+    });
+    const choice = el('div', 'choice'); choice.setAttribute('role', 'group'); choice.setAttribute('aria-label', 'Your pick for ' + f.festival);
+    ['going', 'maybe', 'pass'].forEach(k => {
+      const b = el('button', null, LABEL[k]); b.type = 'button'; b.dataset.v = k;
+      b.setAttribute('aria-pressed', String(mine[f.id] === k)); b.disabled = !state.canWrite || !state.me;
+      b.addEventListener('click', () => setPick(f.id, mine[f.id] === k ? null : k));
+      choice.appendChild(b);
+    });
+    const crew = el('div', 'crew');
+    if (!v.going.length && !v.maybe.length) crew.appendChild(el('span', 'none', 'Nobody yet'));
+    v.going.forEach(id => crew.appendChild(el('span', 'g', nameOf(id))));
+    v.maybe.forEach(id => crew.appendChild(el('span', 'm', nameOf(id) + '?')));
+    const matches = lineupFavs(f);
+    if (matches.length) {
+      const total = matches.reduce((t, m) => t + m.count, 0);
+      const lvl = total >= 8 ? 4 : total >= 5 ? 3 : total >= 3 ? 2 : 1;
+      const badge = el('span', 'fav-badge lvl' + lvl, '♥ ' + total);
+      badge.title = total + ' crew fav' + (total > 1 ? 's' : '') + ' on this lineup';
+      badge.setAttribute('aria-label', badge.title);
+      top.lastChild.before(badge);
+      if (lvl >= 3) card.classList.add('hot');
+      card.append(top, meta, gw, el('div', 'sf-tag', 'Crew favs playing: ' + matches.map(m => m.name + ' ♥' + m.count).join(', ')), tix, lu, choice, crew);
+    } else card.append(top, meta, gw, tix, lu, choice, crew);
+    return card;
+  }
+
+  // ---- Header radar blips ----
+  const RADAR_SLOTS = [[.47, .20], [.72, .36], [.86, .55], [.79, .82], [.57, .84], [.46, .58], [.60, .30], [.70, .62]];
+  const BLIP_COLORS = ['#ff3d9a', '#29d3f5', '#ffb547', '#a86bff', '#4be3a3', '#ff7a59', '#7fb2ff', '#f2f26b'];
+  const radarHeat = f => (typeof lineupFavs === 'function' && typeof favCounts === 'function') ? lineupFavs(f).reduce((t, m) => t + (m.count || 1), 0) : (typeof myLineupFavs === 'function' ? myLineupFavs(f).length : 0);
+  function renderRadar() {
+    const box = document.getElementById('blips'); if (!box) return;
+    const hero = box.closest('.hero'); const W = hero.clientWidth, H = hero.clientHeight;
+    box.replaceChildren();
+    if (!W || !H) return;
+    const mobile = W < 700;
+    const MOBILE_SLOTS = [[.04, 196], [.52, 180], [.08, 140], [.54, 122], [.04, 84], [.52, 66]];
+    const slots = mobile ? MOBILE_SLOTS : (W < 900 ? RADAR_SLOTS.slice(0, 5) : RADAR_SLOTS);
+    const cx = mobile ? .5 * W : .68 * W, cy = mobile ? H - 110 : .5 * H;
+    const picks = state.festivals.filter(f => typeof f.miles === 'number')
+      .map(f => ({ f, heat: radarHeat(f) }))
+      .sort((a, b) => (b.f._pin || 0) - (a.f._pin || 0) || b.heat - a.heat || a.f.miles - b.f.miles)
+      .slice(0, slots.length);
+    picks.forEach(({ f }, i) => {
+      const name = f.festival.replace(/ 20\d\d$/, '').replace('Beyond Wonderland at the Gorge', 'BW Gorge').replace('Beyond Wonderland SoCal', 'Beyond Wonderland');
+      const maxName = mobile ? 13 : 20;
+      const label = (name.length > maxName ? name.slice(0, maxName - 1) + '…' : name) + ' · ' + dist(f).toUpperCase();
+      const estW = 18 + label.length * 7.2;
+      let x = slots[i][0] * W, y = mobile ? H - slots[i][1] : slots[i][1] * H;
+      if (!mobile) {
+        if (x + estW > W - 10) x = Math.max(W * .45, W - 10 - estW);
+        if (y < 95 && x + estW > W - 260) y = 100;
+      } else if (x + estW > W - 6) x = Math.max(4, W - 6 - estW);
+      const ang = (Math.atan2(x - cx, -(y - cy)) * 180 / Math.PI + 360) % 360;
+      const delay = (((ang - 50) + 360) % 360) / 360 * 6;
+      const b = el('div', 'blip'); b.style.left = x + 'px'; b.style.top = (y - 6) + 'px'; b.style.animationDelay = delay.toFixed(2) + 's';
+      b.style.color = BLIP_COLORS[i % BLIP_COLORS.length];
+      b.append(el('i'), el('span', null, label));
+      box.appendChild(b);
+    });
+  }
+  let rrT; window.addEventListener('resize', () => { clearTimeout(rrT); rrT = setTimeout(renderRadar, 150); });
+
+  function renderCards() {
+    renderRadar();
+    const cards = $('cards'); cards.replaceChildren();
+    if (!state.festivals.length) { cards.className = 'cards'; cards.appendChild(el('div', 'empty', 'The festival list is empty. Ask Bill to add festivals.')); return; }
+    if (state.section === 'All') {
+      cards.className = 'cols';
+      SECTIONS.forEach(sec => {
+        const col = el('div', 'col'); col.appendChild(el('div', 'col-h', sec === 'Local' ? 'Local · SoCal' : sec === 'USA' ? 'Rest of USA' : sec));
+        state.festivals.filter(f => f.section === sec).sort(byStart).forEach(f => col.appendChild(makeCard(f)));
+        cards.appendChild(col);
+      });
+      return;
+    }
+    cards.className = 'cards';
+    const list = state.festivals.filter(f => f.section === state.section || (state.section === 'USA' && f.section === 'Local')).sort(byStart);
+    if (!list.length) { cards.appendChild(el('div', 'empty', 'No festivals in this section yet.')); return; }
+    list.forEach(f => cards.appendChild(makeCard(f)));
+  }
+
+  // ---- Spotifavs ----
+  const artistNames = a => a.split(' (')[0].split(/ b2b /i).map(x => x.trim()).filter(Boolean);
+  function lineupIndex() {
+    const idx = new Map();
+    state.festivals.forEach(f => {
+      if (!f.artists || f.artists === 'Lineup TBA') return;
+      f.artists.split(', ').forEach(a => artistNames(a).forEach(n => {
+        const k = norm(n); if (!k) return;
+        if (!idx.has(k)) idx.set(k, []);
+        idx.get(k).push(f.festival.replace(/ 20\d\d$/, ''));
+      }));
+    });
+    return idx;
+  }
+  let _ck = null;
+  let _cc = null;
+  const favCounts = () => _cc || (_cc = (() => { const m = new Map(); Object.values(state.favs).forEach(list => new Set(list.map(norm)).forEach(k => m.set(k, (m.get(k) || 0) + 1))); return m; })());
+  const crewFavKeys = () => _ck || (_ck = new Set(favCounts().keys()));
+  function lineupFavs(f) {
+    if (!f.artists || f.artists === 'Lineup TBA') return [];
+    const counts = favCounts(), out = [];
+    f.artists.split(', ').forEach(a => artistNames(a).forEach(n => { const c = counts.get(norm(n)); if (c && !out.some(o => o.name === n)) out.push({ name: n, count: c }); }));
+    return out.sort((a, b) => b.count - a.count);
+  }
+  const myFavs = () => state.favs[state.me] || [];
+  let favWriting = Promise.resolve();
+  function toggleFav(name) {
+    if (!state.me || !state.canWrite) return;
+    name = String(name).trim().slice(0, 80); if (!name) return;
+    const cur = [...myFavs()]; const i = cur.findIndex(x => norm(x) === norm(name));
+    if (i >= 0) cur.splice(i, 1); else { if (cur.length >= 100) { showNotice('You can have up to 100 fav artists.'); return; } cur.push(name); }
+    state.favs[state.me] = cur; _ck = null; _cc = null;
+    renderSpotifavs(); renderCards();
+    favWriting = favWriting.then(() => db.collection('favs').doc(state.me).set({ artists: cur, updatedAt: new Date().toISOString() }))
+      .catch(e => showNotice(e && e.code === 'not_granted' ? 'Your fav artists didn\'t save because your sign-in expired. Sign in again.' : 'Your fav artists didn\'t save. Check your connection and try again.'));
+  }
+  const GENRES = ['All', 'SoCal scene', 'Top 100', 'On a lineup', ...[...new Set(DJS.map(d => d.genre))].sort(), 'Crew added'];
+  function pool() {
+    const seen = new Set(DJS.map(d => norm(d.name))), extra = [];
+    state.festivals.forEach(f => (f.artists && f.artists !== 'Lineup TBA') && f.artists.split(', ').forEach(a => artistNames(a).forEach(n => { const k = norm(n); if (k && !seen.has(k)) { seen.add(k); extra.push({ name: n, genre: 'On a lineup', top: 0, socal: false }); } })));
+    Object.values(state.favs).forEach(list => list.forEach(n => { const k = norm(n); if (k && !seen.has(k)) { seen.add(k); extra.push({ name: n, genre: 'Crew added', top: 0, socal: false, crew: true }); } }));
+    return DJS.concat(extra);
+  }
+  function renderGenres() {
+    const box = $('sf-genres'); box.replaceChildren();
+    GENRES.forEach(g => {
+      const b = el('button', null, g); b.type = 'button'; b.setAttribute('aria-pressed', String(state.sfGenre === g && !state.sfQuery));
+      b.addEventListener('click', () => { state.sfGenre = g; state.sfQuery = ''; $('sf-q').value = ''; renderSpotifavs(); });
+      box.appendChild(b);
+    });
+  }
+  function favChip(name, opts) {
+    const mine = myFavs().some(x => norm(x) === norm(name));
+    const b = el('button', 'sf-chip' + (opts && opts.sel ? ' sel' : '')); b.type = 'button';
+    b.setAttribute('aria-pressed', String(mine)); b.disabled = !state.canWrite || !state.me;
+    b.append(name);
+    if (opts && opts.badge) b.appendChild(el('span', 'b', opts.badge));
+    b.addEventListener('click', () => toggleFav(name));
+    return b;
+  }
+  function renderSpotifavs() {
+    const idx = lineupIndex();
+    // mine
+    const sel = $('sf-selected'); sel.replaceChildren();
+    const mine = myFavs();
+    $('sf-count').textContent = mine.length ? mine.length + ' picked' : '';
+    if (!mine.length) sel.appendChild(el('div', 'empty', state.me ? 'Tap artists below to add them.' : 'Log in to pick your favs, see the updated festivals, and choose shows to consider.'));
+    mine.forEach(n => sel.appendChild(favChip(n, { sel: true })));
+    // results
+    renderGenres();
+    const res = $('sf-results'); res.replaceChildren();
+    const q = state.sfQuery.trim(); const nq = norm(q);
+    let list;
+    const all = pool();
+    if (q) list = all.filter(d => norm(d.name).includes(nq)).sort((a, b) => (norm(a.name).startsWith(nq) ? 0 : 1) - (norm(b.name).startsWith(nq) ? 0 : 1) || (a.top || 999) - (b.top || 999));
+    else if (state.sfGenre === 'All') list = all.slice().sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+    else if (state.sfGenre === 'Top 100') list = DJS.filter(d => d.top).sort((a, b) => a.top - b.top);
+    else if (state.sfGenre === 'SoCal scene') list = DJS.filter(d => d.socal).sort((a, b) => a.name.localeCompare(b.name));
+    else if (state.sfGenre === 'Crew added') list = all.filter(d => d.crew).sort((a, b) => a.name.localeCompare(b.name));
+    else if (state.sfGenre === 'On a lineup') {
+      const seen = new Set(DJS.map(d => norm(d.name)));
+      list = DJS.filter(d => idx.has(norm(d.name)));
+      idx.forEach((fests, k) => { if (!seen.has(k)) { /* lineup artists not in the big list */ } });
+      state.festivals.forEach(f => (f.artists && f.artists !== 'Lineup TBA') && f.artists.split(', ').forEach(a => artistNames(a).forEach(n => { if (!seen.has(norm(n))) { seen.add(norm(n)); list.push({ name: n, genre: f.genre, top: 0 }); } })));
+    }
+    else list = DJS.filter(d => d.genre === state.sfGenre).sort((a, b) => a.name.localeCompare(b.name));
+    const LIMIT = (!q && state.sfGenre === 'All') ? 5000 : 250;
+    list.slice(0, LIMIT).forEach(d => res.appendChild(favChip(d.name, { badge: d.top ? '#' + d.top : (idx.has(norm(d.name)) ? 'LINEUP' : (d.socal ? 'SOCAL' : (d.crew ? 'CREW' : ''))) })));
+    if (q && !all.some(d => norm(d.name) === nq) && !mine.some(x => norm(x) === nq)) {
+      const add = el('button', 'sf-chip'); add.type = 'button'; add.disabled = !state.canWrite || !state.me;
+      add.textContent = '+ Add "' + q.slice(0, 80) + '"'; add.addEventListener('click', () => { toggleFav(q); state.sfQuery = ''; $('sf-q').value = ''; renderSpotifavs(); });
+      res.appendChild(add);
+    }
+    if (!list.length && !q) res.appendChild(el('div', 'empty', 'Nothing here yet.'));
+    if (list.length > LIMIT) res.appendChild(el('div', 'sf-more', 'Showing ' + LIMIT + ' of ' + list.length + '. Search to find more.'));
+    // crew
+    const tally = new Map();
+    Object.entries(state.favs).forEach(([uid, arr]) => arr.forEach(n => {
+      const k = norm(n); if (!tally.has(k)) tally.set(k, { name: n, who: [] });
+      tally.get(k).who.push(uid);
+    }));
+    const rows = [...tally.values()].sort((a, b) => b.who.length - a.who.length || a.name.localeCompare(b.name)).slice(0, 30);
+    const crew = $('sf-crew'); crew.replaceChildren();
+    if (!rows.length) { crew.appendChild(el('div', 'empty', 'No fav artists yet. Pick a few to get it started.')); return; }
+    rows.forEach(r => {
+      const row = el('div', 'sf-crew-row');
+      row.append(el('div', 'n', r.name), el('div', 'c', '♥ ' + r.who.length));
+      const w = el('div', 'w', r.who.map(nameOf).join(', '));
+      const fests = idx.get(norm(r.name));
+      if (fests) { w.append(' · '); w.appendChild(el('b', null, 'Playing ' + [...new Set(fests)].join(', '))); }
+      row.appendChild(w); crew.appendChild(row);
+    });
+  }
+  let sfT; $('sf-q').addEventListener('input', e => { clearTimeout(sfT); sfT = setTimeout(() => { state.sfQuery = e.target.value; renderSpotifavs(); }, 120); });
+  $('sf-q').addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return; const q = e.target.value.trim(); if (!q) return;
+    const all = pool(); const hit = all.find(d => norm(d.name) === norm(q)) || all.find(d => norm(d.name).startsWith(norm(q)));
+    toggleFav(hit ? hit.name : q); e.target.value = ''; state.sfQuery = ''; renderSpotifavs();
+  });
+
+  function renderAll() { renderShowToggle(); renderNext(); renderCountdown(); renderTiles(); renderAlerts(); renderBoard(); renderSpotifavs(); renderCalendar(); renderCards(); }
+
+  let writing = Promise.resolve();
+  function setPick(slug, value) {
+    if (!state.me || !state.canWrite) return;
+    const current = { ...((state.picks[state.me] && state.picks[state.me].choices) || {}) };
+    if (value) current[slug] = value; else delete current[slug];
+    state.picks[state.me] = { choices: current };
+    renderBoard(); renderCards();
+    writing = writing.then(() => db.collection('picks').doc(state.me).set({ choices: current, updatedAt: new Date().toISOString() }))
+      .catch(e => showNotice(e && e.code === 'not_granted' ? 'Your pick didn\'t save because your sign-in expired. Sign in again.' : 'Your pick didn\'t save. Check your connection and try again.'));
+  }
+
+  document.querySelectorAll('.tile[data-goto]').forEach(t => t.addEventListener('click', () => {
+    const tab = document.querySelector('#tabs button[data-sec="' + t.dataset.goto + '"]'); if (tab) tab.click();
+    const f = document.getElementById('festivals'); if (f) f.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  }));
+  document.getElementById('show-toggle').addEventListener('click', () => {
+    SHOWS = !SHOWS; try { localStorage.setItem('fr-show-shows', SHOWS ? '1' : '0'); } catch (e) {}
+    renderAll();
+  });
+  document.querySelectorAll('#tabs button').forEach(btn => btn.addEventListener('click', () => {
+    state.section = btn.dataset.sec;
+    document.querySelectorAll('#tabs button').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+    renderCards();
+  }));
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(renderCalendar, 150); });
+
+  if (state.signedOut) {
+    // Signed out: show the built-in snapshot of the festival list, read-only; Splash House and Beyond Wonderland lead the radar.
+    try { state.festivals = (JSON.parse(document.getElementById('festival-data').textContent).festivals || []).filter(f => f && f.festival); } catch (e) { state.festivals = []; }
+    const pin = ['splash-house-2027', 'beyond-wonderland-socal-2027'];
+    state.festivals.forEach(f => { if (pin.includes(f.id)) f._pin = 1; });
+    renderAll();
+  } else {
+  db.collection('festivals').onSnapshot(snap => {
+    state.festivals = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(f => f.festival);
+    renderAll();
+  }, () => { $('cards').replaceChildren(el('div', 'empty', 'The festival list couldn\'t load. Reload the page to try again.')); });
+
+  db.collection('picks').onSnapshot(snap => {
+    const next = {};
+    snap.docs.forEach(d => { const data = d.data(); if (data && data.choices && typeof data.choices === 'object') next[d.id] = data; });
+    state.picks = next;
+    renderBoard(); renderCards(); resolveNames();
+  }, () => {});
+
+  db.collection('favs').onSnapshot(snap => {
+    const next = {};
+    snap.docs.forEach(d => { const data = d.data(); if (data && Array.isArray(data.artists)) next[d.id] = data.artists.filter(x => typeof x === 'string' && x.trim()).map(x => x.slice(0, 80)).slice(0, 100); });
+    state.favs = next; _ck = null; _cc = null;
+    renderSpotifavs(); renderCards(); resolveNames();
+  }, () => {});
+  }
+})();
+</script>
+
+</body></html>
