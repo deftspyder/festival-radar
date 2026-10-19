@@ -118,6 +118,10 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .sub-h { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
 .empty { color: var(--muted); font-size: 14px; padding: 6px 0; }
 
+.range { display: inline-flex; gap: 4px; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel-2); margin: 0 0 14px; }
+.range button { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px; border: none; background: transparent; color: var(--muted); cursor: pointer; min-height: 32px; }
+.range button[aria-pressed="true"] { background: linear-gradient(90deg, var(--pink), var(--violet)); color: #fff; }
+.alerts-more { font-size: 12px; color: var(--muted); margin-top: 10px; }
 .alerts { display: flex; flex-direction: column; gap: 10px; }
 .alert { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; align-items: baseline; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
 .alert:last-child { border-bottom: none; padding-bottom: 0; }
@@ -301,6 +305,11 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
     <section class="panel" id="alerts-panel">
       <h2>Presale alerts</h2>
       <p class="sub-h">Presales opening soon, tickets on sale now, and festivals to watch before the cheap tiers drop.</p>
+      <div class="range" id="alert-range" role="group" aria-label="Show alerts for">
+        <button type="button" data-m="3" aria-pressed="false">3 months</button>
+        <button type="button" data-m="6" aria-pressed="true">6 months</button>
+        <button type="button" data-m="12" aria-pressed="false">Year</button>
+      </div>
       <div class="alerts" id="alerts"><div class="empty">Loading…</div></div>
     </section>
     <section class="panel" id="leaderboard">
@@ -699,17 +708,34 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
     });
   }
 
+  let ALERT_MONTHS = 6; try { const v = Number(localStorage.getItem('fr-alert-months')); if ([3, 6, 12].includes(v)) ALERT_MONTHS = v; } catch (e) {}
+  document.querySelectorAll('#alert-range button').forEach(b => b.addEventListener('click', () => {
+    ALERT_MONTHS = Number(b.dataset.m); try { localStorage.setItem('fr-alert-months', String(ALERT_MONTHS)); } catch (e) {}
+    renderAlerts();
+  }));
   function renderAlerts() {
     const box = $('alerts'); box.replaceChildren();
     const order = { 'Presale soon': 0, 'On sale': 1, 'Watch': 2 };
-    const rows = state.festivals.filter(f => f.status in order)
+    const all = state.festivals.filter(f => f.status in order);
+    // Range: 3 or 6 months from today by festival start (or presale date); "Year" shows everything.
+    const within = f => {
+      if (ALERT_MONTHS >= 12) return true;
+      const end = new Date(); end.setMonth(end.getMonth() + ALERT_MONTHS); const lim = end.toISOString().slice(0, 10);
+      const d = f.start || (f.next_sale || '').slice(0, 10);
+      return !!d && d <= lim;
+    };
+    const rows = all.filter(within)
       .sort((a, b) => order[a.status] - order[b.status] || (a.next_sale || 'z').localeCompare(b.next_sale || 'z') || byStart(a, b));
-    if (!rows.length) { box.appendChild(el('div', 'empty', 'Nothing to watch right now.')); return; }
+    document.querySelectorAll('#alert-range button').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.m) === ALERT_MONTHS)));
+    if (!rows.length) { box.appendChild(el('div', 'empty', ALERT_MONTHS >= 12 ? 'Nothing to watch right now.' : 'Nothing in the next ' + ALERT_MONTHS + ' months. Tap Year to see everything.')); return; }
+    const hidden = all.length - rows.length;
+
     rows.forEach(f => {
       const row = el('div', 'alert');
       row.append(el('span', 'pill ' + statusClass(f.status), f.status), el('span', 'n', f.festival), el('span', 'w', f.next_sale_label + (f.price_from ? ' · from ' + f.price_from : '') + ' · ' + f.section));
       box.appendChild(row);
     });
+    if (hidden > 0) box.appendChild(el('div', 'alerts-more', hidden + ' more further out. Tap Year to see them.'));
   }
 
   function renderBoard() {
