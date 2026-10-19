@@ -299,12 +299,45 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
 #admin .tbl { overflow-x: auto; }
 @media (max-width: 560px) { #admin .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .btabs.five { grid-template-columns: repeat(5, 1fr); }
+.acct { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: linear-gradient(135deg, var(--pink), var(--violet)); color: #fff; font: inherit; font-weight: 800; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0; flex: none; }
+.acct svg { width: 22px; height: 22px; fill: none; stroke: #fff; stroke-width: 1.8; }
+.mnav .mn-right { display: flex; gap: 8px; align-items: center; }
+dialog.sheet { background: var(--panel); color: var(--fg); border: 1px solid var(--line); border-radius: 16px; padding: 0; width: min(520px, calc(100vw - 24px)); max-height: calc(100vh - 32px); box-shadow: 0 20px 60px rgba(0,0,0,.6), 0 0 30px -12px var(--pink); }
+dialog.sheet::backdrop { background: rgba(5,2,12,.7); }
+dialog.sheet .sh-head { position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; background: var(--panel); border-bottom: 1px solid var(--line); z-index: 1; }
+dialog.sheet .sh-head h2 { margin: 0; }
+dialog.sheet .sh-x { font: inherit; font-size: 22px; line-height: 1; width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; }
+dialog.sheet .sh-body { padding: 4px 18px 20px; }
+dialog.sheet h3 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--cyan); margin: 20px 0 8px; }
+dialog.sheet .line { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+dialog.sheet input[type=text] { font: inherit; font-size: 16px; flex: 1 1 180px; min-width: 0; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: #120a24; color: var(--fg); }
+dialog.sheet .muted { color: var(--muted); font-size: 13px; }
+dialog.sheet .crew-card { border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 10px; background: var(--panel-2); }
+dialog.sheet .crew-card .ct { display: flex; justify-content: space-between; gap: 8px; align-items: center; flex-wrap: wrap; }
+dialog.sheet .crew-card .ct b { font-size: 16px; }
+dialog.sheet .mem { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid var(--line); font-size: 14px; }
+dialog.sheet .mem:first-of-type { border-top: none; }
+dialog.sheet .mem small { color: var(--muted); }
+dialog.sheet .lnk { font: inherit; font-size: 13px; font-weight: 600; background: none; border: none; color: var(--cyan); cursor: pointer; padding: 4px 2px; }
+dialog.sheet .lnk.danger { color: var(--orange); }
+dialog.sheet .setrow { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+dialog.sheet .setrow:first-of-type { border-top: none; }
+dialog.sheet .soon { font-size: 11px; font-weight: 700; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; }
+dialog.sheet .chk { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; margin: 12px 0; }
+dialog.sheet .chk input { width: 20px; height: 20px; accent-color: var(--pink); margin-top: 1px; flex: none; }
+dialog.sheet select, .crewpick select { font: inherit; font-size: 15px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: #120a24; color: var(--fg); max-width: 100%; }
+dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120a24; border: 1px dashed var(--line); border-radius: 10px; padding: 8px 10px; margin-top: 10px; }
+.crewpick { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 0 0 12px; }
+.crewpick .cname { font-weight: 700; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(90px + env(safe-area-inset-bottom, 0px)); z-index: 80; background: #0d0620; border: 1px solid var(--pink); color: var(--fg); padding: 10px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; box-shadow: 0 0 20px -6px var(--pink); max-width: calc(100vw - 32px); text-align: center; }
+.invite-banner { background: linear-gradient(90deg, rgba(255,61,154,.18), rgba(168,107,255,.18)); border: 1px solid rgba(255,61,154,.5); border-radius: 12px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.invite-banner b { color: #fff; }
 </style>
 
 <div class="wrap">
   <nav class="mnav" aria-label="Sections">
     <a class="mn-title" href="#top" id="mn-home">Festival Radar</a>
-    <button type="button" class="mn-btn" id="mn-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mn-panel"><span></span><span></span><span></span></button>
+    <div class="mn-right"><button type="button" class="acct" id="acct-m" hidden aria-label="Settings"></button><button type="button" class="mn-btn" id="mn-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mn-panel"><span></span><span></span><span></span></button></div>
     <div class="mn-panel" id="mn-panel" hidden></div>
   </nav>
   <header class="hero" id="top">
@@ -319,6 +352,8 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
     </div>
     <div class="who" id="who">Connecting…</div>
   </header>
+
+  <div class="invite-banner" id="invite-banner" hidden></div>
 
   <div class="showbar" id="showbar">
     <button type="button" class="sw" id="show-toggle" role="switch" aria-checked="false"><span class="knob"></span></button>
@@ -340,7 +375,8 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
     </section>
     <section class="panel" id="leaderboard">
       <h2>Crew favorites</h2>
-      <p class="sub-h">Festivals with the most people going or maybe going.</p>
+      <div class="crewpick" id="crewpick"></div>
+      <p class="sub-h" id="crew-sub">Festivals with the most people going or maybe going.</p>
       <div class="board" id="board"><div class="empty">No picks yet. Be the first: mark a festival below.</div></div>
       <h3 class="sub-title">Crew fav artists <small>most loved first</small></h3>
       <div id="sf-crew"><div class="empty">No fav artists yet. Pick a few to get it started.</div></div>
@@ -409,6 +445,36 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
   <p class="foot">Festival details from official announcements, music press, 19hz and Resident Advisor. Updated <span id="updated"></span>. <a href="privacy.html">Privacy</a></p>
 </div>
 
+<dialog class="sheet" id="settings" aria-labelledby="set-h">
+  <div class="sh-head"><h2 id="set-h">Settings</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
+  <div class="sh-body">
+    <h3>Profile</h3>
+    <div class="line"><input type="text" id="set-name" maxlength="60" aria-label="Your name"><button type="button" class="abtn" id="set-name-save">Save name</button></div>
+    <p class="muted" id="set-email"></p>
+    <h3>Your crews</h3>
+    <div id="set-crews"></div>
+    <div class="line"><input type="text" id="set-newcrew" maxlength="40" placeholder="New crew name" aria-label="New crew name"><button type="button" class="abtn alt" id="set-newcrew-go">Create crew</button></div>
+    <h3>View</h3>
+    <div class="setrow"><span>See all my crews together<br><span class="muted">Crew favorites and heart badges count every crew you're in.</span></span><button type="button" class="sw" id="set-allcrews" role="switch" aria-checked="false" aria-label="See all my crews together"><span class="knob"></span></button></div>
+    <div class="setrow"><span>Include local shows</span><button type="button" class="sw" id="set-shows" role="switch" aria-checked="false" aria-label="Include local shows"><span class="knob"></span></button></div>
+    <h3>Coming soon</h3>
+    <div class="setrow"><span>Skins</span><span class="soon">Soon</span></div>
+    <div class="setrow"><span>Notifications</span><span class="soon">Soon</span></div>
+    <h3>Account</h3>
+    <div class="line"><button type="button" class="abtn alt" id="set-invite">Invite friends</button><button type="button" class="abtn alt" id="set-signout">Sign out</button></div>
+  </div>
+</dialog>
+<dialog class="sheet" id="invite" aria-labelledby="inv-h">
+  <div class="sh-head"><h2 id="inv-h">Invite friends</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
+  <div class="sh-body">
+    <p class="muted">Send a link by text, the group chat, or anywhere. Friends sign in with Google or their email.</p>
+    <label class="chk"><input type="checkbox" id="inv-crew-on" checked> <span>Add to my crew <select id="inv-crew" aria-label="Which crew"></select></span></label>
+    <div class="line"><button type="button" class="abtn" id="inv-share">Share invite link</button><button type="button" class="abtn alt" id="inv-copy">Copy link</button><button type="button" class="lnk" id="inv-new" title="Old crew links stop working">New crew link</button></div>
+    <div class="linkbox" id="inv-link" hidden></div>
+    <p class="muted" id="inv-note"></p>
+  </div>
+</dialog>
+<div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
 <dialog class="signin" id="signin" aria-labelledby="signin-h">
   <form id="signin-form" method="dialog">
     <h2 id="signin-h">Sign in to Festival Radar</h2>
@@ -470,7 +536,10 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
   let uid = null, myName = '';
   const caches = { picks: {}, favs: {} };
   const subs = { picks: [], favs: [] };
-  const snap = g => ({ docs: Object.keys(g).map(id => ({ id, data: () => g[id] })) });
+  let visible = null; // Set of user ids shown in crew views; null = everything the database allows
+  const filt = g => { if (!visible) return g; const o = {}; Object.keys(g).forEach(k => { if (visible.has(k)) o[k] = g[k]; }); return o; };
+  const snap = g => ({ docs: Object.keys(filt(g)).map(id => ({ id, data: () => g[id] })) });
+  const emitAll = () => { subs.picks.forEach(cb => cb(snap(caches.picks))); subs.favs.forEach(cb => cb(snap(caches.favs))); };
   const denied = e => e && (e.code === '42501' || e.status === 401 || e.status === 403);
 
   async function loadPicks() {
@@ -587,6 +656,10 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
     if (!error) loadAdmin();
   }
   async function initMember() {
+    try { const { data: u } = await sb.auth.getUser(); userEmail = (u && u.user && u.user.email) || ''; } catch (e) {}
+    wireMember();
+    await redeemPending().catch(() => {});
+    await loadCrews().catch(() => {});
     const box = document.getElementById('suggest');
     if (box) {
       box.hidden = false; loadMine().catch(() => {});
@@ -610,6 +683,165 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
     }
   }
 
+
+  // ---------- Crews, settings and invites ----------
+  const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const lsSet = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} };
+  const urlInvite = (() => { try { const c = new URLSearchParams(location.search).get('invite'); return c && /^[a-f0-9]{8,32}$/i.test(c) ? c.toLowerCase() : null; } catch (e) { return null; } })();
+  if (urlInvite) lsSet('fr-invite', urlInvite);
+  function inviteQS() { const c = lsGet('fr-invite'); return c ? '?invite=' + encodeURIComponent(c) : ''; }
+  window.inviteQS = inviteQS;
+  let crews = [], activeCrew = lsGet('fr-crew'), allCrews = lsGet('fr-all-crews') === '1', userEmail = '';
+  const toast = t => { const e = document.getElementById('toast'); if (!e) return; e.textContent = t; e.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => { e.hidden = true; }, 4200); };
+  function recomputeVisible() {
+    if (!uid) { visible = null; return; }
+    const set = new Set([uid]);
+    const use = allCrews ? crews : crews.filter(c => c.id === activeCrew);
+    use.forEach(c => (c.members || []).forEach(m => set.add(m.id)));
+    visible = set;
+  }
+  function renderCrewPick() {
+    const box = document.getElementById('crewpick'), sub = document.getElementById('crew-sub'); if (!box) return;
+    box.replaceChildren();
+    if (!crews.length) {
+      box.appendChild(mk('span', 'muted', 'You\'re not in a crew yet.'));
+      const b = mk('button', 'abtn', 'Create a crew'); b.type = 'button'; b.addEventListener('click', () => FR.openSettings('crews')); box.appendChild(b);
+      if (sub) sub.textContent = 'Only your own picks show until you join or create a crew.'; return;
+    }
+    if (allCrews) { box.appendChild(mk('span', 'cname', 'All my crews (' + crews.length + ')')); }
+    else if (crews.length === 1) { box.appendChild(mk('span', 'cname', crews[0].name)); }
+    else {
+      const sel = mk('select'); sel.setAttribute('aria-label', 'Which crew');
+      crews.forEach(c => { const o = mk('option', null, c.name); o.value = c.id; if (c.id === activeCrew) o.selected = true; sel.appendChild(o); });
+      sel.addEventListener('change', () => { activeCrew = sel.value; lsSet('fr-crew', activeCrew); recomputeVisible(); emitAll(); renderCrewPick(); });
+      box.appendChild(sel);
+    }
+    const n = allCrews ? new Set(crews.flatMap(c => (c.members || []).map(m => m.id))).size : ((crews.find(c => c.id === activeCrew) || {}).members || []).length;
+    box.appendChild(mk('span', 'muted', n + (n === 1 ? ' member' : ' members')));
+    const inv = mk('button', 'lnk', 'Invite'); inv.type = 'button'; inv.addEventListener('click', () => FR.openInvite()); box.appendChild(inv);
+    if (sub) sub.textContent = 'Festivals with the most people in ' + (allCrews ? 'your crews' : 'this crew') + ' going or maybe going.';
+  }
+  async function loadCrews() {
+    const { data } = await sb.rpc('my_crews');
+    crews = Array.isArray(data) ? data : [];
+    if (!crews.find(c => c.id === activeCrew)) { activeCrew = crews.length ? crews[0].id : null; lsSet('fr-crew', activeCrew); }
+    recomputeVisible(); emitAll(); renderCrewPick(); renderSettingsCrews();
+    // Names of everyone in my crews, for the board
+    const ids = [...new Set(crews.flatMap(c => (c.members || []).map(m => m.id)))];
+    return ids;
+  }
+  async function redeemPending() {
+    const code = lsGet('fr-invite'); if (!code) return;
+    lsSet('fr-invite', null);
+    try { if (urlInvite) history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}
+    const { data } = await sb.rpc('redeem_invite', { code });
+    const st = data && data.status;
+    if (st === 'joined') { activeCrew = data.crew_id; lsSet('fr-crew', activeCrew); allCrews = false; lsSet('fr-all-crews', '0'); toast('You joined ' + data.crew + '!'); }
+    else if (st === 'already') { activeCrew = data.crew_id; lsSet('fr-crew', activeCrew); toast('You\'re already in ' + data.crew + '.'); }
+    else if (st === 'expired') toast('That invite to ' + data.crew + ' expired. Ask for a new link.');
+    else if (st === 'full') toast(data.crew + ' is full (50 members).');
+    else if (st === 'site') toast('Welcome to Festival Radar!');
+  }
+  async function showInviteBanner() {
+    const code = lsGet('fr-invite'); const ban = document.getElementById('invite-banner'); if (!code || !ban || !sb) return;
+    const { data } = await sb.rpc('invite_info', { code });
+    if (!data) return;
+    ban.replaceChildren();
+    const t = mk('span'); t.append(mk('b', null, data.inviter), data.crew ? ' invited you to join ' : ' invited you to Festival Radar.');
+    if (data.crew) { t.appendChild(mk('b', null, data.crew)); t.append(' on Festival Radar.'); }
+    if (data.expired) t.append(' This link has expired, but you can still sign up.');
+    const b = mk('button', 'abtn', 'Sign in to join'); b.type = 'button'; b.addEventListener('click', () => FR.openSignIn());
+    ban.append(t, b); ban.hidden = false;
+  }
+  function renderSettingsCrews() {
+    const box = document.getElementById('set-crews'); if (!box) return; box.replaceChildren();
+    if (!crews.length) box.appendChild(mk('p', 'muted', 'No crews yet. Create one below, or ask a friend for an invite link.'));
+    crews.forEach(c => {
+      const own = c.owner === uid; const card = mk('div', 'crew-card'); const head = mk('div', 'ct');
+      head.appendChild(mk('b', null, c.name));
+      const acts = mk('div', 'line');
+      if (own) { const r = mk('button', 'lnk', 'Rename'); r.type = 'button'; r.addEventListener('click', async () => { const n = prompt('Crew name:', c.name); if (!n || !n.trim()) return; const { error } = await sb.from('crews').update({ name: n.trim().slice(0, 40) }).eq('id', c.id); if (!error) { toast('Renamed to ' + n.trim().slice(0, 40)); loadCrews(); } }); acts.appendChild(r); }
+      const iv = mk('button', 'lnk', 'Invite'); iv.type = 'button'; iv.addEventListener('click', () => FR.openInvite(c.id)); acts.appendChild(iv);
+      const lv = mk('button', 'lnk danger', 'Leave'); lv.type = 'button'; lv.addEventListener('click', async () => { if (!confirm('Leave ' + c.name + '?' + (own ? ' Ownership passes to the next member.' : ''))) return; const { error } = await sb.rpc('leave_or_remove', { c: c.id, who: uid }); if (!error) { toast('You left ' + c.name); loadCrews(); } }); acts.appendChild(lv);
+      head.appendChild(acts); card.appendChild(head);
+      (c.members || []).forEach(m => {
+        const row = mk('div', 'mem'); const nm = mk('span', null, m.name + (m.id === uid ? ' (you)' : '')); if (m.role === 'owner') nm.appendChild(mk('small', null, ' · owner'));
+        row.appendChild(nm);
+        if (own && m.id !== uid) { const rm = mk('button', 'lnk danger', 'Remove'); rm.type = 'button'; rm.addEventListener('click', async () => { if (!confirm('Remove ' + m.name + ' from ' + c.name + '?')) return; const { error } = await sb.rpc('leave_or_remove', { c: c.id, who: m.id }); if (!error) loadCrews(); }); row.appendChild(rm); }
+        card.appendChild(row);
+      });
+      box.appendChild(card);
+    });
+  }
+  let invCode = null;
+  async function makeLink(fresh) {
+    const on = document.getElementById('inv-crew-on').checked, sel = document.getElementById('inv-crew');
+    const c = on && sel.value ? sel.value : null;
+    const { data, error } = await sb.rpc('crew_invite', { c, fresh: !!fresh });
+    if (error || !data) { document.getElementById('inv-note').textContent = 'Couldn\'t make a link. Try again.'; return null; }
+    invCode = data;
+    const url = location.origin + location.pathname + '?invite=' + data;
+    const lb = document.getElementById('inv-link'); lb.textContent = url; lb.hidden = false;
+    const cn = c ? (crews.find(x => x.id === c) || {}).name : null;
+    document.getElementById('inv-note').textContent = c ? 'Anyone with this link joins ' + cn + '. It works for 14 days; "New crew link" turns off the old one.' : 'This link invites friends to the site only. They won\'t join a crew.';
+    return { url, crew: cn };
+  }
+  function wireMember() {
+    document.querySelectorAll('dialog.sheet [data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+    document.querySelectorAll('dialog.sheet').forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));
+    document.getElementById('set-name-save').addEventListener('click', async () => { const ok = await FR.setName(document.getElementById('set-name').value); if (ok) { toast('Name saved'); setTimeout(() => location.reload(), 700); } });
+    document.getElementById('set-newcrew-go').addEventListener('click', async () => {
+      const inp = document.getElementById('set-newcrew'); const n = inp.value.trim(); if (!n) { inp.focus(); return; }
+      const { data, error } = await sb.rpc('create_crew', { crew_name: n });
+      if (error) { toast(/limit/i.test(error.message) ? 'You can own up to 10 crews.' : 'Couldn\'t create the crew.'); return; }
+      inp.value = ''; activeCrew = data; lsSet('fr-crew', activeCrew); toast('Created ' + n); await loadCrews(); FR.openInvite(data);
+    });
+    const sa = document.getElementById('set-allcrews');
+    sa.addEventListener('click', () => { allCrews = !allCrews; lsSet('fr-all-crews', allCrews ? '1' : '0'); sa.setAttribute('aria-checked', String(allCrews)); recomputeVisible(); emitAll(); renderCrewPick(); });
+    const ss = document.getElementById('set-shows');
+    ss.addEventListener('click', () => { const t = document.getElementById('show-toggle'); if (t) t.click(); ss.setAttribute('aria-checked', t ? t.getAttribute('aria-checked') : 'false'); });
+    document.getElementById('set-invite').addEventListener('click', () => { document.getElementById('settings').close(); FR.openInvite(); });
+    document.getElementById('set-signout').addEventListener('click', () => FR.signOut());
+    const onC = document.getElementById('inv-crew-on'), selC = document.getElementById('inv-crew');
+    onC.addEventListener('change', () => { selC.disabled = !onC.checked; document.getElementById('inv-new').hidden = !onC.checked; makeLink(false); });
+    selC.addEventListener('change', () => makeLink(false));
+    document.getElementById('inv-new').addEventListener('click', async () => { if (!confirm('Make a new crew link? The old link stops working.')) return; await makeLink(true); toast('New link ready'); });
+    document.getElementById('inv-copy').addEventListener('click', async () => { const r = await makeLink(false); if (!r) return; try { await navigator.clipboard.writeText(r.url); toast('Link copied'); } catch (e) { toast('Select the link above to copy it'); } });
+    document.getElementById('inv-share').addEventListener('click', async () => {
+      const r = await makeLink(false); if (!r) return;
+      const text = r.crew ? 'Join ' + r.crew + ' on Festival Radar so we can plan festivals together.' : 'Check out Festival Radar for festivals, presales and who\'s going.';
+      if (navigator.share) { try { await navigator.share({ title: 'Festival Radar', text, url: r.url }); } catch (e) {} }
+      else { try { await navigator.clipboard.writeText(text + ' ' + r.url); toast('Invite copied. Paste it anywhere.'); } catch (e) { toast('Select the link above to copy it'); } }
+    });
+    const am = document.getElementById('acct-m'); if (am) { am.hidden = false; am.textContent = (myName || '?').trim().charAt(0).toUpperCase() || '?'; am.addEventListener('click', () => FR.openSettings()); }
+    // hamburger: Settings and Invite friends
+    const panel = document.getElementById('mn-panel');
+    if (panel) {
+      const sep = mk('div', 'mn-sep'); const a = mk('button', 'mn-cta', 'Settings'); a.type = 'button'; const b = mk('button', 'mn-cta', 'Invite friends'); b.type = 'button';
+      a.addEventListener('click', () => { document.getElementById('mn-btn').click(); FR.openSettings(); });
+      b.addEventListener('click', () => { document.getElementById('mn-btn').click(); FR.openInvite(); });
+      panel.append(sep, a, b);
+    }
+  }
+  const openSettings = (focus) => {
+    const d = document.getElementById('settings'); if (!d || !uid) return;
+    document.getElementById('set-name').value = myName || '';
+    document.getElementById('set-email').textContent = userEmail ? 'Signed in as ' + userEmail : '';
+    document.getElementById('set-allcrews').setAttribute('aria-checked', String(allCrews));
+    const t = document.getElementById('show-toggle'); document.getElementById('set-shows').setAttribute('aria-checked', t ? t.getAttribute('aria-checked') : 'false');
+    renderSettingsCrews(); d.showModal();
+    if (focus === 'crews') setTimeout(() => document.getElementById('set-newcrew').focus(), 50);
+  };
+  const openInvite = (crewId) => {
+    const d = document.getElementById('invite'); if (!d || !uid) return;
+    const sel = document.getElementById('inv-crew'), on = document.getElementById('inv-crew-on'); sel.replaceChildren();
+    crews.forEach(c => { const o = mk('option', null, c.name); o.value = c.id; if (c.id === (crewId || activeCrew)) o.selected = true; sel.appendChild(o); });
+    const has = crews.length > 0; on.checked = has; on.disabled = !has; sel.disabled = !has; sel.hidden = !has;
+    document.getElementById('inv-new').hidden = !has;
+    document.getElementById('inv-link').hidden = true; document.getElementById('inv-note').textContent = has ? '' : 'Create a crew in Settings to invite friends into it. This link invites them to the site.';
+    d.showModal(); makeLink(false);
+  };
+
   // Sign-in dialog
   window.FR = {
     openSignIn() { const d = document.getElementById('signin'); if (d && d.showModal) { d.showModal(); if (window.FR._setupGis) window.FR._setupGis(); } },
@@ -620,8 +852,10 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
       if (!error) myName = v; return !error;
     }
   };
+  window.FR.openSettings = openSettings; window.FR.openInvite = openInvite;
   const googleOn = fetch(SB_URL + '/auth/v1/settings', { headers: { apikey: SB_KEY } }).then(r => r.ok ? r.json() : null).then(j => !!(j && j.external && j.external.google)).catch(() => false);
   const wire = () => {
+    sessionP.then(sess => { if (!sess) showInviteBanner().catch(() => {}); });
     const GOOGLE_CLIENT_ID = '660771060487-uq299vb0sk6s2216d3jc3vldopt2mo8l.apps.googleusercontent.com';
     let gisReady = false;
     const setupGis = async () => {
@@ -653,7 +887,7 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
       try { if (document.getElementById('si-optin').checked) localStorage.setItem('fr-pending-optin', '1'); else localStorage.removeItem('fr-pending-optin'); } catch (e) {}
       const on = await googleOn; if (!on) { say('Google sign-in isn\'t turned on yet. Use the email link for now.', true); return; }
       say('Opening Google…');
-      const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname } });
+      const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname + inviteQS() } });
       if (error) say(/not enabled|unsupported provider/i.test(error.message || '') ? 'Google sign-in isn\'t turned on yet. Use the email link for now.' : 'That didn\'t work: ' + error.message, true);
     });
     f.addEventListener('submit', async e => {
@@ -664,7 +898,7 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
       const optin = document.getElementById('si-optin').checked;
       if (!email) return;
       send.disabled = true; say('Sending…');
-      const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname, data: { full_name: name, marketing_opt_in: optin } } });
+      const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname + inviteQS(), data: { full_name: name, marketing_opt_in: optin } } });
       send.disabled = false;
       if (error) say(error.status === 429 ? 'Too many sign-in emails just now. Wait a few minutes and try again.' : 'That didn\'t work: ' + error.message, true);
       else say('Check your email for a sign-in link from Supabase. Open it on this device.');
@@ -750,9 +984,9 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
   if (user && state.me) {
     const me = await user.me();
     const bar = el('div', 'authbar');
-    const nb = el('button', 'abtn alt', 'Change name'); nb.type = 'button'; nb.addEventListener('click', async () => { const n = prompt('Your name, shown to the crew:', me.name || ''); if (n == null) return; const ok = await FR.setName(n); if (ok) { state.names[state.me] = n.trim().slice(0, 60); $('who').firstChild && ($('who').querySelector('b').textContent = n.trim().slice(0, 60)); renderBoard(); renderCards(); } });
-    const ob = el('button', 'abtn alt', 'Sign out'); ob.type = 'button'; ob.addEventListener('click', () => FR.signOut());
-    bar.append(nb, ob);
+    const nb = el('button', 'abtn alt', 'Settings'); nb.type = 'button'; nb.addEventListener('click', () => FR.openSettings());
+    const ib = el('button', 'abtn alt', 'Invite friends'); ib.type = 'button'; ib.addEventListener('click', () => FR.openInvite());
+    bar.append(nb, ib);
     $('who').replaceChildren('Picking as ', el('b', null, me.name || 'you'), bar);
   } else { $('who').textContent = 'View only. Sign in to make your own picks.'; state.canWrite = false; }
   if (user) { const c = await user.can('data.write'); if (c === false) { state.canWrite = false; const vmsg = 'View-only access: you can see the crew\'s picks but not add your own. Try signing out and back in.'; showNotice(vmsg); $('who').replaceChildren(el('b', 'login-cta', vmsg)); } }
