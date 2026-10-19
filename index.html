@@ -258,6 +258,7 @@ dialog.signin .opt input { margin-top: 3px; accent-color: var(--pink); width: 18
 dialog.signin .row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap; }
 dialog.signin .msg { font-size: 13px; margin-top: 12px; color: var(--ok); }
 dialog.signin .msg.err { color: var(--orange); }
+dialog.signin .gis { margin-top: 16px; min-height: 44px; display: flex; justify-content: center; }
 dialog.signin .gbtn { font: inherit; font-size: 15px; font-weight: 700; width: 100%; margin-top: 16px; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--line); background: #fff; color: #1f1f1f; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
 dialog.signin .gbtn svg { width: 20px; height: 20px; flex: none; }
 dialog.signin .or { display: flex; align-items: center; gap: 10px; margin: 16px 0 2px; color: var(--muted); font-size: 12px; }
@@ -357,7 +358,8 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
 <dialog class="signin" id="signin" aria-labelledby="signin-h">
   <form id="signin-form" method="dialog">
     <h2 id="signin-h">Sign in to Festival Radar</h2>
-    <button type="button" class="gbtn" id="si-google"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.2c0-.8-.1-1.5-.2-2.2H12v4.2h5.9a5 5 0 0 1-2.2 3.3v2.7h3.6c2.1-1.9 3.3-4.8 3.3-8z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.7c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.8A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14.2a6.6 6.6 0 0 1 0-4.3V7.1H2.1a11 11 0 0 0 0 9.9z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7.1l3.7 2.8C6.7 7.3 9.1 5.4 12 5.4z"/></svg>Continue with Google</button>
+    <div id="si-gis" class="gis" hidden></div>
+    <button type="button" class="gbtn" id="si-google" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.2c0-.8-.1-1.5-.2-2.2H12v4.2h5.9a5 5 0 0 1-2.2 3.3v2.7h3.6c2.1-1.9 3.3-4.8 3.3-8z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.7c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.8A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14.2a6.6 6.6 0 0 1 0-4.3V7.1H2.1a11 11 0 0 0 0 9.9z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7.1l3.7 2.8C6.7 7.3 9.1 5.4 12 5.4z"/></svg>Continue with Google</button>
     <div class="or"><span>or get an email link</span></div>
     <label for="si-email">Email</label>
     <input type="email" id="si-email" required autocomplete="email" maxlength="200">
@@ -390,6 +392,7 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
 })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://accounts.google.com/gsi/client" async></script>
 <script>
 // Festival Radar data layer: Supabase sign-in, picks and favorites, plus the festival list from festivals.json.
 // Exposes window.claude.use('db' | 'user') in the shape the page already expects, and window.FR for sign-in.
@@ -492,7 +495,7 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
 
   // Sign-in dialog
   window.FR = {
-    openSignIn() { const d = document.getElementById('signin'); if (d && d.showModal) { d.showModal(); setTimeout(() => { const e = document.getElementById('si-email'); if (e) e.focus(); }, 30); } },
+    openSignIn() { const d = document.getElementById('signin'); if (d && d.showModal) { d.showModal(); if (window.FR._setupGis) window.FR._setupGis(); } },
     async signOut() { if (sb) await sb.auth.signOut(); location.reload(); },
     async setName(n) {
       const v = String(n || '').trim().slice(0, 60); if (!v || !uid) return false;
@@ -502,7 +505,28 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
   };
   const googleOn = fetch(SB_URL + '/auth/v1/settings', { headers: { apikey: SB_KEY } }).then(r => r.ok ? r.json() : null).then(j => !!(j && j.external && j.external.google)).catch(() => false);
   const wire = () => {
-    googleOn.then(on => { if (!on) { const g = document.getElementById('si-google'), o = document.querySelector('dialog.signin .or'); if (g) g.hidden = true; if (o) o.hidden = true; } });
+    const GOOGLE_CLIENT_ID = '660771060487-uq299vb0sk6s2216d3jc3vldopt2mo8l.apps.googleusercontent.com';
+    let gisReady = false;
+    const setupGis = async () => {
+      if (gisReady || !sb || !(window.google && google.accounts && google.accounts.id)) return gisReady;
+      const raw = Array.from(crypto.getRandomValues(new Uint8Array(32)), b => b.toString(16).padStart(2, '0')).join('');
+      const hashed = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw))), b => b.toString(16).padStart(2, '0')).join('');
+      google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, nonce: hashed, ux_mode: 'popup', use_fedcm_for_button: true, callback: async resp => {
+        try { if (document.getElementById('si-optin').checked) localStorage.setItem('fr-pending-optin', '1'); else localStorage.removeItem('fr-pending-optin'); } catch (e) {}
+        say('Signing you in…');
+        const { error } = await sb.auth.signInWithIdToken({ provider: 'google', token: resp.credential, nonce: raw });
+        if (error) say('Google sign-in didn\'t work: ' + error.message, true); else location.reload();
+      } });
+      const box = document.getElementById('si-gis');
+      google.accounts.id.renderButton(box, { type: 'standard', theme: 'outline', size: 'large', shape: 'pill', text: 'continue_with', logo_alignment: 'center', width: Math.min(320, box.clientWidth || 320) });
+      box.hidden = false; gisReady = true; return true;
+    };
+    window.FR._setupGis = () => googleOn.then(on => {
+      const g = document.getElementById('si-google'), o = document.querySelector('dialog.signin .or');
+      if (!on) { if (g) g.hidden = true; if (o) o.hidden = true; return; }
+      if (o) o.hidden = false;
+      setupGis().then(ok => { if (g) g.hidden = !!ok; }).catch(() => { if (g) g.hidden = false; });
+    });
     const d = document.getElementById('signin'), f = document.getElementById('signin-form'); if (!d || !f) return;
     const msg = document.getElementById('si-msg'), send = document.getElementById('si-send');
     const say = (t, err) => { msg.textContent = t; msg.hidden = false; msg.classList.toggle('err', !!err); };
