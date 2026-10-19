@@ -207,6 +207,9 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .sf-genres button[aria-pressed="true"] { color: #0d0620; background: var(--cyan); border-color: var(--cyan); }
 .sf-results { display: flex; flex-wrap: wrap; gap: 6px; max-height: 260px; overflow-y: auto; padding-right: 4px; }
 .sf-more { font-size: 12px; color: var(--muted); }
+#leaderboard .sub-title { font-size: 15px; margin: 22px 0 6px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+#leaderboard .sub-title small { font-weight: 500; color: var(--muted); font-size: 12px; }
+.sf-grid.one { grid-template-columns: minmax(0, 1fr); }
 .sf-crew-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; padding: 7px 0; border-bottom: 1px solid var(--line); }
 .sf-crew-row:last-child { border-bottom: none; }
 .sf-crew-row .n { font-weight: 700; overflow-wrap: anywhere; }
@@ -311,6 +314,8 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
       <h2>Crew favorites</h2>
       <p class="sub-h">Festivals with the most people going or maybe going.</p>
       <div class="board" id="board"><div class="empty">No picks yet. Be the first: mark a festival below.</div></div>
+      <h3 class="sub-title">Crew fav artists <small>most loved first</small></h3>
+      <div id="sf-crew"><div class="empty">No fav artists yet. Pick a few to get it started.</div></div>
     </section>
   </div>
 
@@ -319,24 +324,6 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
     <p class="sub-h">When each festival runs. Hover or tap a bar for details. Festivals without dates are left off.</p>
     <div class="cal" id="cal"></div>
     <div class="legend" id="legend"></div>
-  </section>
-
-  <section class="panel" id="spotifavs">
-    <h2>Add your favorites</h2>
-    <p class="sub-h">Pick the artists you love most. Festivals with crew favorites on the lineup get a heart badge that grows as more of the crew loves those artists, so you can see at a glance which events to prioritize.</p>
-    <div class="sf-grid">
-      <div class="sf-box">
-        <h3>Your fav artists <small id="sf-count"></small></h3>
-        <div class="sf-selected" id="sf-selected"></div>
-        <input class="sf-q" id="sf-q" type="search" placeholder="Search 1,100+ artists, or type any name to add it" aria-label="Search artists" autocomplete="off">
-        <div class="sf-results" id="sf-results"></div>
-        <div class="sf-genres" id="sf-genres" role="group" aria-label="Browse by genre"></div>
-      </div>
-      <div class="sf-box">
-        <h3>Crew fav artists <small>most loved first</small></h3>
-        <div id="sf-crew"><div class="empty">No fav artists yet. Pick a few to get it started.</div></div>
-      </div>
-    </div>
   </section>
 
   <section class="panel" id="festivals">
@@ -354,6 +341,20 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
     </div>
     <p class="notice" id="notice" hidden></p>
     <div class="cards" id="cards"><div class="empty">Loading festivals…</div></div>
+  </section>
+
+  <section class="panel" id="spotifavs">
+    <h2>Add your favorites</h2>
+    <p class="sub-h">Pick the artists you love most. Festivals with crew favorites on the lineup get a heart badge that grows as more of the crew loves those artists, so you can see at a glance which events to prioritize.</p>
+    <div class="sf-grid one">
+      <div class="sf-box">
+        <h3>Your fav artists <small id="sf-count"></small></h3>
+        <div class="sf-selected" id="sf-selected"></div>
+        <input class="sf-q" id="sf-q" type="search" placeholder="Search 1,100+ artists, or type any name to add it" aria-label="Search artists" autocomplete="off">
+        <div class="sf-results" id="sf-results"></div>
+        <div class="sf-genres" id="sf-genres" role="group" aria-label="Browse by genre"></div>
+      </div>
+    </div>
   </section>
 
   <p class="foot">Festival details from official announcements, music press, 19hz and Resident Advisor. Updated <span id="updated"></span>. <a href="privacy.html">Privacy</a></p>
@@ -569,7 +570,7 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
   (function () {
     const btn = document.getElementById('mn-btn'), panel = document.getElementById('mn-panel');
     if (!btn || !panel) return;
-    const SECTIONS_NAV = [['alerts-panel', 'Presale alerts'], ['leaderboard', 'Crew favorites'], ['calendar', 'Festival calendar'], ['spotifavs', 'Add your favorites'], ['favorites', 'Add your favorites'], ['festivals', 'Festivals']];
+    const SECTIONS_NAV = [['alerts-panel', 'Presale alerts'], ['leaderboard', 'Crew favorites'], ['calendar', 'Festival calendar'], ['festivals', 'Festivals'], ['spotifavs', 'Add your favorites'], ['favorites', 'Add your favorites']];
     const close = () => { panel.hidden = true; btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-label', 'Open menu'); };
     const open = () => { panel.hidden = false; btn.setAttribute('aria-expanded', 'true'); btn.setAttribute('aria-label', 'Close menu'); const f = panel.querySelector('button, a'); if (f) f.focus(); };
     const go = id => { const t = document.getElementById(id); close(); if (t) t.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); };
@@ -1009,7 +1010,7 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
       const k = norm(n); if (!tally.has(k)) tally.set(k, { name: n, who: [] });
       tally.get(k).who.push(uid);
     }));
-    const rows = [...tally.values()].sort((a, b) => b.who.length - a.who.length || a.name.localeCompare(b.name)).slice(0, 30);
+    const rows = [...tally.values()].sort((a, b) => b.who.length - a.who.length || a.name.localeCompare(b.name)).slice(0, 12);
     const crew = $('sf-crew'); crew.replaceChildren();
     if (!rows.length) { crew.appendChild(el('div', 'empty', 'No fav artists yet. Pick a few to get it started.')); return; }
     rows.forEach(r => {
