@@ -258,6 +258,10 @@ dialog.signin .opt input { margin-top: 3px; accent-color: var(--pink); width: 18
 dialog.signin .row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap; }
 dialog.signin .msg { font-size: 13px; margin-top: 12px; color: var(--ok); }
 dialog.signin .msg.err { color: var(--orange); }
+dialog.signin .gbtn { font: inherit; font-size: 15px; font-weight: 700; width: 100%; margin-top: 16px; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--line); background: #fff; color: #1f1f1f; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
+dialog.signin .gbtn svg { width: 20px; height: 20px; flex: none; }
+dialog.signin .or { display: flex; align-items: center; gap: 10px; margin: 16px 0 2px; color: var(--muted); font-size: 12px; }
+dialog.signin .or::before, dialog.signin .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
 </style>
 
@@ -353,12 +357,13 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
 <dialog class="signin" id="signin" aria-labelledby="signin-h">
   <form id="signin-form" method="dialog">
     <h2 id="signin-h">Sign in to Festival Radar</h2>
-    <p class="sub-h" style="margin:0">We'll email you a sign-in link. No password needed.</p>
+    <button type="button" class="gbtn" id="si-google"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.2c0-.8-.1-1.5-.2-2.2H12v4.2h5.9a5 5 0 0 1-2.2 3.3v2.7h3.6c2.1-1.9 3.3-4.8 3.3-8z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.7c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.8A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14.2a6.6 6.6 0 0 1 0-4.3V7.1H2.1a11 11 0 0 0 0 9.9z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7.1l3.7 2.8C6.7 7.3 9.1 5.4 12 5.4z"/></svg>Continue with Google</button>
+    <div class="or"><span>or get an email link</span></div>
     <label for="si-email">Email</label>
     <input type="email" id="si-email" required autocomplete="email" maxlength="200">
     <label for="si-name">Your name, shown to the crew</label>
     <input type="text" id="si-name" autocomplete="nickname" maxlength="60" placeholder="First name or nickname">
-    <label class="opt"><input type="checkbox" id="si-optin"> <span>Email me festival deals and presale offers. Optional, and you can change it any time.</span></label>
+    <label class="opt"><input type="checkbox" id="si-optin"> <span>Email me festival deals and presale offers. Optional, and you can change it any time. Applies to Google sign-in too.</span></label>
     <div class="row"><button type="button" class="abtn alt" id="si-cancel">Cancel</button><button type="submit" class="abtn" id="si-send">Email me a link</button></div>
     <p class="msg" id="si-msg" hidden aria-live="polite"></p>
     <p class="fine">By signing in you agree to the <a href="privacy.html">privacy policy</a>. Your name, picks and favorite artists are visible to other signed-in members.</p>
@@ -477,6 +482,8 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
     if (!session || !sb) return null;
     if (!uid) {
       uid = session.user.id;
+      let pending = null; try { pending = localStorage.getItem('fr-pending-optin'); localStorage.removeItem('fr-pending-optin'); } catch (e) {}
+      if (pending === '1') { try { await sb.from('profiles').update({ marketing_opt_in: true, updated_at: new Date().toISOString() }).eq('id', uid); } catch (e) {} }
       const { data } = await sb.from('profiles').select('display_name').eq('id', uid).maybeSingle();
       myName = (data && data.display_name) || '';
     }
@@ -493,11 +500,21 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
       if (!error) myName = v; return !error;
     }
   };
+  const googleOn = fetch(SB_URL + '/auth/v1/settings', { headers: { apikey: SB_KEY } }).then(r => r.ok ? r.json() : null).then(j => !!(j && j.external && j.external.google)).catch(() => false);
   const wire = () => {
+    googleOn.then(on => { if (!on) { const g = document.getElementById('si-google'), o = document.querySelector('dialog.signin .or'); if (g) g.hidden = true; if (o) o.hidden = true; } });
     const d = document.getElementById('signin'), f = document.getElementById('signin-form'); if (!d || !f) return;
     const msg = document.getElementById('si-msg'), send = document.getElementById('si-send');
     const say = (t, err) => { msg.textContent = t; msg.hidden = false; msg.classList.toggle('err', !!err); };
     document.getElementById('si-cancel').addEventListener('click', () => d.close());
+    document.getElementById('si-google').addEventListener('click', async () => {
+      if (!sb) { say('Sign-in could not load. Check your connection and reload the page.', true); return; }
+      try { if (document.getElementById('si-optin').checked) localStorage.setItem('fr-pending-optin', '1'); else localStorage.removeItem('fr-pending-optin'); } catch (e) {}
+      const on = await googleOn; if (!on) { say('Google sign-in isn\'t turned on yet. Use the email link for now.', true); return; }
+      say('Opening Google…');
+      const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname } });
+      if (error) say(/not enabled|unsupported provider/i.test(error.message || '') ? 'Google sign-in isn\'t turned on yet. Use the email link for now.' : 'That didn\'t work: ' + error.message, true);
+    });
     f.addEventListener('submit', async e => {
       e.preventDefault();
       if (!sb) { say('Sign-in could not load. Check your connection and reload the page.', true); return; }
