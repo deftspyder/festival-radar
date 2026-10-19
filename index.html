@@ -271,6 +271,34 @@ dialog.signin .gbtn svg { width: 20px; height: 20px; flex: none; }
 dialog.signin .or { display: flex; align-items: center; gap: 10px; margin: 16px 0 2px; color: var(--muted); font-size: 12px; }
 dialog.signin .or::before, dialog.signin .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
+.suggest { margin-top: 18px; padding: 14px; border: 1px dashed var(--line); border-radius: 12px; background: var(--panel-2); }
+.suggest h3 { margin: 0 0 4px; font-size: 15px; }
+.suggest form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin-top: 10px; }
+.suggest input, .suggest textarea { font: inherit; font-size: 15px; width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: #120a24; color: var(--fg); }
+.suggest textarea { grid-column: 1 / -1; min-height: 60px; resize: vertical; }
+.suggest .row { grid-column: 1 / -1; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.suggest .msg { font-size: 13px; color: var(--ok); } .suggest .msg.err { color: var(--orange); }
+.mine-sugg { margin-top: 10px; font-size: 13px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+.st-tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; margin-left: 6px; }
+.st-new { color: var(--cyan); } .st-approved { color: var(--ok); } .st-added { color: var(--ok); } .st-passed { color: var(--muted); }
+@media (max-width: 560px) { .suggest form { grid-template-columns: minmax(0, 1fr); } }
+#admin .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+#admin .kpi { background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+#admin .kpi b { display: block; font-family: var(--display); font-weight: 400; font-size: 24px; color: var(--cyan); }
+#admin .kpi span { font-size: 12px; color: var(--muted); }
+#admin h3 { font-size: 15px; margin: 18px 0 8px; }
+#admin .q { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+#admin .q .n { font-weight: 700; overflow-wrap: anywhere; }
+#admin .q .w { grid-column: 1 / -1; font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+#admin .q .acts { display: flex; gap: 6px; }
+#admin .q .acts button { font: inherit; font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; }
+#admin .q .acts button.ok { border-color: var(--ok); color: var(--ok); }
+#admin table { width: 100%; border-collapse: collapse; font-size: 13px; }
+#admin th, #admin td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+#admin th { color: var(--muted); font-weight: 600; }
+#admin .tbl { overflow-x: auto; }
+@media (max-width: 560px) { #admin .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.btabs.five { grid-template-columns: repeat(5, 1fr); }
 </style>
 
 <div class="wrap">
@@ -341,6 +369,17 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
     </div>
     <p class="notice" id="notice" hidden></p>
     <div class="cards" id="cards"><div class="empty">Loading festivals…</div></div>
+    <div class="suggest" id="suggest" hidden>
+      <h3>Suggest a festival</h3>
+      <p class="sub-h" style="margin:0">Know one we're missing? Send it in and Bill will take a look.</p>
+      <form id="sugg-form">
+        <input id="sg-name" required maxlength="120" placeholder="Festival name" aria-label="Festival name">
+        <input id="sg-link" type="text" inputmode="url" autocapitalize="off" maxlength="300" placeholder="Link (optional)" aria-label="Link">
+        <textarea id="sg-note" maxlength="500" placeholder="Why should the crew go? (optional)" aria-label="Note"></textarea>
+        <div class="row"><button type="submit" class="abtn">Send suggestion</button><span class="msg" id="sg-msg" aria-live="polite"></span></div>
+      </form>
+      <div class="mine-sugg" id="sg-mine"></div>
+    </div>
   </section>
 
   <section class="panel" id="spotifavs">
@@ -355,6 +394,16 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
         <div class="sf-genres" id="sf-genres" role="group" aria-label="Browse by genre"></div>
       </div>
     </div>
+  </section>
+
+  <section class="panel" id="admin" hidden>
+    <h2>Admin</h2>
+    <p class="sub-h">Only you can see this. Approve the suggestions you like, then ask Claude to "add approved suggestions" and they go on the tracker.</p>
+    <div class="kpis" id="ad-kpis"></div>
+    <h3>Festival suggestions</h3>
+    <div id="ad-queue"><div class="empty">Loading…</div></div>
+    <h3>Members</h3>
+    <div class="tbl"><table><thead><tr><th>Name</th><th>Joined</th><th>Sign-in</th><th>Picks</th><th>Fav artists</th><th>Deals opt-in</th></tr></thead><tbody id="ad-members"></tbody></table></div>
   </section>
 
   <p class="foot">Festival details from official announcements, music press, 19hz and Resident Advisor. Updated <span id="updated"></span>. <a href="privacy.html">Privacy</a></p>
@@ -381,6 +430,7 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
   <button type="button" data-go="alerts-panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>Alerts</button>
   <button type="button" data-go="calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendar</button>
   <button type="button" data-go="spotifavs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>Favorites</button>
+  <button type="button" data-go="admin" id="btab-admin" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Admin</button>
 </nav>
 <script>
 (() => {
@@ -391,7 +441,7 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
   const mark = id => btns.forEach(b => b.setAttribute('aria-current', String(b.dataset.go === id)));
   btns.forEach(b => b.addEventListener('click', () => { const t = document.getElementById(b.dataset.go); if (!t) return; mark(b.dataset.go); t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); }));
   let ticking = false;
-  const update = () => { ticking = false; let cur = null; secs.forEach(sec => { if (sec && sec.getBoundingClientRect().top <= 140) cur = sec.id; }); mark(cur); };
+  const update = () => { ticking = false; let cur = null; secs.forEach(sec => { if (sec && !sec.hidden && sec.getBoundingClientRect().top <= 140) cur = sec.id; }); mark(cur); };
   window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
   update();
 })();
@@ -494,9 +544,71 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
       if (pending === '1') { try { await sb.from('profiles').update({ marketing_opt_in: true, updated_at: new Date().toISOString() }).eq('id', uid); } catch (e) {} }
       const { data } = await sb.from('profiles').select('display_name').eq('id', uid).maybeSingle();
       myName = (data && data.display_name) || '';
+      setTimeout(initMember, 0);
     }
     return name === 'db' ? db : name === 'user' ? user : null;
   } };
+
+
+  // Signed-in extras: festival suggestions for everyone, admin panel for admins only.
+  const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const fmtDate = t => { const d = new Date(t); return MON[d.getMonth()] + ' ' + d.getDate(); };
+  const mk = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const STATUS = { new: 'New', approved: 'Approved', passed: 'Passed', added: 'Added' };
+  async function loadMine() {
+    const box = document.getElementById('sg-mine'); if (!box) return;
+    const { data } = await sb.from('suggestions').select('festival,status,created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(10);
+    box.replaceChildren(); if (!data || !data.length) return;
+    box.appendChild(mk('div', null, 'Your suggestions:'));
+    data.forEach(r => { const d = mk('div', null, r.festival + ' · ' + fmtDate(r.created_at)); d.appendChild(mk('span', 'st-tag st-' + r.status, STATUS[r.status] || r.status)); box.appendChild(d); });
+  }
+  async function loadAdmin() {
+    const { data, error } = await sb.rpc('admin_overview'); if (error || !data) return;
+    const m = data.members || [], q = data.suggestions || [];
+    const kp = document.getElementById('ad-kpis'); kp.replaceChildren();
+    [[m.length, 'Members'], [m.filter(x => x.opt_in).length, 'Deals opt-ins'], [q.filter(x => x.status === 'new').length, 'New suggestions'], [m.reduce((a, x) => a + (x.picks || 0), 0), 'Picks saved']]
+      .forEach(([n, l]) => { const k = mk('div', 'kpi'); k.append(mk('b', null, String(n)), mk('span', null, l)); kp.appendChild(k); });
+    const qb = document.getElementById('ad-queue'); qb.replaceChildren();
+    if (!q.length) qb.appendChild(mk('div', 'empty', 'No suggestions yet.'));
+    q.forEach(r => {
+      const row = mk('div', 'q'); const n = mk('div', 'n', r.festival); n.appendChild(mk('span', 'st-tag st-' + r.status, STATUS[r.status] || r.status));
+      const acts = mk('div', 'acts');
+      if (r.status === 'new' || r.status === 'passed') { const ok = mk('button', 'ok', 'Approve'); ok.type = 'button'; ok.addEventListener('click', () => review(r.id, 'approved')); acts.appendChild(ok); }
+      if (r.status === 'new' || r.status === 'approved') { const no = mk('button', null, 'Pass'); no.type = 'button'; no.addEventListener('click', () => review(r.id, 'passed')); acts.appendChild(no); }
+      const w = mk('div', 'w', 'From ' + r.by + ' · ' + fmtDate(r.created_at) + (r.note ? ' · ' + r.note : ''));
+      if (r.link && /^https?:\/\//i.test(r.link)) { w.append(' · '); const a = mk('a', null, 'link'); a.href = r.link; a.target = '_blank'; a.rel = 'noopener nofollow'; w.appendChild(a); }
+      row.append(n, acts, w); qb.appendChild(row);
+    });
+    const tb = document.getElementById('ad-members'); tb.replaceChildren();
+    m.forEach(x => { const tr = mk('tr'); [x.name || 'Someone', fmtDate(x.joined), x.provider === 'google' ? 'Google' : 'Email', x.picks, x.favs, x.opt_in ? 'Yes' : 'No'].forEach(v => tr.appendChild(mk('td', null, String(v)))); tb.appendChild(tr); });
+  }
+  async function review(id, status) {
+    const { error } = await sb.from('suggestions').update({ status, reviewed_at: new Date().toISOString() }).eq('id', id);
+    if (!error) loadAdmin();
+  }
+  async function initMember() {
+    const box = document.getElementById('suggest');
+    if (box) {
+      box.hidden = false; loadMine().catch(() => {});
+      const f = document.getElementById('sugg-form'), msg = document.getElementById('sg-msg');
+      f.addEventListener('submit', async e => {
+        e.preventDefault();
+        const festival = document.getElementById('sg-name').value.trim(); let link = document.getElementById('sg-link').value.trim(); const note = document.getElementById('sg-note').value.trim();
+        if (festival.length < 2) return;
+        if (link && !/^https?:\/\//i.test(link)) link = 'https://' + link;
+        msg.className = 'msg'; msg.textContent = 'Sending…';
+        const { error } = await sb.from('suggestions').insert({ user_id: uid, festival, link: link || null, note: note || null });
+        if (error) { msg.className = 'msg err'; msg.textContent = /limit/i.test(error.message) ? 'That\'s 10 today. Try again tomorrow.' : 'That didn\'t send. Check the link and try again.'; return; }
+        f.reset(); msg.textContent = 'Thanks! Bill will take a look.'; loadMine().catch(() => {});
+      });
+    }
+    const { data: isAdmin } = await sb.rpc('is_admin');
+    if (isAdmin === true) {
+      document.getElementById('admin').hidden = false;
+      const t = document.getElementById('btab-admin'); if (t) { t.hidden = false; t.parentElement.classList.add('five'); }
+      loadAdmin().catch(() => {});
+    }
+  }
 
   // Sign-in dialog
   window.FR = {
