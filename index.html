@@ -350,7 +350,12 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .showbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
 .showbar label { font-weight: 700; cursor: pointer; }
 .showbar-sub { font-size: 12px; color: var(--muted); }
-.showbar.in-panel { margin: 12px 0 14px; padding: 8px 12px; background: var(--panel-2); }
+.showbar.in-panel { margin: 0; padding: 6px 12px; background: var(--panel-2); flex-wrap: nowrap; }
+.showbar-txt { display: flex; flex-direction: column; line-height: 1.25; }
+.list-ctrls { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; }
+#sf-crew { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 16px; }
+#sf-crew > .empty { grid-column: 1 / -1; }
+#sf-crew .sf-crew-row:nth-last-child(2):nth-child(odd) { border-bottom: none; }
 .sw { position: relative; width: 44px; height: 26px; flex: none; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2); cursor: pointer; padding: 0; }
 .sw .knob { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--muted); }
 .sw[aria-checked="true"] { background: var(--grad); border-color: transparent; box-shadow: 0 0 12px -3px var(--pink); }
@@ -470,7 +475,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   <section class="tiles" id="tiles" aria-label="Festivals by section">
     <button type="button" class="tile" data-goto="Local" aria-label="Show Local festivals"><span class="lbl">Local · SoCal</span><span class="big" data-sec="Local">–</span><span class="sub" data-sub="Local">&nbsp;</span></button>
     <button type="button" class="tile" data-goto="USA" aria-label="Show all USA festivals"><span class="lbl">USA · incl. SoCal</span><span class="big" data-sec="USA">–</span><span class="sub" data-sub="USA">&nbsp;</span></button>
-    <button type="button" class="tile" data-goto="Worldwide" aria-label="Show Worldwide festivals"><span class="lbl">Worldwide</span><span class="big" data-sec="Worldwide">–</span><span class="sub" data-sub="Worldwide">&nbsp;</span></button>
+    <button type="button" class="tile" data-goto="Worldwide" aria-label="Show World festivals"><span class="lbl">World</span><span class="big" data-sec="Worldwide">–</span><span class="sub" data-sub="Worldwide">&nbsp;</span></button>
   </section>
 
   <div class="two">
@@ -502,19 +507,21 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
         <h2>Festivals and Picks</h2>
         <p class="sub-h">Tap Going, Maybe, or Pass. Tap your choice again to clear it. Tap an artist to hear them on Spotify. Distances are straight-line miles from Hermosa Beach.</p>
       </div>
-      <div class="tabs" id="tabs">
-        <button type="button" data-sec="All" aria-pressed="false">All</button>
-        <button type="button" data-sec="Local" aria-pressed="true">Local</button>
-        <button type="button" data-sec="USA" aria-pressed="false">USA</button>
-        <button type="button" data-sec="Worldwide" aria-pressed="false">Worldwide</button>
+      <div class="list-ctrls">
+        <div class="tabs" id="tabs">
+          <button type="button" data-sec="All" aria-pressed="false">All</button>
+          <button type="button" data-sec="Local" aria-pressed="true">Local</button>
+          <button type="button" data-sec="USA" aria-pressed="false">USA</button>
+          <button type="button" data-sec="Worldwide" aria-pressed="false">World</button>
+        </div>
+        <div class="showbar in-panel" id="showbar">
+          <button type="button" class="sw" id="show-toggle" role="switch" aria-checked="false"><span class="knob"></span></button>
+          <span class="showbar-txt"><label for="show-toggle">Include club shows and concerts</label>
+          <span class="showbar-sub" id="show-sub">SoCal, next 60 days</span></span>
+        </div>
       </div>
     </div>
     <p class="notice" id="notice" hidden></p>
-    <div class="showbar in-panel" id="showbar">
-      <button type="button" class="sw" id="show-toggle" role="switch" aria-checked="false"><span class="knob"></span></button>
-      <label for="show-toggle">Include local shows</label>
-      <span class="showbar-sub" id="show-sub">Club nights and concerts in SoCal, next 60 days</span>
-    </div>
     <div class="cards" id="cards"><div class="empty">Loading festivals…</div></div>
     <div class="suggest" id="suggest" hidden>
       <h3>Suggest a festival</h3>
@@ -572,8 +579,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <div class="line"><input type="text" id="set-newcrew" maxlength="40" placeholder="New crew name" aria-label="New crew name"><button type="button" class="abtn alt" id="set-newcrew-go">Create crew</button></div>
     <h3>View</h3>
     <div class="setrow"><span>See all my crews together<br><span class="muted">Crew favorites and heart badges count every crew you're in.</span></span><button type="button" class="sw" id="set-allcrews" role="switch" aria-checked="false" aria-label="See all my crews together"><span class="knob"></span></button></div>
-    <div class="setrow"><span>Always show my favorite artists<br><span class="muted">Shows with an artist you love stay on the calendar and in Festivals even when local shows are off. Pass on one and it goes back to normal.</span></span><button type="button" class="sw" id="set-favalways" role="switch" aria-checked="true" aria-label="Always show my favorite artists"><span class="knob"></span></button></div>
-    <div class="setrow"><span>Include local shows</span><button type="button" class="sw" id="set-shows" role="switch" aria-checked="false" aria-label="Include local shows"><span class="knob"></span></button></div>
+    <div class="setrow"><span>Always show my favorite artists<br><span class="muted">Shows with an artist you love stay on the calendar and in Festivals even when club shows and concerts are off. Pass on one and it goes back to normal.</span></span><button type="button" class="sw" id="set-favalways" role="switch" aria-checked="true" aria-label="Always show my favorite artists"><span class="knob"></span></button></div>
+    <div class="setrow"><span>Include club shows and concerts</span><button type="button" class="sw" id="set-shows" role="switch" aria-checked="false" aria-label="Include club shows and concerts"><span class="knob"></span></button></div>
     <h3>Skin</h3>
     <div class="skins" id="set-skins" role="radiogroup" aria-label="Skin"></div>
     <p class="muted">Saved on this device.</p>
@@ -1113,7 +1120,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   function renderShowToggle() {
     const n = state._all.filter(f => f.kind === 'show').length;
     const b = document.getElementById('show-toggle'); if (b) b.setAttribute('aria-checked', String(SHOWS));
-    const s = document.getElementById('show-sub'); if (s) s.textContent = 'Club nights and concerts in SoCal, next 60 days' + (n ? ' (' + n + ' listed)' : ' (none listed yet)');
+    const s = document.getElementById('show-sub'); if (s) s.textContent = 'SoCal, next 60 days' + (n ? ' (' + n + ' listed)' : ' (none listed yet)');
   }
   const DJS = JSON.parse(document.getElementById('dj-data').textContent).map(([name, genre, top, socal]) => ({ name, genre, top, socal: !!socal }));
   const norm = n => String(n).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/&/g, 'and').replace(/[^a-z0-9]/g, '');
