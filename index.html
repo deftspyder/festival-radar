@@ -853,7 +853,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     if (!uid) return;
     const key = String(name).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/&/g, 'and').replace(/[^a-z0-9]/g, '').slice(0, 80);
     if (!key) return;
-    sb.rpc('request_artist', { artist_name: String(name).trim().slice(0, 80), artist_key: key }).then(() => {}, () => {});
+    sb.rpc('request_artist_link', { artist_name: String(name).trim().slice(0, 80), artist_key: key, artist_link: null }).then(() => {}, () => {});
   };
   async function initMember() {
     try { const { data: u } = await sb.auth.getUser(); userEmail = (u && u.user && u.user.email) || ''; } catch (e) {}
