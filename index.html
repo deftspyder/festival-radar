@@ -403,6 +403,9 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
 .suggest input, .suggest textarea { font: inherit; font-size: 15px; width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
 .suggest textarea { grid-column: 1 / -1; min-height: 60px; resize: vertical; }
 .suggest .row { grid-column: 1 / -1; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.suggest .sg-types { display: flex; gap: 6px; margin-top: 10px; }
+.suggest .sg-ev[hidden] { display: none; }
+.suggest input[type="date"] { color-scheme: dark; min-height: 41px; }
 .suggest .msg { font-size: 13px; color: var(--ok); } .suggest .msg.err { color: var(--orange); }
 .mine-sugg { margin-top: 10px; font-size: 13px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
 .st-tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; margin-left: 6px; }
@@ -534,12 +537,18 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <p class="notice" id="notice" hidden></p>
     <div class="cards" id="cards"><div class="empty">Loading festivals…</div></div>
     <div class="suggest" id="suggest" hidden>
-      <h3>Suggest a festival</h3>
-      <p class="sub-h" style="margin:0">Know one we're missing? Send it in and Bill will take a look.</p>
+      <h3>Add an artist or event</h3>
+      <p class="sub-h" style="margin:0">Know one we're missing? Send it in and Bill will take a look. Artists and events with a link have a much higher chance of being added.</p>
+      <div class="sg-types" role="group" aria-label="What are you adding?">
+        <button type="button" class="sf-chip" data-sg-type="event" aria-pressed="true">Event</button>
+        <button type="button" class="sf-chip" data-sg-type="artist" aria-pressed="false">Artist</button>
+      </div>
       <form id="sugg-form">
-        <input id="sg-name" required maxlength="120" placeholder="Festival name" aria-label="Festival name">
-        <input id="sg-link" type="text" inputmode="url" autocapitalize="off" maxlength="300" placeholder="Link (optional)" aria-label="Link">
-        <textarea id="sg-note" maxlength="500" placeholder="Why should the crew go? (optional)" aria-label="Note"></textarea>
+        <input id="sg-name" required maxlength="120" placeholder="Festival, show or event name" aria-label="Event name">
+        <input id="sg-link" type="text" inputmode="url" autocapitalize="off" maxlength="300" placeholder="Event or ticket link (RA, Dice...)" aria-label="Link (optional)">
+        <input id="sg-date" type="date" class="sg-ev" aria-label="Event date (optional)" title="Event date (optional)">
+        <input id="sg-city" class="sg-ev" maxlength="80" placeholder="City (optional)" aria-label="City (optional)">
+        <textarea id="sg-note" class="sg-ev" maxlength="500" placeholder="Why should the crew go? (optional)" aria-label="Note"></textarea>
         <div class="row"><button type="submit" class="abtn">Send suggestion</button><span class="msg" id="sg-msg" aria-live="polite"></span></div>
       </form>
       <div class="mine-sugg" id="sg-mine"></div>
@@ -767,11 +776,27 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   const STATUS = { new: 'New', approved: 'Approved', passed: 'Passed', added: 'Added' };
   async function loadMine() {
     const box = document.getElementById('sg-mine'); if (!box) return;
-    const { data } = await sb.from('suggestions').select('festival,status,created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(10);
-    box.replaceChildren(); if (!data || !data.length) return;
+    const [ev, ar] = await Promise.all([
+      sb.from('suggestions').select('festival,status,created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(10),
+      sb.from('artist_requests').select('artist,status,created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(10)
+    ]);
+    const data = [...((ev && ev.data) || []).map(r => ({ name: r.festival, status: r.status, created_at: r.created_at })),
+      ...((ar && ar.data) || []).map(r => ({ name: r.artist + ' (artist)', status: r.status, created_at: r.created_at }))]
+      .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))).slice(0, 10);
+    box.replaceChildren(); if (!data.length) return;
     box.appendChild(mk('div', null, 'Your suggestions:'));
-    data.forEach(r => { const d = mk('div', null, r.festival + ' · ' + fmtDate(r.created_at)); d.appendChild(mk('span', 'st-tag st-' + r.status, STATUS[r.status] || r.status)); box.appendChild(d); });
+    data.forEach(r => { const d = mk('div', null, r.name + ' · ' + fmtDate(r.created_at)); d.appendChild(mk('span', 'st-tag st-' + r.status, STATUS[r.status] || r.status)); box.appendChild(d); });
   }
+  // Short name for the site a link points to, shown in the admin view.
+  const PLATS = [['ra.co', 'RA'], ['residentadvisor', 'RA'], ['dice.fm', 'Dice'], ['eventbrite', 'Eventbrite'], ['posh.vip', 'Posh'], ['ticketmaster', 'Ticketmaster'], ['livenation', 'Live Nation'],
+    ['axs.com', 'AXS'], ['seetickets', 'See Tickets'], ['tixr', 'Tixr'], ['shotgun', 'Shotgun'], ['songkick', 'Songkick'], ['bandsintown', 'Bandsintown'], ['19hz', '19hz'],
+    ['instagram', 'Instagram'], ['soundcloud', 'SoundCloud'], ['spotify', 'Spotify'], ['beatport', 'Beatport'], ['bandcamp', 'Bandcamp'], ['youtube', 'YouTube'], ['youtu.be', 'YouTube'],
+    ['tiktok', 'TikTok'], ['twitter.com', 'X'], ['x.com', 'X'], ['facebook', 'Facebook'], ['linktr.ee', 'Linktree']];
+  function platLabel(u) {
+    let h = ''; try { h = new URL(u).hostname.toLowerCase().replace(/^www\./, ''); } catch (e) { return 'link'; }
+    const hit = PLATS.find(([k]) => h === k || h.endsWith('.' + k) || h.includes(k)); return hit ? hit[1] : h.slice(0, 30);
+  }
+  const safeUrl = u => typeof u === 'string' && /^https?:\/\//i.test(u);
   async function loadAdmin() {
     const { data, error } = await sb.rpc('admin_overview'); if (error || !data) return;
     const m = data.members || [], q = data.suggestions || [];
@@ -785,8 +810,10 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       const acts = mk('div', 'acts');
       if (r.status === 'new' || r.status === 'passed') { const ok = mk('button', 'ok', 'Approve'); ok.type = 'button'; ok.addEventListener('click', () => review(r.id, 'approved')); acts.appendChild(ok); }
       if (r.status === 'new' || r.status === 'approved') { const no = mk('button', null, 'Pass'); no.type = 'button'; no.addEventListener('click', () => review(r.id, 'passed')); acts.appendChild(no); }
-      const w = mk('div', 'w', 'From ' + r.by + ' · ' + fmtDate(r.created_at) + (r.note ? ' · ' + r.note : ''));
-      if (r.link && /^https?:\/\//i.test(r.link)) { w.append(' · '); const a = mk('a', null, 'link'); a.href = r.link; a.target = '_blank'; a.rel = 'noopener nofollow'; w.appendChild(a); }
+      const when = [r.event_date ? fmtDate(r.event_date + 'T12:00:00') + ', ' + String(r.event_date).slice(0, 4) : '', r.city || ''].filter(Boolean).join(' · ');
+      const w = mk('div', 'w', (when ? when + ' · ' : '') + 'From ' + r.by + ' · ' + fmtDate(r.created_at) + (r.note ? ' · ' + r.note : ''));
+      if (safeUrl(r.link)) { w.append(' · '); const a = mk('a', null, platLabel(r.link) + ' link'); a.href = r.link; a.target = '_blank'; a.rel = 'noopener nofollow'; w.appendChild(a); }
+      else w.append(' · no link');
       row.append(n, acts, w); qb.appendChild(row);
     });
     const ab = document.getElementById('ad-artists'); ab.replaceChildren();
@@ -805,7 +832,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       row.append(n, acts);
       row.appendChild(mk('div', 'bl', r.blurb || 'Search results will show here after the next daily check.'));
       const links = Array.isArray(r.links) ? r.links.filter(l => l && l.url && /^https:\/\//i.test(l.url)).slice(0, 8) : [];
-      if (links.length) { const lk = mk('div', 'lk'); links.forEach(l => { const a = mk('a', null, String(l.label || 'link').slice(0, 30)); a.href = l.url; a.target = '_blank'; a.rel = 'noopener nofollow'; lk.appendChild(a); }); row.appendChild(lk); }
+      if (safeUrl(r.link)) links.unshift({ label: 'Submitted: ' + platLabel(r.link), url: r.link });
+      if (links.length) { const lk = mk('div', 'lk'); links.forEach(l => { const a = mk('a', null, String(l.label || 'link').slice(0, 40)); a.href = l.url; a.target = '_blank'; a.rel = 'noopener nofollow'; lk.appendChild(a); }); row.appendChild(lk); }
       row.appendChild(mk('div', 'w', 'Added by ' + r.by + ' · ' + fmtDate(r.created_at) + (r.checked_at ? ' · checked ' + fmtDate(r.checked_at) : '')));
       ab.appendChild(row);
     });
@@ -836,15 +864,38 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     if (box) {
       box.hidden = false; loadMine().catch(() => {});
       const f = document.getElementById('sugg-form'), msg = document.getElementById('sg-msg');
+      const nameIn = document.getElementById('sg-name'), linkIn = document.getElementById('sg-link');
+      let sgType = 'event';
+      const setType = t => {
+        sgType = t;
+        box.querySelectorAll('[data-sg-type]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sgType === t)));
+        box.querySelectorAll('.sg-ev').forEach(x => { x.hidden = t !== 'event'; });
+        nameIn.placeholder = t === 'event' ? 'Festival, show or event name' : 'Artist or DJ name';
+        nameIn.setAttribute('aria-label', t === 'event' ? 'Event name' : 'Artist name');
+        nameIn.maxLength = t === 'event' ? 120 : 80;
+        linkIn.placeholder = t === 'event' ? 'Event or ticket link (RA, Dice...)' : 'Website, Instagram or SoundCloud link';
+        msg.textContent = '';
+      };
+      box.querySelectorAll('[data-sg-type]').forEach(b => b.addEventListener('click', () => setType(b.dataset.sgType)));
       f.addEventListener('submit', async e => {
         e.preventDefault();
-        const festival = document.getElementById('sg-name').value.trim(); let link = document.getElementById('sg-link').value.trim(); const note = document.getElementById('sg-note').value.trim();
-        if (festival.length < 2) return;
+        const name = nameIn.value.trim(); let link = linkIn.value.trim();
+        if (name.length < 2) return;
         if (link && !/^https?:\/\//i.test(link)) link = 'https://' + link;
+        if (link) { try { new URL(link); } catch (err) { msg.className = 'msg err'; msg.textContent = 'That link doesn\'t look right. Check it and try again.'; return; } }
         msg.className = 'msg'; msg.textContent = 'Sending…';
-        const { error } = await sb.from('suggestions').insert({ user_id: uid, festival, link: link || null, note: note || null });
-        if (error) { msg.className = 'msg err'; msg.textContent = /limit/i.test(error.message) ? 'That\'s 10 today. Try again tomorrow.' : 'That didn\'t send. Check the link and try again.'; return; }
-        f.reset(); msg.textContent = 'Thanks! Bill will take a look.'; loadMine().catch(() => {});
+        let error;
+        if (sgType === 'artist') {
+          if (window.isKnownArtist && window.isKnownArtist(name)) { msg.className = 'msg err'; msg.textContent = name + ' is already on Festival Radar. Find them in Add your favorites.'; return; }
+          const key = String(name).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/&/g, 'and').replace(/[^a-z0-9]/g, '').slice(0, 80);
+          if (!key) { msg.className = 'msg err'; msg.textContent = 'Add a name with at least one letter or number.'; return; }
+          ({ error } = await sb.rpc('request_artist_link', { artist_name: name.slice(0, 80), artist_key: key, artist_link: link || null }));
+        } else {
+          const date = document.getElementById('sg-date').value, city = document.getElementById('sg-city').value.trim(), note = document.getElementById('sg-note').value.trim();
+          ({ error } = await sb.from('suggestions').insert({ user_id: uid, festival: name, link: link || null, note: note || null, event_date: date || null, city: city || null }));
+        }
+        if (error) { msg.className = 'msg err'; msg.textContent = /limit/i.test(error.message) ? 'That\'s the limit for today. Try again tomorrow.' : 'That didn\'t send. Check the link and try again.'; return; }
+        f.reset(); msg.className = 'msg'; msg.textContent = 'Thanks! Bill will take a look.'; loadMine().catch(() => {});
       });
     }
     const { data: isAdmin } = await sb.rpc('is_admin');
@@ -1171,6 +1222,12 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   }
   const DJS = JSON.parse(document.getElementById('dj-data').textContent).map(([name, genre, top, socal]) => ({ name, genre, top, socal: !!socal }));
   const norm = n => String(n).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/&/g, 'and').replace(/[^a-z0-9]/g, '');
+  // True when an artist is already in the artist list or on a festival lineup (used by the Add an artist form).
+  window.isKnownArtist = name => {
+    const k = norm(name); if (!k) return false;
+    if (DJS.some(d => norm(d.name) === k)) return true;
+    return (state.festivals || []).some(f => f.artists && f.artists !== 'Lineup TBA' && f.artists.split(', ').some(a => artistNames(a).some(n => norm(n) === k)));
+  };
   const $ = id => document.getElementById(id);
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const statusClass = s => s === 'Presale soon' ? 'st-presale' : s === 'On sale' ? 'st-onsale' : s === 'Waitlist' ? 'st-wait' : 'st-watch';
