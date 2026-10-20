@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Festival Radar: electronic festivals and SoCal shows, with presale alerts and crew picks."><meta name="theme-color" content="#120a24"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%23120a24%27/%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%2710%27 fill=%27none%27 stroke=%27%2329d3f5%27 stroke-width=%272%27/%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%274%27 fill=%27%23ff3d9a%27/%3E%3C/svg%3E"><style>*,*::before,*::after{box-sizing:border-box}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Festival Radar: electronic festivals and SoCal shows, with presale alerts and crew picks."><meta name="theme-color" content="#120a24"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Festival Radar"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%23120a24%27/%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%2710%27 fill=%27none%27 stroke=%27%2329d3f5%27 stroke-width=%272%27/%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%274%27 fill=%27%23ff3d9a%27/%3E%3C/svg%3E"><style>*,*::before,*::after{box-sizing:border-box}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
 <title>Festival Radar</title>
 <script>
 (function () {
@@ -551,6 +551,19 @@ dialog.sheet h3 { font-size: 13px; letter-spacing: .12em; text-transform: upperc
 dialog.sheet .line { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 dialog.sheet input[type=text] { font: inherit; font-size: 16px; flex: 1 1 180px; min-width: 0; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
 dialog.sheet .muted { color: var(--muted); font-size: 13px; }
+dialog.sheet details.set-sec, dialog.sheet details.crew-card { margin: 0; }
+dialog.sheet details.set-sec { border-top: 1px solid color-mix(in srgb, var(--line) 70%, transparent); margin-top: 16px; }
+dialog.sheet details.set-sec > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 14px 0 10px; font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--cyan); }
+dialog.sheet details > summary::-webkit-details-marker { display: none; }
+dialog.sheet details > summary small { font-size: 12px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--muted); }
+dialog.sheet details > summary::after { content: ""; width: 8px; height: 8px; margin-left: auto; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-3px); transition: transform .15s; flex: none; }
+dialog.sheet details[open] > summary::after { transform: rotate(-135deg) translateY(-1px); }
+dialog.sheet details > summary:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; border-radius: 6px; }
+dialog.sheet details.crew-card > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+dialog.sheet details.crew-card > summary small { margin-left: 2px; }
+dialog.sheet details.crew-card > .ct { margin-top: 8px; }
+dialog.sheet .set-note { margin: 6px 0 0; }
+@media (prefers-reduced-motion: reduce) { dialog.sheet details > summary::after { transition: none; } }
 dialog.sheet .crew-card { border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 10px; background: var(--panel-2); }
 dialog.sheet .crew-card .ct { display: flex; justify-content: space-between; gap: 8px; align-items: center; flex-wrap: wrap; }
 dialog.sheet .crew-card .ct b { font-size: 16px; }
@@ -727,15 +740,21 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <h3>Your crews</h3>
     <div id="set-crews"></div>
     <div class="line"><input type="text" id="set-newcrew" maxlength="40" placeholder="New crew name" aria-label="New crew name"><button type="button" class="abtn alt" id="set-newcrew-go">Create crew</button></div>
-    <h3>View</h3>
-    <div class="setrow"><span>See all my crews together<br><span class="muted">Crew favorites count every crew you're in.</span></span><button type="button" class="sw" id="set-allcrews" role="switch" aria-checked="false" aria-label="See all my crews together"><span class="knob"></span></button></div>
-    <div class="setrow"><span>Always show my favorite artists<br><span class="muted">Shows with an artist you love stay on the calendar and in Festivals even when club shows and concerts are off. Pass on one and it goes back to normal.</span></span><button type="button" class="sw" id="set-favalways" role="switch" aria-checked="true" aria-label="Always show my favorite artists"><span class="knob"></span></button></div>
-    <div class="setrow"><span>Include club shows and concerts</span><button type="button" class="sw" id="set-shows" role="switch" aria-checked="false" aria-label="Include club shows and concerts"><span class="knob"></span></button></div>
-    <h3>Skin</h3>
-    <div class="skins" id="set-skins" role="radiogroup" aria-label="Skin"></div>
-    <p class="muted">Saved on this device.</p>
-    <h3>Coming soon</h3>
-    <div class="setrow"><span>Notifications</span><span class="soon">Soon</span></div>
+    <details class="set-sec" id="set-view-sec">
+      <summary><span>View</span><small>3 options</small></summary>
+      <div class="setrow"><span>See all my crews together<br><span class="muted">Crew favorites count every crew you're in.</span></span><button type="button" class="sw" id="set-allcrews" role="switch" aria-checked="false" aria-label="See all my crews together"><span class="knob"></span></button></div>
+      <div class="setrow"><span>Always show my favorite artists<br><span class="muted">Shows with an artist you love stay on the calendar and in Festivals even when club shows and concerts are off. Pass on one and it goes back to normal.</span></span><button type="button" class="sw" id="set-favalways" role="switch" aria-checked="true" aria-label="Always show my favorite artists"><span class="knob"></span></button></div>
+      <div class="setrow"><span>Include club shows and concerts</span><button type="button" class="sw" id="set-shows" role="switch" aria-checked="false" aria-label="Include club shows and concerts"><span class="knob"></span></button></div>
+    </details>
+    <details class="set-sec" id="set-skin-sec">
+      <summary><span>Skin</span><small id="set-skin-cur"></small></summary>
+      <div class="skins" id="set-skins" role="radiogroup" aria-label="Skin"></div>
+      <p class="muted">Saved on this device.</p>
+    </details>
+    <h3>Notifications</h3>
+    <div class="setrow"><span>Presale alerts on this device<br><span class="muted">A heads-up 24 hours and 15 minutes before tickets go on sale for festivals in your favorites.</span></span><button type="button" class="sw" id="set-notify" role="switch" aria-checked="false" aria-label="Presale alerts on this device"><span class="knob"></span></button></div>
+    <p class="muted set-note" id="set-notify-note" hidden></p>
+    <div class="line" id="set-notify-test-wrap" hidden><button type="button" class="lnk" id="set-notify-test">Send a test alert</button><span class="muted" id="set-notify-test-msg" aria-live="polite"></span></div>
     <h3>Account</h3>
     <div class="line"><button type="button" class="abtn alt" id="set-invite">Invite friends</button><button type="button" class="abtn alt" id="set-signout">Sign out</button></div>
   </div>
@@ -1010,9 +1029,61 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     if (!key) return;
     sb.rpc('request_artist_link', { artist_name: String(name).trim().slice(0, 80), artist_key: key, artist_link: null }).then(() => {}, () => {});
   };
+  // ---------- Presale alerts (web push) ----------
+  // Each device turns alerts on separately. The presale-alerts function (run every 5 minutes) sends them.
+  const VAPID_PUBLIC = 'BLLUUafWLPpcOpD4tIR5ZyCD5xDRhUQWrNYzD1vbSAa6OxUYRFFmCW3hDDb9es8xXi0Y2kxNPyTwQ35hI74Tbm8';
+  const pushOK = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isStandalone = () => { try { return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } };
+  const b64url = s => { const raw = atob((s + '='.repeat((4 - s.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(raw, c => c.charCodeAt(0)); };
+  async function pushSub() { if (!pushOK()) return null; const reg = await navigator.serviceWorker.getRegistration(); return reg ? reg.pushManager.getSubscription() : null; }
+  async function savePushSub(sub) { const j = sub.toJSON(); const { error } = await sb.rpc('save_push_sub', { sub_endpoint: j.endpoint, sub_p256dh: j.keys.p256dh, sub_auth: j.keys.auth }); if (error) throw error; }
+  async function alertsOn() {
+    const perm = await Notification.requestPermission(); if (perm !== 'granted') return perm;
+    const reg = await navigator.serviceWorker.register('sw.js'); await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64url(VAPID_PUBLIC) });
+    await savePushSub(sub); return 'on';
+  }
+  async function alertsOff() { const sub = await pushSub(); if (!sub) return; await sb.from('push_subs').delete().eq('endpoint', sub.endpoint); try { await sub.unsubscribe(); } catch (e) {} }
+  async function refreshNotify(msg) {
+    const sw = document.getElementById('set-notify'), note = document.getElementById('set-notify-note'), tw = document.getElementById('set-notify-test-wrap'); if (!sw) return;
+    const say = t => { note.hidden = !t; note.textContent = t || ''; };
+    let on = false;
+    if (!pushOK()) { sw.disabled = true; say(isIOS && !isStandalone() ? 'On iPhone and iPad, alerts work once Festival Radar is on your Home Screen: tap Share, then Add to Home Screen, open it from there, and turn this on.' : 'This browser can\'t show alerts. Try Chrome, Edge, Firefox or Safari.'); }
+    else if (Notification.permission === 'denied') { sw.disabled = true; say('Alerts are blocked for this site. Allow notifications for it in your browser settings, then turn this on.'); }
+    else { sw.disabled = false; try { on = Notification.permission === 'granted' && !!(await pushSub()); } catch (e) {} say(msg || ''); }
+    sw.setAttribute('aria-checked', String(on)); tw.hidden = !on;
+  }
+  window.FRNotify = { refresh: () => refreshNotify() };
+  function wireNotify() {
+    const sw = document.getElementById('set-notify'); if (!sw || sw.dataset.wired) return; sw.dataset.wired = '1';
+    sw.addEventListener('click', async () => {
+      if (sw.disabled) return; sw.disabled = true;
+      let msg = '';
+      try {
+        if (sw.getAttribute('aria-checked') === 'true') { await alertsOff(); msg = 'Alerts are off on this device.'; }
+        else { const r = await alertsOn(); msg = r === 'on' ? '' : (r === 'denied' ? '' : 'Alerts stay off until you allow notifications.'); }
+      } catch (e) { msg = 'Couldn\'t change alerts. Check your connection and try again.'; }
+      await refreshNotify(msg);
+    });
+    document.getElementById('set-notify-test').addEventListener('click', async () => {
+      const m = document.getElementById('set-notify-test-msg'); m.textContent = 'Sending…';
+      try {
+        const { data } = await sb.auth.getSession(); const tok = data && data.session && data.session.access_token;
+        const r = await fetch(SB_URL + '/functions/v1/presale-alerts?mode=test', { method: 'POST', headers: { Authorization: 'Bearer ' + tok, apikey: SB_KEY, 'Content-Type': 'application/json' }, body: '{}' });
+        const j = await r.json();
+        m.textContent = r.ok && j.sent ? 'Sent. It should pop up in a few seconds.' : 'That didn\'t go through. Turn alerts off and on, then try again.';
+      } catch (e) { m.textContent = 'That didn\'t go through. Check your connection and try again.'; }
+    });
+    // Keep this device's subscription linked to whoever is signed in.
+    if (pushOK() && Notification.permission === 'granted') pushSub().then(s => s && savePushSub(s)).catch(() => {});
+  }
+
   async function initMember() {
     try { const { data: u } = await sb.auth.getUser(); userEmail = (u && u.user && u.user.email) || ''; } catch (e) {}
     wireMember();
+    wireNotify();
     await redeemPending().catch(() => {});
     await loadCrews().catch(() => {});
     loadMine().catch(() => {});
@@ -1120,8 +1191,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const box = document.getElementById('set-crews'); if (!box) return; box.replaceChildren();
     if (!crews.length) box.appendChild(mk('p', 'muted', 'No crews yet. Create one below, or ask a friend for an invite link.'));
     crews.forEach(c => {
-      const own = c.owner === uid; const card = mk('div', 'crew-card'); const head = mk('div', 'ct');
-      head.appendChild(mk('b', null, c.name));
+      const own = c.owner === uid; const card = mk('details', 'crew-card'); const head = mk('div', 'ct');
+      const n = (c.members || []).length; card.open = n <= 3;
+      const sum = mk('summary'); sum.append(mk('b', null, c.name), mk('small', null, n + (n === 1 ? ' member' : ' members'))); card.appendChild(sum);
       const acts = mk('div', 'line');
       if (own) { const r = mk('button', 'lnk', 'Rename'); r.type = 'button'; r.addEventListener('click', async () => { const n = prompt('Crew name:', c.name); if (!n || !n.trim()) return; const { error } = await sb.from('crews').update({ name: n.trim().slice(0, 40) }).eq('id', c.id); if (!error) { toast('Renamed to ' + n.trim().slice(0, 40)); loadCrews(); } }); acts.appendChild(r); }
       const iv = mk('button', 'lnk', 'Invite'); iv.type = 'button'; iv.addEventListener('click', () => FR.openInvite(c.id)); acts.appendChild(iv);
@@ -1207,6 +1279,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   function renderSkins() {
     const box = document.getElementById('set-skins'); if (!box) return; box.replaceChildren();
     let cur = 'synth'; try { cur = localStorage.getItem('fr-skin') || 'synth'; } catch (e) {}
+    const curRow = SKIN_LIST.find(r => r[0] === cur); const sc = document.getElementById('set-skin-cur'); if (sc) sc.textContent = curRow ? curRow[1] : '';
     SKIN_LIST.forEach(([id, name, sub]) => {
       const b = mk('button', 'skin'); b.type = 'button'; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', String(id === cur)); b.setAttribute('aria-label', name + ' skin');
       const pv = mk('span', 'pv'); pv.dataset.skin = id; pv.setAttribute('aria-hidden', 'true');
@@ -1234,7 +1307,10 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     document.getElementById('set-allcrews').setAttribute('aria-checked', String(allCrews));
     document.getElementById('set-favalways').setAttribute('aria-checked', String(lsGet('fr-fav-always') !== '0'));
     const t = document.getElementById('show-toggle'); document.getElementById('set-shows').setAttribute('aria-checked', t ? t.getAttribute('aria-checked') : 'false');
-    renderSettingsCrews(); renderSkins(); d.showModal();
+    renderSettingsCrews(); renderSkins();
+    d.querySelectorAll('details.set-sec').forEach(x => { x.open = false; }); // long sections start collapsed
+    if (window.FRNotify) FRNotify.refresh();
+    d.showModal();
     if (focus === 'crews') setTimeout(() => document.getElementById('set-newcrew').focus(), 50);
   };
   const openInvite = (crewId) => {
@@ -1942,6 +2018,16 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   }
   window.addEventListener('fr-tab', e => { if (e.detail === 'calendar') renderCalendar(); if (e.detail === 'festivals') renderRadar(); if (e.detail === 'favorites') renderFavDash(); });
 
+  // A tapped alert opens ?card=<id>#festivals: show that card once the list is in, then tidy the address.
+  let cardLinkDone = false;
+  function openCardFromLink() {
+    if (cardLinkDone) return; cardLinkDone = true;
+    let id = null; try { id = new URLSearchParams(location.search).get('card'); } catch (e) {}
+    if (!id || !state._all.some(f => f.id === id)) return;
+    try { const u = new URL(location.href); u.searchParams.delete('card'); history.replaceState(null, '', u.pathname + u.search + u.hash); } catch (e) {}
+    setTimeout(() => goToCard(id), 300);
+  }
+
   let writing = Promise.resolve();
   function setPick(slug, value) {
     if (!state.me || !state.canWrite) return;
@@ -1974,11 +2060,11 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     try { state.festivals = (JSON.parse(document.getElementById('festival-data').textContent).festivals || []).filter(f => f && f.festival); } catch (e) { state.festivals = []; }
     const pin = ['splash-house-2027', 'beyond-wonderland-socal-2027'];
     state.festivals.forEach(f => { if (pin.includes(f.id)) f._pin = 1; });
-    renderAll();
+    renderAll(); openCardFromLink();
   } else {
   db.collection('festivals').onSnapshot(snap => {
     state.festivals = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(f => f.festival);
-    renderAll();
+    renderAll(); openCardFromLink();
   }, () => { $('cards').replaceChildren(el('div', 'empty', 'The festival list couldn\'t load. Reload the page to try again.')); });
 
   db.collection('picks').onSnapshot(snap => {
