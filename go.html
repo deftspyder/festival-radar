@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta name="theme-color" content="#120a24">
+<title>Festival Radar tickets</title>
+<style>
+  body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #120a24; color: #f4ecff; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 360px; padding: 24px; text-align: center; }
+  a { color: #29d3f5; font-weight: 600; }
+</style></head>
+<body><main>
+  <p id="m">Taking you to tickets…</p>
+  <p><a id="a" href="./">Back to Festival Radar</a></p>
+</main>
+<script>
+// Ticket forwarding page: go.html?f=<festival id> sends the visitor to that festival's ticket page.
+// Alerts and buttons link here instead of straight to the seller, so a ticket link can later become an
+// affiliate link by changing only this page or the festival data.
+(async () => {
+  const m = document.getElementById('m'), a = document.getElementById('a');
+  let id = null; try { id = new URLSearchParams(location.search).get('f'); } catch (e) {}
+  try {
+    const d = await (await fetch('festivals.json', { cache: 'no-cache' })).json();
+    const f = (d.festivals || []).find(x => x && x.id === id);
+    if (!f) { m.textContent = 'We couldn\'t find that festival.'; return; }
+    const url = [f.ticket_link, f.link].find(x => typeof x === 'string' && /^https:\/\//i.test(x));
+    if (!url) { m.textContent = 'No ticket link yet for ' + f.festival + '.'; a.href = './?card=' + encodeURIComponent(f.id) + '#festivals'; a.textContent = 'See it on Festival Radar'; return; }
+    m.textContent = 'Taking you to tickets for ' + f.festival + '…';
+    a.href = url; a.textContent = 'Tap here if nothing happens';
+    location.replace(url);
+  } catch (e) { m.textContent = 'Couldn\'t load the ticket link. Check your connection and try again.'; }
+})();
+</script>
+</body></html>

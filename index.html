@@ -267,6 +267,35 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 .flist .fl-row > .fheart { margin-left: auto; }
 .crew-chips .cchip { font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2); }
 .crew-chips .cchip b { color: var(--pink); font-weight: 700; margin-left: 4px; }
+.dash.one { grid-template-columns: minmax(0, 1fr); }
+.dash h2 small { font-family: var(--body); font-size: 12px; font-weight: 600; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
+.radar-alerts { margin: 12px 0 4px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); }
+.radar-alerts .setrow { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.radar-alerts .setrow .muted, .radar-alerts .muted { color: var(--muted); font-size: 13px; }
+.radar-alerts .set-note { margin: 8px 0 0; }
+.radar-alerts .line { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+.radar-alerts .lnk { font: inherit; font-size: 13px; font-weight: 700; color: var(--cyan); background: none; border: none; padding: 0; cursor: pointer; }
+.flist .fl-when { margin-left: auto; font-size: 12px; color: var(--muted); text-align: right; flex: none; white-space: nowrap; }
+.flist .fl-tag { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; flex: none; }
+.flist .fl-tag.going { color: var(--going); } .flist .fl-tag.maybe { color: var(--maybe); }
+.flist .fl-row > .fl-tag + .fheart, .flist .fl-row > .fl-tag:last-child { margin-left: 0; }
+.flist .fl-row .fl-go + .fl-tag { margin-left: auto; }
+.flist .fl-who b { color: var(--going); font-weight: 700; } .flist .fl-who i { color: var(--maybe); font-style: normal; font-weight: 700; }
+/* Presale light: pulses when a confirmed sale is within 7 days; steady and dim for an expected one. */
+.salelight { position: relative; width: 22px; height: 22px; padding: 0; border: none; background: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.salelight::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--warn); box-shadow: 0 0 6px 1px color-mix(in srgb, var(--warn) 70%, transparent); }
+.salelight.expected::before { opacity: .45; box-shadow: none; }
+@media (prefers-reduced-motion: no-preference) { .salelight.confirmed::before { animation: sl-pulse 1.8s ease-in-out infinite; } }
+@keyframes sl-pulse { 0%, 100% { opacity: .55; box-shadow: 0 0 3px 0 color-mix(in srgb, var(--warn) 60%, transparent); } 50% { opacity: 1; box-shadow: 0 0 10px 3px color-mix(in srgb, var(--warn) 80%, transparent); } }
+.salelight .tip { position: absolute; right: 0; top: calc(100% + 4px); z-index: 5; white-space: nowrap; font: 600 12px var(--body); color: var(--fg); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; box-shadow: 0 6px 18px -8px #000; display: none; }
+.salelight:hover .tip, .salelight:focus-visible .tip, .salelight.show .tip { display: block; }
+.flist .salelight { width: 16px; }
+/* One-time "want alerts?" ask, after a member's first heart, Going or Maybe. */
+.ask-bar { position: fixed; left: 50%; transform: translateX(-50%); bottom: 18px; z-index: 70; width: min(460px, calc(100vw - 24px)); box-sizing: border-box; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; box-shadow: 0 16px 40px -14px #000; display: flex; flex-direction: column; gap: 10px; }
+.ask-bar[hidden] { display: none; }
+.ask-bar p { margin: 0; font-size: 14px; }
+.ask-bar .line { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+@media (max-width: 700px) { .ask-bar { bottom: calc(76px + env(safe-area-inset-bottom, 0px)); } }
 /* Festival heart: grey outline until tapped, then solid and bright. */
 .card-acts { display: inline-flex; align-items: center; gap: 6px; flex: none; }
 .fheart { width: 36px; height: 36px; margin: -6px -6px -6px 0; display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 50%; background: transparent; color: var(--muted); opacity: .55; cursor: pointer; padding: 0; flex: none; }
@@ -596,9 +625,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <a class="dn-title" href="#top" id="dn-home">Festival Radar</a>
     <div class="dn-links">
       <button type="button" data-go="festivals">Festivals</button>
-      <button type="button" data-go="alerts">Presale Alerts</button>
       <button type="button" data-go="calendar">Calendar</button>
-      <button type="button" data-go="favorites">Favorites</button>
+      <button type="button" data-go="radar">My Radar</button>
+      <button type="button" data-go="crew">Crew</button>
       <button type="button" data-go="admin" id="dn-admin" hidden>Admin</button>
     </div>
     <div class="dn-right">
@@ -621,12 +650,6 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <button type="button" class="tile" data-goto="Local" aria-label="Show Local festivals"><span class="lbl">Local · SoCal</span><span class="big" data-sec="Local">–</span><span class="sub" data-sub="Local">&nbsp;</span></button>
     <button type="button" class="tile" data-goto="USA" aria-label="Show all USA festivals"><span class="lbl">USA · incl. SoCal</span><span class="big" data-sec="USA">–</span><span class="sub" data-sub="USA">&nbsp;</span></button>
     <button type="button" class="tile" data-goto="Worldwide" aria-label="Show World festivals"><span class="lbl">World</span><span class="big" data-sec="Worldwide">–</span><span class="sub" data-sub="Worldwide">&nbsp;</span></button>
-  </section>
-
-  <section class="panel" id="alerts-panel" data-tab="alerts">
-    <h2>Presale Alerts</h2>
-    <p class="sub-h">Tickets going on sale in the next 3 months. Expected dates are based on last year's timing until the festival confirms.</p>
-    <div class="alerts" id="alerts"><div class="empty">Loading…</div></div>
   </section>
 
   <section class="panel" id="calendar" data-tab="calendar">
@@ -660,13 +683,23 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <div class="cards" id="cards"><div class="empty">Loading festivals…</div></div>
   </section>
 
-  <div class="dash" data-tab="favorites">
-    <section class="panel" id="spotifavs">
-      <h2>My Favorites</h2>
-      <p class="sub-h">Heart a festival or mark it Going to save it here. Tap a name to jump to its card.</p>
-      <h3 class="sub-title">Festivals <small id="my-fests-n"></small></h3>
+  <div class="dash" data-tab="radar">
+    <section class="panel" id="my-radar">
+      <h2>My Radar</h2>
+      <p class="sub-h">Festivals you've hearted or marked Going or Maybe. Tap a name to jump to its card.</p>
+      <div class="radar-alerts">
+        <div class="setrow"><span>Presale alerts on this device<br><span class="muted">A heads-up 24 hours and 15 minutes before tickets go on sale for your festivals.</span></span><button type="button" class="sw" id="set-notify" role="switch" aria-checked="false" aria-label="Presale alerts on this device"><span class="knob"></span></button></div>
+        <p class="muted set-note" id="set-notify-note" hidden></p>
+        <div class="line" id="set-notify-allow-wrap" hidden><button type="button" class="abtn" id="set-notify-allow">Allow alerts</button></div>
+        <div class="line" id="set-notify-test-wrap" hidden><button type="button" class="lnk" id="set-notify-test">Send a test alert</button><span class="muted" id="set-notify-test-msg" aria-live="polite"></span></div>
+      </div>
+      <h3 class="sub-title">Upcoming presales <small id="my-sales-n"></small></h3>
+      <div class="flist" id="my-sales"></div>
+      <h3 class="sub-title">My festivals <small id="my-fests-n"></small></h3>
       <div class="flist" id="my-fests"></div>
-      <h3 class="sub-title sf-art-h">Artists <small id="sf-count"></small></h3>
+    </section>
+    <section class="panel" id="spotifavs">
+      <h2>My Artists <small id="sf-count"></small></h2>
       <p class="sub-h">Festivals with your crew's favorite artists on the lineup get marked, so you can see which events to prioritize. Can't find an artist or event? Type it in and send it to Bill.</p>
       <div class="sf-grid one">
         <div class="sf-box">
@@ -699,13 +732,16 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
         </div>
       </div>
     </section>
+  </div>
+
+  <div class="dash one" data-tab="crew">
     <section class="panel" id="leaderboard">
-      <h2>Crew Favorites</h2>
+      <h2>Crew</h2>
       <div class="crewpick" id="crewpick"></div>
-      <p class="sub-h" id="crew-sub">What your crew has hearted or is going to.</p>
+      <p class="sub-h" id="crew-sub">What your crew is going to, thinking about, and loving. Tap a festival to see its card.</p>
       <h3 class="sub-title">Festivals</h3>
       <div class="flist" id="crew-fests"><div class="empty">Nothing yet.</div></div>
-      <h3 class="sub-title">Artists</h3>
+      <h3 class="sub-title">Crew favorite artists</h3>
       <div class="crew-chips" id="sf-crew"><div class="empty">No fav artists yet.</div></div>
     </section>
   </div>
@@ -752,9 +788,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <p class="muted">Saved on this device.</p>
     </details>
     <h3>Notifications</h3>
-    <div class="setrow"><span>Presale alerts on this device<br><span class="muted">A heads-up 24 hours and 15 minutes before tickets go on sale for festivals in your favorites.</span></span><button type="button" class="sw" id="set-notify" role="switch" aria-checked="false" aria-label="Presale alerts on this device"><span class="knob"></span></button></div>
-    <p class="muted set-note" id="set-notify-note" hidden></p>
-    <div class="line" id="set-notify-test-wrap" hidden><button type="button" class="lnk" id="set-notify-test">Send a test alert</button><span class="muted" id="set-notify-test-msg" aria-live="polite"></span></div>
+    <div class="setrow"><span>Presale alerts are in My Radar<br><span class="muted">Turn them on or off for this device there.</span></span><button type="button" class="abtn alt" id="set-open-radar">Open My Radar</button></div>
     <h3>Account</h3>
     <div class="line"><button type="button" class="abtn alt" id="set-invite">Invite friends</button><button type="button" class="abtn alt" id="set-signout">Sign out</button></div>
   </div>
@@ -786,25 +820,30 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <p class="fine">By signing in you agree to the <a href="privacy.html">privacy policy</a>. Your name, picks and favorite artists are visible to other signed-in members.</p>
   </form>
 </dialog>
+<div class="ask-bar" id="ask-bar" role="dialog" aria-live="polite" aria-label="Presale alerts" hidden>
+  <p id="ask-text">Want a heads-up before tickets drop? We'll alert you 24 hours and 15 minutes before presales for your festivals.</p>
+  <div class="line"><button type="button" class="abtn alt" id="ask-no">Not now</button><button type="button" class="abtn" id="ask-yes">Turn on alerts</button></div>
+</div>
 <nav class="btabs" id="btabs" aria-label="Jump to section">
   <button type="button" data-go="festivals"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8a2 2 0 0 0 0 4v4h16v-4a2 2 0 0 1 0-4V4H4z"/><path d="M10 4v12" stroke-dasharray="2 2"/></svg>Festivals</button>
-  <button type="button" data-go="alerts"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>Alerts</button>
   <button type="button" data-go="calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendar</button>
-  <button type="button" data-go="favorites"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>Favorites</button>
+  <button type="button" data-go="radar"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><path d="M12 12l5.5-5.5"/></svg>My Radar</button>
+  <button type="button" data-go="crew"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="16.5" cy="9.5" r="2.6"/><path d="M15.5 14.2c2.4-.2 4.4 1.3 5 4.3"/></svg>Crew</button>
   <button type="button" data-go="admin" id="btab-admin" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Admin</button>
 </nav>
 <script>
 (() => {
   // Tabs: the desktop top bar, phone bottom tabs and phone menu all switch between these.
-  // The URL hash (#alerts, #favorites...) remembers the tab so links and the back button work.
-  const TABS = ['festivals', 'alerts', 'calendar', 'favorites', 'admin'];
+  // The URL hash (#radar, #crew...) remembers the tab so links and the back button work. Older links (#alerts, #favorites) open My Radar.
+  const TABS = ['festivals', 'calendar', 'radar', 'crew', 'admin'];
+  const ALIAS = { alerts: 'radar', favorites: 'radar' };
   const btns = [...document.querySelectorAll('#btabs button[data-go], #dnav button[data-go]')];
   let reduce = false; try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
   let cur = null;
-  const fromHash = () => { const t = (location.hash || '').slice(1).toLowerCase(); return TABS.includes(t) ? t : 'festivals'; };
+  const fromHash = () => { let t = (location.hash || '').slice(1).toLowerCase(); t = ALIAS[t] || t; return TABS.includes(t) ? t : 'festivals'; };
   function show(t, opts) {
     opts = opts || {};
-    if (!TABS.includes(t)) t = 'festivals';
+    t = ALIAS[t] || t; if (!TABS.includes(t)) t = 'festivals';
     const adm = document.getElementById('admin'); if (t === 'admin' && (!adm || adm.hidden)) t = 'festivals';
     const changed = t !== cur; cur = t;
     document.querySelectorAll('[data-tab]').forEach(x => x.classList.toggle('tab-off', x.dataset.tab !== t));
@@ -1046,27 +1085,52 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     await savePushSub(sub); return 'on';
   }
   async function alertsOff() { const sub = await pushSub(); if (!sub) return; await sb.from('push_subs').delete().eq('endpoint', sub.endpoint); try { await sub.unsubscribe(); } catch (e) {} }
+  // Alerts are on by default (fr-alerts-want); the browser still needs one permission tap, asked after a first heart.
+  const lsWant = () => { try { return localStorage.getItem('fr-alerts-want') !== '0'; } catch (e) { return true; } };
+  const setWant = v => { try { localStorage.setItem('fr-alerts-want', v ? '1' : '0'); } catch (e) {} };
   async function refreshNotify(msg) {
-    const sw = document.getElementById('set-notify'), note = document.getElementById('set-notify-note'), tw = document.getElementById('set-notify-test-wrap'); if (!sw) return;
+    const sw = document.getElementById('set-notify'), note = document.getElementById('set-notify-note'), tw = document.getElementById('set-notify-test-wrap'), aw = document.getElementById('set-notify-allow-wrap'); if (!sw) return;
     const say = t => { note.hidden = !t; note.textContent = t || ''; };
-    let on = false;
+    let on = false, subbed = false; aw.hidden = true;
     if (!pushOK()) { sw.disabled = true; say(isIOS && !isStandalone() ? 'On iPhone and iPad, alerts work once Festival Radar is on your Home Screen: tap Share, then Add to Home Screen, open it from there, and turn this on.' : 'This browser can\'t show alerts. Try Chrome, Edge, Firefox or Safari.'); }
     else if (Notification.permission === 'denied') { sw.disabled = true; say('Alerts are blocked for this site. Allow notifications for it in your browser settings, then turn this on.'); }
-    else { sw.disabled = false; try { on = Notification.permission === 'granted' && !!(await pushSub()); } catch (e) {} say(msg || ''); }
-    sw.setAttribute('aria-checked', String(on)); tw.hidden = !on;
+    else {
+      sw.disabled = false;
+      try { subbed = Notification.permission === 'granted' && !!(await pushSub()); } catch (e) {}
+      if (!subbed && lsWant() && Notification.permission === 'granted') { try { subbed = (await alertsOn()) === 'on'; } catch (e) {} } // permission already given: finish quietly
+      on = subbed || lsWant();
+      if (on && !subbed) { aw.hidden = false; say(msg || 'Almost there: allow notifications so alerts can reach this device.'); }
+      else say(msg || '');
+    }
+    sw.setAttribute('aria-checked', String(on)); tw.hidden = !subbed;
   }
   window.FRNotify = { refresh: () => refreshNotify() };
+  // After a member's first heart, Going or Maybe: one friendly ask (once per device).
+  window.FRMaybeAsk = () => {
+    try { if (localStorage.getItem('fr-alerts-asked')) return; } catch (e) { return; }
+    const bar = document.getElementById('ask-bar'); if (!bar || !uid) return;
+    let text = null;
+    if (pushOK()) { if (!lsWant() || Notification.permission !== 'default') return; text = 'Want a heads-up before tickets drop? We\'ll alert you 24 hours and 15 minutes before presales for your festivals.'; }
+    else if (isIOS && !isStandalone()) text = 'Want presale alerts on your iPhone? Add Festival Radar to your Home Screen (tap Share, then Add to Home Screen), open it from there, and turn alerts on in My Radar.';
+    else return;
+    try { localStorage.setItem('fr-alerts-asked', '1'); } catch (e) {}
+    document.getElementById('ask-text').textContent = text;
+    const yes = document.getElementById('ask-yes'); yes.textContent = pushOK() ? 'Turn on alerts' : 'Got it';
+    document.getElementById('ask-no').hidden = !pushOK();
+    bar.hidden = false;
+  };
   function wireNotify() {
     const sw = document.getElementById('set-notify'); if (!sw || sw.dataset.wired) return; sw.dataset.wired = '1';
+    const turnOn = async () => { setWant(true); let msg = ''; try { const r = await alertsOn(); if (r !== 'on' && r !== 'denied') msg = 'Alerts will start once you allow notifications.'; } catch (e) { msg = 'Couldn\'t turn alerts on. Check your connection and try again.'; } await refreshNotify(msg); };
     sw.addEventListener('click', async () => {
       if (sw.disabled) return; sw.disabled = true;
-      let msg = '';
-      try {
-        if (sw.getAttribute('aria-checked') === 'true') { await alertsOff(); msg = 'Alerts are off on this device.'; }
-        else { const r = await alertsOn(); msg = r === 'on' ? '' : (r === 'denied' ? '' : 'Alerts stay off until you allow notifications.'); }
-      } catch (e) { msg = 'Couldn\'t change alerts. Check your connection and try again.'; }
-      await refreshNotify(msg);
+      if (sw.getAttribute('aria-checked') === 'true') { setWant(false); let msg = 'Alerts are off on this device.'; try { await alertsOff(); } catch (e) { msg = 'Couldn\'t change alerts. Check your connection and try again.'; } await refreshNotify(msg); }
+      else await turnOn();
     });
+    document.getElementById('set-notify-allow').addEventListener('click', turnOn);
+    document.getElementById('ask-yes').addEventListener('click', async () => { document.getElementById('ask-bar').hidden = true; if (pushOK()) await turnOn(); });
+    document.getElementById('ask-no').addEventListener('click', () => { document.getElementById('ask-bar').hidden = true; });
+    document.getElementById('set-open-radar').addEventListener('click', () => { document.getElementById('settings').close(); if (window.FRTab) FRTab('radar'); });
     document.getElementById('set-notify-test').addEventListener('click', async () => {
       const m = document.getElementById('set-notify-test-msg'); m.textContent = 'Sending…';
       try {
@@ -1078,6 +1142,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     });
     // Keep this device's subscription linked to whoever is signed in.
     if (pushOK() && Notification.permission === 'granted') pushSub().then(s => s && savePushSub(s)).catch(() => {});
+    refreshNotify();
   }
 
   async function initMember() {
@@ -1153,7 +1218,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const n = allCrews ? new Set(crews.flatMap(c => (c.members || []).map(m => m.id))).size : ((crews.find(c => c.id === activeCrew) || {}).members || []).length;
     box.appendChild(mk('span', 'muted', n + (n === 1 ? ' member' : ' members')));
     const inv = mk('button', 'abtn alt', 'Invite friends'); inv.type = 'button'; inv.addEventListener('click', () => FR.openInvite()); box.appendChild(inv);
-    if (sub) sub.textContent = 'What ' + (allCrews ? 'your crews have' : 'this crew has') + ' hearted or is going to. Tap a festival to see its card.';
+    if (sub) sub.textContent = 'What ' + (allCrews ? 'your crews are' : 'this crew is') + ' going to, thinking about, and loving. Tap a festival to see its card.';
   }
   async function loadCrews() {
     const { data } = await sb.rpc('my_crews');
@@ -1309,7 +1374,6 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const t = document.getElementById('show-toggle'); document.getElementById('set-shows').setAttribute('aria-checked', t ? t.getAttribute('aria-checked') : 'false');
     renderSettingsCrews(); renderSkins();
     d.querySelectorAll('details.set-sec').forEach(x => { x.open = false; }); // long sections start collapsed
-    if (window.FRNotify) FRNotify.refresh();
     d.showModal();
     if (focus === 'crews') setTimeout(() => document.getElementById('set-newcrew').focus(), 50);
   };
@@ -1397,7 +1461,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   (function () {
     const btn = document.getElementById('mn-btn'), panel = document.getElementById('mn-panel');
     if (!btn || !panel) return;
-    const SECTIONS_NAV = [['festivals', 'Festivals'], ['alerts', 'Presale Alerts'], ['calendar', 'Festival Calendar'], ['favorites', 'Favorites'], ['admin', 'Admin']];
+    const SECTIONS_NAV = [['festivals', 'Festivals'], ['calendar', 'Festival Calendar'], ['radar', 'My Radar'], ['crew', 'Crew'], ['admin', 'Admin']];
     const close = () => { panel.hidden = true; btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-label', 'Open menu'); };
     const open = () => { panel.hidden = false; btn.setAttribute('aria-expanded', 'true'); btn.setAttribute('aria-label', 'Close menu'); const f = panel.querySelector('button, a'); if (f) f.focus(); };
     const go = id => { close(); if (window.FRTab) FRTab(id); };
@@ -1538,29 +1602,27 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     });
   }
 
-  function renderAlerts() {
-    const box = $('alerts'); box.replaceChildren();
-    const today = new Date().toISOString().slice(0, 10);
-    const lim = new Date(Date.now() + 92 * 864e5).toISOString().slice(0, 10);
-    const rows = [];
-    state.festivals.forEach(f => {
-      const ns = (f.next_sale || '').slice(0, 10);
-      if (ns && ns >= today && ns <= lim) rows.push({ f, d: ns, kind: 'confirmed' });
-      else if (f.status === 'Watch' && f.expected_sale && f.expected_sale >= today && f.expected_sale <= lim) rows.push({ f, d: f.expected_sale, kind: 'expected' });
-    });
-    rows.sort((a, b) => a.d.localeCompare(b.d));
-    if (!rows.length) { box.appendChild(el('div', 'empty', 'No ticket sales expected in the next 3 months. Festivals already on sale show it on their cards below.')); return; }
-    const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const day = d => MON[Number(d.slice(5, 7)) - 1] + ' ' + Number(d.slice(8, 10));
-    rows.forEach(({ f, d, kind }) => {
-      const row = el('div', 'alert');
-      const when = kind === 'confirmed' ? day(d) : 'about ' + day(d);
-      row.append(el('span', 'pill ' + (kind === 'confirmed' ? 'st-presale' : 'st-wait'), kind === 'confirmed' ? 'Presale ' + day(d) : 'Expected'), el('span', 'n', f.festival),
-        el('span', 'w', (kind === 'expected' ? 'Expected ' + when + ' (unconfirmed). ' : '') + f.next_sale_label + (f.price_from ? ' · from ' + f.price_from : '') + ' · ' + f.section));
-      box.appendChild(row);
-    });
+  // Next ticket sale for a festival: confirmed (next_sale) or expected (expected_sale, unconfirmed).
+  function saleInfo(f) {
+    const now = Date.now();
+    if (f.next_sale) { const t = Date.parse(f.next_sale); if (isFinite(t) && t > now) return { kind: 'confirmed', t }; }
+    if (f.expected_sale && /^\d{4}-\d\d-\d\d$/.test(f.expected_sale)) { const t = Date.parse(f.expected_sale + 'T12:00:00'); if (isFinite(t) && t > now - 12 * 3600e3) return { kind: 'expected', t }; }
+    return null;
   }
-
+  function saleSoon(s) {
+    if (!s) return '';
+    const ms = s.t - Date.now(), hrs = Math.round(ms / 3600e3), days = Math.round(ms / 864e5);
+    if (s.kind === 'expected') return 'Presale expected ' + (days <= 0 ? 'today' : days === 1 ? 'tomorrow' : 'in about ' + days + ' days') + ' (unconfirmed)';
+    return 'Presale ' + (hrs < 1 ? 'in under an hour' : hrs < 24 ? 'in ' + hrs + (hrs === 1 ? ' hour' : ' hours') : days === 1 ? 'tomorrow' : 'in ' + days + ' days');
+  }
+  function saleLight(f) {
+    const s = saleInfo(f); if (!s || s.t - Date.now() > 7 * 864e5) return null;
+    const b = el('button', 'salelight ' + s.kind); b.type = 'button';
+    const label = saleSoon(s); b.setAttribute('aria-label', label); b.appendChild(el('span', 'tip', label));
+    b.addEventListener('click', e => { e.stopPropagation(); b.classList.toggle('show'); });
+    b.addEventListener('blur', () => b.classList.remove('show'));
+    return b;
+  }
   function renderBoard() { renderFavDash(); }
 
   function renderCalendar() {
@@ -1644,7 +1706,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const top = el('div', 'card-top');
     const h = el('h3'); const href = safeLink(f.link);
     if (href) { const a = el('a', null, f.festival); a.href = href; a.target = '_blank'; a.rel = 'noopener'; h.appendChild(a); } else h.textContent = f.festival;
-    const acts = el('span', 'card-acts'); acts.append(el('span', 'pill ' + statusClass(f.status), f.status), heartBtn(f));
+    const acts = el('span', 'card-acts'); const sl = saleLight(f); if (sl) acts.appendChild(sl); acts.append(el('span', 'pill ' + statusClass(f.status), f.status), heartBtn(f));
     top.append(h, acts);
     const meta = el('div', 'meta', f.dates + ' · ' + f.city + (dist(f) ? ' · ' + dist(f) + ' from Hermosa' : ''));
     const gw = el('div'); gw.appendChild(el('span', 'genre', f.genre)); if (f.kind === 'show') { gw.append(' '); gw.appendChild(el('span', 'show-tag', 'Show')); }
@@ -1925,7 +1987,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     toggleFav(hit.name); e.target.value = ''; state.sfQuery = ''; renderSpotifavs();
   });
 
-  function renderAll() { renderShowToggle(); renderNext(); renderCountdown(); renderTiles(); renderAlerts(); renderBoard(); renderSpotifavs(); renderCalendar(); renderCards(); renderFavDash(); }
+  function renderAll() { renderShowToggle(); renderNext(); renderCountdown(); renderTiles(); renderBoard(); renderSpotifavs(); renderCalendar(); renderCards(); renderFavDash(); }
 
   // ---- Festival hearts (favorites) ----
   const myHearts = () => state.hearts[state.me] || [];
@@ -1952,6 +2014,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     state.hearts[state.me] = next;
     renderCards(); renderFavDash();
     if (pop && on) { const c = document.querySelector('#card-' + CSS.escape(id) + ' .fheart'); if (c) c.classList.add('pop'); }
+    if (on && window.FRMaybeAsk) FRMaybeAsk();
     heartWriting = heartWriting.then(() => db.collection('hearts').doc(state.me).set({ ids: next }))
       .catch(e => showNotice(e && e.code === 'not_granted' ? 'Your favorite didn\'t save because your sign-in expired. Sign in again.' : 'Your favorite didn\'t save. Check your connection and try again.'));
   }
@@ -1980,43 +2043,79 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     if (extra) row.appendChild(extra);
     return { row, f, name: f ? f.festival : prettyId(id) };
   }
-  // Favorites tab: my hearted festivals (titles only) and the crew's.
-  function renderFavDash() {
-    const my = $('my-fests'), crew = $('crew-fests'); if (!my || !crew) return;
-    my.replaceChildren(); crew.replaceChildren();
+  const myPick = id => ((state.picks[state.me] && state.picks[state.me].choices) || {})[id];
+  // My festivals: hearted, or marked Going or Maybe.
+  function myFestIds() {
+    const choices = (state.picks[state.me] && state.picks[state.me].choices) || {};
+    return [...new Set([...myHearts(), ...Object.keys(choices).filter(id => choices[id] === 'going' || choices[id] === 'maybe')])];
+  }
+  const MON3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function saleWhen(s) {
+    const d = new Date(s.t);
+    if (s.kind === 'expected') return 'Expected ~' + MON3[d.getMonth()] + ' ' + d.getDate();
+    return d.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  }
+  function renderFavDash() { renderMyRadar(); renderCrewDash(); }
+  function renderMyRadar() {
+    const my = $('my-fests'), sales = $('my-sales'); if (!my || !sales) return;
+    my.replaceChildren(); sales.replaceChildren();
+    const ra = document.querySelector('#my-radar .radar-alerts'); if (ra) ra.hidden = !state.me;
     if (!state.me) {
       my.appendChild(el('div', 'empty', 'Sign in to save festivals you love.'));
-      crew.appendChild(el('div', 'empty', 'Sign in to see what your crew loves.'));
-      $('my-fests-n').textContent = ''; return;
+      sales.appendChild(el('div', 'empty', 'Sign in to see presales for your festivals.'));
+      $('my-fests-n').textContent = ''; $('my-sales-n').textContent = ''; return;
     }
-    const mine = myHearts().map(id => fRow(id)).sort(rowByStart);
-    $('my-fests-n').textContent = mine.length ? mine.length + ' saved' : '';
-    if (!mine.length) {
-      const e = el('div', 'empty', 'Nothing saved yet. Tap the heart on a festival, or mark it Going.');
+    const ids = myFestIds();
+    const rows = ids.map(id => fRow(id)).sort(rowByStart);
+    $('my-fests-n').textContent = rows.length ? rows.length + ' saved' : '';
+    if (!rows.length) {
+      const e = el('div', 'empty', 'Nothing here yet. Tap the heart on a festival, or mark it Going or Maybe.');
       const b = el('button', 'abtn alt', 'Browse festivals'); b.type = 'button'; b.addEventListener('click', () => window.FRTab && FRTab('festivals'));
       e.appendChild(b); my.appendChild(e);
     }
-    mine.forEach(r => {
+    rows.forEach(r => {
+      const id = r.row.dataset.id, pk = myPick(id);
+      if (pk === 'going' || pk === 'maybe') r.row.appendChild(el('span', 'fl-tag ' + pk, pk === 'going' ? 'Going' : 'Maybe'));
       if (r.f) r.row.appendChild(heartBtn(r.f, true));
       else { // no longer listed: still removable
         const x = el('button', 'fheart sm'); x.type = 'button'; x.setAttribute('aria-pressed', 'true'); x.setAttribute('aria-label', 'Remove ' + r.name + ' from favorites');
-        x.innerHTML = HEART_SVG; const id = r.row.dataset.id; x.addEventListener('click', () => setHeart(id, false)); r.row.appendChild(x);
+        x.innerHTML = HEART_SVG; x.addEventListener('click', () => setHeart(id, false)); r.row.appendChild(x);
       }
       my.appendChild(r.row);
     });
-    // Crew: festivals any crewmate has hearted, most loved first, with who.
-    const tally = new Map();
-    Object.entries(state.hearts).forEach(([u, ids]) => (ids || []).forEach(id => { if (!tally.has(id)) tally.set(id, []); tally.get(id).push(u); }));
-    const rows = [...tally.entries()].map(([id, who]) => {
-      who = who.slice().sort((a, b) => (a === state.me) - (b === state.me));
-      const w = el('span', 'fl-who', '♥ ' + who.map(nameOf).join(', ')); w.title = who.map(nameOf).join(', ');
-      const r = fRow(id, w); r.n = who.length; return r;
-    }).sort((a, b) => b.n - a.n || rowByStart(a, b));
-    if (!rows.length) crew.appendChild(el('div', 'empty', 'Nobody has saved a festival yet.'));
+    // Upcoming presales for my festivals, soonest first.
+    const up = ids.map(id => state._all.find(f => f.id === id)).filter(Boolean).map(f => ({ f, s: saleInfo(f) })).filter(x => x.s).sort((a, b) => a.s.t - b.s.t);
+    $('my-sales-n').textContent = up.length ? up.length + ' coming up' : '';
+    if (!up.length) sales.appendChild(el('div', 'empty', 'No ticket sales announced for your festivals yet. They show up here as soon as they are.'));
+    up.forEach(({ f, s }) => {
+      const r = fRow(f.id); const sl = saleLight(f);
+      if (sl) r.row.insertBefore(sl, r.row.firstChild);
+      const w = el('span', 'fl-when', saleWhen(s)); w.title = saleSoon(s); r.row.appendChild(w);
+      sales.appendChild(r.row);
+    });
+  }
+  // Crew tab: festivals anyone in the crew has hearted or marked Going or Maybe, with who.
+  function renderCrewDash() {
+    const crew = $('crew-fests'); if (!crew) return; crew.replaceChildren();
+    if (!state.me) { crew.appendChild(el('div', 'empty', 'Sign in to see what your crew is going to.')); return; }
+    const t = new Map(); const get = id => { if (!t.has(id)) t.set(id, { going: [], maybe: [], hearts: [] }); return t.get(id); };
+    Object.entries(state.picks).forEach(([u, p]) => Object.entries((p && p.choices) || {}).forEach(([id, c]) => { if (c === 'going' || c === 'maybe') get(id)[c].push(u); }));
+    Object.entries(state.hearts).forEach(([u, ids]) => (ids || []).forEach(id => get(id).hearts.push(u)));
+    const meLast = (a, b) => (a === state.me) - (b === state.me);
+    const rows = [...t.entries()].map(([id, v]) => {
+      const loved = v.hearts.filter(u => !v.going.includes(u) && !v.maybe.includes(u));
+      const w = el('span', 'fl-who');
+      const part = (lab, arr, tag) => { if (!arr.length) return; if (w.childNodes.length) w.append(' · '); w.appendChild(el(tag, null, lab)); w.append(' ' + arr.slice().sort(meLast).map(nameOf).join(', ')); };
+      part('Going', v.going, 'b'); part('Maybe', v.maybe, 'i'); part('♥', loved, 'span');
+      w.title = w.textContent;
+      const r = fRow(id, w); r.score = [v.going.length, v.maybe.length, v.hearts.length]; return r;
+    }).sort((a, b) => b.score[0] - a.score[0] || b.score[1] - a.score[1] || b.score[2] - a.score[2] || rowByStart(a, b));
+    if (!rows.length) crew.appendChild(el('div', 'empty', 'Nobody in the crew has picked a festival yet.'));
     rows.slice(0, 15).forEach(r => crew.appendChild(r.row));
     if (rows.length > 15) crew.appendChild(el('div', 'fl-more', 'And ' + (rows.length - 15) + ' more.'));
   }
-  window.addEventListener('fr-tab', e => { if (e.detail === 'calendar') renderCalendar(); if (e.detail === 'festivals') renderRadar(); if (e.detail === 'favorites') renderFavDash(); });
+  window.addEventListener('fr-tab', e => { if (e.detail === 'calendar') renderCalendar(); if (e.detail === 'festivals') renderRadar(); if (e.detail === 'radar' || e.detail === 'crew') renderFavDash(); });
+  setInterval(() => { if (document.visibilityState === 'visible') { if (window.FRTabNow && FRTabNow() === 'festivals') renderCards(); renderMyRadar(); } }, 10 * 60e3); // lights and countdowns stay current
 
   // A tapped alert opens ?card=<id>#festivals: show that card once the list is in, then tidy the address.
   let cardLinkDone = false;
@@ -2035,6 +2134,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     if (value) current[slug] = value; else delete current[slug];
     state.picks[state.me] = { choices: current };
     if (value === 'going') setHeart(slug, true);
+    if (value === 'maybe' && window.FRMaybeAsk) FRMaybeAsk();
     renderBoard(); renderCards(); renderCalendar();
     writing = writing.then(() => db.collection('picks').doc(state.me).set({ choices: current, updatedAt: new Date().toISOString() }))
       .catch(e => showNotice(e && e.code === 'not_granted' ? 'Your pick didn\'t save because your sign-in expired. Sign in again.' : 'Your pick didn\'t save. Check your connection and try again.'));
