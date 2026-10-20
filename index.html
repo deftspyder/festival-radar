@@ -50,6 +50,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
   .hero h1 { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; filter: none; }
   .hero h1 + p { margin-top: 0; }
 }
+.hero .motto { position: relative; z-index: 2; font-family: var(--display); font-size: 13px; letter-spacing: .22em; color: var(--cyan); margin: 0 0 10px; text-shadow: 0 0 10px rgba(41,211,245,.5); }
+.hero .motto span { color: var(--violet); margin: 0 .25em; }
+.hero .motto b { font-weight: 400; margin-left: .2em; letter-spacing: 0; }
 .hero .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .28em; text-transform: uppercase; color: var(--cyan); margin-bottom: 10px; }
 .hero > * { position: relative; z-index: 1; }
 .hero h1 { font-family: var(--display); font-weight: 400; font-size: clamp(24px, 3.6vw, 38px); line-height: 1.05; filter: drop-shadow(0 0 12px rgba(255,61,154,.45)); margin: 0; letter-spacing: .02em;
@@ -72,7 +75,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 .cd .cd-b { min-width: 36px; text-align: center; padding: 3px 4px 2px; border-radius: 7px; background: rgba(18,10,36,.6); border: 1px solid rgba(41,211,245,.45); box-shadow: 0 0 10px -5px var(--cyan); }
 .cd .cd-n { font-family: var(--display); font-size: 14px; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--fg); }
 .cd .cd-t { font-size: 8px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
-@media (max-width: 560px) { .hero > .cd { position: relative; top: auto; right: auto; margin-top: 12px; align-items: flex-start; } .hero h1 { padding-right: 0; } .cd .cd-l { text-align: left; } }
+@media (max-width: 560px) { .hero > .cd { position: relative; top: auto; right: auto; margin: 12px 0 0 auto; width: fit-content; align-items: flex-end; } .hero h1 { padding-right: 0; } .cd .cd-l { text-align: right; } }
 .mnav { display: none; }
 @media (max-width: 700px) {
   body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60; background: #120a24; }
@@ -341,6 +344,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
     <div class="mn-panel" id="mn-panel" hidden></div>
   </nav>
   <header class="hero" id="top">
+    <div class="motto">CREW<span>+</span>MUSIC<span>=</span><b aria-label="love">♥️</b></div>
     <div class="radar" aria-hidden="true"><div class="rings"></div><div class="hline"></div><div class="vline"></div><div class="sweep"></div><div class="hub"></div><div class="scrim"></div><div class="blips" id="blips"></div></div>
     <h1>Festival Radar</h1>
     <div class="next" id="next" hidden></div>
@@ -923,15 +927,6 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
       const b = document.createElement('button'); b.type = 'button'; b.textContent = label;
       b.addEventListener('click', () => go(id));
       panel.appendChild(b);
-      if (id === 'festivals') {
-        const sub = document.createElement('div'); sub.className = 'mn-sub';
-        [['Local', 'Local'], ['USA', 'USA'], ['Worldwide', 'Worldwide'], ['All', 'All']].forEach(([sec, lab]) => {
-          const t = document.createElement('button'); t.type = 'button'; t.textContent = lab;
-          t.addEventListener('click', () => { const tab = document.querySelector('#tabs button[data-sec="' + sec + '"]'); if (tab) tab.click(); go('festivals'); });
-          sub.appendChild(t);
-        });
-        panel.appendChild(sub);
-      }
     });
     const extra = document.getElementById('mn-extra-link');
     if (extra) { const sep = document.createElement('div'); sep.className = 'mn-sep'; panel.appendChild(sep); const a = extra.cloneNode(true); a.removeAttribute('id'); a.hidden = false; a.className = 'mn-cta'; panel.appendChild(a); }
@@ -1132,18 +1127,33 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
       const r = box.getBoundingClientRect(); const mx = ev.clientX - r.left, my = ev.clientY - r.top;
       tip.style.left = Math.min(Math.max(0, mx + 12), box.clientWidth - tip.offsetWidth) + 'px'; tip.style.top = (my + 12) + 'px';
     };
+    const myPicks = (state.picks[state.me] && state.picks[state.me].choices) || {};
     data.forEach(d => {
-      const r = mk('rect', { x: x(d.s), y: offs[d.section] + d.lane * rowH + 4, width: Math.max(8, x(d.e) - x(d.s)), height: rowH - 8, rx: 4,
-        fill: SEC_COLOR[SECTIONS.indexOf(d.section)], opacity: d.status === 'Watch' ? .45 : 1 });
+      const ch = myPicks[d.id], bx = x(d.s), by = offs[d.section] + d.lane * rowH + 4, bw = Math.max(8, x(d.e) - x(d.s)), bh = rowH - 8;
+      const r = mk('rect', { x: bx, y: by, width: bw, height: bh, rx: 4,
+        fill: ch === 'pass' ? '#4a4060' : SEC_COLOR[SECTIONS.indexOf(d.section)], opacity: ch === 'pass' ? .55 : d.status === 'Watch' && ch !== 'going' ? .45 : 1 });
+      if (ch === 'going') { r.setAttribute('stroke', '#fff'); r.setAttribute('stroke-width', '2'); }
+      if (ch === 'maybe') { r.setAttribute('stroke', '#fff'); r.setAttribute('stroke-width', '1.5'); r.setAttribute('stroke-dasharray', '3 2'); }
       r.style.cursor = 'pointer';
       r.addEventListener('mousemove', ev => show(ev, d));
       r.addEventListener('click', ev => show(ev, d));
       r.addEventListener('mouseleave', () => { tip.hidden = true; });
       svg.appendChild(r);
+      if (ch === 'going') {
+        const cx = bw >= 22 ? bx + bw - 9 : Math.min(bx + bw + 9, W - 8), cy = by + bh / 2;
+        const g = mk('g', { 'pointer-events': 'none' });
+        g.appendChild(mk('circle', { cx, cy, r: 7, fill: '#ff3d9a', stroke: '#fff', 'stroke-width': 1.5 }));
+        g.appendChild(mk('path', { d: `M${cx - 3.2} ${cy + .2} l2.2 2.3 l4.2 -4.6`, fill: 'none', stroke: '#fff', 'stroke-width': 1.8, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+        svg.appendChild(g);
+      }
     });
     box.appendChild(svg);
     const lg = $('legend'); lg.replaceChildren();
     SECTIONS.forEach((sec, i) => { const s = el('span'); const dot = el('i'); dot.style.background = SEC_COLOR[i]; s.append(dot, sec); lg.appendChild(s); });
+    if (state.me && state.canWrite !== false) {
+      const gk = el('span'); const gi = el('i'); gi.style.cssText = 'background:#ff3d9a;border:1.5px solid #fff'; gk.append(gi, 'You\'re going'); lg.appendChild(gk);
+      const pk = el('span'); const pi = el('i'); pi.style.background = '#4a4060'; pk.append(pi, 'You passed'); lg.appendChild(pk);
+    }
     lg.appendChild(el('span', null, 'Faded: dates not confirmed · Dashed line: today'));
   }
 
@@ -1379,7 +1389,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
     const current = { ...((state.picks[state.me] && state.picks[state.me].choices) || {}) };
     if (value) current[slug] = value; else delete current[slug];
     state.picks[state.me] = { choices: current };
-    renderBoard(); renderCards();
+    renderBoard(); renderCards(); renderCalendar();
     writing = writing.then(() => db.collection('picks').doc(state.me).set({ choices: current, updatedAt: new Date().toISOString() }))
       .catch(e => showNotice(e && e.code === 'not_granted' ? 'Your pick didn\'t save because your sign-in expired. Sign in again.' : 'Your pick didn\'t save. Check your connection and try again.'));
   }
@@ -1415,7 +1425,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
     const next = {};
     snap.docs.forEach(d => { const data = d.data(); if (data && data.choices && typeof data.choices === 'object') next[d.id] = data; });
     state.picks = next;
-    renderBoard(); renderCards(); resolveNames();
+    renderBoard(); renderCards(); renderCalendar(); resolveNames();
   }, () => {});
 
   db.collection('favs').onSnapshot(snap => {
