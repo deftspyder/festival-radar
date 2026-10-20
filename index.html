@@ -281,6 +281,23 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 .flist .fl-row > .fl-tag + .fheart, .flist .fl-row > .fl-tag:last-child { margin-left: 0; }
 .flist .fl-row .fl-go + .fl-tag { margin-left: auto; }
 .flist .fl-who b { color: var(--going); font-weight: 700; } .flist .fl-who i { color: var(--maybe); font-style: normal; font-weight: 700; }
+.radar-alerts .setrow + .setrow { margin-top: 10px; padding-top: 10px; border-top: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
+.av { width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font: 800 12px var(--body); color: #120a24; background: var(--avc, var(--cyan)); border: 2px solid var(--panel); flex: none; }
+.avs { display: inline-flex; flex: none; } .avs .av + .av { margin-left: -8px; }
+.wego .fl-row { gap: 10px; }
+.wego .fl-sub { font-size: 12px; color: var(--muted); }
+.wego .fl-main { display: flex; flex-direction: column; min-width: 0; }
+.wego .avs { margin-left: auto; }
+.feed { display: flex; flex-direction: column; }
+.feed .fd { display: flex; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); font-size: 14px; }
+.feed .fd:last-of-type { border-bottom: none; }
+.feed .fd-t { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.feed .fd-t b { font-weight: 700; }
+.feed .fd-t button { font: inherit; font-weight: 700; color: var(--fg); background: none; border: none; padding: 0; cursor: pointer; text-align: left; }
+.feed .fd-t button:hover { color: var(--pink); text-decoration: underline; }
+.feed .fd-when { font-size: 12px; color: var(--muted); flex: none; }
+.feed .fd-more { margin-top: 8px; align-self: flex-start; }
+.feed .empty { font-size: 13px; color: var(--muted); padding: 6px 0; }
 /* Presale light: pulses when a confirmed sale is within 7 days; steady and dim for an expected one. */
 .salelight { position: relative; width: 22px; height: 22px; padding: 0; border: none; background: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex: none; }
 .salelight::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--warn); box-shadow: 0 0 6px 1px color-mix(in srgb, var(--warn) 70%, transparent); }
@@ -689,6 +706,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <p class="sub-h">Festivals you've hearted or marked Going or Maybe. Tap a name to jump to its card.</p>
       <div class="radar-alerts">
         <div class="setrow"><span>Presale alerts on this device<br><span class="muted">A heads-up 24 hours and 15 minutes before tickets go on sale for your festivals.</span></span><button type="button" class="sw" id="set-notify" role="switch" aria-checked="false" aria-label="Presale alerts on this device"><span class="knob"></span></button></div>
+        <div class="setrow"><span>Crew pings on this device<br><span class="muted">When a crewmate marks Going on one of your festivals. At most one per festival a day.</span></span><button type="button" class="sw" id="set-crew" role="switch" aria-checked="false" aria-label="Crew pings on this device"><span class="knob"></span></button></div>
         <p class="muted set-note" id="set-notify-note" hidden></p>
         <div class="line" id="set-notify-allow-wrap" hidden><button type="button" class="abtn" id="set-notify-allow">Allow alerts</button></div>
         <div class="line" id="set-notify-test-wrap" hidden><button type="button" class="lnk" id="set-notify-test">Send a test alert</button><span class="muted" id="set-notify-test-msg" aria-live="polite"></span></div>
@@ -734,15 +752,22 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     </section>
   </div>
 
-  <div class="dash one" data-tab="crew">
+  <div class="dash" data-tab="crew">
     <section class="panel" id="leaderboard">
       <h2>Crew</h2>
       <div class="crewpick" id="crewpick"></div>
       <p class="sub-h" id="crew-sub">What your crew is going to, thinking about, and loving. Tap a festival to see its card.</p>
+      <h3 class="sub-title">We're going <small id="crew-going-n"></small></h3>
+      <div class="flist wego" id="crew-going"></div>
       <h3 class="sub-title">Festivals</h3>
       <div class="flist" id="crew-fests"><div class="empty">Nothing yet.</div></div>
       <h3 class="sub-title">Crew favorite artists</h3>
       <div class="crew-chips" id="sf-crew"><div class="empty">No fav artists yet.</div></div>
+    </section>
+    <section class="panel" id="crew-activity">
+      <h2>Activity</h2>
+      <p class="sub-h">What your crew has been up to in the last 30 days.</p>
+      <div class="feed" id="crew-feed"></div>
     </section>
   </div>
 
@@ -892,9 +917,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   const denied = e => e && (e.code === '42501' || e.status === 401 || e.status === 403);
 
   async function loadPicks() {
-    const { data, error } = await sb.from('picks').select('user_id,festival_id,choice').limit(20000);
+    const { data, error } = await sb.from('picks').select('user_id,festival_id,choice,updated_at').limit(20000);
     if (error) throw error;
-    const g = {}; data.forEach(r => { (g[r.user_id] = g[r.user_id] || { choices: {} }).choices[r.festival_id] = r.choice; });
+    const g = {}; data.forEach(r => { const u = (g[r.user_id] = g[r.user_id] || { choices: {}, times: {} }); u.choices[r.festival_id] = r.choice; u.times[r.festival_id] = r.updated_at; });
     caches.picks = g; subs.picks.forEach(cb => cb(snap(g)));
   }
   async function loadFavs() {
@@ -906,7 +931,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   async function loadHearts() {
     const { data, error } = await sb.from('hearts').select('user_id,festival_id,created_at').order('created_at').limit(20000);
     if (error) throw error;
-    const g = {}; data.forEach(r => { (g[r.user_id] = g[r.user_id] || { ids: [] }).ids.push(r.festival_id); });
+    const g = {}; data.forEach(r => { const u = (g[r.user_id] = g[r.user_id] || { ids: [], times: {} }); u.ids.push(r.festival_id); u.times[r.festival_id] = r.created_at; });
     caches.hearts = g; subs.hearts.forEach(cb => cb(snap(g)));
   }
   async function saveHearts(ids) {
@@ -915,7 +940,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const dels = prev.filter(a => !ids.includes(a));
     if (adds.length) { const { error } = await sb.from('hearts').upsert(adds, { onConflict: 'user_id,festival_id', ignoreDuplicates: true }); if (error) throw denied(error) ? { code: 'not_granted' } : error; }
     if (dels.length) { const { error } = await sb.from('hearts').delete().eq('user_id', uid).in('festival_id', dels); if (error) throw denied(error) ? { code: 'not_granted' } : error; }
-    caches.hearts[uid] = { ids: [...ids] };
+    const ht = (caches.hearts[uid] && caches.hearts[uid].times) || {}; const hnow = new Date().toISOString(); const htimes = {}; ids.forEach(k => { htimes[k] = ht[k] || hnow; });
+    caches.hearts[uid] = { ids: [...ids], times: htimes };
   }
   async function savePicks(choices) {
     const prev = (caches.picks[uid] && caches.picks[uid].choices) || {};
@@ -923,7 +949,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const dels = Object.keys(prev).filter(k => !(k in choices));
     if (ups.length) { const { error } = await sb.from('picks').upsert(ups, { onConflict: 'user_id,festival_id' }); if (error) throw denied(error) ? { code: 'not_granted' } : error; }
     if (dels.length) { const { error } = await sb.from('picks').delete().eq('user_id', uid).in('festival_id', dels); if (error) throw denied(error) ? { code: 'not_granted' } : error; }
-    caches.picks[uid] = { choices: { ...choices } };
+    const t0 = (caches.picks[uid] && caches.picks[uid].times) || {}; const now = new Date().toISOString(); const times = {}; Object.keys(choices).forEach(k => { times[k] = prev[k] === choices[k] && t0[k] ? t0[k] : now; });
+    caches.picks[uid] = { choices: { ...choices }, times };
   }
   async function saveFavs(artists) {
     const prev = (caches.favs[uid] && caches.favs[uid].artists) || [];
@@ -1076,7 +1103,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   const isStandalone = () => { try { return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } };
   const b64url = s => { const raw = atob((s + '='.repeat((4 - s.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(raw, c => c.charCodeAt(0)); };
   async function pushSub() { if (!pushOK()) return null; const reg = await navigator.serviceWorker.getRegistration(); return reg ? reg.pushManager.getSubscription() : null; }
-  async function savePushSub(sub) { const j = sub.toJSON(); const { error } = await sb.rpc('save_push_sub', { sub_endpoint: j.endpoint, sub_p256dh: j.keys.p256dh, sub_auth: j.keys.auth }); if (error) throw error; }
+  async function savePushSub(sub) { const j = sub.toJSON(); const { error } = await sb.rpc('save_push_sub_v2', { sub_endpoint: j.endpoint, sub_p256dh: j.keys.p256dh, sub_auth: j.keys.auth, want_presale: lsWant(), want_crew: lsCrew() }); if (error) throw error; }
   async function alertsOn() {
     const perm = await Notification.requestPermission(); if (perm !== 'granted') return perm;
     const reg = await navigator.serviceWorker.register('sw.js'); await navigator.serviceWorker.ready;
@@ -1088,29 +1115,35 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   // Alerts are on by default (fr-alerts-want); the browser still needs one permission tap, asked after a first heart.
   const lsWant = () => { try { return localStorage.getItem('fr-alerts-want') !== '0'; } catch (e) { return true; } };
   const setWant = v => { try { localStorage.setItem('fr-alerts-want', v ? '1' : '0'); } catch (e) {} };
+  const lsCrew = () => { try { return localStorage.getItem('fr-crew-want') !== '0'; } catch (e) { return true; } };
+  const setCrew = v => { try { localStorage.setItem('fr-crew-want', v ? '1' : '0'); } catch (e) {} };
+  const anyWant = () => lsWant() || lsCrew();
   async function refreshNotify(msg) {
-    const sw = document.getElementById('set-notify'), note = document.getElementById('set-notify-note'), tw = document.getElementById('set-notify-test-wrap'), aw = document.getElementById('set-notify-allow-wrap'); if (!sw) return;
+    const sw = document.getElementById('set-notify'), cs = document.getElementById('set-crew'), note = document.getElementById('set-notify-note'), tw = document.getElementById('set-notify-test-wrap'), aw = document.getElementById('set-notify-allow-wrap'); if (!sw) return;
     const say = t => { note.hidden = !t; note.textContent = t || ''; };
-    let on = false, subbed = false; aw.hidden = true;
-    if (!pushOK()) { sw.disabled = true; say(isIOS && !isStandalone() ? 'On iPhone and iPad, alerts work once Festival Radar is on your Home Screen: tap Share, then Add to Home Screen, open it from there, and turn this on.' : 'This browser can\'t show alerts. Try Chrome, Edge, Firefox or Safari.'); }
-    else if (Notification.permission === 'denied') { sw.disabled = true; say('Alerts are blocked for this site. Allow notifications for it in your browser settings, then turn this on.'); }
+    let subbed = false, usable = false; aw.hidden = true;
+    if (!pushOK()) say(isIOS && !isStandalone() ? 'On iPhone and iPad, alerts work once Festival Radar is on your Home Screen: tap Share, then Add to Home Screen, open it from there, and turn these on.' : 'This browser can\'t show alerts. Try Chrome, Edge, Firefox or Safari.');
+    else if (Notification.permission === 'denied') say('Alerts are blocked for this site. Allow notifications for it in your browser settings, then turn these on.');
     else {
-      sw.disabled = false;
+      usable = true;
       try { subbed = Notification.permission === 'granted' && !!(await pushSub()); } catch (e) {}
-      if (!subbed && lsWant() && Notification.permission === 'granted') { try { subbed = (await alertsOn()) === 'on'; } catch (e) {} } // permission already given: finish quietly
-      on = subbed || lsWant();
-      if (on && !subbed) { aw.hidden = false; say(msg || 'Almost there: allow notifications so alerts can reach this device.'); }
+      if (!subbed && anyWant() && Notification.permission === 'granted') { try { subbed = (await alertsOn()) === 'on'; } catch (e) {} } // permission already given: finish quietly
+      if (anyWant() && !subbed) { aw.hidden = false; say(msg || 'Almost there: allow notifications so alerts can reach this device.'); }
       else say(msg || '');
     }
-    sw.setAttribute('aria-checked', String(on)); tw.hidden = !subbed;
+    sw.disabled = cs.disabled = !usable;
+    sw.setAttribute('aria-checked', String(usable && lsWant()));
+    cs.setAttribute('aria-checked', String(usable && lsCrew()));
+    tw.hidden = !subbed;
   }
   window.FRNotify = { refresh: () => refreshNotify() };
   // After a member's first heart, Going or Maybe: one friendly ask (once per device).
   window.FRMaybeAsk = () => {
     try { if (localStorage.getItem('fr-alerts-asked')) return; } catch (e) { return; }
+    if (!anyWant()) return;
     const bar = document.getElementById('ask-bar'); if (!bar || !uid) return;
     let text = null;
-    if (pushOK()) { if (!lsWant() || Notification.permission !== 'default') return; text = 'Want a heads-up before tickets drop? We\'ll alert you 24 hours and 15 minutes before presales for your festivals.'; }
+    if (pushOK()) { if (Notification.permission !== 'default') return; text = 'Want a heads-up before tickets drop? We\'ll alert you 24 hours and 15 minutes before presales for your festivals.'; }
     else if (isIOS && !isStandalone()) text = 'Want presale alerts on your iPhone? Add Festival Radar to your Home Screen (tap Share, then Add to Home Screen), open it from there, and turn alerts on in My Radar.';
     else return;
     try { localStorage.setItem('fr-alerts-asked', '1'); } catch (e) {}
@@ -1121,12 +1154,19 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   };
   function wireNotify() {
     const sw = document.getElementById('set-notify'); if (!sw || sw.dataset.wired) return; sw.dataset.wired = '1';
-    const turnOn = async () => { setWant(true); let msg = ''; try { const r = await alertsOn(); if (r !== 'on' && r !== 'denied') msg = 'Alerts will start once you allow notifications.'; } catch (e) { msg = 'Couldn\'t turn alerts on. Check your connection and try again.'; } await refreshNotify(msg); };
-    sw.addEventListener('click', async () => {
-      if (sw.disabled) return; sw.disabled = true;
-      if (sw.getAttribute('aria-checked') === 'true') { setWant(false); let msg = 'Alerts are off on this device.'; try { await alertsOff(); } catch (e) { msg = 'Couldn\'t change alerts. Check your connection and try again.'; } await refreshNotify(msg); }
-      else await turnOn();
-    });
+    // Either switch: if neither is wanted, the device is removed; otherwise it's subscribed with both choices saved.
+    const apply = async () => {
+      let msg = '';
+      try {
+        if (!anyWant()) { await alertsOff(); msg = 'Alerts are off on this device.'; }
+        else { const r = await alertsOn(); if (r !== 'on' && r !== 'denied') msg = 'Alerts will start once you allow notifications.'; }
+      } catch (e) { msg = 'Couldn\'t change alerts. Check your connection and try again.'; }
+      await refreshNotify(msg);
+    };
+    const turnOn = async () => { if (!anyWant()) setWant(true); await apply(); };
+    const flip = (btn, get, set) => btn.addEventListener('click', async () => { if (btn.disabled) return; sw.disabled = cs.disabled = true; set(!(btn.getAttribute('aria-checked') === 'true')); await apply(); });
+    const cs = document.getElementById('set-crew');
+    flip(sw, lsWant, setWant); flip(cs, lsCrew, setCrew);
     document.getElementById('set-notify-allow').addEventListener('click', turnOn);
     document.getElementById('ask-yes').addEventListener('click', async () => { document.getElementById('ask-bar').hidden = true; if (pushOK()) await turnOn(); });
     document.getElementById('ask-no').addEventListener('click', () => { document.getElementById('ask-bar').hidden = true; });
@@ -1189,6 +1229,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   window.inviteQS = inviteQS;
   let crews = [], activeCrew = lsGet('fr-crew'), allCrews = lsGet('fr-all-crews') === '1', userEmail = '';
   const toast = t => { const e = document.getElementById('toast'); if (!e) return; e.textContent = t; e.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => { e.hidden = true; }, 4200); };
+  window.FRVisibleCrews = () => uid ? (allCrews ? crews : crews.filter(c => c.id === activeCrew)) : [];
   function recomputeVisible() {
     if (!uid) { visible = null; return; }
     const set = new Set([uid]);
@@ -2094,8 +2135,58 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       sales.appendChild(r.row);
     });
   }
+  // Avatars (initials) until profile photos arrive.
+  const AV_COLORS = ['var(--pink)', 'var(--cyan)', 'var(--warn)', 'var(--violet)', 'var(--ok)', 'var(--orange)'];
+  function avatar(u) {
+    const n = nameOf(u), a = el('span', 'av', (n === 'You' ? (state.names[u] || 'You') : n).trim().charAt(0).toUpperCase() || '?');
+    let hsh = 0; for (const ch of String(u)) hsh = (hsh * 31 + ch.charCodeAt(0)) >>> 0;
+    a.style.setProperty('--avc', AV_COLORS[hsh % AV_COLORS.length]); a.title = n; return a;
+  }
+  const ago = t => { const m = Math.max(0, (Date.now() - Date.parse(t)) / 60000); return m < 1 ? 'now' : m < 60 ? Math.round(m) + 'm' : m < 1440 ? Math.round(m / 60) + 'h' : Math.round(m / 1440) + 'd'; };
+  let feedAll = false;
+  function renderCrewExtras() {
+    const wg = $('crew-going'), fd = $('crew-feed'); if (!wg || !fd) return;
+    wg.replaceChildren(); fd.replaceChildren();
+    if (!state.me) { wg.appendChild(el('div', 'empty', 'Sign in to see what your crew is going to.')); fd.appendChild(el('div', 'empty', 'Sign in to see your crew\'s activity.')); $('crew-going-n').textContent = ''; return; }
+    // We're going: festivals with 2+ crewmates (including you) marked Going.
+    const going = new Map();
+    Object.entries(state.picks).forEach(([u, p]) => Object.entries((p && p.choices) || {}).forEach(([id, c]) => { if (c === 'going') { if (!going.has(id)) going.set(id, []); going.get(id).push(u); } }));
+    const meFirst = (a, b) => (b === state.me) - (a === state.me);
+    const rows = [...going.entries()].filter(([, us]) => us.length >= 2).map(([id, us]) => {
+      const r = fRow(id); const main = el('div', 'fl-main'); main.appendChild(r.row.firstChild);
+      if (r.f) main.appendChild(el('span', 'fl-sub', r.f.dates + (r.f.city ? ' · ' + r.f.city : '')));
+      r.row.insertBefore(main, r.row.firstChild);
+      const avs = el('span', 'avs'); us.slice().sort(meFirst).slice(0, 6).forEach(u => avs.appendChild(avatar(u)));
+      avs.title = us.slice().sort(meFirst).map(nameOf).join(', '); r.row.appendChild(avs); return r;
+    }).sort(rowByStart);
+    $('crew-going-n').textContent = rows.length ? rows.length + (rows.length === 1 ? ' festival' : ' festivals') : '';
+    if (!rows.length) wg.appendChild(el('div', 'empty', 'When two or more of you mark Going, it shows up here.'));
+    rows.forEach(r => wg.appendChild(r.row));
+    // Activity: crewmates' Going, Maybe, hearts and joins in the last 30 days (never Pass or un-hearts).
+    const since = Date.now() - 30 * 864e5, items = [];
+    const fname = id => { const f = state._all.find(x => x.id === id); return f ? f.festival : null; };
+    Object.entries(state.picks).forEach(([u, p]) => { if (u === state.me) return; Object.entries((p && p.choices) || {}).forEach(([id, c]) => {
+      const t = p.times && p.times[id]; if (!t || Date.parse(t) < since || (c !== 'going' && c !== 'maybe') || !fname(id)) return;
+      items.push({ u, t, id, verb: c === 'going' ? 'is going to' : 'might go to' });
+    }); });
+    Object.entries(state.hearts).forEach(([u, ids]) => { if (u === state.me) return; const tm = (state.heartTimes && state.heartTimes[u]) || {}; const ch = (state.picks[u] && state.picks[u].choices) || {};
+      (ids || []).forEach(id => { const t = tm[id]; if (!t || Date.parse(t) < since || ch[id] === 'going' || ch[id] === 'maybe' || !fname(id)) return; items.push({ u, t, id, verb: 'hearted' }); });
+    });
+    (window.FRVisibleCrews ? FRVisibleCrews() : []).forEach(c => (c.members || []).forEach(m => { if (m.id !== state.me && m.joined && Date.parse(m.joined) >= since) items.push({ u: m.id, t: m.joined, crew: c.name }); }));
+    items.sort((a, b) => Date.parse(b.t) - Date.parse(a.t));
+    if (!items.length) fd.appendChild(el('div', 'empty', 'Nothing yet. When your crew marks festivals, it shows up here.'));
+    items.slice(0, feedAll ? 200 : 10).forEach(it => {
+      const row = el('div', 'fd'); row.appendChild(avatar(it.u));
+      const t = el('span', 'fd-t'); t.appendChild(el('b', null, nameOf(it.u)));
+      if (it.crew) t.append(' joined ' + it.crew);
+      else { t.append(' ' + it.verb + ' '); const b = el('button', null, fname(it.id)); b.type = 'button'; b.addEventListener('click', () => goToCard(it.id)); t.appendChild(b); }
+      row.append(t, el('span', 'fd-when', ago(it.t))); fd.appendChild(row);
+    });
+    if (items.length > 10) { const m = el('button', 'abtn alt fd-more', feedAll ? 'Show less' : 'See more'); m.type = 'button'; m.addEventListener('click', () => { feedAll = !feedAll; renderCrewExtras(); }); fd.appendChild(m); }
+  }
   // Crew tab: festivals anyone in the crew has hearted or marked Going or Maybe, with who.
   function renderCrewDash() {
+    renderCrewExtras();
     const crew = $('crew-fests'); if (!crew) return; crew.replaceChildren();
     if (!state.me) { crew.appendChild(el('div', 'empty', 'Sign in to see what your crew is going to.')); return; }
     const t = new Map(); const get = id => { if (!t.has(id)) t.set(id, { going: [], maybe: [], hearts: [] }); return t.get(id); };
@@ -2177,8 +2268,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 
   db.collection('hearts').onSnapshot(snap => {
     const next = {};
-    snap.docs.forEach(d => { const data = d.data(); if (data && Array.isArray(data.ids)) next[d.id] = data.ids.filter(x => typeof x === 'string').slice(0, 500); });
-    state.hearts = next;
+    const times = {};
+    snap.docs.forEach(d => { const data = d.data(); if (data && Array.isArray(data.ids)) { next[d.id] = data.ids.filter(x => typeof x === 'string').slice(0, 500); times[d.id] = data.times || {}; } });
+    state.hearts = next; state.heartTimes = times;
     renderCards(); renderFavDash(); resolveNames();
     heartsReady = true; backfillGoing();
   }, () => {});
