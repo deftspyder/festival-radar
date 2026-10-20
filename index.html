@@ -354,6 +354,20 @@ dialog.sheet .crop-frame canvas { width: 100%; height: 100%; display: block; }
 dialog.sheet .crop-zoom { display: flex; align-items: center; gap: 10px; margin: 14px auto 4px; width: min(100%, 300px); font-size: 13px; color: var(--muted); }
 dialog.sheet .crop-zoom input { flex: 1; accent-color: var(--pink); }
 dialog.sheet .crop-acts { justify-content: center; margin-top: 12px; }
+/* Feedback */
+dialog.help .help-fb { margin-top: 18px; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel-2); text-align: center; }
+dialog.help .help-fb p { margin: 0 0 8px; font-size: 14px; }
+dialog.sheet .fb-kinds { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin: 10px 0; }
+dialog.sheet .fb-kinds button { font: inherit; font-size: 14px; font-weight: 700; padding: 8px 4px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
+dialog.sheet .fb-kinds button[aria-checked="true"] { color: var(--fg); border-color: var(--cyan); background: var(--panel-2); }
+dialog.sheet #fb-body { width: 100%; box-sizing: border-box; font: inherit; font-size: 16px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); resize: vertical; min-height: 110px; }
+dialog.sheet .fb-dev { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; color: var(--muted); margin: 10px 0; }
+dialog.sheet .fb-dev input { margin-top: 2px; accent-color: var(--pink); }
+#ad-feedback .q .k { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--cyan); margin-right: 6px; }
+#ad-feedback .q .k.bug { color: var(--orange); }
+#ad-feedback .q.done { opacity: .55; }
+#ad-feedback .q .w.fbb { color: var(--fg); font-size: 14px; white-space: pre-wrap; }
+#ad-feedback .q .w.dev { font-size: 11px; overflow-wrap: anywhere; }
 /* Friends */
 #friends-sec .line { margin: 4px 0 8px; }
 .flist.friends .fr-go { font: inherit; font-size: 15px; font-weight: 700; text-align: left; background: none; border: none; color: var(--fg); cursor: pointer; padding: 4px 0; min-width: 0; flex: 1; overflow-wrap: anywhere; }
@@ -919,6 +933,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <h2>Admin</h2>
     <p class="sub-h">Only you can see this. Approve the suggestions and artists you like, then ask Claude to "add approved suggestions" and they go on the tracker.</p>
     <div class="kpis" id="ad-kpis"></div>
+    <h3>Feedback <small id="ad-fb-n"></small></h3>
+    <p class="sub-h">Bugs, ideas and feedback from members. Mark each done when it's handled.</p>
+    <div id="ad-feedback"><div class="empty">Loading…</div></div>
     <h3>Reports</h3>
     <p class="sub-h">Profiles and photos members reported. Dismiss, or remove what breaks the rules.</p>
     <div id="ad-reports"><div class="empty">Loading…</div></div>
@@ -936,7 +953,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <div class="cd-u"><svg class="cd-badge" viewBox="0 0 40 40" role="img" aria-label="Poolside sunset"><defs><linearGradient id="cdSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1452"/><stop offset="1" stop-color="#5a1d4a"/></linearGradient><linearGradient id="cdSun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a4a"/><stop offset="1" stop-color="#ff3d9a"/></linearGradient><clipPath id="cdClip"><rect width="40" height="40" rx="9"/></clipPath><mask id="cdStripes"><rect width="40" height="40" fill="#fff"/><rect x="0" y="21" width="40" height="1.4" fill="#000"/><rect x="0" y="24.5" width="40" height="1.8" fill="#000"/><rect x="0" y="28" width="40" height="2.2" fill="#000"/></mask></defs><g clip-path="url(#cdClip)"><rect width="40" height="40" fill="url(#cdSky)"/><circle cx="17" cy="25" r="11" fill="url(#cdSun)" mask="url(#cdStripes)"/><path d="M28.5 32 C28 25 27.2 19 25.6 13.6" stroke="#120a24" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M25.6 13.6 C22 11.6 18.6 12.4 16.4 14.6 C19.6 13.4 22.6 13.8 25.6 13.6Z M25.6 13.6 C27.4 10 31 9 34 10.4 C30.8 10.6 28.2 11.8 25.6 13.6Z M25.6 13.6 C29.4 13 32.6 15 33.8 18.2 C31.4 16.2 28.6 14.8 25.6 13.6Z M25.6 13.6 C23.8 10.6 23.8 7.6 25.4 5.4 C25.2 8.2 25.4 11 25.6 13.6Z M25.6 13.6 C21.8 15 19.6 17.8 19.4 21 C21 18.2 23.2 15.8 25.6 13.6Z" fill="#120a24"/><path d="M0 31 Q5 28.6 10 31 T20 31 T30 31 T40 31 V40 H0Z" fill="#29d3f5" opacity=".9"/><path d="M0 34.5 Q5 32.3 10 34.5 T20 34.5 T30 34.5 T40 34.5 V40 H0Z" fill="#1ba3c4"/><path d="M3 33 h5 M15 36.5 h6 M27 33 h4" stroke="#e8fbff" stroke-width=".9" stroke-linecap="round" opacity=".8"/></g></svg><div class="cd-b"><div class="cd-n" id="cd-d">0</div><div class="cd-t">days</div></div><div class="cd-b"><div class="cd-n" id="cd-h">0</div><div class="cd-t">hrs</div></div><div class="cd-b"><div class="cd-n" id="cd-m">0</div><div class="cd-t">min</div></div><div class="cd-b"><div class="cd-n" id="cd-s">0</div><div class="cd-t">sec</div></div></div>
   </div>
 
-  <p class="foot">Festival details from official announcements, music press, 19hz and Resident Advisor. Updated <span id="updated"></span>. <a href="privacy.html">Privacy</a><span id="foot-settings-wrap" hidden> · <a href="#" id="foot-invite">Invite friends</a> · <a href="#" id="foot-settings">Settings</a></span></p>
+  <p class="foot">Festival details from official announcements, music press, 19hz and Resident Advisor. Updated <span id="updated"></span>. <a href="privacy.html">Privacy</a> · <a href="#" id="foot-feedback">Feedback</a><span id="foot-settings-wrap" hidden> · <a href="#" id="foot-invite">Invite friends</a> · <a href="#" id="foot-settings">Settings</a></span></p>
 </div>
 
 <dialog class="sheet" id="settings" aria-labelledby="set-h">
@@ -963,7 +980,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <div class="setrow"><span>Add me to event crew chats when I select Going<br><span class="muted">Follows that festival's chat in each of your crews, so it shows in your Chats and can notify you.</span></span><button type="button" class="sw" id="set-chat-going" role="switch" aria-checked="true" aria-label="Add me to event crew chats when I select Going"><span class="knob"></span></button></div>
     <div class="setrow"><span>Presale alerts are in My Radar<br><span class="muted">Turn them on or off for this device there.</span></span><button type="button" class="abtn alt" id="set-open-radar">Open My Radar</button></div>
     <h3>Account</h3>
-    <div class="line"><button type="button" class="abtn alt" id="set-invite">Invite friends</button><button type="button" class="abtn alt" id="set-signout">Sign out</button></div>
+    <div class="line"><button type="button" class="abtn alt" id="set-invite">Invite friends</button><button type="button" class="abtn alt" id="set-feedback">Send feedback</button><button type="button" class="abtn alt" id="set-signout">Sign out</button></div>
   </div>
 </dialog>
 <dialog class="sheet" id="invite" aria-labelledby="inv-h">
@@ -1079,6 +1096,22 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <li>Your birthday is never shown. You choose whether your age shows.</li>
       <li>Read the full <a href="privacy.html">privacy policy</a>.</li>
     </ul></details>
+    <div class="help-fb"><p>Found a bug, or have an idea? Bill reads every message.</p><button type="button" class="abtn" id="help-feedback">Send feedback</button></div>
+  </div>
+</dialog>
+<dialog class="sheet" id="feedback" aria-labelledby="fb-h">
+  <div class="sh-head"><h2 id="fb-h">Send Feedback</h2><button type="button" class="sh-x" id="fb-x" aria-label="Close">×</button></div>
+  <div class="sh-body">
+    <div id="fb-out" hidden><p>Sign in to send feedback, bug reports or ideas.</p><div class="line"><button type="button" class="abtn" id="fb-signin">Sign in</button></div></div>
+    <form id="fb-form">
+      <p class="muted">Bugs, ideas, suggestions, anything. Bill reads every one.</p>
+      <div class="fb-kinds" role="radiogroup" aria-label="What kind">
+        <button type="button" role="radio" data-k="bug" aria-checked="false">Bug</button><button type="button" role="radio" data-k="idea" aria-checked="true">Idea</button><button type="button" role="radio" data-k="feedback" aria-checked="false">Feedback</button><button type="button" role="radio" data-k="other" aria-checked="false">Other</button>
+      </div>
+      <textarea id="fb-body" maxlength="2000" rows="5" placeholder="What would make Festival Radar better?" aria-label="Your message"></textarea>
+      <label class="fb-dev"><input type="checkbox" id="fb-device"> Include my device and the page I'm on (helps fix bugs)</label>
+      <div class="line"><button type="submit" class="abtn" id="fb-send">Send</button><span class="muted" id="fb-msg" aria-live="polite"></span></div>
+    </form>
   </div>
 </dialog>
 <dialog class="sheet" id="fcode" aria-labelledby="fcode-h">
@@ -1795,6 +1828,74 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 
 
 
+
+  // ---------- Feedback ----------
+  // Works signed out too: the dialog then asks to sign in. Sent through send_feedback, read in Admin.
+  let fbKind = 'idea';
+  const FB_PH = { bug: 'What happened, and what did you expect? Which tab were you on?', idea: 'What would make Festival Radar better?', feedback: 'What do you like, or not like?', other: 'What\'s on your mind?' };
+  function setFbKind(k) {
+    fbKind = k;
+    document.querySelectorAll('#feedback .fb-kinds button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.k === k)));
+    document.getElementById('fb-body').placeholder = FB_PH[k];
+    document.getElementById('fb-device').checked = k === 'bug';
+  }
+  function openFeedback(kind) {
+    const d = document.getElementById('feedback'); if (!d) return;
+    const h = document.getElementById('help'); if (h && h.open) h.close();
+    const s = document.getElementById('settings'); if (s && s.open) s.close();
+    document.getElementById('fb-out').hidden = !!uid; document.getElementById('fb-form').hidden = !uid;
+    document.getElementById('fb-msg').textContent = '';
+    setFbKind(kind || fbKind);
+    if (!d.open) d.showModal();
+    if (uid) setTimeout(() => document.getElementById('fb-body').focus(), 50);
+  }
+  window.FRFeedback = openFeedback;
+  (() => {
+    const d = document.getElementById('feedback'); if (!d) return;
+    document.getElementById('fb-x').addEventListener('click', () => d.close());
+    document.querySelectorAll('#feedback .fb-kinds button').forEach(b => b.addEventListener('click', () => setFbKind(b.dataset.k)));
+    document.getElementById('fb-signin').addEventListener('click', () => { d.close(); FR.openSignIn(); });
+    const hb = document.getElementById('help-feedback'); if (hb) hb.addEventListener('click', () => openFeedback());
+    const ff = document.getElementById('foot-feedback'); if (ff) ff.addEventListener('click', e => { e.preventDefault(); openFeedback(); });
+    const sf = document.getElementById('set-feedback'); if (sf) sf.addEventListener('click', () => openFeedback());
+    document.getElementById('fb-form').addEventListener('submit', async e => {
+      e.preventDefault(); if (!uid || !sb) return;
+      const body = document.getElementById('fb-body').value.trim(), msg = document.getElementById('fb-msg');
+      if (!body) { msg.textContent = 'Write a few words first.'; return; }
+      const withDev = document.getElementById('fb-device').checked;
+      let page = null, device = null;
+      if (withDev) {
+        page = (location.hash || '#festivals') + (window.FRTabNow ? ' (' + FRTabNow() + ' tab)' : '');
+        const standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+        let skin = ''; try { skin = localStorage.getItem('fr-skin') || 'synth'; } catch (er) {}
+        device = navigator.userAgent.slice(0, 220) + ' | ' + innerWidth + 'x' + innerHeight + ' | skin ' + skin + (standalone ? ' | home screen app' : '');
+      }
+      const btn = document.getElementById('fb-send'); btn.disabled = true; msg.textContent = 'Sending…';
+      const { error } = await sb.rpc('send_feedback', { p_kind: fbKind, p_body: body, p_page: page, p_device: device });
+      btn.disabled = false;
+      if (error) { msg.textContent = /limit/.test(error.message || '') ? 'That\'s the limit for today. Thanks for all the ideas!' : 'That didn\'t send. Try again.'; return; }
+      document.getElementById('fb-body').value = ''; msg.textContent = 'Thanks! Bill reads every one.';
+      setTimeout(() => { if (d.open && msg.textContent.startsWith('Thanks')) d.close(); }, 1800);
+    });
+  })();
+  async function loadFeedbackAdmin() {
+    const box = document.getElementById('ad-feedback'); if (!box) return;
+    const { data, error } = await sb.rpc('admin_feedback'); if (error) return;
+    const rows = Array.isArray(data) ? data : []; box.replaceChildren();
+    const open = rows.filter(r => r.status === 'new').length; document.getElementById('ad-fb-n').textContent = open ? open + ' new' : '';
+    if (!rows.length) { box.appendChild(mk('div', 'empty', 'No feedback yet.')); return; }
+    const LBL = { bug: 'Bug', idea: 'Idea', feedback: 'Feedback', other: 'Other' };
+    rows.forEach(r => {
+      const row = mk('div', 'q' + (r.status === 'done' ? ' done' : ''));
+      const n = mk('div', 'n'); n.append(mk('span', 'k ' + r.kind, LBL[r.kind] || r.kind), r.by);
+      const acts = mk('div', 'acts'); const b = mk('button', r.status === 'done' ? null : 'ok', r.status === 'done' ? 'Reopen' : 'Done'); b.type = 'button';
+      b.addEventListener('click', async () => { const { error: e2 } = await sb.rpc('admin_feedback_status', { p_id: r.id, p_done: r.status !== 'done' }); if (!e2) loadFeedbackAdmin(); });
+      acts.appendChild(b); row.append(n, acts, mk('div', 'w fbb', r.body), mk('div', 'w', fmtDate(r.created_at) + (r.page ? ' · ' + r.page : '')));
+      if (r.device) row.appendChild(mk('div', 'w dev', r.device));
+      box.appendChild(row);
+    });
+  }
+
   // ---------- Friends ----------
   // Add by QR code (refreshes every 10 minutes) or a share link (7 days). Crewmates are friends automatically.
   const SITE_URL = location.origin + location.pathname;
@@ -2226,7 +2327,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       document.getElementById('admin').hidden = false;
       const t = document.getElementById('btab-admin'); if (t) { t.hidden = false; t.parentElement.classList.add('five'); } const da = document.getElementById('dn-admin'); if (da) da.hidden = false; const ma = document.getElementById('mn-admin'); if (ma) ma.hidden = false;
       if (window.FRTabFromHash && FRTabFromHash() === 'admin' && window.FRTab) FRTab('admin', { push: false, scroll: false });
-      loadAdmin().catch(() => {}); loadReports().catch(() => {});
+      loadAdmin().catch(() => {}); loadReports().catch(() => {}); loadFeedbackAdmin().catch(() => {});
     }
   }
 
@@ -2622,7 +2723,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   ['help-d', 'help-m'].forEach(id => { const b = document.getElementById(id); if (b) b.addEventListener('click', openHelp); });
   (() => { const panel = document.getElementById('mn-panel'); if (!panel) return;
     const b = el('button', 'mn-cta', 'How to use'); b.type = 'button'; b.id = 'mn-help';
-    b.addEventListener('click', () => { document.getElementById('mn-btn').click(); openHelp(); }); panel.appendChild(b); })();
+    b.addEventListener('click', () => { document.getElementById('mn-btn').click(); openHelp(); }); panel.appendChild(b);
+    const f = el('button', 'mn-cta', 'Send feedback'); f.type = 'button'; f.id = 'mn-feedback';
+    f.addEventListener('click', () => { document.getElementById('mn-btn').click(); if (window.FRFeedback) FRFeedback(); }); panel.appendChild(f); })();
 
   function votesFor(slug) {
     const out = { going: [], maybe: [], pass: [] };
