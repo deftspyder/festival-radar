@@ -458,6 +458,21 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
 .suggest textarea { grid-column: 1 / -1; min-height: 60px; resize: vertical; }
 .suggest .row { grid-column: 1 / -1; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .suggest .sg-types { display: flex; gap: 6px; margin-top: 10px; }
+.sf-add { margin-top: 10px; padding: 12px; border: 1px dashed var(--line); border-radius: 12px; background: var(--panel-2); display: flex; flex-direction: column; gap: 8px; }
+.sf-add[hidden], .sf-sent[hidden], .sf-add-known[hidden], .sf-add .sf-ev[hidden] { display: none; }
+.sf-add-h { font-size: 14px; overflow-wrap: anywhere; }
+.sf-add-kind { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.sf-guess { font-size: 12px; color: var(--muted); }
+.sf-add-f { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+.sf-add-f input { font: inherit; font-size: 15px; width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); box-sizing: border-box; }
+.sf-add-f #sf-link, .sf-add-f #sf-note { grid-column: 1 / -1; }
+.sf-add-f input[type="date"] { color-scheme: dark; min-height: 41px; }
+.sf-add-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.sf-add .msg, .sf-sent { font-size: 13px; color: var(--ok); } .sf-add .msg.err { color: var(--orange); }
+.sf-sent { margin-top: 8px; }
+.sf-add-tip { margin: 0; font-size: 12px; color: var(--muted); }
+.sf-add-known { font-size: 12px; color: var(--warn); }
+@media (max-width: 560px) { .sf-add-f { grid-template-columns: minmax(0, 1fr); } }
 .suggest .sg-ev[hidden] { display: none; }
 .suggest input[type="date"] { color-scheme: dark; min-height: 41px; }
 .suggest .msg { font-size: 13px; color: var(--ok); } .suggest .msg.err { color: var(--orange); }
@@ -465,6 +480,7 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
 .st-tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; margin-left: 6px; }
 .st-new { color: var(--cyan); } .st-approved { color: var(--ok); } .st-added { color: var(--ok); } .st-passed { color: var(--muted); }
 @media (max-width: 560px) { .suggest form { grid-template-columns: minmax(0, 1fr); } }
+.mine-sugg { margin-top: 10px; }
 #admin .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
 #admin .kpi { background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
 #admin .kpi b { display: block; font-family: var(--display); font-weight: 400; font-size: 24px; color: var(--cyan); }
@@ -606,38 +622,40 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     </div>
     <p class="notice" id="notice" hidden></p>
     <div class="cards" id="cards"><div class="empty">Loading festivals…</div></div>
-    <div class="suggest" id="suggest" hidden>
-      <h3>Add an artist or event</h3>
-      <p class="sub-h" style="margin:0">Know one we're missing? Send it in and Bill will take a look. Artists and events with a link have a much higher chance of being added.</p>
-      <div class="sg-types" role="group" aria-label="What are you adding?">
-        <button type="button" class="sf-chip" data-sg-type="event" aria-pressed="true">Event</button>
-        <button type="button" class="sf-chip" data-sg-type="artist" aria-pressed="false">Artist</button>
-      </div>
-      <form id="sugg-form">
-        <input id="sg-name" required maxlength="120" placeholder="Festival, show or event name" aria-label="Event name">
-        <input id="sg-link" type="text" inputmode="url" autocapitalize="off" maxlength="300" placeholder="Event or ticket link (RA, Dice...)" aria-label="Link (optional)">
-        <input id="sg-date" type="date" class="sg-ev" aria-label="Event date (optional)" title="Event date (optional)">
-        <input id="sg-city" class="sg-ev" maxlength="80" placeholder="City (optional)" aria-label="City (optional)">
-        <textarea id="sg-note" class="sg-ev" maxlength="500" placeholder="Why should the crew go? (optional)" aria-label="Note"></textarea>
-        <div class="row"><button type="submit" class="abtn">Send suggestion</button><span class="msg" id="sg-msg" aria-live="polite"></span></div>
-      </form>
-      <div class="mine-sugg" id="sg-mine"></div>
-    </div>
   </section>
 
   <section class="panel" id="spotifavs">
     <h2>Add your favorites</h2>
-    <p class="sub-h">Pick the artists you love most. Festivals with crew favorites on the lineup get a heart badge that grows as more of the crew loves those artists, so you can see at a glance which events to prioritize.</p>
+    <p class="sub-h">Pick the artists you love most. Festivals with crew favorites on the lineup get a heart badge that grows as more of the crew loves those artists, so you can see at a glance which events to prioritize. Can't find an artist or event? Type it in and send it to Bill.</p>
     <div class="sf-grid one">
       <div class="sf-box">
         <h3>Your fav artists <small id="sf-count"></small></h3>
         <div class="sf-selected" id="sf-selected"></div>
-        <input class="sf-q" id="sf-q" type="search" placeholder="Search 1,100+ artists, or type any name to add it" aria-label="Search artists" autocomplete="off">
+        <input class="sf-q" id="sf-q" type="search" placeholder="Search 1,100+ artists, or type an artist or event to add" aria-label="Search artists, or add an artist or event" autocomplete="off">
+        <div class="sf-add" id="sf-add" hidden>
+          <div class="sf-add-h"><b id="sf-add-name"></b> isn't on Festival Radar yet. Add it as:</div>
+          <div class="sf-add-kind" role="group" aria-label="Artist or event">
+            <button type="button" class="sf-chip" data-kind="artist" aria-pressed="true">Artist</button>
+            <button type="button" class="sf-chip" data-kind="event" aria-pressed="false">Event</button>
+            <span class="sf-guess" id="sf-guess" aria-live="polite"></span>
+          </div>
+          <div class="sf-add-f">
+            <input id="sf-link" type="text" inputmode="url" autocapitalize="off" maxlength="300" aria-label="Link (optional)">
+            <input id="sf-date" class="sf-ev" type="date" aria-label="Event date (optional)" title="Event date (optional)">
+            <input id="sf-city" class="sf-ev" maxlength="80" placeholder="City (optional)" aria-label="City (optional)">
+            <input id="sf-note" class="sf-ev" maxlength="500" placeholder="Why go? (optional)" aria-label="Why should the crew go? (optional)">
+          </div>
+          <div class="sf-add-row"><button type="button" class="abtn" id="sf-add-go">Add to my favorites</button><span class="msg" id="sf-add-msg" aria-live="polite"></span></div>
+          <p class="sf-add-tip">Artists and events with a link have a much higher chance of being added.</p>
+          <div class="sf-add-known" id="sf-add-known" hidden></div>
+        </div>
+        <div class="sf-sent msg" id="sf-sent" aria-live="polite" hidden></div>
         <button type="button" class="sf-toggle" id="sf-all" aria-expanded="false" aria-controls="sf-browse">See all artists</button>
         <div class="sf-browse" id="sf-browse">
           <div class="sf-genres" id="sf-genres" role="group" aria-label="Browse by genre" hidden></div>
           <div class="sf-results" id="sf-results" hidden></div>
         </div>
+        <div class="mine-sugg" id="sg-mine"></div>
       </div>
     </div>
   </section>
@@ -932,44 +950,26 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     wireMember();
     await redeemPending().catch(() => {});
     await loadCrews().catch(() => {});
-    const box = document.getElementById('suggest');
-    if (box) {
-      box.hidden = false; loadMine().catch(() => {});
-      const f = document.getElementById('sugg-form'), msg = document.getElementById('sg-msg');
-      const nameIn = document.getElementById('sg-name'), linkIn = document.getElementById('sg-link');
-      let sgType = 'event';
-      const setType = t => {
-        sgType = t;
-        box.querySelectorAll('[data-sg-type]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sgType === t)));
-        box.querySelectorAll('.sg-ev').forEach(x => { x.hidden = t !== 'event'; });
-        nameIn.placeholder = t === 'event' ? 'Festival, show or event name' : 'Artist or DJ name';
-        nameIn.setAttribute('aria-label', t === 'event' ? 'Event name' : 'Artist name');
-        nameIn.maxLength = t === 'event' ? 120 : 80;
-        linkIn.placeholder = t === 'event' ? 'Event or ticket link (RA, Dice...)' : 'Website, Instagram or SoundCloud link';
-        msg.textContent = '';
-      };
-      box.querySelectorAll('[data-sg-type]').forEach(b => b.addEventListener('click', () => setType(b.dataset.sgType)));
-      f.addEventListener('submit', async e => {
-        e.preventDefault();
-        const name = nameIn.value.trim(); let link = linkIn.value.trim();
-        if (name.length < 2) return;
-        if (link && !/^https?:\/\//i.test(link)) link = 'https://' + link;
-        if (link) { try { new URL(link); } catch (err) { msg.className = 'msg err'; msg.textContent = 'That link doesn\'t look right. Check it and try again.'; return; } }
-        msg.className = 'msg'; msg.textContent = 'Sending…';
-        let error;
-        if (sgType === 'artist') {
-          if (window.isKnownArtist && window.isKnownArtist(name)) { msg.className = 'msg err'; msg.textContent = name + ' is already on Festival Radar. Find them in Add your favorites.'; return; }
-          const key = String(name).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/&/g, 'and').replace(/[^a-z0-9]/g, '').slice(0, 80);
-          if (!key) { msg.className = 'msg err'; msg.textContent = 'Add a name with at least one letter or number.'; return; }
-          ({ error } = await sb.rpc('request_artist_link', { artist_name: name.slice(0, 80), artist_key: key, artist_link: link || null }));
-        } else {
-          const date = document.getElementById('sg-date').value, city = document.getElementById('sg-city').value.trim(), note = document.getElementById('sg-note').value.trim();
-          ({ error } = await sb.from('suggestions').insert({ user_id: uid, festival: name, link: link || null, note: note || null, event_date: date || null, city: city || null }));
-        }
-        if (error) { msg.className = 'msg err'; msg.textContent = /limit/i.test(error.message) ? 'That\'s the limit for today. Try again tomorrow.' : 'That didn\'t send. Check the link and try again.'; return; }
-        f.reset(); msg.className = 'msg'; msg.textContent = 'Thanks! Bill will take a look.'; loadMine().catch(() => {});
-      });
-    }
+    loadMine().catch(() => {});
+    // The favorites card's add panel sends new artists and events through here.
+    const cleanLink = l => { l = String(l || '').trim(); if (!l) return ''; if (!/^https?:\/\//i.test(l)) l = 'https://' + l; try { new URL(l); return l; } catch (e) { return null; } };
+    const errMsg = error => /limit/i.test(error.message || '') ? 'That\'s the limit for today. Try again tomorrow.' : 'That didn\'t send. Check the link and try again.';
+    window.FRSubmit = {
+      async artist(name, link) {
+        const l = cleanLink(link); if (l === null) return { ok: false, msg: 'That link doesn\'t look right. Check it and try again.' };
+        const key = String(name).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/&/g, 'and').replace(/[^a-z0-9]/g, '').slice(0, 80);
+        if (!key) return { ok: false, msg: 'Add a name with at least one letter or number.' };
+        const { error } = await sb.rpc('request_artist_link', { artist_name: String(name).trim().slice(0, 80), artist_key: key, artist_link: l || null });
+        if (error) return { ok: false, msg: errMsg(error) };
+        loadMine().catch(() => {}); return { ok: true };
+      },
+      async event(ev) {
+        const l = cleanLink(ev.link); if (l === null) return { ok: false, msg: 'That link doesn\'t look right. Check it and try again.' };
+        const { error } = await sb.from('suggestions').insert({ user_id: uid, festival: String(ev.name).trim().slice(0, 120), link: l || null, note: ev.note || null, event_date: ev.date || null, city: ev.city || null });
+        if (error) return { ok: false, msg: errMsg(error) };
+        loadMine().catch(() => {}); return { ok: true };
+      }
+    };
     const { data: isAdmin } = await sb.rpc('is_admin');
     if (isAdmin === true) {
       document.getElementById('admin').hidden = false;
@@ -1698,6 +1698,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     res.hidden = !showList; $('sf-genres').hidden = !state.sfOpen || !!q;
     const tg = $('sf-all'); tg.hidden = !!q; tg.setAttribute('aria-expanded', String(state.sfOpen)); tg.textContent = state.sfOpen ? 'Hide list' : 'See all artists';
     if (!q && state.sfOpen) renderGenres();
+    renderAddPanel(q, nq, mine);
     if (showList) {
     let list;
     const all = pool();
@@ -1715,11 +1716,6 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     else list = DJS.filter(d => d.genre === state.sfGenre).sort((a, b) => a.name.localeCompare(b.name));
     const LIMIT = (!q && state.sfGenre === 'All') ? 5000 : 250;
     list.slice(0, LIMIT).forEach(d => res.appendChild(favChip(d.name, { badge: d.top ? '#' + d.top : (idx.has(norm(d.name)) ? 'LINEUP' : (d.socal ? 'SOCAL' : (d.crew ? 'CREW' : ''))) })));
-    if (q && !all.some(d => norm(d.name) === nq) && !mine.some(x => norm(x) === nq)) {
-      const add = el('button', 'sf-chip'); add.type = 'button'; add.disabled = !state.canWrite || !state.me;
-      add.textContent = '+ Add "' + q.slice(0, 80) + '"'; add.addEventListener('click', () => { toggleFav(q); if (window.requestArtist) window.requestArtist(q); state.sfQuery = ''; $('sf-q').value = ''; renderSpotifavs(); });
-      res.appendChild(add);
-    }
     if (!list.length && !q) res.appendChild(el('div', 'empty', 'Nothing here yet.'));
     if (list.length > LIMIT) res.appendChild(el('div', 'sf-more', 'Showing ' + LIMIT + ' of ' + list.length + '. Search to find more.'));
     }
@@ -1742,11 +1738,71 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     });
   }
   $('sf-all').addEventListener('click', () => { state.sfOpen = !state.sfOpen; renderSpotifavs(); });
+
+  // ---- Add an artist or event: shown under the search when the name isn't found ----
+  // Guess whether a name is an artist or an event from its link and wording; the member can switch with one tap.
+  const EVENT_HOSTS = /(^|\.)(dice\.fm|eventbrite\.[a-z.]+|posh\.vip|ticketmaster\.[a-z.]+|livenation\.com|axs\.com|seetickets\.[a-z.]+|tixr\.com|shotgun\.live|ticketweb\.com|etix\.com|universe\.com|ra\.co\/events|residentadvisor\.net\/events|songkick\.com\/concerts|songkick\.com\/festivals|bandsintown\.com\/e|facebook\.com\/events|19hz\.info)/i;
+  const ARTIST_HOSTS = /(^|\.)(instagram\.com|soundcloud\.com|open\.spotify\.com\/artist|spotify\.com\/artist|beatport\.com\/artist|bandcamp\.com|ra\.co\/dj|residentadvisor\.net\/dj|linktr\.ee|youtube\.com|youtu\.be|tiktok\.com|twitter\.com|x\.com|mixcloud\.com|songkick\.com\/artists|bandsintown\.com\/a)/i;
+  const EVENT_WORDS = /\b(fest|festival|festivals|fiesta|presents|tour|night|nights|party|rave|weekend|series|showcase|open air|nye|new year'?s|halloween|cruise|boat|campout|takeover|pool ?party|day ?party|block ?party|warehouse|at the|live at|b2b set at)\b|\b20\d\d\b|\s@\s|\bw\/\s/i;
+  function guessKind(name, link) {
+    const l = String(link || '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '');
+    if (l && EVENT_HOSTS.test(l)) return ['event', 'Looks like an event (from the link).'];
+    if (l && ARTIST_HOSTS.test(l)) return ['artist', 'Looks like an artist (from the link).'];
+    if (EVENT_WORDS.test(name)) return ['event', 'Looks like an event.'];
+    if (state._all.some(f => norm(f.festival).startsWith(norm(name)) && norm(name).length >= 4)) return ['event', 'Looks like an event.'];
+    return ['artist', 'Guessing artist. Tap Event if it\'s a show or festival.'];
+  }
+  let addKind = 'artist', addManual = false, addName = '';
+  function setAddKind(k, manual) {
+    addKind = k; if (manual) addManual = true;
+    document.querySelectorAll('#sf-add [data-kind]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.kind === k)));
+    document.querySelectorAll('#sf-add .sf-ev').forEach(x => { x.hidden = k !== 'event'; });
+    $('sf-link').placeholder = k === 'event' ? 'Event or ticket link (RA, Dice...)' : 'Website, Instagram or SoundCloud';
+    $('sf-add-go').textContent = !state.me ? 'Sign in to add' : (k === 'event' ? 'Send to Bill' : 'Add to my favorites');
+  }
+  function refreshGuess() {
+    const [k, why] = guessKind(addName, $('sf-link').value);
+    if (!addManual) setAddKind(k, false);
+    $('sf-guess').textContent = addManual ? '' : why;
+  }
+  function renderAddPanel(q, nq, mine) {
+    const panel = $('sf-add');
+    const show = !!q && nq.length >= 2 && !pool().some(d => norm(d.name) === nq) && !mine.some(x => norm(x) === nq);
+    if (!show) { if (!panel.hidden) { panel.hidden = true; addManual = false; addName = ''; } return; }
+    if (panel.hidden) { $('sf-add-msg').textContent = ''; $('sf-sent').hidden = true; }
+    // A different name (not just more typing of the same one) starts fresh: new guess, empty fields.
+    const prev = norm(addName);
+    if (prev && !nq.startsWith(prev) && !prev.startsWith(nq)) { addManual = false; ['sf-link', 'sf-date', 'sf-city', 'sf-note'].forEach(id => { $(id).value = ''; }); $('sf-add-msg').textContent = ''; }
+    panel.hidden = false; addName = q.slice(0, 120); $('sf-add-name').textContent = '"' + addName + '"';
+    const listed = state._all.filter(f => norm(f.festival).includes(nq) && nq.length >= 4).slice(0, 3).map(f => f.festival);
+    const kn = $('sf-add-known'); kn.hidden = !listed.length; kn.textContent = listed.length ? 'Already on the tracker: ' + listed.join(', ') + '.' : '';
+    refreshGuess();
+  }
+  document.querySelectorAll('#sf-add [data-kind]').forEach(b => b.addEventListener('click', () => { setAddKind(b.dataset.kind, true); $('sf-guess').textContent = ''; }));
+  $('sf-link').addEventListener('input', refreshGuess);
+  $('sf-add-go').addEventListener('click', async () => {
+    if (!state.me || !window.FRSubmit) { if (window.FR && FR.openSignIn) FR.openSignIn(); return; }
+    const msg = $('sf-add-msg'), go = $('sf-add-go'), name = addName.trim();
+    if (name.length < 2) return;
+    msg.className = 'msg'; msg.textContent = 'Sending…'; go.disabled = true;
+    let r;
+    if (addKind === 'artist') r = await window.FRSubmit.artist(name, $('sf-link').value);
+    else r = await window.FRSubmit.event({ name, link: $('sf-link').value, date: $('sf-date').value, city: $('sf-city').value.trim(), note: $('sf-note').value.trim() });
+    go.disabled = false;
+    if (!r || !r.ok) { msg.className = 'msg err'; msg.textContent = (r && r.msg) || 'That didn\'t send. Try again.'; return; }
+    if (addKind === 'artist' && !myFavs().some(x => norm(x) === norm(name))) toggleFav(name);
+    ['sf-link', 'sf-date', 'sf-city', 'sf-note'].forEach(id => { $(id).value = ''; });
+    addManual = false; state.sfQuery = ''; $('sf-q').value = '';
+    renderSpotifavs();
+    const sent = $('sf-sent'); sent.hidden = false;
+    sent.textContent = addKind === 'artist' ? 'Added ' + name + ' to your favorites and sent it to Bill to review.' : 'Thanks! ' + name + ' is on its way to Bill.';
+  });
   let sfT; $('sf-q').addEventListener('input', e => { clearTimeout(sfT); sfT = setTimeout(() => { state.sfQuery = e.target.value; renderSpotifavs(); }, 120); });
   $('sf-q').addEventListener('keydown', e => {
     if (e.key !== 'Enter') return; const q = e.target.value.trim(); if (!q) return;
     const all = pool(); const hit = all.find(d => norm(d.name) === norm(q)) || all.find(d => norm(d.name).startsWith(norm(q)));
-    toggleFav(hit ? hit.name : q); e.target.value = ''; state.sfQuery = ''; renderSpotifavs();
+    if (!hit) { e.preventDefault(); clearTimeout(sfT); state.sfQuery = e.target.value; renderSpotifavs(); const l = $('sf-link'); if (l && !$('sf-add').hidden) l.focus(); return; }
+    toggleFav(hit.name); e.target.value = ''; state.sfQuery = ''; renderSpotifavs();
   });
 
   function renderAll() { renderShowToggle(); renderNext(); renderCountdown(); renderTiles(); renderAlerts(); renderBoard(); renderSpotifavs(); renderCalendar(); renderCards(); }
