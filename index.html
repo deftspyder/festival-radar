@@ -20,7 +20,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--body); font-s
 a { color: var(--cyan); }
 a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 
-.hero { position: relative; overflow: hidden; border-radius: 16px; padding: 30px 26px 28px; min-height: 230px; box-sizing: border-box; border: 1px solid var(--line);
+.hero { position: relative; overflow: hidden; border-radius: 16px; padding: 20px 26px 28px; min-height: 230px; box-sizing: border-box; border: 1px solid var(--line);
   background: radial-gradient(90% 130% at 72% 50%, #1d0a3d 0%, #0b0419 60%, #05020c 100%); box-shadow: 0 0 40px -18px var(--pink); }
 .hero > .radar { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .radar .rings, .radar .sweep { position: absolute; left: calc(68% - 700px); top: calc(50% - 700px); width: 1400px; height: 1400px; border-radius: 50%; }
@@ -40,12 +40,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 @media (prefers-reduced-motion: no-preference) { .radar .sweep { animation: r-spin 6s linear infinite; } .radar .blip { animation: r-blip 6s linear infinite; } .radar .blip i { animation: r-dot 6s linear infinite; animation-delay: inherit; } }
 @media (prefers-reduced-motion: reduce) { .radar .blip { opacity: .9; } }
 @media (max-width: 700px) {
-  .hero { padding-bottom: 210px; }
+  .hero { padding: 14px 18px 196px; }
+  .hero .motto { margin-bottom: 8px; }
   .radar .rings, .radar .sweep { left: calc(50% - 700px); top: calc(100% - 110px - 700px); }
   .radar .vline { left: 50%; }
   .radar .hline { top: calc(100% - 110px); background: rgba(41,211,245,.3); }
   .radar .hub { left: calc(50% - 6px); top: calc(100% - 116px); }
-  .radar .scrim { background: linear-gradient(180deg, rgba(5,2,12,.94) 0%, rgba(5,2,12,.75) 48%, rgba(5,2,12,0) 64%); }
+  .radar .scrim { background: linear-gradient(180deg, rgba(5,2,12,.55) 0%, rgba(5,2,12,.25) 30%, rgba(5,2,12,0) 45%); }
+  .hero .who { position: relative; z-index: 3; background: rgba(0,0,0,.7); padding: 8px 10px; border-radius: 10px; }
   .hero h1 { max-width: none; }
   .hero h1 { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; filter: none; }
   .hero h1 + p { margin-top: 0; }
