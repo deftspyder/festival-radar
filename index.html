@@ -335,6 +335,17 @@ dialog.pcard .pc-acts { margin-top: 14px; justify-content: flex-start; }
 dialog.pcard .pc-report { margin-top: 10px; }
 dialog.pcard select, dialog.pcard textarea { width: 100%; box-sizing: border-box; font: inherit; font-size: 15px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); margin-bottom: 8px; }
 dialog.pcard textarea { min-height: 70px; resize: vertical; }
+dialog.pcard .flist .fl-row { flex-direction: column; align-items: flex-start; gap: 0; }
+dialog.pcard .flist .fl-go { width: 100%; }
+dialog.pcard .flist .fl-when { margin-left: 0; text-align: left; white-space: normal; }
+dialog.pcard .crew-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+dialog.pcard .crew-chips .cchip { white-space: nowrap; }
+dialog.sheet .crop-frame { position: relative; width: min(100%, 300px); aspect-ratio: 3 / 4; margin: 0 auto; border-radius: 14px; overflow: hidden; background: #000; touch-action: none; cursor: grab; border: 1px solid var(--line); }
+dialog.sheet .crop-frame:active { cursor: grabbing; }
+dialog.sheet .crop-frame canvas { width: 100%; height: 100%; display: block; }
+dialog.sheet .crop-zoom { display: flex; align-items: center; gap: 10px; margin: 14px auto 4px; width: min(100%, 300px); font-size: 13px; color: var(--muted); }
+dialog.sheet .crop-zoom input { flex: 1; accent-color: var(--pink); }
+dialog.sheet .crop-acts { justify-content: center; margin-top: 12px; }
 #ad-reports .q .pv { width: 64px; height: 84px; object-fit: cover; border-radius: 8px; grid-column: 1 / -1; }
 /* Presale light: pulses when a confirmed sale is within 7 days; steady and dim for an expected one. */
 .salelight { position: relative; width: 22px; height: 22px; padding: 0; border: none; background: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex: none; }
@@ -923,6 +934,15 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <div id="pe-blocked"><p class="muted">Nobody blocked.</p></div>
   </div>
 </dialog>
+<dialog class="sheet" id="pcrop" aria-labelledby="pcrop-h">
+  <div class="sh-head"><h2 id="pcrop-h">Crop Photo</h2><button type="button" class="sh-x" id="crop-x" aria-label="Cancel">×</button></div>
+  <div class="sh-body">
+    <p class="muted">Drag to move. Pinch or use the slider to zoom.</p>
+    <div class="crop-frame" id="crop-frame"><canvas id="crop-canvas"></canvas></div>
+    <label class="crop-zoom"><span>Zoom</span><input type="range" id="crop-zoom" min="1" max="4" step="0.01" value="1" aria-label="Zoom"></label>
+    <div class="line crop-acts"><button type="button" class="abtn" id="crop-use">Use photo</button><button type="button" class="abtn alt" id="crop-cancel">Cancel</button></div>
+  </div>
+</dialog>
 <dialog class="sheet pcard" id="pcard" aria-labelledby="pc-name">
   <div class="sh-head"><h2 id="pc-name">Profile</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
   <div class="sh-body">
@@ -1341,17 +1361,65 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   }
 
   // Shrink a photo on this device (max 1080px, JPEG). Redrawing drops all metadata, including location.
-  async function shrinkPhoto(file) {
-    let src;
-    try { src = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
-    catch (e) { src = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = URL.createObjectURL(file); }); }
-    const w0 = src.width || src.naturalWidth, h0 = src.height || src.naturalHeight; const sc = Math.min(1, 1080 / Math.max(w0, h0));
-    const c = document.createElement('canvas'); c.width = Math.round(w0 * sc); c.height = Math.round(h0 * sc);
-    c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
-    let q = .85, blob;
-    do { blob = await new Promise(r => c.toBlob(r, 'image/jpeg', q)); q -= .1; } while (blob && blob.size > 580000 && q > .4);
-    if (!blob) throw new Error('could not read photo');
-    return blob;
+  async function readPhoto(file) {
+    try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+    catch (e) { return await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = URL.createObjectURL(file); }); }
+  }
+  // Crop and zoom to the 3:4 card shape before upload. The result is redrawn on a canvas
+  // (1080 x 1440 max, JPEG), which also removes location and other hidden data.
+  function cropPhoto(src) {
+    return new Promise(resolve => {
+      const d = document.getElementById('pcrop'), frame = document.getElementById('crop-frame'), cv = document.getElementById('crop-canvas'), zoom = document.getElementById('crop-zoom');
+      const iw = src.width || src.naturalWidth, ih = src.height || src.naturalHeight;
+      let z = 1, cx = iw / 2, cy = ih / 2; // zoom and the image point at the frame's center
+      zoom.value = '1';
+      const fit = (fw, fh) => Math.max(fw / iw, fh / ih); // cover scale at zoom 1
+      const clamp = () => {
+        const s = fit(3, 4) * z, hw = 3 / s / 2, hh = 4 / s / 2;
+        cx = Math.min(Math.max(cx, hw), iw - hw); cy = Math.min(Math.max(cy, hh), ih - hh);
+      };
+      const paint = (canvas, w, h) => {
+        const g = canvas.getContext('2d'), s = fit(w, h) * z;
+        g.fillStyle = '#000'; g.fillRect(0, 0, w, h);
+        g.drawImage(src, w / 2 - cx * s, h / 2 - cy * s, iw * s, ih * s);
+      };
+      const draw = () => {
+        const r = frame.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+        cv.width = Math.max(1, Math.round(r.width * dpr)); cv.height = Math.max(1, Math.round(r.height * dpr));
+        clamp(); paint(cv, cv.width, cv.height);
+      };
+      const pts = new Map(); let pinch = null;
+      const down = e => { frame.setPointerCapture(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]); if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), z }; } };
+      const move = e => {
+        if (!pts.has(e.pointerId)) return;
+        const prev = pts.get(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]);
+        if (pts.size === 2 && pinch) { const [a, b] = [...pts.values()]; z = Math.min(4, Math.max(1, pinch.z * Math.hypot(a[0] - b[0], a[1] - b[1]) / (pinch.d || 1))); zoom.value = String(z); }
+        else if (pts.size === 1) { const s = fit(frame.clientWidth, frame.clientHeight) * z; cx -= (e.clientX - prev[0]) / s; cy -= (e.clientY - prev[1]) / s; }
+        draw();
+      };
+      const up = e => { pts.delete(e.pointerId); if (pts.size < 2) pinch = null; };
+      const onZoom = () => { z = Number(zoom.value) || 1; draw(); };
+      const wheel = e => { e.preventDefault(); z = Math.min(4, Math.max(1, z * (e.deltaY < 0 ? 1.08 : 1 / 1.08))); zoom.value = String(z); draw(); };
+      const done = async use => {
+        frame.removeEventListener('pointerdown', down); frame.removeEventListener('pointermove', move); frame.removeEventListener('pointerup', up); frame.removeEventListener('pointercancel', up); frame.removeEventListener('wheel', wheel);
+        zoom.removeEventListener('input', onZoom); window.removeEventListener('resize', draw); d.removeEventListener('cancel', onCancel);
+        ['crop-use', 'crop-cancel', 'crop-x'].forEach(id => { const b = document.getElementById(id); b.replaceWith(b.cloneNode(true)); });
+        if (!use) { d.close(); resolve(null); return; }
+        // Output at the source's own resolution, capped at 1080 x 1440.
+        const s = fit(3, 4) * z, outW = Math.round(Math.min(1080, 3 / s)), outH = Math.round(outW * 4 / 3);
+        const c = document.createElement('canvas'); c.width = outW; c.height = outH; paint(c, outW, outH);
+        let q = .85, blob;
+        do { blob = await new Promise(r => c.toBlob(r, 'image/jpeg', q)); q -= .1; } while (blob && blob.size > 580000 && q > .4);
+        d.close(); resolve(blob || null);
+      };
+      const onCancel = e => { e.preventDefault(); done(false); };
+      frame.addEventListener('pointerdown', down); frame.addEventListener('pointermove', move); frame.addEventListener('pointerup', up); frame.addEventListener('pointercancel', up); frame.addEventListener('wheel', wheel, { passive: false });
+      zoom.addEventListener('input', onZoom); window.addEventListener('resize', draw); d.addEventListener('cancel', onCancel);
+      document.getElementById('crop-use').addEventListener('click', () => done(true));
+      document.getElementById('crop-cancel').addEventListener('click', () => done(false));
+      document.getElementById('crop-x').addEventListener('click', () => done(false));
+      d.showModal(); requestAnimationFrame(draw);
+    });
   }
   let pe = null; // my profile while editing
   const swOn = id => document.getElementById(id).getAttribute('aria-checked') === 'true';
@@ -1387,9 +1455,12 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   }
   async function addPhoto(file) {
     if (!file || pe.photos.length >= 3) return;
+    let blob;
+    try { blob = await cropPhoto(await readPhoto(file)); }
+    catch (e) { photoMsg('That photo couldn\'t be opened. Try a JPEG or PNG.'); return; }
+    if (!blob) return; // cancelled
     photoMsg('Uploading…');
     try {
-      const blob = await shrinkPhoto(file);
       const path = uid + '/' + crypto.randomUUID() + '.jpg';
       const { error } = await sb.storage.from(PHOTO_BUCKET).upload(path, blob, { contentType: 'image/jpeg', upsert: false });
       if (error) throw error;
