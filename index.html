@@ -50,7 +50,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
   .hero h1 { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; filter: none; }
   .hero h1 + p { margin-top: 0; }
 }
-.hero .motto { position: relative; z-index: 2; font-family: var(--display); font-size: 13px; letter-spacing: .22em; color: var(--cyan); margin: 0 0 10px; text-shadow: 0 0 10px rgba(41,211,245,.5); }
+.hero .motto { position: relative; z-index: 3; display: inline-block; font-family: var(--display); font-size: clamp(17px, 2.6vw, 22px); letter-spacing: .18em; color: var(--cyan); margin: 0 0 12px; padding: 8px 14px; border-radius: 12px; background: rgba(0,0,0,.7); text-shadow: 0 0 10px rgba(41,211,245,.55); }
 .hero .motto span { color: var(--violet); margin: 0 .25em; }
 .hero .motto b { font-weight: 400; margin-left: .2em; letter-spacing: 0; }
 .hero .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .28em; text-transform: uppercase; color: var(--cyan); margin-bottom: 10px; }
@@ -456,7 +456,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
       <div class="cd-u"><svg class="cd-badge" viewBox="0 0 40 40" role="img" aria-label="Poolside sunset"><defs><linearGradient id="cdSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1452"/><stop offset="1" stop-color="#5a1d4a"/></linearGradient><linearGradient id="cdSun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a4a"/><stop offset="1" stop-color="#ff3d9a"/></linearGradient><clipPath id="cdClip"><rect width="40" height="40" rx="9"/></clipPath><mask id="cdStripes"><rect width="40" height="40" fill="#fff"/><rect x="0" y="21" width="40" height="1.4" fill="#000"/><rect x="0" y="24.5" width="40" height="1.8" fill="#000"/><rect x="0" y="28" width="40" height="2.2" fill="#000"/></mask></defs><g clip-path="url(#cdClip)"><rect width="40" height="40" fill="url(#cdSky)"/><circle cx="17" cy="25" r="11" fill="url(#cdSun)" mask="url(#cdStripes)"/><path d="M28.5 32 C28 25 27.2 19 25.6 13.6" stroke="#120a24" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M25.6 13.6 C22 11.6 18.6 12.4 16.4 14.6 C19.6 13.4 22.6 13.8 25.6 13.6Z M25.6 13.6 C27.4 10 31 9 34 10.4 C30.8 10.6 28.2 11.8 25.6 13.6Z M25.6 13.6 C29.4 13 32.6 15 33.8 18.2 C31.4 16.2 28.6 14.8 25.6 13.6Z M25.6 13.6 C23.8 10.6 23.8 7.6 25.4 5.4 C25.2 8.2 25.4 11 25.6 13.6Z M25.6 13.6 C21.8 15 19.6 17.8 19.4 21 C21 18.2 23.2 15.8 25.6 13.6Z" fill="#120a24"/><path d="M0 31 Q5 28.6 10 31 T20 31 T30 31 T40 31 V40 H0Z" fill="#29d3f5" opacity=".9"/><path d="M0 34.5 Q5 32.3 10 34.5 T20 34.5 T30 34.5 T40 34.5 V40 H0Z" fill="#1ba3c4"/><path d="M3 33 h5 M15 36.5 h6 M27 33 h4" stroke="#e8fbff" stroke-width=".9" stroke-linecap="round" opacity=".8"/></g></svg><div class="cd-b"><div class="cd-n" id="cd-d">0</div><div class="cd-t">days</div></div><div class="cd-b"><div class="cd-n" id="cd-h">0</div><div class="cd-t">hrs</div></div></div>
   </div>
 
-  <p class="foot">Festival details from official announcements, music press, 19hz and Resident Advisor. Updated <span id="updated"></span>. <a href="privacy.html">Privacy</a><span id="foot-settings-wrap" hidden> · <a href="#" id="foot-settings">Settings</a></span></p>
+  <p class="foot">Festival details from official announcements, music press, 19hz and Resident Advisor. Updated <span id="updated"></span>. <a href="privacy.html">Privacy</a><span id="foot-settings-wrap" hidden> · <a href="#" id="foot-invite">Invite friends</a> · <a href="#" id="foot-settings">Settings</a></span></p>
 </div>
 
 <dialog class="sheet" id="settings" aria-labelledby="set-h">
@@ -733,7 +733,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
     }
     const n = allCrews ? new Set(crews.flatMap(c => (c.members || []).map(m => m.id))).size : ((crews.find(c => c.id === activeCrew) || {}).members || []).length;
     box.appendChild(mk('span', 'muted', n + (n === 1 ? ' member' : ' members')));
-    const inv = mk('button', 'lnk', 'Invite'); inv.type = 'button'; inv.addEventListener('click', () => FR.openInvite()); box.appendChild(inv);
+    const inv = mk('button', 'abtn alt', 'Invite friends'); inv.type = 'button'; inv.addEventListener('click', () => FR.openInvite()); box.appendChild(inv);
     if (sub) sub.textContent = 'Festivals with the most people in ' + (allCrews ? 'your crews' : 'this crew') + ' going or maybe going.';
   }
   async function loadCrews() {
@@ -831,7 +831,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
       if (navigator.share) { try { await navigator.share({ title: 'Festival Radar', text, url: r.url }); } catch (e) {} }
       else { try { await navigator.clipboard.writeText(text + ' ' + r.url); toast('Invite copied. Paste it anywhere.'); } catch (e) { toast('Select the link above to copy it'); } }
     });
-    const fs = document.getElementById('foot-settings'); if (fs) { document.getElementById('foot-settings-wrap').hidden = false; fs.addEventListener('click', e => { e.preventDefault(); FR.openSettings(); }); }
+    const fs = document.getElementById('foot-settings'); if (fs) { document.getElementById('foot-settings-wrap').hidden = false; fs.addEventListener('click', e => { e.preventDefault(); FR.openSettings(); }); document.getElementById('foot-invite').addEventListener('click', e => { e.preventDefault(); FR.openInvite(); }); }
     const am = document.getElementById('acct-m'); if (am) { am.hidden = false; am.textContent = (myName || '?').trim().charAt(0).toUpperCase() || '?'; am.addEventListener('click', () => FR.openSettings()); }
     // hamburger: Settings and Invite friends
     const panel = document.getElementById('mn-panel');
@@ -1006,10 +1006,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
   state.me = user ? await user.id() : null;
   if (user && state.me) {
     const me = await user.me();
-    const bar = el('div', 'authbar');
-    const ib = el('button', 'abtn alt', 'Invite friends'); ib.type = 'button'; ib.addEventListener('click', () => FR.openInvite());
-    bar.append(ib);
-    $('who').replaceChildren(bar);
+    $('who').replaceChildren(); $('who').hidden = true;
   } else { $('who').textContent = 'View only. Sign in to make your own picks.'; state.canWrite = false; }
   if (user) { const c = await user.can('data.write'); if (c === false) { state.canWrite = false; const vmsg = 'View-only access: you can see the crew\'s picks but not add your own. Try signing out and back in.'; showNotice(vmsg); $('who').replaceChildren(el('b', 'login-cta', vmsg)); } }
   }
