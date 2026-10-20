@@ -245,7 +245,41 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
   .wrap > section, .wrap > header, .wrap > div { scroll-margin-top: 72px; }
 }
 @media (max-width: 700px) and (prefers-reduced-motion: reduce) { .mnav .mn-btn span { transition: none; } }
-/* Desktop top bar: brand, section links that light up as you scroll, and account actions. */
+/* Tabs: only the current tab's blocks show. */
+.tab-off { display: none !important; }
+/* Favorites dashboard */
+.dash { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .dash { grid-template-columns: minmax(0, 1fr); } }
+.dash .sub-title { margin: 16px 0 8px; font-size: 15px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.dash .sub-title small { font-size: 12px; font-weight: 600; color: var(--muted); }
+.dash .sf-art-h { margin-top: 22px; }
+.dash .sf-art-h + .sub-h { margin-top: 0; }
+.flist { display: flex; flex-direction: column; }
+.flist .fl-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); min-width: 0; }
+.flist .fl-row:last-child { border-bottom: none; }
+.flist .fl-go { font: inherit; font-size: 15px; font-weight: 700; text-align: left; color: var(--fg); background: none; border: none; padding: 4px 0; cursor: pointer; min-width: 0; overflow-wrap: anywhere; }
+.flist .fl-go:hover { color: var(--pink); text-decoration: underline; }
+.flist .fl-go:disabled { cursor: default; color: var(--muted); text-decoration: none; }
+.flist .fl-who { margin-left: auto; font-size: 12px; color: var(--muted); text-align: right; flex: none; max-width: 45%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.flist .fl-more, .flist .empty { font-size: 13px; color: var(--muted); padding: 6px 0; }
+.flist .empty .abtn { margin-left: 6px; }
+#sf-crew.crew-chips { display: flex; flex-wrap: wrap; gap: 6px; grid-template-columns: none; }
+.flist .fl-row > .fheart { margin-left: auto; }
+.crew-chips .cchip { font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2); }
+.crew-chips .cchip b { color: var(--pink); font-weight: 700; margin-left: 4px; }
+/* Festival heart: grey outline until tapped, then solid and bright. */
+.card-acts { display: inline-flex; align-items: center; gap: 6px; flex: none; }
+.fheart { width: 36px; height: 36px; margin: -6px -6px -6px 0; display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 50%; background: transparent; color: var(--muted); opacity: .55; cursor: pointer; padding: 0; flex: none; }
+.fheart svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linejoin: round; }
+.fheart:hover { opacity: .9; }
+.fheart[aria-pressed="true"] { color: var(--pink); opacity: 1; }
+.fheart[aria-pressed="true"] svg { fill: currentColor; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--pink) 70%, transparent)); }
+.fheart.sm { width: 30px; height: 30px; margin: 0; }
+.fheart.sm svg { width: 18px; height: 18px; }
+@media (prefers-reduced-motion: no-preference) { .fheart.pop svg { animation: h-pop .32s ease-out; } }
+@keyframes h-pop { 0% { transform: scale(1); } 45% { transform: scale(1.35); } 100% { transform: scale(1); } }
+.mnav #mn-signin { padding: 7px 12px; }
+/* Desktop top bar: brand, tabs, and account actions. */
 .dnav { display: none; }
 @media (min-width: 701px) {
   .dnav { display: flex; position: sticky; top: 0; z-index: 50; align-items: center; gap: 12px; margin: -20px 0 0; padding: 10px 0;
@@ -542,17 +576,16 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 <div class="wrap">
   <nav class="mnav" aria-label="Sections">
     <a class="mn-title" href="#top" id="mn-home">Festival Radar</a>
-    <div class="mn-right"><button type="button" class="acct" id="acct-m" hidden aria-label="Settings"></button><button type="button" class="mn-btn" id="mn-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mn-panel"><span></span><span></span><span></span></button></div>
+    <div class="mn-right"><button type="button" class="abtn" id="mn-signin" hidden>Sign in</button><button type="button" class="acct" id="acct-m" hidden aria-label="Settings"></button><button type="button" class="mn-btn" id="mn-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mn-panel"><span></span><span></span><span></span></button></div>
     <div class="mn-panel" id="mn-panel" hidden></div>
   </nav>
   <nav class="dnav" id="dnav" aria-label="Sections">
     <a class="dn-title" href="#top" id="dn-home">Festival Radar</a>
     <div class="dn-links">
-      <button type="button" data-go="alerts-panel">Presale Alerts</button>
-      <button type="button" data-go="leaderboard">Crew Favorites</button>
-      <button type="button" data-go="calendar">Calendar</button>
       <button type="button" data-go="festivals">Festivals</button>
-      <button type="button" data-go="spotifavs">Favorites</button>
+      <button type="button" data-go="alerts">Presale Alerts</button>
+      <button type="button" data-go="calendar">Calendar</button>
+      <button type="button" data-go="favorites">Favorites</button>
       <button type="button" data-go="admin" id="dn-admin" hidden>Admin</button>
     </div>
     <div class="dn-right">
@@ -561,7 +594,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <button type="button" class="abtn" id="dn-signin" hidden>Sign in</button>
     </div>
   </nav>
-  <header class="hero" id="top">
+  <header class="hero" id="top" data-tab="festivals">
     <div class="motto">CREW<span>+</span>MUSIC<span>=</span><b aria-label="love">♥️</b></div>
     <div class="radar" aria-hidden="true"><div class="rings"></div><div class="hline"></div><div class="vline"></div><div class="sweep"><span class="glit"></span><span class="uni"><span class="uni-b"><i><svg viewBox="0 0 96 64" xmlns="http://www.w3.org/2000/svg" focusable="false"><defs><linearGradient id="u-horn" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#ffd23d"/><stop offset="1" stop-color="#fff6b0"/></linearGradient><linearGradient id="u-body" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#f1dcff"/></linearGradient><linearGradient id="u-wing" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffb3e6"/><stop offset=".5" stop-color="#c7a6ff"/><stop offset="1" stop-color="#9ff3ff"/></linearGradient></defs><g fill="none" stroke-linecap="round" stroke-width="3.2"><path d="M24 34 C14 30 8 36 3 30" stroke="#ff3fb4"/><path d="M24 36 C14 33 9 40 3 35" stroke="#ff9a3c"/><path d="M24 38 C15 37 10 44 4 40" stroke="#ffe14d"/><path d="M25 40 C17 40 12 47 6 45" stroke="#5cff9d"/><path d="M26 41 C19 43 15 50 10 50" stroke="#3ef0ff"/><path d="M27 42 C22 46 19 53 15 55" stroke="#b06cff"/></g><g fill="none" stroke="url(#u-body)" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"><path d="M30 42 L23 49 L15 50"/><path d="M34 44 L29 53 L22 57"/></g><circle cx="15" cy="50" r="2.4" fill="#ff3fb4"/><circle cx="22" cy="57" r="2.4" fill="#ff3fb4"/><ellipse cx="40" cy="38" rx="16" ry="9.5" fill="url(#u-body)" stroke="#d9b8ff" stroke-width="1"/><g fill="none" stroke="url(#u-body)" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"><path d="M50 43 L58 46 L62 41"/><path d="M47 45 L53 52 L59 50"/></g><circle cx="62" cy="41" r="2.4" fill="#ff3fb4"/><circle cx="59" cy="50" r="2.4" fill="#ff3fb4"/><path d="M48 33 C52 26 54 20 58 15 L67 19 C63 25 59 33 55 40 Z" fill="url(#u-body)"/><path d="M58 12 C63 9 70 10 75 15 C78 18 78 22 75 24 C71 26 66 25 62 22 C59 20 57 16 58 12 Z" fill="url(#u-body)" stroke="#d9b8ff" stroke-width="1"/><ellipse cx="74" cy="21" rx="1" ry=".8" fill="#c77bd6"/><path d="M71 23 Q73 24.5 75 23.5" fill="none" stroke="#c77bd6" stroke-width=".9" stroke-linecap="round"/><ellipse cx="72" cy="19.5" rx="2.6" ry="1.7" fill="#ffb3e6" opacity=".7"/><path d="M60 11 L60 4 L65 10 Z" fill="#fff" stroke="#d9b8ff" stroke-width="1"/><path d="M66 10 L80 0 L69 13 Z" fill="url(#u-horn)" stroke="#e6b800" stroke-width=".8" stroke-linejoin="round"/><path d="M69 9.5 L71.5 11.5 M72 7.4 L74.3 9.2 M75 5.3 L76.8 6.8" stroke="#e6b800" stroke-width=".8" stroke-linecap="round"/><ellipse cx="66.5" cy="15.5" rx="2.6" ry="3" fill="#3a0a5c"/><circle cx="67.4" cy="14.3" r="1" fill="#fff"/><circle cx="65.7" cy="16.8" r=".5" fill="#fff"/><path d="M64 13 L62.3 11.4 M65.4 12.3 L64.4 10.3 M67 12.2 L66.7 10.1" stroke="#3a0a5c" stroke-width=".8" stroke-linecap="round"/><g fill="none" stroke-linecap="round" stroke-width="3"><path d="M60 10 C55 12 52 18 49 22" stroke="#ff3fb4"/><path d="M58 14 C54 17 51 22 47 25" stroke="#ff9a3c"/><path d="M57 18 C53 21 50 26 45 28" stroke="#ffe14d"/><path d="M55 22 C52 25 48 29 44 31" stroke="#5cff9d"/><path d="M54 26 C51 29 47 31 42 32" stroke="#3ef0ff"/></g><path d="M40 31 C34 20 36 10 42 4 C42 12 46 14 50 12 C47 17 50 20 54 19 C50 24 47 28 44 32 Z" fill="url(#u-wing)" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/><path d="M42 28 C41 22 41 16 43 11 M45 28 C46 24 47 21 49 18" fill="none" stroke="#fff" stroke-width=".9" stroke-linecap="round" opacity=".8"/><path d="M86 26 l1.2 3.3 3.3 1.2 -3.3 1.2 -1.2 3.3 -1.2 -3.3 -3.3 -1.2 3.3 -1.2 Z" fill="#fff"/><path d="M88 8 l.8 2.2 2.2 .8 -2.2 .8 -.8 2.2 -.8 -2.2 -2.2 -.8 2.2 -.8 Z" fill="#ffe14d"/><path d="M8 18 l.8 2.2 2.2 .8 -2.2 .8 -.8 2.2 -.8 -2.2 -2.2 -.8 2.2 -.8 Z" fill="#3ef0ff"/></svg></i></span></span></div><div class="hub"></div><div class="scrim"></div><div class="blips" id="blips"></div></div>
     <h1>Festival Radar</h1>
@@ -571,36 +604,26 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 
   <div class="invite-banner" id="invite-banner" hidden></div>
 
-  <section class="tiles" id="tiles" aria-label="Festivals by section">
+  <section class="tiles" id="tiles" aria-label="Festivals by section" data-tab="festivals">
     <button type="button" class="tile" data-goto="Local" aria-label="Show Local festivals"><span class="lbl">Local · SoCal</span><span class="big" data-sec="Local">–</span><span class="sub" data-sub="Local">&nbsp;</span></button>
     <button type="button" class="tile" data-goto="USA" aria-label="Show all USA festivals"><span class="lbl">USA · incl. SoCal</span><span class="big" data-sec="USA">–</span><span class="sub" data-sub="USA">&nbsp;</span></button>
     <button type="button" class="tile" data-goto="Worldwide" aria-label="Show World festivals"><span class="lbl">World</span><span class="big" data-sec="Worldwide">–</span><span class="sub" data-sub="Worldwide">&nbsp;</span></button>
   </section>
 
-  <div class="two">
-    <section class="panel" id="alerts-panel">
-      <h2>Presale Alerts</h2>
-      <p class="sub-h">Tickets going on sale in the next 3 months. Expected dates are based on last year's timing until the festival confirms.</p>
-      <div class="alerts" id="alerts"><div class="empty">Loading…</div></div>
-    </section>
-    <section class="panel" id="leaderboard">
-      <h2>Crew Favorites</h2>
-      <div class="crewpick" id="crewpick"></div>
-      <p class="sub-h" id="crew-sub">Festivals with the most people going or maybe going.</p>
-      <div class="board" id="board"><div class="empty">No picks yet. Be the first: mark a festival below.</div></div>
-      <h3 class="sub-title">Crew fav artists <small>most loved first</small></h3>
-      <div id="sf-crew"><div class="empty">No fav artists yet. Pick a few to get it started.</div></div>
-    </section>
-  </div>
+  <section class="panel" id="alerts-panel" data-tab="alerts">
+    <h2>Presale Alerts</h2>
+    <p class="sub-h">Tickets going on sale in the next 3 months. Expected dates are based on last year's timing until the festival confirms.</p>
+    <div class="alerts" id="alerts"><div class="empty">Loading…</div></div>
+  </section>
 
-  <section class="panel" id="calendar">
+  <section class="panel" id="calendar" data-tab="calendar">
     <h2>Festival Calendar</h2>
     <p class="sub-h">When each festival runs. Hover or tap a bar for details. Festivals without dates are left off.</p>
     <div class="cal" id="cal"></div>
     <div class="legend" id="legend"></div>
   </section>
 
-  <section class="panel" id="festivals">
+  <section class="panel" id="festivals" data-tab="festivals">
     <div class="list-head">
       <div>
         <h2>Festivals and Picks</h2>
@@ -624,43 +647,57 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <div class="cards" id="cards"><div class="empty">Loading festivals…</div></div>
   </section>
 
-  <section class="panel" id="spotifavs">
-    <h2>Add Your Favorites</h2>
-    <p class="sub-h">Pick the artists you love most. Festivals with crew favorites on the lineup get a heart badge that grows as more of the crew loves those artists, so you can see at a glance which events to prioritize. Can't find an artist or event? Type it in and send it to Bill.</p>
-    <div class="sf-grid one">
-      <div class="sf-box">
-        <h3>Your fav artists <small id="sf-count"></small></h3>
-        <div class="sf-selected" id="sf-selected"></div>
-        <input class="sf-q" id="sf-q" type="search" placeholder="Search 1,100+ artists, or type an artist or event to add" aria-label="Search artists, or add an artist or event" autocomplete="off">
-        <div class="sf-add" id="sf-add" hidden>
-          <div class="sf-add-h"><b id="sf-add-name"></b> isn't on Festival Radar yet. Add it as:</div>
-          <div class="sf-add-kind" role="group" aria-label="Artist or event">
-            <button type="button" class="sf-chip" data-kind="artist" aria-pressed="true">Artist</button>
-            <button type="button" class="sf-chip" data-kind="event" aria-pressed="false">Event</button>
-            <span class="sf-guess" id="sf-guess" aria-live="polite"></span>
+  <div class="dash" data-tab="favorites">
+    <section class="panel" id="spotifavs">
+      <h2>My Favorites</h2>
+      <p class="sub-h">Heart a festival or mark it Going to save it here. Tap a name to jump to its card.</p>
+      <h3 class="sub-title">Festivals <small id="my-fests-n"></small></h3>
+      <div class="flist" id="my-fests"></div>
+      <h3 class="sub-title sf-art-h">Artists <small id="sf-count"></small></h3>
+      <p class="sub-h">Festivals with your crew's favorite artists on the lineup get marked, so you can see which events to prioritize. Can't find an artist or event? Type it in and send it to Bill.</p>
+      <div class="sf-grid one">
+        <div class="sf-box">
+          <div class="sf-selected" id="sf-selected"></div>
+          <input class="sf-q" id="sf-q" type="search" placeholder="Search 1,100+ artists, or type an artist or event to add" aria-label="Search artists, or add an artist or event" autocomplete="off">
+          <div class="sf-add" id="sf-add" hidden>
+            <div class="sf-add-h"><b id="sf-add-name"></b> isn't on Festival Radar yet. Add it as:</div>
+            <div class="sf-add-kind" role="group" aria-label="Artist or event">
+              <button type="button" class="sf-chip" data-kind="artist" aria-pressed="true">Artist</button>
+              <button type="button" class="sf-chip" data-kind="event" aria-pressed="false">Event</button>
+              <span class="sf-guess" id="sf-guess" aria-live="polite"></span>
+            </div>
+            <div class="sf-add-f">
+              <input id="sf-link" type="text" inputmode="url" autocapitalize="off" maxlength="300" aria-label="Link (optional)">
+              <input id="sf-date" class="sf-ev" type="date" aria-label="Event date (optional)" title="Event date (optional)">
+              <input id="sf-city" class="sf-ev" maxlength="80" placeholder="City (optional)" aria-label="City (optional)">
+              <input id="sf-note" class="sf-ev" maxlength="500" placeholder="Why go? (optional)" aria-label="Why should the crew go? (optional)">
+            </div>
+            <div class="sf-add-row"><button type="button" class="abtn" id="sf-add-go">Add to my favorites</button><span class="msg" id="sf-add-msg" aria-live="polite"></span></div>
+            <p class="sf-add-tip">Artists and events with a link have a much higher chance of being added.</p>
+            <div class="sf-add-known" id="sf-add-known" hidden></div>
           </div>
-          <div class="sf-add-f">
-            <input id="sf-link" type="text" inputmode="url" autocapitalize="off" maxlength="300" aria-label="Link (optional)">
-            <input id="sf-date" class="sf-ev" type="date" aria-label="Event date (optional)" title="Event date (optional)">
-            <input id="sf-city" class="sf-ev" maxlength="80" placeholder="City (optional)" aria-label="City (optional)">
-            <input id="sf-note" class="sf-ev" maxlength="500" placeholder="Why go? (optional)" aria-label="Why should the crew go? (optional)">
+          <div class="sf-sent msg" id="sf-sent" aria-live="polite" hidden></div>
+          <button type="button" class="sf-toggle" id="sf-all" aria-expanded="false" aria-controls="sf-browse">See all artists</button>
+          <div class="sf-browse" id="sf-browse">
+            <div class="sf-genres" id="sf-genres" role="group" aria-label="Browse by genre" hidden></div>
+            <div class="sf-results" id="sf-results" hidden></div>
           </div>
-          <div class="sf-add-row"><button type="button" class="abtn" id="sf-add-go">Add to my favorites</button><span class="msg" id="sf-add-msg" aria-live="polite"></span></div>
-          <p class="sf-add-tip">Artists and events with a link have a much higher chance of being added.</p>
-          <div class="sf-add-known" id="sf-add-known" hidden></div>
+          <div class="mine-sugg" id="sg-mine"></div>
         </div>
-        <div class="sf-sent msg" id="sf-sent" aria-live="polite" hidden></div>
-        <button type="button" class="sf-toggle" id="sf-all" aria-expanded="false" aria-controls="sf-browse">See all artists</button>
-        <div class="sf-browse" id="sf-browse">
-          <div class="sf-genres" id="sf-genres" role="group" aria-label="Browse by genre" hidden></div>
-          <div class="sf-results" id="sf-results" hidden></div>
-        </div>
-        <div class="mine-sugg" id="sg-mine"></div>
       </div>
-    </div>
-  </section>
+    </section>
+    <section class="panel" id="leaderboard">
+      <h2>Crew Favorites</h2>
+      <div class="crewpick" id="crewpick"></div>
+      <p class="sub-h" id="crew-sub">What your crew has hearted or is going to.</p>
+      <h3 class="sub-title">Festivals</h3>
+      <div class="flist" id="crew-fests"><div class="empty">Nothing yet.</div></div>
+      <h3 class="sub-title">Artists</h3>
+      <div class="crew-chips" id="sf-crew"><div class="empty">No fav artists yet.</div></div>
+    </section>
+  </div>
 
-  <section class="panel" id="admin" hidden>
+  <section class="panel" id="admin" hidden data-tab="admin">
     <h2>Admin</h2>
     <p class="sub-h">Only you can see this. Approve the suggestions and artists you like, then ask Claude to "add approved suggestions" and they go on the tracker.</p>
     <div class="kpis" id="ad-kpis"></div>
@@ -673,7 +710,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <div class="tbl"><table><thead><tr><th>Name</th><th>Joined</th><th>Sign-in</th><th>Picks</th><th>Fav artists</th><th>Deals opt-in</th></tr></thead><tbody id="ad-members"></tbody></table></div>
   </section>
 
-  <div class="cd cd-foot" id="cd" hidden aria-live="off">
+  <div class="cd cd-foot" id="cd" hidden aria-live="off" data-tab="festivals">
       <div class="cd-l" id="cd-l"></div>
       <div class="cd-u"><svg class="cd-badge" viewBox="0 0 40 40" role="img" aria-label="Poolside sunset"><defs><linearGradient id="cdSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1452"/><stop offset="1" stop-color="#5a1d4a"/></linearGradient><linearGradient id="cdSun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a4a"/><stop offset="1" stop-color="#ff3d9a"/></linearGradient><clipPath id="cdClip"><rect width="40" height="40" rx="9"/></clipPath><mask id="cdStripes"><rect width="40" height="40" fill="#fff"/><rect x="0" y="21" width="40" height="1.4" fill="#000"/><rect x="0" y="24.5" width="40" height="1.8" fill="#000"/><rect x="0" y="28" width="40" height="2.2" fill="#000"/></mask></defs><g clip-path="url(#cdClip)"><rect width="40" height="40" fill="url(#cdSky)"/><circle cx="17" cy="25" r="11" fill="url(#cdSun)" mask="url(#cdStripes)"/><path d="M28.5 32 C28 25 27.2 19 25.6 13.6" stroke="#120a24" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M25.6 13.6 C22 11.6 18.6 12.4 16.4 14.6 C19.6 13.4 22.6 13.8 25.6 13.6Z M25.6 13.6 C27.4 10 31 9 34 10.4 C30.8 10.6 28.2 11.8 25.6 13.6Z M25.6 13.6 C29.4 13 32.6 15 33.8 18.2 C31.4 16.2 28.6 14.8 25.6 13.6Z M25.6 13.6 C23.8 10.6 23.8 7.6 25.4 5.4 C25.2 8.2 25.4 11 25.6 13.6Z M25.6 13.6 C21.8 15 19.6 17.8 19.4 21 C21 18.2 23.2 15.8 25.6 13.6Z" fill="#120a24"/><path d="M0 31 Q5 28.6 10 31 T20 31 T30 31 T40 31 V40 H0Z" fill="#29d3f5" opacity=".9"/><path d="M0 34.5 Q5 32.3 10 34.5 T20 34.5 T30 34.5 T40 34.5 V40 H0Z" fill="#1ba3c4"/><path d="M3 33 h5 M15 36.5 h6 M27 33 h4" stroke="#e8fbff" stroke-width=".9" stroke-linecap="round" opacity=".8"/></g></svg><div class="cd-b"><div class="cd-n" id="cd-d">0</div><div class="cd-t">days</div></div><div class="cd-b"><div class="cd-n" id="cd-h">0</div><div class="cd-t">hrs</div></div><div class="cd-b"><div class="cd-n" id="cd-m">0</div><div class="cd-t">min</div></div><div class="cd-b"><div class="cd-n" id="cd-s">0</div><div class="cd-t">sec</div></div></div>
   </div>
@@ -691,7 +728,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <div id="set-crews"></div>
     <div class="line"><input type="text" id="set-newcrew" maxlength="40" placeholder="New crew name" aria-label="New crew name"><button type="button" class="abtn alt" id="set-newcrew-go">Create crew</button></div>
     <h3>View</h3>
-    <div class="setrow"><span>See all my crews together<br><span class="muted">Crew favorites and heart badges count every crew you're in.</span></span><button type="button" class="sw" id="set-allcrews" role="switch" aria-checked="false" aria-label="See all my crews together"><span class="knob"></span></button></div>
+    <div class="setrow"><span>See all my crews together<br><span class="muted">Crew favorites count every crew you're in.</span></span><button type="button" class="sw" id="set-allcrews" role="switch" aria-checked="false" aria-label="See all my crews together"><span class="knob"></span></button></div>
     <div class="setrow"><span>Always show my favorite artists<br><span class="muted">Shows with an artist you love stay on the calendar and in Festivals even when club shows and concerts are off. Pass on one and it goes back to normal.</span></span><button type="button" class="sw" id="set-favalways" role="switch" aria-checked="true" aria-label="Always show my favorite artists"><span class="knob"></span></button></div>
     <div class="setrow"><span>Include club shows and concerts</span><button type="button" class="sw" id="set-shows" role="switch" aria-checked="false" aria-label="Include club shows and concerts"><span class="knob"></span></button></div>
     <h3>Skin</h3>
@@ -732,25 +769,38 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 </dialog>
 <nav class="btabs" id="btabs" aria-label="Jump to section">
   <button type="button" data-go="festivals"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8a2 2 0 0 0 0 4v4h16v-4a2 2 0 0 1 0-4V4H4z"/><path d="M10 4v12" stroke-dasharray="2 2"/></svg>Festivals</button>
-  <button type="button" data-go="alerts-panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>Alerts</button>
+  <button type="button" data-go="alerts"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>Alerts</button>
   <button type="button" data-go="calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendar</button>
-  <button type="button" data-go="spotifavs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>Favorites</button>
+  <button type="button" data-go="favorites"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>Favorites</button>
   <button type="button" data-go="admin" id="btab-admin" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Admin</button>
 </nav>
 <script>
 (() => {
-  // Phone bottom tabs and desktop top bar share the same jump and highlight logic.
-  const btns = [...document.querySelectorAll('#btabs button[data-go], #dnav button[data-go]')]; if (!btns.length) return;
-  const secs = [...new Set(btns.map(b => b.dataset.go))].map(id => document.getElementById(id));
-  const home = document.getElementById('dn-home');
-  if (home) home.addEventListener('click', e => { e.preventDefault(); const t = document.getElementById('top'); if (t) t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); });
+  // Tabs: the desktop top bar, phone bottom tabs and phone menu all switch between these.
+  // The URL hash (#alerts, #favorites...) remembers the tab so links and the back button work.
+  const TABS = ['festivals', 'alerts', 'calendar', 'favorites', 'admin'];
+  const btns = [...document.querySelectorAll('#btabs button[data-go], #dnav button[data-go]')];
   let reduce = false; try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
-  const mark = id => btns.forEach(b => b.setAttribute('aria-current', String(b.dataset.go === id)));
-  btns.forEach(b => b.addEventListener('click', () => { const t = document.getElementById(b.dataset.go); if (!t) return; mark(b.dataset.go); t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); }));
-  let ticking = false;
-  const update = () => { ticking = false; let cur = null; secs.forEach(sec => { if (sec && !sec.hidden && sec.getBoundingClientRect().top <= 140) cur = sec.id; }); mark(cur); };
-  window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
-  update();
+  let cur = null;
+  const fromHash = () => { const t = (location.hash || '').slice(1).toLowerCase(); return TABS.includes(t) ? t : 'festivals'; };
+  function show(t, opts) {
+    opts = opts || {};
+    if (!TABS.includes(t)) t = 'festivals';
+    const adm = document.getElementById('admin'); if (t === 'admin' && (!adm || adm.hidden)) t = 'festivals';
+    const changed = t !== cur; cur = t;
+    document.querySelectorAll('[data-tab]').forEach(x => x.classList.toggle('tab-off', x.dataset.tab !== t));
+    btns.forEach(b => b.setAttribute('aria-current', String(b.dataset.go === t)));
+    document.documentElement.dataset.curTab = t;
+    if (opts.push !== false && location.hash !== '#' + t) { try { history.pushState(null, '', '#' + t); } catch (e) { location.hash = t; } }
+    if (opts.scroll !== false && changed) window.scrollTo({ top: 0, behavior: 'auto' });
+    if (changed) window.dispatchEvent(new CustomEvent('fr-tab', { detail: t }));
+  }
+  window.FRTab = show; window.FRTabNow = () => cur; window.FRTabFromHash = fromHash;
+  btns.forEach(b => b.addEventListener('click', () => show(b.dataset.go)));
+  window.addEventListener('popstate', () => show(fromHash(), { push: false }));
+  const home = document.getElementById('dn-home');
+  if (home) home.addEventListener('click', e => { e.preventDefault(); show('festivals'); window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
+  show(fromHash(), { push: false, scroll: false });
 })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -775,12 +825,12 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   if (sb) sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_OUT') location.reload(); });
 
   let uid = null, myName = '';
-  const caches = { picks: {}, favs: {} };
-  const subs = { picks: [], favs: [] };
+  const caches = { picks: {}, favs: {}, hearts: {} };
+  const subs = { picks: [], favs: [], hearts: [] };
   let visible = null; // Set of user ids shown in crew views; null = everything the database allows
   const filt = g => { if (!visible) return g; const o = {}; Object.keys(g).forEach(k => { if (visible.has(k)) o[k] = g[k]; }); return o; };
   const snap = g => ({ docs: Object.keys(filt(g)).map(id => ({ id, data: () => g[id] })) });
-  const emitAll = () => { subs.picks.forEach(cb => cb(snap(caches.picks))); subs.favs.forEach(cb => cb(snap(caches.favs))); };
+  const emitAll = () => { subs.picks.forEach(cb => cb(snap(caches.picks))); subs.favs.forEach(cb => cb(snap(caches.favs))); subs.hearts.forEach(cb => cb(snap(caches.hearts))); };
   const denied = e => e && (e.code === '42501' || e.status === 401 || e.status === 403);
 
   async function loadPicks() {
@@ -794,6 +844,20 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     if (error) throw error;
     const g = {}; data.forEach(r => { (g[r.user_id] = g[r.user_id] || { artists: [] }).artists.push(r.artist); });
     caches.favs = g; subs.favs.forEach(cb => cb(snap(g)));
+  }
+  async function loadHearts() {
+    const { data, error } = await sb.from('hearts').select('user_id,festival_id,created_at').order('created_at').limit(20000);
+    if (error) throw error;
+    const g = {}; data.forEach(r => { (g[r.user_id] = g[r.user_id] || { ids: [] }).ids.push(r.festival_id); });
+    caches.hearts = g; subs.hearts.forEach(cb => cb(snap(g)));
+  }
+  async function saveHearts(ids) {
+    const prev = (caches.hearts[uid] && caches.hearts[uid].ids) || [];
+    const adds = ids.filter(a => !prev.includes(a)).map(a => ({ user_id: uid, festival_id: a }));
+    const dels = prev.filter(a => !ids.includes(a));
+    if (adds.length) { const { error } = await sb.from('hearts').upsert(adds, { onConflict: 'user_id,festival_id', ignoreDuplicates: true }); if (error) throw denied(error) ? { code: 'not_granted' } : error; }
+    if (dels.length) { const { error } = await sb.from('hearts').delete().eq('user_id', uid).in('festival_id', dels); if (error) throw denied(error) ? { code: 'not_granted' } : error; }
+    caches.hearts[uid] = { ids: [...ids] };
   }
   async function savePicks(choices) {
     const prev = (caches.picks[uid] && caches.picks[uid].choices) || {};
@@ -811,7 +875,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     if (dels.length) { const { error } = await sb.from('favs').delete().eq('user_id', uid).in('artist', dels); if (error) throw denied(error) ? { code: 'not_granted' } : error; }
     caches.favs[uid] = { artists: [...artists] };
   }
-  setInterval(() => { if (uid && document.visibilityState === 'visible') { loadPicks().catch(() => {}); loadFavs().catch(() => {}); } }, 45000);
+  setInterval(() => { if (uid && document.visibilityState === 'visible') { loadPicks().catch(() => {}); loadFavs().catch(() => {}); loadHearts().catch(() => {}); } }, 45000);
 
   const db = {
     collection(name) {
@@ -820,7 +884,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
           if (name === 'festivals') { loadFest.then(d => cb({ docs: (d.festivals || []).filter(f => f && f.id).map(f => ({ id: f.id, data: () => f })) })); return () => {}; }
           if (!subs[name]) return () => {};
           subs[name].push(cb);
-          (name === 'picks' ? loadPicks : loadFavs)().catch(e => { if (err) err(e); });
+          (name === 'picks' ? loadPicks : name === 'hearts' ? loadHearts : loadFavs)().catch(e => { if (err) err(e); });
           return () => {};
         },
         doc(id) {
@@ -828,6 +892,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
             if (id !== uid) throw { code: 'not_granted' };
             if (name === 'picks') return savePicks((v && v.choices) || {});
             if (name === 'favs') return saveFavs((v && v.artists) || []);
+            if (name === 'hearts') return saveHearts((v && v.ids) || []);
           } };
         }
       };
@@ -973,7 +1038,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const { data: isAdmin } = await sb.rpc('is_admin');
     if (isAdmin === true) {
       document.getElementById('admin').hidden = false;
-      const t = document.getElementById('btab-admin'); if (t) { t.hidden = false; t.parentElement.classList.add('five'); } const da = document.getElementById('dn-admin'); if (da) da.hidden = false;
+      const t = document.getElementById('btab-admin'); if (t) { t.hidden = false; t.parentElement.classList.add('five'); } const da = document.getElementById('dn-admin'); if (da) da.hidden = false; const ma = document.getElementById('mn-admin'); if (ma) ma.hidden = false;
+      if (window.FRTabFromHash && FRTabFromHash() === 'admin' && window.FRTab) FRTab('admin', { push: false, scroll: false });
       loadAdmin().catch(() => {});
     }
   }
@@ -1000,20 +1066,23 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     if (!crews.length) {
       box.appendChild(mk('span', 'muted', 'You\'re not in a crew yet.'));
       const b = mk('button', 'abtn', 'Create a crew'); b.type = 'button'; b.addEventListener('click', () => FR.openSettings('crews')); box.appendChild(b);
-      if (sub) sub.textContent = 'Only your own picks show until you join or create a crew.'; return;
+      if (sub) sub.textContent = 'Only your own favorites show until you join or create a crew.'; return;
     }
-    if (allCrews) { box.appendChild(mk('span', 'cname', 'All my crews (' + crews.length + ')')); }
-    else if (crews.length === 1) { box.appendChild(mk('span', 'cname', crews[0].name)); }
+    if (crews.length === 1) { box.appendChild(mk('span', 'cname', crews[0].name)); }
     else {
       const sel = mk('select'); sel.setAttribute('aria-label', 'Which crew');
-      crews.forEach(c => { const o = mk('option', null, c.name); o.value = c.id; if (c.id === activeCrew) o.selected = true; sel.appendChild(o); });
-      sel.addEventListener('change', () => { activeCrew = sel.value; lsSet('fr-crew', activeCrew); recomputeVisible(); emitAll(); renderCrewPick(); });
+      crews.forEach(c => { const o = mk('option', null, c.name); o.value = c.id; if (!allCrews && c.id === activeCrew) o.selected = true; sel.appendChild(o); });
+      const all = mk('option', null, 'All my crews (' + crews.length + ')'); all.value = '*'; if (allCrews) all.selected = true; sel.appendChild(all);
+      sel.addEventListener('change', () => {
+        if (sel.value === '*') allCrews = true; else { allCrews = false; activeCrew = sel.value; lsSet('fr-crew', activeCrew); }
+        lsSet('fr-all-crews', allCrews ? '1' : '0'); recomputeVisible(); emitAll(); renderCrewPick();
+      });
       box.appendChild(sel);
     }
     const n = allCrews ? new Set(crews.flatMap(c => (c.members || []).map(m => m.id))).size : ((crews.find(c => c.id === activeCrew) || {}).members || []).length;
     box.appendChild(mk('span', 'muted', n + (n === 1 ? ' member' : ' members')));
     const inv = mk('button', 'abtn alt', 'Invite friends'); inv.type = 'button'; inv.addEventListener('click', () => FR.openInvite()); box.appendChild(inv);
-    if (sub) sub.textContent = 'Festivals with the most people in ' + (allCrews ? 'your crews' : 'this crew') + ' going or maybe going.';
+    if (sub) sub.textContent = 'What ' + (allCrews ? 'your crews have' : 'this crew has') + ' hearted or is going to. Tap a festival to see its card.';
   }
   async function loadCrews() {
     const { data } = await sb.rpc('my_crews');
@@ -1252,13 +1321,13 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   (function () {
     const btn = document.getElementById('mn-btn'), panel = document.getElementById('mn-panel');
     if (!btn || !panel) return;
-    const SECTIONS_NAV = [['alerts-panel', 'Presale Alerts'], ['leaderboard', 'Crew Favorites'], ['calendar', 'Festival Calendar'], ['festivals', 'Festivals'], ['spotifavs', 'Add Your Favorites'], ['favorites', 'Add Your Favorites']];
+    const SECTIONS_NAV = [['festivals', 'Festivals'], ['alerts', 'Presale Alerts'], ['calendar', 'Festival Calendar'], ['favorites', 'Favorites'], ['admin', 'Admin']];
     const close = () => { panel.hidden = true; btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-label', 'Open menu'); };
     const open = () => { panel.hidden = false; btn.setAttribute('aria-expanded', 'true'); btn.setAttribute('aria-label', 'Close menu'); const f = panel.querySelector('button, a'); if (f) f.focus(); };
-    const go = id => { const t = document.getElementById(id); close(); if (t) t.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); };
+    const go = id => { close(); if (window.FRTab) FRTab(id); };
     SECTIONS_NAV.forEach(([id, label]) => {
-      if (!document.getElementById(id)) return;
       const b = document.createElement('button'); b.type = 'button'; b.textContent = label;
+      if (id === 'admin') { b.id = 'mn-admin'; b.hidden = true; }
       b.addEventListener('click', () => go(id));
       panel.appendChild(b);
     });
@@ -1267,13 +1336,13 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     btn.addEventListener('click', e => { e.stopPropagation(); panel.hidden ? open() : close(); });
     document.addEventListener('click', e => { if (!panel.hidden && !panel.contains(e.target) && e.target !== btn) close(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) { close(); btn.focus(); } });
-    document.getElementById('mn-home').addEventListener('click', e => { e.preventDefault(); close(); document.getElementById('top').scrollIntoView({ behavior: 'smooth' }); });
+    document.getElementById('mn-home').addEventListener('click', e => { e.preventDefault(); close(); if (window.FRTab) FRTab('festivals'); window.scrollTo({ top: 0, behavior: 'smooth' }); });
   })();
 
   const SECTIONS = ['Local', 'USA', 'Worldwide'];
   const SEC_COLOR = ['var(--pink)', 'var(--violet)', 'var(--cyan)'];
   const LABEL = { going: 'Going', maybe: 'Maybe', pass: 'Pass' };
-  const state = { festivals: [], picks: {}, favs: {}, me: null, section: 'Local', canWrite: true, names: {}, sfGenre: 'SoCal scene', sfQuery: '', sfOpen: false };
+  const state = { festivals: [], picks: {}, favs: {}, hearts: {}, me: null, section: 'Local', canWrite: true, names: {}, sfGenre: 'SoCal scene', sfQuery: '', sfOpen: false };
   let SHOWS = false; try { SHOWS = localStorage.getItem('fr-show-shows') === '1'; } catch (e) {}
   state._all = [];
   Object.defineProperty(state, 'festivals', { configurable: true, get() { return SHOWS ? state._all : state._all.filter(f => f.kind !== 'show'); }, set(v) { state._all = Array.isArray(v) ? v : []; } });
@@ -1321,6 +1390,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const bar = el('div', 'authbar'); const sb = el('button', 'abtn', 'Sign in'); sb.type = 'button'; sb.addEventListener('click', () => FR.openSignIn()); bar.appendChild(sb);
     $('who').replaceChildren(login, bar);
     const ds = $('dn-signin'); if (ds) { ds.hidden = false; ds.addEventListener('click', () => FR.openSignIn()); }
+    const ms = $('mn-signin'); if (ms) { ms.hidden = false; ms.addEventListener('click', () => FR.openSignIn()); }
     showNotice('Sign in to pick Going, Maybe or Pass and save your favorite artists.');
     state.signedOut = true; state.canWrite = false;
   }
@@ -1336,7 +1406,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 
   async function resolveNames() {
     if (!user) return;
-    const ids = [...new Set([...Object.keys(state.picks), ...Object.keys(state.favs)])].filter(id => !(id in state.names));
+    const ids = [...new Set([...Object.keys(state.picks), ...Object.keys(state.favs), ...Object.keys(state.hearts)])].filter(id => !(id in state.names));
     if (!ids.length) return;
     try { const ps = await user.profiles(ids); ids.forEach(id => { state.names[id] = (ps[id] && ps[id].name) || 'Someone'; }); } catch (e) {}
     renderBoard(); renderCards(); renderSpotifavs();
@@ -1415,26 +1485,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     });
   }
 
-  function renderBoard() {
-    const board = $('board');
-    const rows = state.festivals.map(f => ({ f, v: votesFor(f.id) })).filter(r => r.v.going.length + r.v.maybe.length > 0)
-      .sort((a, b) => (b.v.going.length - a.v.going.length) || (b.v.maybe.length - a.v.maybe.length)).slice(0, 8);
-    board.replaceChildren();
-    if (!rows.length) { board.appendChild(el('div', 'empty', 'No picks yet. Be the first: mark a festival below.')); return; }
-    const max = Math.max(...rows.map(r => r.v.going.length + r.v.maybe.length));
-    rows.forEach(({ f, v }) => {
-      const row = el('div', 'board-row');
-      const bar = el('div', 'bar'); const g = el('i', 'g'); const m = el('i', 'm');
-      g.style.width = (v.going.length / max * 100) + '%'; m.style.width = (v.maybe.length / max * 100) + '%';
-      bar.append(g, m);
-      const who = el('div', 'who-list');
-      if (v.going.length) { who.appendChild(el('span', 'g', 'Going: ')); who.append(v.going.map(nameOf).join(', ')); }
-      if (v.going.length && v.maybe.length) who.append(' · ');
-      if (v.maybe.length) { who.appendChild(el('span', 'm', 'Maybe: ')); who.append(v.maybe.map(nameOf).join(', ')); }
-      row.append(el('div', 'n', f.festival), el('div', 'c', v.going.length + ' going · ' + v.maybe.length + ' maybe'), bar, who);
-      board.appendChild(row);
-    });
-  }
+  function renderBoard() { renderFavDash(); }
 
   function renderCalendar() {
     const box = $('cal'); box.replaceChildren();
@@ -1517,7 +1568,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const top = el('div', 'card-top');
     const h = el('h3'); const href = safeLink(f.link);
     if (href) { const a = el('a', null, f.festival); a.href = href; a.target = '_blank'; a.rel = 'noopener'; h.appendChild(a); } else h.textContent = f.festival;
-    top.append(h, el('span', 'pill ' + statusClass(f.status), f.status));
+    const acts = el('span', 'card-acts'); acts.append(el('span', 'pill ' + statusClass(f.status), f.status), heartBtn(f));
+    top.append(h, acts);
     const meta = el('div', 'meta', f.dates + ' · ' + f.city + (dist(f) ? ' · ' + dist(f) + ' from Hermosa' : ''));
     const gw = el('div'); gw.appendChild(el('span', 'genre', f.genre)); if (f.kind === 'show') { gw.append(' '); gw.appendChild(el('span', 'show-tag', 'Show')); }
     if (state.section === 'USA' && f.section === 'Local') { gw.append(' '); gw.appendChild(el('span', 'socal-tag', 'SoCal')); }
@@ -1548,10 +1600,6 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     if (matches.length) {
       const total = matches.reduce((t, m) => t + m.count, 0);
       const lvl = total >= 8 ? 4 : total >= 5 ? 3 : total >= 3 ? 2 : 1;
-      const badge = el('span', 'fav-badge lvl' + lvl, '♥ ' + total);
-      badge.title = total + ' crew fav' + (total > 1 ? 's' : '') + ' on this lineup';
-      badge.setAttribute('aria-label', badge.title);
-      top.lastChild.before(badge);
       if (lvl >= 3) card.classList.add('hot');
       card.append(top, meta, gw, el('div', 'sf-tag', 'Crew favs playing: ' + matches.map(m => m.name + ' ♥' + m.count).join(', ')), tix, lu, choice, crew);
     } else card.append(top, meta, gw, tix, lu, choice, crew);
@@ -1597,6 +1645,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   let rrT; window.addEventListener('resize', () => { clearTimeout(rrT); rrT = setTimeout(renderRadar, 150); });
 
   function goToCard(id) {
+    if (window.FRTab) FRTab('festivals', { scroll: false });
+    const f = state._all.find(x => x.id === id);
+    if (f && f.kind === 'show' && !SHOWS && !document.getElementById('card-' + id)) { SHOWS = true; try { localStorage.setItem('fr-show-shows', '1'); } catch (e) {} renderAll(); }
     let card = document.getElementById('card-' + id);
     if (!card || !card.offsetParent) { const all = document.querySelector('#tabs button[data-sec="All"]'); if (all) all.click(); card = document.getElementById('card-' + id); }
     if (!card) return;
@@ -1719,23 +1770,16 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     if (!list.length && !q) res.appendChild(el('div', 'empty', 'Nothing here yet.'));
     if (list.length > LIMIT) res.appendChild(el('div', 'sf-more', 'Showing ' + LIMIT + ' of ' + list.length + '. Search to find more.'));
     }
-    // crew
+    // crew: compact chips, most loved first; hover shows who
     const tally = new Map();
     Object.entries(state.favs).forEach(([uid, arr]) => arr.forEach(n => {
       const k = norm(n); if (!tally.has(k)) tally.set(k, { name: n, who: [] });
       tally.get(k).who.push(uid);
     }));
-    const rows = [...tally.values()].sort((a, b) => b.who.length - a.who.length || a.name.localeCompare(b.name)).slice(0, 12);
+    const rows = [...tally.values()].sort((a, b) => b.who.length - a.who.length || a.name.localeCompare(b.name)).slice(0, 24);
     const crew = $('sf-crew'); crew.replaceChildren();
-    if (!rows.length) { crew.appendChild(el('div', 'empty', 'No fav artists yet. Pick a few to get it started.')); return; }
-    rows.forEach(r => {
-      const row = el('div', 'sf-crew-row');
-      row.append(el('div', 'n', r.name), el('div', 'c', '♥ ' + r.who.length));
-      const w = el('div', 'w', r.who.map(nameOf).join(', '));
-      const fests = idx.get(norm(r.name));
-      if (fests) { w.append(' · '); w.appendChild(el('b', null, 'Playing ' + [...new Set(fests)].join(', '))); }
-      row.appendChild(w); crew.appendChild(row);
-    });
+    if (!rows.length) { crew.appendChild(el('div', 'empty', 'No fav artists yet.')); return; }
+    rows.forEach(r => { const c = el('span', 'cchip', r.name); c.appendChild(el('b', null, '♥' + r.who.length)); c.title = r.who.map(nameOf).join(', '); crew.appendChild(c); });
   }
   $('sf-all').addEventListener('click', () => { state.sfOpen = !state.sfOpen; renderSpotifavs(); });
 
@@ -1805,7 +1849,98 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     toggleFav(hit.name); e.target.value = ''; state.sfQuery = ''; renderSpotifavs();
   });
 
-  function renderAll() { renderShowToggle(); renderNext(); renderCountdown(); renderTiles(); renderAlerts(); renderBoard(); renderSpotifavs(); renderCalendar(); renderCards(); }
+  function renderAll() { renderShowToggle(); renderNext(); renderCountdown(); renderTiles(); renderAlerts(); renderBoard(); renderSpotifavs(); renderCalendar(); renderCards(); renderFavDash(); }
+
+  // ---- Festival hearts (favorites) ----
+  const myHearts = () => state.hearts[state.me] || [];
+  const HEART_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.6-4.6-9.4-9.4C1.3 7.6 3.5 4 7.1 4c2.1 0 3.7 1.1 4.9 2.9C13.2 5.1 14.8 4 16.9 4c3.6 0 5.8 3.6 4.5 7.1-1.8 4.8-9.4 9.4-9.4 9.4z"/></svg>';
+  function heartBtn(f, small) {
+    const on = myHearts().includes(f.id);
+    const b = el('button', 'fheart' + (small ? ' sm' : '')); b.type = 'button';
+    b.setAttribute('aria-pressed', String(on));
+    b.setAttribute('aria-label', (on ? 'Remove ' : 'Add ') + f.festival + (on ? ' from favorites' : ' to favorites'));
+    b.title = on ? 'In your favorites' : 'Add to favorites';
+    b.innerHTML = HEART_SVG;
+    b.addEventListener('click', () => {
+      if (!state.me || !state.canWrite) { if (window.FR && FR.openSignIn) FR.openSignIn(); return; }
+      setHeart(f.id, !myHearts().includes(f.id), true);
+    });
+    return b;
+  }
+  let heartWriting = Promise.resolve();
+  function setHeart(id, on, pop) {
+    if (!state.me || !state.canWrite) return;
+    const cur = myHearts().slice(); const has = cur.includes(id);
+    if (on === has) return;
+    const next = on ? cur.concat(id) : cur.filter(x => x !== id);
+    state.hearts[state.me] = next;
+    renderCards(); renderFavDash();
+    if (pop && on) { const c = document.querySelector('#card-' + CSS.escape(id) + ' .fheart'); if (c) c.classList.add('pop'); }
+    heartWriting = heartWriting.then(() => db.collection('hearts').doc(state.me).set({ ids: next }))
+      .catch(e => showNotice(e && e.code === 'not_granted' ? 'Your favorite didn\'t save because your sign-in expired. Sign in again.' : 'Your favorite didn\'t save. Check your connection and try again.'));
+  }
+  // Going picks made before hearts existed join favorites once, from the member's own browser.
+  let heartsReady = false, picksReady = false;
+  function backfillGoing() {
+    if (!heartsReady || !picksReady || !state.me || !state.canWrite) return;
+    const key = 'fr-going-hearted-' + state.me;
+    try { if (localStorage.getItem(key)) return; } catch (e) { return; }
+    const choices = (state.picks[state.me] && state.picks[state.me].choices) || {};
+    const add = Object.keys(choices).filter(id => choices[id] === 'going' && !myHearts().includes(id));
+    try { localStorage.setItem(key, '1'); } catch (e) {}
+    if (!add.length) return;
+    const next = myHearts().concat(add); state.hearts[state.me] = next; renderCards(); renderFavDash();
+    heartWriting = heartWriting.then(() => db.collection('hearts').doc(state.me).set({ ids: next })).catch(() => {});
+  }
+  const rowByStart = (a, b) => (a.f && a.f.start ? a.f.start : '9999').localeCompare(b.f && b.f.start ? b.f.start : '9999') || a.name.localeCompare(b.name);
+  const prettyId = id => String(id).replace(/^show-/, '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  function fRow(id, extra) {
+    const f = state._all.find(x => x.id === id);
+    const row = el('div', 'fl-row'); row.dataset.id = id;
+    const go = el('button', 'fl-go', f ? f.festival : prettyId(id)); go.type = 'button';
+    if (f) { go.title = 'Show ' + f.festival + ' on the Festivals tab'; go.addEventListener('click', () => goToCard(id)); }
+    else { go.disabled = true; go.title = 'No longer listed'; }
+    row.appendChild(go);
+    if (extra) row.appendChild(extra);
+    return { row, f, name: f ? f.festival : prettyId(id) };
+  }
+  // Favorites tab: my hearted festivals (titles only) and the crew's.
+  function renderFavDash() {
+    const my = $('my-fests'), crew = $('crew-fests'); if (!my || !crew) return;
+    my.replaceChildren(); crew.replaceChildren();
+    if (!state.me) {
+      my.appendChild(el('div', 'empty', 'Sign in to save festivals you love.'));
+      crew.appendChild(el('div', 'empty', 'Sign in to see what your crew loves.'));
+      $('my-fests-n').textContent = ''; return;
+    }
+    const mine = myHearts().map(id => fRow(id)).sort(rowByStart);
+    $('my-fests-n').textContent = mine.length ? mine.length + ' saved' : '';
+    if (!mine.length) {
+      const e = el('div', 'empty', 'Nothing saved yet. Tap the heart on a festival, or mark it Going.');
+      const b = el('button', 'abtn alt', 'Browse festivals'); b.type = 'button'; b.addEventListener('click', () => window.FRTab && FRTab('festivals'));
+      e.appendChild(b); my.appendChild(e);
+    }
+    mine.forEach(r => {
+      if (r.f) r.row.appendChild(heartBtn(r.f, true));
+      else { // no longer listed: still removable
+        const x = el('button', 'fheart sm'); x.type = 'button'; x.setAttribute('aria-pressed', 'true'); x.setAttribute('aria-label', 'Remove ' + r.name + ' from favorites');
+        x.innerHTML = HEART_SVG; const id = r.row.dataset.id; x.addEventListener('click', () => setHeart(id, false)); r.row.appendChild(x);
+      }
+      my.appendChild(r.row);
+    });
+    // Crew: festivals any crewmate has hearted, most loved first, with who.
+    const tally = new Map();
+    Object.entries(state.hearts).forEach(([u, ids]) => (ids || []).forEach(id => { if (!tally.has(id)) tally.set(id, []); tally.get(id).push(u); }));
+    const rows = [...tally.entries()].map(([id, who]) => {
+      who = who.slice().sort((a, b) => (a === state.me) - (b === state.me));
+      const w = el('span', 'fl-who', '♥ ' + who.map(nameOf).join(', ')); w.title = who.map(nameOf).join(', ');
+      const r = fRow(id, w); r.n = who.length; return r;
+    }).sort((a, b) => b.n - a.n || rowByStart(a, b));
+    if (!rows.length) crew.appendChild(el('div', 'empty', 'Nobody has saved a festival yet.'));
+    rows.slice(0, 15).forEach(r => crew.appendChild(r.row));
+    if (rows.length > 15) crew.appendChild(el('div', 'fl-more', 'And ' + (rows.length - 15) + ' more.'));
+  }
+  window.addEventListener('fr-tab', e => { if (e.detail === 'calendar') renderCalendar(); if (e.detail === 'festivals') renderRadar(); if (e.detail === 'favorites') renderFavDash(); });
 
   let writing = Promise.resolve();
   function setPick(slug, value) {
@@ -1813,6 +1948,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const current = { ...((state.picks[state.me] && state.picks[state.me].choices) || {}) };
     if (value) current[slug] = value; else delete current[slug];
     state.picks[state.me] = { choices: current };
+    if (value === 'going') setHeart(slug, true);
     renderBoard(); renderCards(); renderCalendar();
     writing = writing.then(() => db.collection('picks').doc(state.me).set({ choices: current, updatedAt: new Date().toISOString() }))
       .catch(e => showNotice(e && e.code === 'not_granted' ? 'Your pick didn\'t save because your sign-in expired. Sign in again.' : 'Your pick didn\'t save. Check your connection and try again.'));
@@ -1850,6 +1986,15 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     snap.docs.forEach(d => { const data = d.data(); if (data && data.choices && typeof data.choices === 'object') next[d.id] = data; });
     state.picks = next;
     renderBoard(); renderCards(); renderCalendar(); resolveNames();
+    picksReady = true; backfillGoing();
+  }, () => {});
+
+  db.collection('hearts').onSnapshot(snap => {
+    const next = {};
+    snap.docs.forEach(d => { const data = d.data(); if (data && Array.isArray(data.ids)) next[d.id] = data.ids.filter(x => typeof x === 'string').slice(0, 500); });
+    state.hearts = next;
+    renderCards(); renderFavDash(); resolveNames();
+    heartsReady = true; backfillGoing();
   }, () => {});
 
   db.collection('favs').onSnapshot(snap => {
