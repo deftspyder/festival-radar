@@ -350,6 +350,23 @@ dialog.sheet .crop-frame canvas { width: 100%; height: 100%; display: block; }
 dialog.sheet .crop-zoom { display: flex; align-items: center; gap: 10px; margin: 14px auto 4px; width: min(100%, 300px); font-size: 13px; color: var(--muted); }
 dialog.sheet .crop-zoom input { flex: 1; accent-color: var(--pink); }
 dialog.sheet .crop-acts { justify-content: center; margin-top: 12px; }
+/* Friends */
+#friends-sec .line { margin: 4px 0 8px; }
+.flist.friends .fr-go { font: inherit; font-size: 15px; font-weight: 700; text-align: left; background: none; border: none; color: var(--fg); cursor: pointer; padding: 4px 0; min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.flist.friends .fr-go:hover { color: var(--pink); }
+.flist.friends .fr-crew { font-size: 11px; color: var(--muted); }
+.flist.friends .lnk { flex: none; }
+dialog.sheet .fcode { text-align: center; }
+dialog.sheet .fcode .qr { width: min(260px, 70vw); aspect-ratio: 1; margin: 8px auto 12px; background: #fff; border-radius: 14px; padding: 12px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; }
+dialog.sheet .fcode .qr svg { width: 100%; height: 100%; display: block; }
+dialog.sheet .fcode .line { justify-content: center; }
+dialog.sheet .fadd { text-align: center; }
+dialog.sheet .fadd-ph { width: 120px; aspect-ratio: 3 / 4; margin: 8px auto; border-radius: 14px; background: var(--panel-2) center / cover no-repeat; display: none; }
+dialog.sheet .fadd-ph.on { display: block; }
+dialog.sheet .fadd-q { font-size: 18px; font-weight: 800; margin: 8px 0; }
+dialog.sheet .fadd .line { justify-content: center; }
+dialog.pcard .pc-inv { margin-top: 10px; }
+dialog.pcard .pc-inv select { width: auto; flex: 1; min-width: 0; margin: 0; }
 /* Chats */
 .cbtn { position: relative; width: 36px; height: 36px; margin: -6px 0; display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 50%; background: transparent; color: var(--muted); opacity: .7; cursor: pointer; padding: 0; flex: none; }
 .cbtn svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linejoin: round; }
@@ -815,6 +832,13 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <div class="flist" id="my-sales"></div>
       <h3 class="sub-title">My festivals <small id="my-fests-n"></small></h3>
       <div class="flist" id="my-fests"></div>
+      <div id="friends-sec" hidden>
+        <h3 class="sub-title">Friends</h3>
+        <p class="sub-h">Met someone at a show? Show them your code. Friends can message you and see your name, main photo and the artists you both love. Only your crews see which festivals you're going to.</p>
+        <div class="line"><button type="button" class="abtn" id="fr-mycode">My code</button><button type="button" class="abtn alt" id="fr-share">Share link</button></div>
+        <p class="muted" id="fr-share-msg" aria-live="polite" hidden></p>
+        <div class="flist friends" id="fr-friends"></div>
+      </div>
     </section>
     <section class="panel" id="spotifavs">
       <h2>My Artists <small id="sf-count"></small></h2>
@@ -993,6 +1017,25 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <div id="pe-blocked"><p class="muted">Nobody blocked.</p></div>
   </div>
 </dialog>
+<dialog class="sheet" id="fcode" aria-labelledby="fcode-h">
+  <div class="sh-head"><h2 id="fcode-h">My Code</h2><button type="button" class="sh-x" id="fcode-x" aria-label="Close">×</button></div>
+  <div class="sh-body fcode">
+    <div class="qr" id="fcode-qr" role="img" aria-label="Your friend code"></div>
+    <p>Have them scan this with their phone camera to add you as a friend.</p>
+    <p class="muted" id="fcode-left"></p>
+    <div class="line"><button type="button" class="abtn alt" id="fcode-share">Share link instead</button></div>
+    <p class="muted" id="fcode-msg" aria-live="polite" hidden></p>
+  </div>
+</dialog>
+<dialog class="sheet" id="fadd" aria-labelledby="fadd-h">
+  <div class="sh-head"><h2 id="fadd-h">Add Friend</h2><button type="button" class="sh-x" id="fadd-x" aria-label="Close">×</button></div>
+  <div class="sh-body fadd">
+    <div class="fadd-ph" id="fadd-ph"></div>
+    <p class="fadd-q" id="fadd-q">Checking the code…</p>
+    <p class="muted" id="fadd-note">Friends can message each other and see each other's name, main photo and the artists you both love. Festivals you're going to stay crew only.</p>
+    <div class="line"><button type="button" class="abtn" id="fadd-go" hidden>Add friend</button><button type="button" class="abtn" id="fadd-dm" hidden>Message</button><button type="button" class="lnk" id="fadd-no">Not now</button></div>
+  </div>
+</dialog>
 <dialog class="sheet chat" id="chat" aria-labelledby="chat-title">
   <div class="sh-head"><div class="chat-hd"><h2 id="chat-title">Chat</h2><small id="chat-where"></small></div><button type="button" class="sh-x" id="chat-x" aria-label="Close">×</button></div>
   <div class="chat-top">
@@ -1027,7 +1070,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <div id="pc-going-wrap" hidden><h3>Going to</h3><div class="flist" id="pc-going"></div></div>
     <div id="pc-top-wrap" hidden><h3>Top artists</h3><div class="crew-chips" id="pc-top"></div></div>
     <div id="pc-both-wrap" hidden><h3>Artists you both love</h3><div class="crew-chips" id="pc-both"></div></div>
-    <div class="line pc-acts"><button type="button" class="abtn alt" id="pc-edit" hidden>Edit profile</button><button type="button" class="lnk" id="pc-block" hidden></button><button type="button" class="lnk danger" id="pc-report" hidden>Report</button></div>
+    <div class="line pc-acts"><button type="button" class="abtn" id="pc-dm" hidden>Message</button><button type="button" class="abtn alt" id="pc-invite" hidden>Invite to my crew</button><button type="button" class="abtn alt" id="pc-edit" hidden>Edit profile</button><button type="button" class="lnk" id="pc-unfriend" hidden>Remove friend</button><button type="button" class="lnk" id="pc-block" hidden></button><button type="button" class="lnk danger" id="pc-report" hidden>Report</button></div>
+    <div class="line pc-inv" id="pc-invite-row" hidden><select id="pc-invite-crew" aria-label="Which crew"></select><button type="button" class="abtn" id="pc-invite-send">Send invite</button><span class="muted" id="pc-invite-msg" aria-live="polite"></span></div>
     <div class="pc-report" id="pc-report-form" hidden>
       <label class="pe-l" for="pc-reason">What's wrong?</label>
       <select id="pc-reason"><option value="Inappropriate photo">Inappropriate photo</option><option value="Not a real person or fake profile">Not a real person or fake profile</option><option value="Harassment or spam">Harassment or spam</option><option value="Seems under 18">Seems under 18</option><option value="Something else">Something else</option></select>
@@ -1625,6 +1669,11 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const bw = document.getElementById('pc-both-wrap'), bl = document.getElementById('pc-both'); bl.replaceChildren();
     bw.hidden = self || !(p.both_love || []).length; (p.both_love || []).slice(0, 12).forEach(a => bl.appendChild(mk('span', 'cchip', a)));
     document.getElementById('pc-edit').hidden = !self;
+    document.getElementById('pc-dm').hidden = self || !p.can_dm;
+    document.getElementById('pc-invite').hidden = !(p.rel === 'friend' && !p.blocked && crews.length);
+    document.getElementById('pc-unfriend').hidden = self || !p.is_friend;
+    document.getElementById('pc-invite-row').hidden = true;
+    if (p.rel === 'friend' && !document.getElementById('pc-meta').textContent) document.getElementById('pc-meta').textContent = 'Friend';
     const blk = document.getElementById('pc-block'); blk.hidden = self || (p.blocked && !p.blocked_by_me); blk.textContent = p.blocked_by_me ? 'Unblock' : 'Block';
     document.getElementById('pc-report').hidden = self || p.blocked;
     document.getElementById('pc-report-form').hidden = true; document.getElementById('pc-report-msg').textContent = '';
@@ -1673,7 +1722,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       }
       row.append(n, acts);
       if (r.kind === 'photo' && r.target_ref && photoUrl(r.target_ref)) { const im = mk('img', 'pv'); im.src = photoUrl(r.target_ref); im.alt = 'Reported photo'; row.appendChild(im); }
-      if (r.kind === 'message') row.appendChild(mk('div', 'w', (r.message ? (r.message.kind === 'public' ? 'Public chat' : 'Crew chat') + ' message' + (r.message.deleted ? ' (deleted)' : '') + ': ' + r.message.body : 'Message no longer exists') + (r.banned ? ' · removed from public chats' : '')));
+      if (r.kind === 'message') row.appendChild(mk('div', 'w', (r.message ? (r.message.kind === 'public' ? 'Public chat' : r.message.kind === 'dm' ? 'Direct' : 'Crew chat') + ' message' + (r.message.deleted ? ' (deleted)' : '') + ': ' + r.message.body : 'Message no longer exists') + (r.banned ? ' · removed from public chats' : '')));
       else if (r.kind !== 'photo' && r.bio) row.appendChild(mk('div', 'w', 'Bio: ' + r.bio));
       row.appendChild(mk('div', 'w', (r.reason || 'No reason given') + ' · reported by ' + r.by + ' · ' + fmtDate(r.created_at)));
       box.appendChild(row);
@@ -1681,13 +1730,151 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   }
 
 
+
+  // ---------- Friends ----------
+  // Add by QR code (refreshes every 10 minutes) or a share link (7 days). Crewmates are friends automatically.
+  const SITE_URL = location.origin + location.pathname;
+  const urlFriend = (() => { try { const c = new URLSearchParams(location.search).get('friend'); return c && /^[a-z0-9]{8,32}$/i.test(c) ? c.toLowerCase() : null; } catch (e) { return null; } })();
+  if (urlFriend) {
+    try { localStorage.setItem('fr-friend-pending', JSON.stringify({ code: urlFriend, at: Date.now() })); } catch (e) {}
+    try { const u = new URL(location.href); u.searchParams.delete('friend'); history.replaceState(null, '', u.pathname + u.search + u.hash); } catch (e) {}
+  }
+  const pendingFriend = () => { try { const p = JSON.parse(localStorage.getItem('fr-friend-pending') || 'null'); return p && p.code && Date.now() - p.at < 3600e3 ? p : null; } catch (e) { return null; } };
+  const clearPendingFriend = () => { try { localStorage.removeItem('fr-friend-pending'); } catch (e) {} };
+  let friends = [], qrLib = null, codeTimer = null, faddCode = null, faddRetry = null;
+  async function loadFriends() {
+    if (!uid) return;
+    const { data } = await sb.rpc('my_friends'); friends = Array.isArray(data) ? data : [];
+    renderFriends();
+  }
+  function renderFriends() {
+    const sec = document.getElementById('friends-sec'); if (!sec) return;
+    sec.hidden = !uid; const box = document.getElementById('fr-friends'); box.replaceChildren();
+    const list = friends.filter(f => !f.blocked);
+    if (!list.length) { box.appendChild(mk('div', 'empty', 'No friends added yet. Your crewmates are already friends.')); return; }
+    list.forEach(f => {
+      const row = mk('div', 'fl-row'); const b = mk('button', 'fr-go', f.name); b.type = 'button'; b.addEventListener('click', () => openCard(f.id));
+      row.appendChild(b); if (f.crew) row.appendChild(mk('span', 'fr-crew', 'Crew'));
+      const n = window.FRChat ? FRChat.dmUnread(f.id) : 0; if (n) row.appendChild(mk('span', 'ch-n', String(n)));
+      const m = mk('button', 'lnk', 'Message'); m.type = 'button'; m.addEventListener('click', () => FRChat.openDm(f.id)); row.appendChild(m);
+      box.appendChild(row);
+    });
+  }
+  function loadQrLib() {
+    if (window.qrcode) return Promise.resolve(window.qrcode);
+    if (!qrLib) qrLib = new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js'; s.onload = () => res(window.qrcode); s.onerror = rej; document.head.appendChild(s); });
+    return qrLib;
+  }
+  const fcMsg = t => { const m = document.getElementById('fcode-msg'); m.hidden = !t; m.textContent = t || ''; };
+  async function showCode() {
+    const box = document.getElementById('fcode-qr'), left = document.getElementById('fcode-left');
+    const { data, error } = await sb.rpc('my_friend_code', { p_kind: 'qr' });
+    if (error || !data) { box.replaceChildren(mk('span', 'muted', 'Couldn\'t make a code. Check your signal.')); return; }
+    try {
+      const q = (await loadQrLib())(0, 'M'); q.addData(SITE_URL + '?friend=' + data.code); q.make();
+      box.innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+    } catch (e) { box.replaceChildren(mk('span', 'muted', 'Couldn\'t draw the code. Use Share link instead.')); }
+    const until = Date.parse(data.refresh_at);
+    clearInterval(codeTimer);
+    const tick = () => {
+      const s = Math.max(0, Math.round((until - Date.now()) / 1000));
+      left.textContent = 'New code in ' + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0') + ' so screenshots can\'t be reused.';
+      if (s <= 0) { clearInterval(codeTimer); if (document.getElementById('fcode').open) showCode(); }
+    };
+    tick(); codeTimer = setInterval(tick, 1000);
+  }
+  async function shareLink(msgFn) {
+    const { data, error } = await sb.rpc('my_friend_code', { p_kind: 'link' });
+    if (error || !data) { msgFn('That didn\'t work. Try again.'); return; }
+    const url = SITE_URL + '?friend=' + data.code, me = (profCache[uid] && profCache[uid].name) || 'me';
+    try { if (navigator.share) { await navigator.share({ title: 'Festival Radar', text: 'Add ' + me + ' as a friend on Festival Radar', url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+    try { await navigator.clipboard.writeText(url); msgFn('Link copied. It works for 7 days.'); } catch (e) { msgFn(url); }
+  }
+  // Add flow: preview, confirm, connect both ways. With bad signal the code is kept and retried.
+  async function processPendingFriend() {
+    const p = pendingFriend(); if (!p || !uid) return;
+    faddCode = p.code;
+    const d = document.getElementById('fadd'); if (!d.open) d.showModal();
+    const q = document.getElementById('fadd-q'), ph = document.getElementById('fadd-ph'), go = document.getElementById('fadd-go'), dm = document.getElementById('fadd-dm');
+    go.hidden = true; dm.hidden = true; ph.classList.remove('on'); q.textContent = 'Checking the code…';
+    let data, error;
+    try { ({ data, error } = await sb.rpc('friend_preview', { p_code: p.code })); } catch (e) { error = e; }
+    if (error || !data) { q.textContent = 'Waiting for signal… This finishes on its own when you\'re back online.'; scheduleRetry(); return; }
+    clearTimeout(faddRetry);
+    if (!data.ok) { clearPendingFriend(); q.textContent = data.reason === 'expired' ? 'That code expired. Ask them to show a fresh one.' : 'That code didn\'t work. Ask them to show it again.'; return; }
+    if (data.self) { clearPendingFriend(); q.textContent = 'That\'s your own code.'; return; }
+    if (data.blocked) { clearPendingFriend(); q.textContent = 'You can\'t add this person.'; return; }
+    if (data.photo) { await signPaths([data.photo]); const u = photoUrl(data.photo); if (u) { ph.style.backgroundImage = 'url("' + u + '")'; ph.classList.add('on'); } }
+    if (data.already) { clearPendingFriend(); q.textContent = 'You and ' + data.name + ' are already friends.'; dm.hidden = false; dm.onclick = () => { d.close(); FRChat.openDm(data.id); }; return; }
+    q.textContent = 'Add ' + data.name + ' as a friend?'; go.hidden = false;
+    go.onclick = () => confirmFriend(data);
+  }
+  async function confirmFriend(pv) {
+    const q = document.getElementById('fadd-q'), go = document.getElementById('fadd-go'), dm = document.getElementById('fadd-dm');
+    go.disabled = true; let data, error;
+    try { ({ data, error } = await sb.rpc('add_friend', { p_code: faddCode })); } catch (e) { error = e; }
+    go.disabled = false;
+    if (error || !data) { q.textContent = 'Waiting for signal… We\'ll add ' + pv.name + ' when you\'re back online.'; go.hidden = true; try { localStorage.setItem('fr-friend-pending', JSON.stringify({ code: faddCode, at: Date.now(), confirmed: true })); } catch (e) {} scheduleRetry(); return; }
+    clearPendingFriend();
+    if (!data.ok) { q.textContent = data.reason === 'expired' ? 'That code expired. Ask them to show a fresh one.' : data.reason === 'limit' ? 'That\'s the limit for today.' : 'That didn\'t work.'; go.hidden = true; return; }
+    q.textContent = 'You and ' + data.name + ' are friends.'; go.hidden = true; dm.hidden = false;
+    dm.onclick = () => { document.getElementById('fadd').close(); FRChat.openDm(data.id); };
+    loadFriends().catch(() => {}); loadProfiles([data.id], true).catch(() => {});
+  }
+  function scheduleRetry() { clearTimeout(faddRetry); faddRetry = setTimeout(retryPending, 20000); }
+  async function retryPending() {
+    const p = pendingFriend(); if (!p || !uid) return;
+    if (p.confirmed) { faddCode = p.code; const d = document.getElementById('fadd'); if (!d.open) d.showModal(); await confirmFriend({ name: 'them' }); }
+    else processPendingFriend();
+  }
+  window.addEventListener('online', () => retryPending());
+  function wireFriends() {
+    document.getElementById('fr-mycode').addEventListener('click', () => { fcMsg(''); document.getElementById('fcode').showModal(); showCode(); });
+    document.getElementById('fcode-x').addEventListener('click', () => { clearInterval(codeTimer); document.getElementById('fcode').close(); });
+    document.getElementById('fcode').addEventListener('close', () => clearInterval(codeTimer));
+    document.getElementById('fcode-share').addEventListener('click', () => shareLink(fcMsg));
+    const sm = t => { const m = document.getElementById('fr-share-msg'); m.hidden = !t; m.textContent = t || ''; };
+    document.getElementById('fr-share').addEventListener('click', () => shareLink(sm));
+    const closeAdd = () => { clearTimeout(faddRetry); document.getElementById('fadd').close(); };
+    document.getElementById('fadd-x').addEventListener('click', closeAdd);
+    document.getElementById('fadd-no').addEventListener('click', () => { clearPendingFriend(); closeAdd(); });
+    // profile card buttons
+    document.getElementById('pc-dm').addEventListener('click', () => { const id = cardId; document.getElementById('pcard').close(); FRChat.openDm(id); });
+    document.getElementById('pc-unfriend').addEventListener('click', async () => {
+      const p = profCache[cardId]; if (!p || !confirm('Remove ' + p.name + ' as a friend?')) return;
+      await sb.rpc('remove_friend', { p_other: cardId }); await loadFriends(); openCard(cardId);
+    });
+    document.getElementById('pc-invite').addEventListener('click', () => {
+      const own = crews; const row = document.getElementById('pc-invite-row'), sel = document.getElementById('pc-invite-crew');
+      sel.replaceChildren(); own.forEach(c => { const o = mk('option', null, c.name); o.value = c.id; sel.appendChild(o); });
+      sel.hidden = own.length < 2; document.getElementById('pc-invite-send').hidden = own.length < 2; document.getElementById('pc-invite-msg').textContent = ''; row.hidden = false;
+      if (own.length === 1) document.getElementById('pc-invite-send').click();
+    });
+    document.getElementById('pc-invite-send').addEventListener('click', async () => {
+      const c = document.getElementById('pc-invite-crew').value || (crews[0] || {}).id, msg = document.getElementById('pc-invite-msg'), to = cardId;
+      if (!c || !to) return; msg.textContent = 'Sending…';
+      const { data: code, error } = await sb.rpc('crew_invite', { c, fresh: false });
+      if (error || !code) { msg.textContent = 'That didn\'t work.'; return; }
+      const crew = crews.find(x => x.id === c);
+      const { error: e2 } = await sb.rpc('send_dm', { p_to: to, p_body: 'Join my crew ' + (crew ? crew.name : '') + ' on Festival Radar: ' + SITE_URL + '?invite=' + code });
+      msg.textContent = e2 ? 'That didn\'t send.' : 'Invite sent as a message.';
+      if (!e2) loadChats().catch(() => {});
+    });
+  }
+  async function initFriends() {
+    renderFriends();
+    await loadFriends().catch(() => {});
+    if (pendingFriend()) processPendingFriend();
+  }
+
   // ---------- Chats ----------
   // Threads: 'c:<crew>' crew chat, 'cf:<crew>:<festival>' a festival thread in a crew, 'p:<festival>' public.
   let chatList = [], chatMutes = new Set(), chatPrefs = { follow_going: true, banned: false };
   let cur = null; // { kind, crew, fest, thread }
   let curMsgs = [], chatSub = null, chatPoll = null, pendingSend = null;
   const AVC = ['#ff3d9a', '#29d3f5', '#a86bff', '#ff9a4a', '#4ade80', '#facc15'];
-  const threadOf = (kind, crew, fest) => kind === 'crew' ? 'c:' + crew : kind === 'crewfest' ? 'cf:' + crew + ':' + fest : 'p:' + fest;
+  const dmThread = other => 'd:' + (uid < other ? uid + ':' + other : other + ':' + uid);
+  const threadOf = (kind, crew, fest, other) => kind === 'dm' ? dmThread(other) : kind === 'crew' ? 'c:' + crew : kind === 'crewfest' ? 'cf:' + crew + ':' + fest : 'p:' + fest;
   const festOf = id => (window.FRMainData && FRMainData.fest(id)) || null;
   const festName = id => { const f = festOf(id); return f ? f.festival : id; };
   const crewName = id => { const c = crews.find(x => x.id === id); return c ? c.name : 'Your crew'; };
@@ -1696,25 +1883,27 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     if (!uid) return;
     const { data } = await sb.rpc('my_chats');
     chatList = Array.isArray(data) ? data : [];
-    window.dispatchEvent(new Event('fr-chats')); renderChatList();
+    window.dispatchEvent(new Event('fr-chats')); renderChatList(); renderFriends();
   }
   window.FRChat = {
     unreadFor: fid => chatList.filter(r => r.festival_id === fid && r.kind !== 'crew').reduce((t, r) => t + (r.unread || 0), 0),
     openFest: fid => openChat({ kind: 'crewfest', fest: fid }),
     openThread: t => openThreadKey(t),
+    openDm: other => openChat({ kind: 'dm', other }),
+    dmUnread: other => { const r = rowFor(uid ? dmThread(other) : ''); return r ? r.unread || 0 : 0; },
     refresh: () => loadChats().catch(() => {})
   };
   function renderChatList() {
     const box = document.getElementById('crew-chats'); if (!box) return;
     box.replaceChildren();
     const vis = new Set((window.FRVisibleCrews ? FRVisibleCrews() : crews).map(c => c.id));
-    const rows = chatList.filter(r => r.kind === 'public' || vis.has(r.crew_id))
+    const rows = chatList.filter(r => r.kind === 'public' || r.kind === 'dm' || vis.has(r.crew_id))
       .sort((a, b) => (a.kind === 'crew' ? 0 : 1) - (b.kind === 'crew' ? 0 : 1) || (b.last_at || '').localeCompare(a.last_at || ''));
     if (!rows.length) { box.appendChild(mk('div', 'empty', crews.length ? 'No chats yet.' : 'Join or start a crew to chat.')); return; }
     rows.forEach(r => {
       const row = mk('div', 'fl-row'); const b = mk('button', 'ch-go'); b.type = 'button';
-      b.appendChild(mk('b', null, r.kind === 'crew' ? r.crew_name + ' chat' : festName(r.festival_id)));
-      b.appendChild(mk('small', null, r.kind === 'crew' ? 'Everyone in the crew' : r.kind === 'crewfest' ? r.crew_name : 'Everyone (public)'));
+      b.appendChild(mk('b', null, r.kind === 'dm' ? (r.other_name || 'Someone') : r.kind === 'crew' ? r.crew_name + ' chat' : festName(r.festival_id)));
+      b.appendChild(mk('small', null, r.kind === 'dm' ? 'Direct message' : r.kind === 'crew' ? 'Everyone in the crew' : r.kind === 'crewfest' ? r.crew_name : 'Everyone (public)'));
       b.addEventListener('click', () => openThreadKey(r.thread));
       row.appendChild(b);
       if (r.last_at) row.appendChild(mk('span', 'fl-when', ago2(r.last_at)));
@@ -1729,6 +1918,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     if (t.startsWith('c:')) openChat({ kind: 'crew', crew: t.slice(2) });
     else if (t.startsWith('cf:')) { const [, c, f] = t.split(':'); openChat({ kind: 'crewfest', crew: c, fest: f }); }
     else if (t.startsWith('p:')) openChat({ kind: 'public', fest: t.slice(2) });
+    else if (t.startsWith('d:')) { const [, a, b] = t.split(':'); if (uid === a || uid === b) openChat({ kind: 'dm', other: uid === a ? b : a }); }
   }
   const defaultCrew = () => { const v = window.FRVisibleCrews ? FRVisibleCrews() : []; return (v[0] || crews[0] || {}).id || null; };
   function lockedNote(fest) {
@@ -1740,21 +1930,23 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   async function openChat(o) {
     if (!uid) { FR.openSignIn(); return; }
     o = { ...o };
-    if (o.kind !== 'public' && !o.crew) o.crew = defaultCrew();
-    if (o.kind !== 'public' && !o.crew) { if (o.fest) o.kind = 'public'; else return; } // no crew: only the public chat
-    o.thread = threadOf(o.kind, o.crew, o.fest);
+    if (o.kind === 'dm') { if (!o.other || o.other === uid) return; await window.FRProf.load([o.other]); }
+    else if (o.kind !== 'public' && !o.crew) o.crew = defaultCrew();
+    if (o.kind !== 'public' && o.kind !== 'dm' && !o.crew) { if (o.fest) o.kind = 'public'; else return; } // no crew: only the public chat
+    o.thread = threadOf(o.kind, o.crew, o.fest, o.other);
     cur = o; curMsgs = [];
     const d = document.getElementById('chat');
-    document.getElementById('chat-title').textContent = o.kind === 'crew' ? crewName(o.crew) + ' Chat' : festName(o.fest);
-    document.getElementById('chat-where').textContent = o.kind === 'crew' ? 'Everyone in the crew' : o.kind === 'crewfest' ? 'Crew chat for this festival' : 'Public chat for this festival';
-    const tabs = document.getElementById('chat-tabs'); tabs.hidden = o.kind === 'crew';
+    const otherName = o.kind === 'dm' ? ((FRProf.get(o.other) || {}).name || 'Someone') : '';
+    document.getElementById('chat-title').textContent = o.kind === 'dm' ? otherName : o.kind === 'crew' ? crewName(o.crew) + ' Chat' : festName(o.fest);
+    document.getElementById('chat-where').textContent = o.kind === 'dm' ? 'Direct message' : o.kind === 'crew' ? 'Everyone in the crew' : o.kind === 'crewfest' ? 'Crew chat for this festival' : 'Public chat for this festival';
+    const tabs = document.getElementById('chat-tabs'); tabs.hidden = o.kind === 'crew' || o.kind === 'dm';
     tabs.querySelectorAll('button').forEach(b => { const on = (b.dataset.k === 'public') === (o.kind === 'public'); b.setAttribute('aria-selected', String(on)); b.disabled = b.dataset.k === 'crew' && !crews.length; });
     const sel = document.getElementById('chat-crew'); sel.replaceChildren();
     crews.forEach(c => { const op = mk('option', null, c.name); op.value = c.id; sel.appendChild(op); });
-    sel.value = o.crew || ''; sel.hidden = o.kind === 'public' || crews.length < 2;
+    sel.value = o.crew || ''; sel.hidden = o.kind === 'public' || o.kind === 'dm' || crews.length < 2;
     const r = rowFor(o.thread);
     const fl = document.getElementById('chat-follow'), fll = document.getElementById('chat-follow-l');
-    if (o.kind === 'crew') { fll.textContent = 'Notifications'; fl.setAttribute('aria-checked', String(r ? r.notify : true)); }
+    if (o.kind === 'crew' || o.kind === 'dm') { fll.textContent = 'Notifications'; fl.setAttribute('aria-checked', String(r ? r.notify : true)); }
     else { fll.textContent = 'Following'; fl.setAttribute('aria-checked', String(!!(r && r.following))); }
     document.getElementById('chat-banner').hidden = !(o.kind === 'public' && !(r && r.banner_ok) && !bannerSeen(o.thread));
     const lock = o.kind === 'public' ? lockedNote(o.fest) : null;
@@ -1763,7 +1955,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     document.getElementById('chat-form').hidden = !!(lock || banned);
     document.getElementById('chat-bcool').hidden = true; pendingSend = null; chatMsg('');
     const inp = document.getElementById('chat-input');
-    inp.placeholder = o.kind === 'crew' ? 'Message ' + crewName(o.crew) : o.kind === 'crewfest' ? 'Message your crew' : 'Message everyone (public)';
+    inp.placeholder = o.kind === 'dm' ? 'Message ' + otherName : o.kind === 'crew' ? 'Message ' + crewName(o.crew) : o.kind === 'crewfest' ? 'Message your crew' : 'Message everyone (public)';
     document.getElementById('chat-list').replaceChildren(mk('div', 'empty', 'Loading…'));
     if (!d.open) d.showModal();
     subscribe(o.thread);
@@ -1773,7 +1965,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   async function loadMessages(scroll) {
     if (!cur) return;
     const t = cur.thread;
-    const { data, error } = await sb.from('chat_messages').select('id,user_id,body,created_at,kind').eq('thread', t).order('id', { ascending: false }).limit(150);
+    const dm = cur.kind === 'dm';
+    const { data, error } = await sb.from(dm ? 'dm_messages' : 'chat_messages').select(dm ? 'id,user_id,body,created_at' : 'id,user_id,body,created_at,kind').eq('thread', t).order('id', { ascending: false }).limit(150);
     if (!cur || cur.thread !== t) return;
     if (error) { document.getElementById('chat-list').replaceChildren(mk('div', 'empty', 'Chat didn\'t load. Try again in a moment.')); return; }
     curMsgs = (data || []).slice().reverse();
@@ -1799,7 +1992,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
     box.replaceChildren();
     const msgs = curMsgs.filter(m => !(cur.kind === 'public' && chatMutes.has(m.user_id)));
-    if (!msgs.length) { box.appendChild(mk('div', 'empty', cur.kind === 'public' ? 'No messages yet. Say hi to everyone going.' : 'No messages yet. Start the plan.')); return; }
+    if (!msgs.length) { box.appendChild(mk('div', 'empty', cur.kind === 'public' ? 'No messages yet. Say hi to everyone going.' : cur.kind === 'dm' ? 'No messages yet. Say hi.' : 'No messages yet. Start the plan.')); return; }
     let lastDay = null;
     msgs.forEach(m => {
       const dk = dayKey(m.created_at); if (dk !== lastDay) { box.appendChild(mk('div', 'cm-day', dayLabel(m.created_at))); lastDay = dk; }
@@ -1819,14 +2012,14 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   function fillActs(acts, m) {
     acts.replaceChildren();
     const link = (t, fn, cls) => { const b = mk('button', 'lnk' + (cls ? ' ' + cls : ''), t); b.type = 'button'; b.addEventListener('click', fn); acts.appendChild(b); return b; };
-    if (m.user_id === uid) { link('Delete', async () => { if (!confirm('Delete this message?')) return; const { error } = await sb.rpc('delete_message', { p_id: m.id }); if (!error) { curMsgs = curMsgs.filter(x => x.id !== m.id); renderMessages(); } }, 'danger'); return; }
+    if (m.user_id === uid) { link('Delete', async () => { if (!confirm('Delete this message?')) return; const { error } = await sb.rpc(cur.kind === 'dm' ? 'delete_dm' : 'delete_message', { p_id: m.id }); if (!error) { curMsgs = curMsgs.filter(x => x.id !== m.id); renderMessages(); } }, 'danger'); return; }
     link('Report', () => {
       acts.replaceChildren();
       const sel = mk('select'); ['Harassment or spam', 'Inappropriate', 'Sharing someone\'s private info', 'Seems under 18', 'Something else'].forEach(x => { const o = mk('option', null, x); o.value = x; sel.appendChild(o); });
       const send = mk('button', 'lnk danger', 'Send report'); send.type = 'button'; const cancel = mk('button', 'lnk', 'Cancel'); cancel.type = 'button';
       cancel.addEventListener('click', () => { acts.hidden = true; });
       send.addEventListener('click', async () => {
-        const { error } = await sb.from('reports').insert({ reporter: uid, target_user: m.user_id, kind: 'message', target_ref: String(m.id), reason: sel.value });
+        const { error } = await sb.from('reports').insert({ reporter: uid, target_user: m.user_id, kind: 'message', target_ref: (cur.kind === 'dm' ? 'dm:' : '') + m.id, reason: sel.value });
         acts.replaceChildren(mk('span', 'muted', error ? (/limit/i.test(error.message || '') ? 'That\'s the limit for today.' : 'That didn\'t send.') : 'Thanks. Bill will take a look.'));
       });
       acts.append(sel, send, cancel);
@@ -1849,7 +2042,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   function subscribe(t) {
     unsubscribe();
     try {
-      chatSub = sb.channel('chat-' + t).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: 'thread=eq.' + t }, async payload => {
+      chatSub = sb.channel('chat-' + t).on('postgres_changes', { event: 'INSERT', schema: 'public', table: t.startsWith('d:') ? 'dm_messages' : 'chat_messages', filter: 'thread=eq.' + t }, async payload => {
         const m = payload && payload.new; if (!m || !cur || m.thread !== cur.thread || curMsgs.some(x => x.id === m.id)) return;
         if (m.deleted_at) return;
         curMsgs.push({ id: m.id, user_id: m.user_id, body: m.body, created_at: m.created_at, kind: m.kind });
@@ -1861,16 +2054,17 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   function unsubscribe() { if (chatSub) { try { sb.removeChannel(chatSub); } catch (e) {} chatSub = null; } if (chatPoll) { clearInterval(chatPoll); chatPoll = null; } }
   async function sendNow(text) {
     const btn = document.getElementById('chat-send'); btn.disabled = true; chatMsg('');
-    const { data, error } = await sb.rpc('post_message', { p_kind: cur.kind, p_crew: cur.kind === 'public' ? null : cur.crew, p_festival: cur.kind === 'crew' ? null : cur.fest, p_body: text });
+    const { data, error } = cur.kind === 'dm' ? await sb.rpc('send_dm', { p_to: cur.other, p_body: text })
+      : await sb.rpc('post_message', { p_kind: cur.kind, p_crew: cur.kind === 'public' ? null : cur.crew, p_festival: cur.kind === 'crew' ? null : cur.fest, p_body: text });
     btn.disabled = false;
     if (error) {
       const e = error.message || '';
-      chatMsg(/slow down/.test(e) ? 'Slow down a little, then try again.' : /daily limit/.test(e) ? 'That\'s the message limit for today.' : /closed/.test(e) ? 'This chat is closed.' : /removed/.test(e) ? 'You\'ve been removed from public chats.' : /welcome/.test(e) ? 'Finish the welcome check first.' : 'That didn\'t send. Try again.');
+      chatMsg(/slow down/.test(e) ? 'Slow down a little, then try again.' : /daily limit/.test(e) ? 'That\'s the message limit for today.' : /closed/.test(e) ? 'This chat is closed.' : /removed/.test(e) ? 'You\'ve been removed from public chats.' : /welcome/.test(e) ? 'Finish the welcome check first.' : /not allowed/.test(e) && cur.kind === 'dm' ? 'You can only message friends and crewmates.' : 'That didn\'t send. Try again.');
       return false;
     }
     document.getElementById('chat-input').value = ''; autosize();
     const r = rowFor(cur.thread); if (r) r.following = true;
-    if (cur.kind !== 'crew') document.getElementById('chat-follow').setAttribute('aria-checked', 'true');
+    if (cur.kind !== 'crew' && cur.kind !== 'dm') document.getElementById('chat-follow').setAttribute('aria-checked', 'true');
     if (data && !curMsgs.some(x => x.id === data.id)) curMsgs.push({ id: data.id, user_id: uid, body: text, created_at: data.created_at, kind: cur.kind });
     renderMessages(true); loadChats().catch(() => {});
     return true;
@@ -1890,7 +2084,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     document.getElementById('chat-follow').addEventListener('click', async () => {
       if (!cur) return; const sw = document.getElementById('chat-follow'); const on = sw.getAttribute('aria-checked') !== 'true';
       sw.setAttribute('aria-checked', String(on));
-      const row = { user_id: uid, thread: cur.thread, updated_at: new Date().toISOString() }; if (cur.kind === 'crew') row.notify = on; else row.following = on;
+      const row = { user_id: uid, thread: cur.thread, updated_at: new Date().toISOString() }; if (cur.kind === 'crew' || cur.kind === 'dm') row.notify = on; else row.following = on;
       const { error } = await sb.from('chat_reads').upsert(row, { onConflict: 'user_id,thread' });
       if (error) sw.setAttribute('aria-checked', String(!on)); else loadChats().catch(() => {});
     });
@@ -1938,7 +2132,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   async function initMember() {
     try { const { data: u } = await sb.auth.getUser(); userEmail = (u && u.user && u.user.email) || ''; } catch (e) {}
     wireMember();
-    wireNotify(); wireGate(); wireEditor(); wireCard(); wireChat();
+    wireNotify(); wireGate(); wireEditor(); wireCard(); wireChat(); wireFriends();
+    initFriends().catch(() => {});
     checkGate().catch(() => {});
     await redeemPending().catch(() => {});
     await loadCrews().catch(() => {});
@@ -2197,7 +2392,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   window.FR.openSettings = openSettings; window.FR.openInvite = openInvite;
   const googleOn = fetch(SB_URL + '/auth/v1/settings', { headers: { apikey: SB_KEY } }).then(r => r.ok ? r.json() : null).then(j => !!(j && j.external && j.external.google)).catch(() => false);
   const wire = () => {
-    sessionP.then(sess => { if (!sess) showInviteBanner().catch(() => {}); });
+    sessionP.then(sess => { if (!sess) { showInviteBanner().catch(() => {}); if (pendingFriend()) setTimeout(() => { toast('Sign in to add your friend.'); FR.openSignIn(); }, 400); } });
     const GOOGLE_CLIENT_ID = '660771060487-uq299vb0sk6s2216d3jc3vldopt2mo8l.apps.googleusercontent.com';
     let gisReady = false;
     const setupGis = async () => {
