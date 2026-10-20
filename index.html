@@ -548,8 +548,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   <nav class="dnav" id="dnav" aria-label="Sections">
     <a class="dn-title" href="#top" id="dn-home">Festival Radar</a>
     <div class="dn-links">
-      <button type="button" data-go="alerts-panel">Presale alerts</button>
-      <button type="button" data-go="leaderboard">Crew favorites</button>
+      <button type="button" data-go="alerts-panel">Presale Alerts</button>
+      <button type="button" data-go="leaderboard">Crew Favorites</button>
       <button type="button" data-go="calendar">Calendar</button>
       <button type="button" data-go="festivals">Festivals</button>
       <button type="button" data-go="spotifavs">Favorites</button>
@@ -579,12 +579,12 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 
   <div class="two">
     <section class="panel" id="alerts-panel">
-      <h2>Presale alerts</h2>
+      <h2>Presale Alerts</h2>
       <p class="sub-h">Tickets going on sale in the next 3 months. Expected dates are based on last year's timing until the festival confirms.</p>
       <div class="alerts" id="alerts"><div class="empty">Loading…</div></div>
     </section>
     <section class="panel" id="leaderboard">
-      <h2>Crew favorites</h2>
+      <h2>Crew Favorites</h2>
       <div class="crewpick" id="crewpick"></div>
       <p class="sub-h" id="crew-sub">Festivals with the most people going or maybe going.</p>
       <div class="board" id="board"><div class="empty">No picks yet. Be the first: mark a festival below.</div></div>
@@ -594,7 +594,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   </div>
 
   <section class="panel" id="calendar">
-    <h2>Festival calendar</h2>
+    <h2>Festival Calendar</h2>
     <p class="sub-h">When each festival runs. Hover or tap a bar for details. Festivals without dates are left off.</p>
     <div class="cal" id="cal"></div>
     <div class="legend" id="legend"></div>
@@ -625,7 +625,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   </section>
 
   <section class="panel" id="spotifavs">
-    <h2>Add your favorites</h2>
+    <h2>Add Your Favorites</h2>
     <p class="sub-h">Pick the artists you love most. Festivals with crew favorites on the lineup get a heart badge that grows as more of the crew loves those artists, so you can see at a glance which events to prioritize. Can't find an artist or event? Type it in and send it to Bill.</p>
     <div class="sf-grid one">
       <div class="sf-box">
@@ -704,7 +704,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   </div>
 </dialog>
 <dialog class="sheet" id="invite" aria-labelledby="inv-h">
-  <div class="sh-head"><h2 id="inv-h">Invite friends</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
+  <div class="sh-head"><h2 id="inv-h">Invite Friends</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
   <div class="sh-body">
     <p class="muted">Send a link by text, the group chat, or anywhere. Friends sign in with Google or their email.</p>
     <label class="chk"><input type="checkbox" id="inv-crew-on" checked> <span>Add to my crew <select id="inv-crew" aria-label="Which crew"></select></span></label>
@@ -716,7 +716,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 <div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
 <dialog class="signin" id="signin" aria-labelledby="signin-h">
   <form id="signin-form" method="dialog">
-    <h2 id="signin-h">Sign in to Festival Radar</h2>
+    <h2 id="signin-h">Sign In to Festival Radar</h2>
     <div id="si-gis" class="gis" hidden></div>
     <button type="button" class="gbtn" id="si-google" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.2c0-.8-.1-1.5-.2-2.2H12v4.2h5.9a5 5 0 0 1-2.2 3.3v2.7h3.6c2.1-1.9 3.3-4.8 3.3-8z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.7c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.8A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14.2a6.6 6.6 0 0 1 0-4.3V7.1H2.1a11 11 0 0 0 0 9.9z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7.1l3.7 2.8C6.7 7.3 9.1 5.4 12 5.4z"/></svg>Continue with Google</button>
     <div class="or"><span>or get an email link</span></div>
@@ -1252,7 +1252,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   (function () {
     const btn = document.getElementById('mn-btn'), panel = document.getElementById('mn-panel');
     if (!btn || !panel) return;
-    const SECTIONS_NAV = [['alerts-panel', 'Presale alerts'], ['leaderboard', 'Crew favorites'], ['calendar', 'Festival calendar'], ['festivals', 'Festivals'], ['spotifavs', 'Add your favorites'], ['favorites', 'Add your favorites']];
+    const SECTIONS_NAV = [['alerts-panel', 'Presale Alerts'], ['leaderboard', 'Crew Favorites'], ['calendar', 'Festival Calendar'], ['festivals', 'Festivals'], ['spotifavs', 'Add Your Favorites'], ['favorites', 'Add Your Favorites']];
     const close = () => { panel.hidden = true; btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-label', 'Open menu'); };
     const open = () => { panel.hidden = false; btn.setAttribute('aria-expanded', 'true'); btn.setAttribute('aria-label', 'Close menu'); const f = panel.querySelector('button, a'); if (f) f.focus(); };
     const go = id => { const t = document.getElementById(id); close(); if (t) t.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); };
