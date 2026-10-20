@@ -461,6 +461,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
     <div class="line"><input type="text" id="set-newcrew" maxlength="40" placeholder="New crew name" aria-label="New crew name"><button type="button" class="abtn alt" id="set-newcrew-go">Create crew</button></div>
     <h3>View</h3>
     <div class="setrow"><span>See all my crews together<br><span class="muted">Crew favorites and heart badges count every crew you're in.</span></span><button type="button" class="sw" id="set-allcrews" role="switch" aria-checked="false" aria-label="See all my crews together"><span class="knob"></span></button></div>
+    <div class="setrow"><span>Always show my favorite artists<br><span class="muted">Shows with an artist you love stay on the calendar and in Festivals even when local shows are off. Pass on one and it goes back to normal.</span></span><button type="button" class="sw" id="set-favalways" role="switch" aria-checked="true" aria-label="Always show my favorite artists"><span class="knob"></span></button></div>
     <div class="setrow"><span>Include local shows</span><button type="button" class="sw" id="set-shows" role="switch" aria-checked="false" aria-label="Include local shows"><span class="knob"></span></button></div>
     <h3>Coming soon</h3>
     <div class="setrow"><span>Skins</span><span class="soon">Soon</span></div>
@@ -803,6 +804,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
     });
     const sa = document.getElementById('set-allcrews');
     sa.addEventListener('click', () => { allCrews = !allCrews; lsSet('fr-all-crews', allCrews ? '1' : '0'); sa.setAttribute('aria-checked', String(allCrews)); recomputeVisible(); emitAll(); renderCrewPick(); });
+    const fa = document.getElementById('set-favalways');
+    fa.addEventListener('click', () => { const on = fa.getAttribute('aria-checked') !== 'true'; lsSet('fr-fav-always', on ? '1' : '0'); fa.setAttribute('aria-checked', String(on)); window.dispatchEvent(new Event('fr-settings')); });
     const ss = document.getElementById('set-shows');
     ss.addEventListener('click', () => { const t = document.getElementById('show-toggle'); if (t) t.click(); ss.setAttribute('aria-checked', t ? t.getAttribute('aria-checked') : 'false'); });
     document.getElementById('set-invite').addEventListener('click', () => { document.getElementById('settings').close(); FR.openInvite(); });
@@ -834,6 +837,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
     document.getElementById('set-name').value = myName || '';
     document.getElementById('set-email').textContent = userEmail ? 'Signed in as ' + userEmail : '';
     document.getElementById('set-allcrews').setAttribute('aria-checked', String(allCrews));
+    document.getElementById('set-favalways').setAttribute('aria-checked', String(lsGet('fr-fav-always') !== '0'));
     const t = document.getElementById('show-toggle'); document.getElementById('set-shows').setAttribute('aria-checked', t ? t.getAttribute('aria-checked') : 'false');
     renderSettingsCrews(); d.showModal();
     if (focus === 'crews') setTimeout(() => document.getElementById('set-newcrew').focus(), 50);
@@ -947,6 +951,18 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
   let SHOWS = false; try { SHOWS = localStorage.getItem('fr-show-shows') === '1'; } catch (e) {}
   state._all = [];
   Object.defineProperty(state, 'festivals', { configurable: true, get() { return SHOWS ? state._all : state._all.filter(f => f.kind !== 'show'); }, set(v) { state._all = Array.isArray(v) ? v : []; } });
+  const favAlwaysOn = () => { try { return localStorage.getItem('fr-fav-always') !== '0'; } catch (e) { return true; } };
+  // Festivals and shows to list: the normal list, plus (setting on) any show with one of my favorite artists that I haven't passed on.
+  function withFavShows() {
+    const base = state.festivals;
+    if (SHOWS || !favAlwaysOn() || !state.me) return base;
+    const mine = new Set((state.favs[state.me] || []).map(norm)); if (!mine.size) return base;
+    const picks = (state.picks[state.me] && state.picks[state.me].choices) || {};
+    const extra = state._all.filter(f => f.kind === 'show' && picks[f.id] !== 'pass' && f.artists && f.artists !== 'Lineup TBA'
+      && f.artists.split(', ').some(a => artistNames(a).some(n => mine.has(norm(n)))));
+    return extra.length ? base.concat(extra) : base;
+  }
+  window.addEventListener('fr-settings', () => { renderCalendar(); renderCards(); });
   function renderShowToggle() {
     const n = state._all.filter(f => f.kind === 'show').length;
     const b = document.getElementById('show-toggle'); if (b) b.setAttribute('aria-checked', String(SHOWS));
@@ -1091,7 +1107,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
 
   function renderCalendar() {
     const box = $('cal'); box.replaceChildren();
-    const data = state.festivals.filter(f => f.start && f.end).map(f => ({ ...f, s: Date.parse(f.start + 'T00:00:00Z'), e: Date.parse(f.end + 'T23:59:59Z') }));
+    const data = withFavShows().filter(f => f.start && f.end).map(f => ({ ...f, s: Date.parse(f.start + 'T00:00:00Z'), e: Date.parse(f.end + 'T23:59:59Z') }));
     if (!data.length) { box.appendChild(el('div', 'empty', 'No dated festivals yet.')); return; }
     const W = Math.max(320, box.clientWidth || 700), rowH = 24, top = 6, left = 84, right = 12;
     const lanes = {}, offs = {};
@@ -1265,13 +1281,13 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
       cards.className = 'cols';
       SECTIONS.forEach(sec => {
         const col = el('div', 'col'); col.appendChild(el('div', 'col-h', sec === 'Local' ? 'Local · SoCal' : sec === 'USA' ? 'Rest of USA' : sec));
-        state.festivals.filter(f => f.section === sec).sort(byStart).forEach(f => col.appendChild(makeCard(f)));
+        withFavShows().filter(f => f.section === sec).sort(byStart).forEach(f => col.appendChild(makeCard(f)));
         cards.appendChild(col);
       });
       return;
     }
     cards.className = 'cards';
-    const list = state.festivals.filter(f => f.section === state.section || (state.section === 'USA' && f.section === 'Local')).sort(byStart);
+    const list = withFavShows().filter(f => f.section === state.section || (state.section === 'USA' && f.section === 'Local')).sort(byStart);
     if (!list.length) { cards.appendChild(el('div', 'empty', 'No festivals in this section yet.')); return; }
     list.forEach(f => cards.appendChild(makeCard(f)));
   }
@@ -1308,7 +1324,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
     const cur = [...myFavs()]; const i = cur.findIndex(x => norm(x) === norm(name));
     if (i >= 0) cur.splice(i, 1); else { if (cur.length >= 100) { showNotice('You can have up to 100 fav artists.'); return; } cur.push(name); }
     state.favs[state.me] = cur; _ck = null; _cc = null;
-    renderSpotifavs(); renderCards();
+    renderSpotifavs(); renderCards(); renderCalendar();
     favWriting = favWriting.then(() => db.collection('favs').doc(state.me).set({ artists: cur, updatedAt: new Date().toISOString() }))
       .catch(e => showNotice(e && e.code === 'not_granted' ? 'Your fav artists didn\'t save because your sign-in expired. Sign in again.' : 'Your fav artists didn\'t save. Check your connection and try again.'));
   }
@@ -1447,7 +1463,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
     const next = {};
     snap.docs.forEach(d => { const data = d.data(); if (data && Array.isArray(data.artists)) next[d.id] = data.artists.filter(x => typeof x === 'string' && x.trim()).map(x => x.slice(0, 80)).slice(0, 100); });
     state.favs = next; _ck = null; _cc = null;
-    renderSpotifavs(); renderCards(); resolveNames();
+    renderSpotifavs(); renderCards(); renderCalendar(); resolveNames();
   }, () => {});
   }
 })();
