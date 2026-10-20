@@ -808,10 +808,11 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
     onC.addEventListener('change', () => { selC.disabled = !onC.checked; document.getElementById('inv-new').hidden = !onC.checked; makeLink(false); });
     selC.addEventListener('change', () => makeLink(false));
     document.getElementById('inv-new').addEventListener('click', async () => { if (!confirm('Make a new crew link? The old link stops working.')) return; await makeLink(true); toast('New link ready'); });
-    document.getElementById('inv-copy').addEventListener('click', async () => { const r = await makeLink(false); if (!r) return; try { await navigator.clipboard.writeText(r.url); toast('Link copied'); } catch (e) { toast('Select the link above to copy it'); } });
+    const inviteText = r => r.crew ? 'You\'re invited to join ' + r.crew + ' on Festival Radar' : 'You\'re invited to join Festival Radar';
+    document.getElementById('inv-copy').addEventListener('click', async () => { const r = await makeLink(false); if (!r) return; try { await navigator.clipboard.writeText(inviteText(r) + ' ' + r.url); toast('Invite copied'); } catch (e) { toast('Select the link above to copy it'); } });
     document.getElementById('inv-share').addEventListener('click', async () => {
       const r = await makeLink(false); if (!r) return;
-      const text = r.crew ? 'Join ' + r.crew + ' on Festival Radar so we can plan festivals together.' : 'Check out Festival Radar for festivals, presales and who\'s going.';
+      const text = inviteText(r);
       if (navigator.share) { try { await navigator.share({ title: 'Festival Radar', text, url: r.url }); } catch (e) {} }
       else { try { await navigator.clipboard.writeText(text + ' ' + r.url); toast('Invite copied. Paste it anywhere.'); } catch (e) { toast('Select the link above to copy it'); } }
     });
