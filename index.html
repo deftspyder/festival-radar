@@ -311,6 +311,10 @@ dialog.sheet .mem .mem-name { color: var(--fg); font-size: 14px; text-align: lef
 dialog.sheet .gate-list { margin: 0 0 12px; padding-left: 18px; font-size: 14px; color: var(--muted); }
 dialog.sheet .gate-list li + li { margin-top: 4px; }
 dialog.sheet .gate-msg { margin: 10px 0 0; font-size: 14px; color: var(--orange); }
+dialog.sheet .bday { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, .8fr) minmax(0, 1fr); gap: 8px; border: none; padding: 0; margin: 0 0 4px; max-width: 360px; }
+dialog.sheet .bday select, dialog.sheet .bday input { font: inherit; font-size: 16px; padding: 9px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); min-height: 44px; min-width: 0; width: 100%; box-sizing: border-box; color-scheme: dark; }
+dialog.sheet .bday .bad { border-color: var(--orange); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 dialog.sheet input[type=date] { font: inherit; font-size: 16px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); color-scheme: dark; min-height: 42px; }
 dialog.sheet .pe-l { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
 dialog.sheet #pe-bio, dialog.sheet #pe-city { width: 100%; box-sizing: border-box; font: inherit; font-size: 16px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
@@ -901,7 +905,11 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   <div class="sh-head"><h2 id="gate-h">Welcome to Festival Radar</h2></div>
   <div class="sh-body">
     <p>Festival Radar is for ages 18 and up. What's your birthday?</p>
-    <div class="line"><input type="date" id="gate-bday" aria-label="Your birthday"></div>
+    <fieldset class="bday" id="gate-bday"><legend class="sr-only">Your birthday</legend>
+      <select id="gate-m" aria-label="Birth month" autocomplete="bday-month"><option value="">Month</option><option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select>
+      <input type="text" id="gate-d" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="Day" aria-label="Birth day" autocomplete="bday-day">
+      <input type="text" id="gate-y" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="Year" aria-label="Birth year" autocomplete="bday-year">
+    </fieldset>
     <p class="muted">Your birthday stays private. You choose whether your age shows on your profile.</p>
     <h3>About your profile</h3>
     <ul class="gate-list">
@@ -1338,18 +1346,37 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     await loadProfiles([uid], true);
     const me = profCache[uid]; if (!me || me.adult_ok) return;
     const d = document.getElementById('gate'); if (!d || d.open) return;
-    const bd = document.getElementById('gate-bday'); bd.max = new Date().toISOString().slice(0, 10);
     // Can't be skipped: Escape is ignored, and if the browser closes it anyway it comes back.
     d.addEventListener('cancel', e => e.preventDefault());
     d.addEventListener('close', () => { if (!gateDone) setTimeout(() => { if (!d.open) d.showModal(); }, 0); });
     d.showModal();
   }
+  // Birthday as YYYY-MM-DD, null if anything is missing, false if the date doesn't exist or is out of range.
+  function readBday() {
+    const mEl = document.getElementById('gate-m'), dEl = document.getElementById('gate-d'), yEl = document.getElementById('gate-y');
+    [mEl, dEl, yEl].forEach(x => x.classList.remove('bad'));
+    const m = Number(mEl.value), d = Number(dEl.value), yRaw = yEl.value.trim(), y = Number(yRaw);
+    if (!m || !dEl.value.trim() || !yRaw) { [mEl, dEl, yEl].forEach(x => { if (!x.value.trim()) x.classList.add('bad'); }); return null; }
+    const now = new Date(), dt = new Date(Date.UTC(y, m - 1, d));
+    if (yRaw.length !== 4 || y < now.getFullYear() - 120 || dt.getUTCMonth() !== m - 1 || dt.getUTCDate() !== d || dt > now) {
+      if (yRaw.length !== 4 || y < now.getFullYear() - 120 || dt > now) yEl.classList.add('bad'); else dEl.classList.add('bad');
+      return false;
+    }
+    return y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+  }
   function wireGate() {
+    // Digits only; move to the year box after two day digits.
+    const dEl = document.getElementById('gate-d'), yEl = document.getElementById('gate-y');
+    [dEl, yEl].forEach(x => x.addEventListener('input', () => { x.value = x.value.replace(/\D/g, ''); }));
+    dEl.addEventListener('input', () => { if (dEl.value.length === 2) yEl.focus(); });
+    document.getElementById('gate-m').addEventListener('change', () => dEl.focus());
+    yEl.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('gate-go').click(); });
     const msg = document.getElementById('gate-msg');
     const say = t => { msg.hidden = !t; msg.textContent = t || ''; };
     document.getElementById('gate-go').addEventListener('click', async () => {
-      const v = document.getElementById('gate-bday').value;
-      if (!v) { say('Add your birthday to continue.'); return; }
+      const v = readBday();
+      if (v === null) { say('Add your birthday to continue.'); return; }
+      if (v === false) { say('That date doesn\'t look right. Check the day and year.'); return; }
       say('');
       const { data, error } = await sb.rpc('confirm_age', { p_birthday: v });
       if (error) { say('That didn\'t save. Check the date and try again.'); return; }
