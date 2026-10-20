@@ -250,6 +250,7 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .showbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
 .showbar label { font-weight: 700; cursor: pointer; }
 .showbar-sub { font-size: 12px; color: var(--muted); }
+.showbar.in-panel { margin: 12px 0 14px; padding: 8px 12px; background: var(--panel-2); }
 .sw { position: relative; width: 44px; height: 26px; flex: none; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2); cursor: pointer; padding: 0; }
 .sw .knob { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--muted); }
 .sw[aria-checked="true"] { background: linear-gradient(90deg, var(--pink), var(--violet)); border-color: transparent; box-shadow: 0 0 12px -3px var(--pink); }
@@ -366,12 +367,6 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
 
   <div class="invite-banner" id="invite-banner" hidden></div>
 
-  <div class="showbar" id="showbar">
-    <button type="button" class="sw" id="show-toggle" role="switch" aria-checked="false"><span class="knob"></span></button>
-    <label for="show-toggle">Include local shows</label>
-    <span class="showbar-sub" id="show-sub">Club nights and concerts in SoCal, next 60 days</span>
-  </div>
-
   <section class="tiles" id="tiles" aria-label="Festivals by section">
     <button type="button" class="tile" data-goto="Local" aria-label="Show Local festivals"><span class="lbl">Local · SoCal</span><span class="big" data-sec="Local">–</span><span class="sub" data-sub="Local">&nbsp;</span></button>
     <button type="button" class="tile" data-goto="USA" aria-label="Show all USA festivals"><span class="lbl">USA · incl. SoCal</span><span class="big" data-sec="USA">–</span><span class="sub" data-sub="USA">&nbsp;</span></button>
@@ -404,7 +399,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
   <section class="panel" id="festivals">
     <div class="list-head">
       <div>
-        <h2>Festivals and picks</h2>
+        <h2>Festivals and Picks</h2>
         <p class="sub-h">Tap Going, Maybe, or Pass. Tap your choice again to clear it. Tap an artist to hear them on Spotify. Distances are straight-line miles from Hermosa Beach.</p>
       </div>
       <div class="tabs" id="tabs">
@@ -415,6 +410,11 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
       </div>
     </div>
     <p class="notice" id="notice" hidden></p>
+    <div class="showbar in-panel" id="showbar">
+      <button type="button" class="sw" id="show-toggle" role="switch" aria-checked="false"><span class="knob"></span></button>
+      <label for="show-toggle">Include local shows</label>
+      <span class="showbar-sub" id="show-sub">Club nights and concerts in SoCal, next 60 days</span>
+    </div>
     <div class="cards" id="cards"><div class="empty">Loading festivals…</div></div>
     <div class="suggest" id="suggest" hidden>
       <h3>Suggest a festival</h3>
@@ -635,7 +635,6 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
     return name === 'db' ? db : name === 'user' ? user : null;
   } };
 
-
   // Signed-in extras: festival suggestions for everyone, admin panel for admins only.
   const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const fmtDate = t => { const d = new Date(t); return MON[d.getMonth()] + ' ' + d.getDate(); };
@@ -699,7 +698,6 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
       loadAdmin().catch(() => {});
     }
   }
-
 
   // ---------- Crews, settings and invites ----------
   const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
