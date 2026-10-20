@@ -162,6 +162,9 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .col-h { font-family: var(--display); font-size: 14px; letter-spacing: .04em; padding-bottom: 6px; border-bottom: 2px solid var(--colc); color: var(--colc); }
 .col:nth-child(1) { --colc: var(--pink); } .col:nth-child(2) { --colc: var(--violet); } .col:nth-child(3) { --colc: var(--cyan); }
 
+@keyframes cardflash { 0%, 60% { box-shadow: 0 0 0 2px var(--pink), 0 0 26px -4px var(--pink); } 100% { box-shadow: none; } }
+.card.flash { animation: cardflash 2.4s ease-out; }
+#cal svg rect[role=link]:focus { outline: none; stroke: #fff; stroke-width: 2; }
 .card { background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 9px; min-width: 0; }
 .card.mine-going { border-color: rgba(41,211,245,.6); box-shadow: 0 0 18px -10px var(--going); }
 .card-top { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
@@ -1137,7 +1140,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
       if (ch === 'maybe') { r.setAttribute('stroke', '#fff'); r.setAttribute('stroke-width', '1.5'); r.setAttribute('stroke-dasharray', '3 2'); }
       r.style.cursor = 'pointer';
       r.addEventListener('mousemove', ev => show(ev, d));
-      r.addEventListener('click', ev => show(ev, d));
+      r.addEventListener('click', () => { tip.hidden = true; goToCard(d.id); });
+      r.setAttribute('tabindex', '0'); r.setAttribute('role', 'link'); r.setAttribute('aria-label', d.festival + ', ' + d.dates + '. Open details');
+      r.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); goToCard(d.id); } });
       r.addEventListener('mouseleave', () => { tip.hidden = true; });
       svg.appendChild(r);
       if (ch === 'going') {
@@ -1155,7 +1160,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
       const gk = el('span'); const gi = el('i'); gi.style.cssText = 'background:#ff3d9a;border:1.5px solid #fff'; gk.append(gi, 'You\'re going'); lg.appendChild(gk);
       const pk = el('span'); const pi = el('i'); pi.style.background = '#4a4060'; pk.append(pi, 'You passed'); lg.appendChild(pk);
     }
-    lg.appendChild(el('span', null, 'Faded: dates not confirmed · Dashed line: today'));
+    lg.appendChild(el('span', null, 'Faded: dates not confirmed · Dashed line: today · Tap a bar for details'));
   }
 
   function makeCard(f) {
@@ -1203,6 +1208,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
       if (lvl >= 3) card.classList.add('hot');
       card.append(top, meta, gw, el('div', 'sf-tag', 'Crew favs playing: ' + matches.map(m => m.name + ' ♥' + m.count).join(', ')), tix, lu, choice, crew);
     } else card.append(top, meta, gw, tix, lu, choice, crew);
+    card.id = 'card-' + f.id;
     return card;
   }
 
@@ -1243,6 +1249,14 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
   }
   let rrT; window.addEventListener('resize', () => { clearTimeout(rrT); rrT = setTimeout(renderRadar, 150); });
 
+  function goToCard(id) {
+    let card = document.getElementById('card-' + id);
+    if (!card || !card.offsetParent) { const all = document.querySelector('#tabs button[data-sec="All"]'); if (all) all.click(); card = document.getElementById('card-' + id); }
+    if (!card) return;
+    card.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+    card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
+    setTimeout(() => card.classList.remove('flash'), 2400);
+  }
   function renderCards() {
     renderRadar();
     const cards = $('cards'); cards.replaceChildren();
