@@ -423,6 +423,12 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
 #admin th, #admin td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
 #admin th { color: var(--muted); font-weight: 600; }
 #admin .tbl { overflow-x: auto; }
+#admin .lg { display: inline-flex; align-items: baseline; gap: 4px; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; margin-left: 6px; white-space: nowrap; }
+#admin .lg b { font-family: var(--display); font-weight: 400; font-size: 13px; }
+#admin .lg-hi { color: var(--ok); } #admin .lg-mid { color: var(--warn); } #admin .lg-lo { color: var(--pink); } #admin .lg-na { color: var(--muted); }
+#admin .q .bl { grid-column: 1 / -1; font-size: 13px; overflow-wrap: anywhere; }
+#admin .q .lk { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; }
+#admin .q .lk a { color: var(--cyan); }
 @media (max-width: 560px) { #admin .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .btabs.five { grid-template-columns: repeat(5, 1fr); }
 .acct { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--grad); color: var(--on-accent); font: inherit; font-weight: 800; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0; flex: none; }
@@ -559,10 +565,13 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 
   <section class="panel" id="admin" hidden>
     <h2>Admin</h2>
-    <p class="sub-h">Only you can see this. Approve the suggestions you like, then ask Claude to "add approved suggestions" and they go on the tracker.</p>
+    <p class="sub-h">Only you can see this. Approve the suggestions and artists you like, then ask Claude to "add approved suggestions" and they go on the tracker.</p>
     <div class="kpis" id="ad-kpis"></div>
     <h3>Festival suggestions</h3>
     <div id="ad-queue"><div class="empty">Loading…</div></div>
+    <h3>New artists</h3>
+    <p class="sub-h">Artists the crew added that aren't in the artist list yet. Claude searches each name once a day and scores how likely it is a real, active artist (0 to 100) from shows, a website and social profiles.</p>
+    <div id="ad-artists"><div class="empty">Loading…</div></div>
     <h3>Members</h3>
     <div class="tbl"><table><thead><tr><th>Name</th><th>Joined</th><th>Sign-in</th><th>Picks</th><th>Fav artists</th><th>Deals opt-in</th></tr></thead><tbody id="ad-members"></tbody></table></div>
   </section>
@@ -780,6 +789,26 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       if (r.link && /^https?:\/\//i.test(r.link)) { w.append(' · '); const a = mk('a', null, 'link'); a.href = r.link; a.target = '_blank'; a.rel = 'noopener nofollow'; w.appendChild(a); }
       row.append(n, acts, w); qb.appendChild(row);
     });
+    const ab = document.getElementById('ad-artists'); ab.replaceChildren();
+    const ar = data.artists || [];
+    if (!ar.length) ab.appendChild(mk('div', 'empty', 'No new artists yet.'));
+    ar.forEach(r => {
+      const row = mk('div', 'q'); const n = mk('div', 'n', r.artist);
+      const s = typeof r.score === 'number' ? r.score : null;
+      const lg = mk('span', 'lg ' + (s == null ? 'lg-na' : s >= 70 ? 'lg-hi' : s >= 40 ? 'lg-mid' : 'lg-lo'));
+      if (s == null) lg.textContent = 'Not checked yet'; else { lg.appendChild(mk('b', null, String(s))); lg.append(' legit'); }
+      lg.title = 'Legitimacy score, 0 to 100';
+      n.append(lg, mk('span', 'st-tag st-' + r.status, STATUS[r.status] || r.status));
+      const acts = mk('div', 'acts');
+      if (r.status === 'new' || r.status === 'passed') { const ok = mk('button', 'ok', 'Approve'); ok.type = 'button'; ok.addEventListener('click', () => reviewArtist(r.id, 'approved')); acts.appendChild(ok); }
+      if (r.status === 'new' || r.status === 'approved') { const no = mk('button', null, 'Pass'); no.type = 'button'; no.addEventListener('click', () => reviewArtist(r.id, 'passed')); acts.appendChild(no); }
+      row.append(n, acts);
+      row.appendChild(mk('div', 'bl', r.blurb || 'Search results will show here after the next daily check.'));
+      const links = Array.isArray(r.links) ? r.links.filter(l => l && l.url && /^https:\/\//i.test(l.url)).slice(0, 8) : [];
+      if (links.length) { const lk = mk('div', 'lk'); links.forEach(l => { const a = mk('a', null, String(l.label || 'link').slice(0, 30)); a.href = l.url; a.target = '_blank'; a.rel = 'noopener nofollow'; lk.appendChild(a); }); row.appendChild(lk); }
+      row.appendChild(mk('div', 'w', 'Added by ' + r.by + ' · ' + fmtDate(r.created_at) + (r.checked_at ? ' · checked ' + fmtDate(r.checked_at) : '')));
+      ab.appendChild(row);
+    });
     const tb = document.getElementById('ad-members'); tb.replaceChildren();
     m.forEach(x => { const tr = mk('tr'); [x.name || 'Someone', fmtDate(x.joined), x.provider === 'google' ? 'Google' : 'Email', x.picks, x.favs, x.opt_in ? 'Yes' : 'No'].forEach(v => tr.appendChild(mk('td', null, String(v)))); tb.appendChild(tr); });
   }
@@ -787,6 +816,17 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const { error } = await sb.from('suggestions').update({ status, reviewed_at: new Date().toISOString() }).eq('id', id);
     if (!error) loadAdmin();
   }
+  async function reviewArtist(id, status) {
+    const { error } = await sb.from('artist_requests').update({ status, reviewed_at: new Date().toISOString() }).eq('id', id);
+    if (!error) loadAdmin();
+  }
+  // A member added an artist that isn't in the artist list: queue it for Bill's review.
+  window.requestArtist = name => {
+    if (!uid) return;
+    const key = String(name).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/&/g, 'and').replace(/[^a-z0-9]/g, '').slice(0, 80);
+    if (!key) return;
+    sb.rpc('request_artist', { artist_name: String(name).trim().slice(0, 80), artist_key: key }).then(() => {}, () => {});
+  };
   async function initMember() {
     try { const { data: u } = await sb.auth.getUser(); userEmail = (u && u.user && u.user.email) || ''; } catch (e) {}
     wireMember();
@@ -1545,7 +1585,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     list.slice(0, LIMIT).forEach(d => res.appendChild(favChip(d.name, { badge: d.top ? '#' + d.top : (idx.has(norm(d.name)) ? 'LINEUP' : (d.socal ? 'SOCAL' : (d.crew ? 'CREW' : ''))) })));
     if (q && !all.some(d => norm(d.name) === nq) && !mine.some(x => norm(x) === nq)) {
       const add = el('button', 'sf-chip'); add.type = 'button'; add.disabled = !state.canWrite || !state.me;
-      add.textContent = '+ Add "' + q.slice(0, 80) + '"'; add.addEventListener('click', () => { toggleFav(q); state.sfQuery = ''; $('sf-q').value = ''; renderSpotifavs(); });
+      add.textContent = '+ Add "' + q.slice(0, 80) + '"'; add.addEventListener('click', () => { toggleFav(q); if (window.requestArtist) window.requestArtist(q); state.sfQuery = ''; $('sf-q').value = ''; renderSpotifavs(); });
       res.appendChild(add);
     }
     if (!list.length && !q) res.appendChild(el('div', 'empty', 'Nothing here yet.'));
