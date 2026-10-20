@@ -447,7 +447,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
     <div class="tbl"><table><thead><tr><th>Name</th><th>Joined</th><th>Sign-in</th><th>Picks</th><th>Fav artists</th><th>Deals opt-in</th></tr></thead><tbody id="ad-members"></tbody></table></div>
   </section>
 
-  <p class="foot">Festival details from official announcements, music press, 19hz and Resident Advisor. Updated <span id="updated"></span>. <a href="privacy.html">Privacy</a></p>
+  <p class="foot">Festival details from official announcements, music press, 19hz and Resident Advisor. Updated <span id="updated"></span>. <a href="privacy.html">Privacy</a><span id="foot-settings-wrap" hidden> · <a href="#" id="foot-settings">Settings</a></span></p>
 </div>
 
 <dialog class="sheet" id="settings" aria-labelledby="set-h">
@@ -822,6 +822,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
       if (navigator.share) { try { await navigator.share({ title: 'Festival Radar', text, url: r.url }); } catch (e) {} }
       else { try { await navigator.clipboard.writeText(text + ' ' + r.url); toast('Invite copied. Paste it anywhere.'); } catch (e) { toast('Select the link above to copy it'); } }
     });
+    const fs = document.getElementById('foot-settings'); if (fs) { document.getElementById('foot-settings-wrap').hidden = false; fs.addEventListener('click', e => { e.preventDefault(); FR.openSettings(); }); }
     const am = document.getElementById('acct-m'); if (am) { am.hidden = false; am.textContent = (myName || '?').trim().charAt(0).toUpperCase() || '?'; am.addEventListener('click', () => FR.openSettings()); }
     // hamburger: Settings and Invite friends
     const panel = document.getElementById('mn-panel');
@@ -997,9 +998,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: #120
   if (user && state.me) {
     const me = await user.me();
     const bar = el('div', 'authbar');
-    const nb = el('button', 'abtn alt', 'Settings'); nb.type = 'button'; nb.addEventListener('click', () => FR.openSettings());
     const ib = el('button', 'abtn alt', 'Invite friends'); ib.type = 'button'; ib.addEventListener('click', () => FR.openInvite());
-    bar.append(nb, ib);
+    bar.append(ib);
     $('who').replaceChildren(bar);
   } else { $('who').textContent = 'View only. Sign in to make your own picks.'; state.canWrite = false; }
   if (user) { const c = await user.can('data.write'); if (c === false) { state.canWrite = false; const vmsg = 'View-only access: you can see the crew\'s picks but not add your own. Try signing out and back in.'; showNotice(vmsg); $('who').replaceChildren(el('b', 'login-cta', vmsg)); } }
