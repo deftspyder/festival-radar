@@ -269,9 +269,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 .crew-chips .cchip b { color: var(--pink); font-weight: 700; margin-left: 4px; }
 .dash.one { grid-template-columns: minmax(0, 1fr); }
 .dash h2 small { font-family: var(--body); font-size: 12px; font-weight: 600; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
-.radar-alerts { margin: 12px 0 4px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); }
+.radar-alerts { margin: 22px 0 0; padding: 8px 10px; border: 1px solid color-mix(in srgb, var(--line) 70%, transparent); border-radius: 10px; background: transparent; font-size: 13px; }
+.radar-alerts .ra-h { margin: 0 0 6px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.radar-alerts .setrow > span { font-size: 13px; }
+.radar-alerts .sw { transform: scale(.78); transform-origin: right center; flex: none; }
+.radar-alerts .abtn { font-size: 13px; padding: 6px 12px; }
 .radar-alerts .setrow { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.radar-alerts .setrow .muted, .radar-alerts .muted { color: var(--muted); font-size: 13px; }
+.radar-alerts .setrow .muted, .radar-alerts .muted { color: var(--muted); font-size: 12px; }
 .radar-alerts .set-note { margin: 8px 0 0; }
 .radar-alerts .line { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
 .radar-alerts .lnk { font: inherit; font-size: 13px; font-weight: 700; color: var(--cyan); background: none; border: none; padding: 0; cursor: pointer; }
@@ -281,7 +285,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 .flist .fl-row > .fl-tag + .fheart, .flist .fl-row > .fl-tag:last-child { margin-left: 0; }
 .flist .fl-row .fl-go + .fl-tag { margin-left: auto; }
 .flist .fl-who b { color: var(--going); font-weight: 700; } .flist .fl-who i { color: var(--maybe); font-style: normal; font-weight: 700; }
-.radar-alerts .setrow + .setrow { margin-top: 10px; padding-top: 10px; border-top: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
+.radar-alerts .setrow + .setrow { margin-top: 6px; padding-top: 6px; border-top: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
 .av { width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font: 800 12px var(--body); color: #120a24; background: var(--avc, var(--cyan)); border: 2px solid var(--panel); flex: none; }
 .avs { display: inline-flex; flex: none; } .avs .av + .av { margin-left: -8px; }
 .wego .fl-row { gap: 10px; }
@@ -701,6 +705,17 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
 #admin .q .lk a { color: var(--cyan); }
 @media (max-width: 560px) { #admin .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .btabs.five { grid-template-columns: repeat(5, 1fr); }
+.help-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--fg); font: inherit; font-weight: 800; font-size: 17px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0; flex: none; }
+.help-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.help-btn.wide { width: auto; height: 36px; border-radius: 999px; padding: 0 14px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+dialog.help .sh-body { padding-bottom: 24px; }
+dialog.help details { border-top: 1px solid var(--line); }
+dialog.help details:last-of-type { border-bottom: 1px solid var(--line); }
+dialog.help summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; padding: 12px 0; font-weight: 800; font-size: 15px; }
+dialog.help summary::-webkit-details-marker { display: none; }
+dialog.help ul { margin: 0 0 14px; padding-left: 18px; font-size: 14px; }
+dialog.help li + li { margin-top: 5px; }
+dialog.help .help-intro { margin: 10px 0 12px; }
 .acct { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--grad); color: var(--on-accent); font: inherit; font-weight: 800; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0; flex: none; }
 .acct svg { width: 22px; height: 22px; fill: none; stroke: var(--on-accent); stroke-width: 1.8; }
 .mnav .mn-right { display: flex; gap: 8px; align-items: center; }
@@ -752,7 +767,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 <div class="wrap">
   <nav class="mnav" aria-label="Sections">
     <a class="mn-title" href="#top" id="mn-home">Festival Radar</a>
-    <div class="mn-right"><button type="button" class="abtn" id="mn-signin" hidden>Sign in</button><button type="button" class="acct" id="acct-m" hidden aria-label="Settings"></button><button type="button" class="mn-btn" id="mn-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mn-panel"><span></span><span></span><span></span></button></div>
+    <div class="mn-right"><button type="button" class="abtn" id="mn-signin" hidden>Sign in</button><button type="button" class="help-btn" id="help-m" aria-label="How to use" title="How to use">?</button><button type="button" class="acct" id="acct-m" hidden aria-label="Settings"></button><button type="button" class="mn-btn" id="mn-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mn-panel"><span></span><span></span><span></span></button></div>
     <div class="mn-panel" id="mn-panel" hidden></div>
   </nav>
   <nav class="dnav" id="dnav" aria-label="Sections">
@@ -766,6 +781,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     </div>
     <div class="dn-right">
       <button type="button" class="abtn alt" id="dn-invite" hidden>Invite friends</button>
+      <button type="button" class="help-btn wide" id="help-d">How to use</button>
       <button type="button" class="acct" id="acct-d" hidden aria-label="Settings"></button>
       <button type="button" class="abtn" id="dn-signin" hidden>Sign in</button>
     </div>
@@ -821,13 +837,6 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <section class="panel" id="my-radar">
       <div class="radar-head"><h2>My Radar</h2><button type="button" class="abtn alt" id="radar-edit-profile" hidden>Edit profile</button></div>
       <p class="sub-h">Festivals you've hearted or marked Going or Maybe. Tap a name to jump to its card.</p>
-      <div class="radar-alerts">
-        <div class="setrow"><span>Presale alerts on this device<br><span class="muted">A heads-up 24 hours and 15 minutes before tickets go on sale for your festivals.</span></span><button type="button" class="sw" id="set-notify" role="switch" aria-checked="false" aria-label="Presale alerts on this device"><span class="knob"></span></button></div>
-        <div class="setrow"><span>Crew pings and chats on this device<br><span class="muted">When a crewmate marks Going on one of your festivals (at most one per festival a day), and new messages in your crew chats (bundled, at most every 10 minutes per chat).</span></span><button type="button" class="sw" id="set-crew" role="switch" aria-checked="false" aria-label="Crew pings on this device"><span class="knob"></span></button></div>
-        <p class="muted set-note" id="set-notify-note" hidden></p>
-        <div class="line" id="set-notify-allow-wrap" hidden><button type="button" class="abtn" id="set-notify-allow">Allow alerts</button></div>
-        <div class="line" id="set-notify-test-wrap" hidden><button type="button" class="lnk" id="set-notify-test">Send a test alert</button><span class="muted" id="set-notify-test-msg" aria-live="polite"></span></div>
-      </div>
       <h3 class="sub-title">Upcoming presales <small id="my-sales-n"></small></h3>
       <div class="flist" id="my-sales"></div>
       <h3 class="sub-title">My festivals <small id="my-fests-n"></small></h3>
@@ -838,6 +847,14 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
         <div class="line"><button type="button" class="abtn" id="fr-mycode">My code</button><button type="button" class="abtn alt" id="fr-share">Share link</button></div>
         <p class="muted" id="fr-share-msg" aria-live="polite" hidden></p>
         <div class="flist friends" id="fr-friends"></div>
+      </div>
+      <div class="radar-alerts">
+        <h3 class="ra-h">Alerts on this device</h3>
+        <div class="setrow"><span>Presale alerts<br><span class="muted">24 hours and 15 minutes before tickets go on sale for your festivals.</span></span><button type="button" class="sw" id="set-notify" role="switch" aria-checked="false" aria-label="Presale alerts on this device"><span class="knob"></span></button></div>
+        <div class="setrow"><span>Crew pings and chats<br><span class="muted">When a crewmate marks Going on your festivals, and new messages in your chats. Bundled.</span></span><button type="button" class="sw" id="set-crew" role="switch" aria-checked="false" aria-label="Crew pings on this device"><span class="knob"></span></button></div>
+        <p class="muted set-note" id="set-notify-note" hidden></p>
+        <div class="line" id="set-notify-allow-wrap" hidden><button type="button" class="abtn" id="set-notify-allow">Allow alerts</button></div>
+        <div class="line" id="set-notify-test-wrap" hidden><button type="button" class="lnk" id="set-notify-test">Send a test alert</button><span class="muted" id="set-notify-test-msg" aria-live="polite"></span></div>
       </div>
     </section>
     <section class="panel" id="spotifavs">
@@ -1015,6 +1032,53 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <div class="line pe-save"><button type="button" class="abtn" id="pe-save">Save</button><button type="button" class="abtn alt" id="pe-preview">Preview</button><span class="muted" id="pe-msg" aria-live="polite"></span></div>
     <h3>Blocked people</h3>
     <div id="pe-blocked"><p class="muted">Nobody blocked.</p></div>
+  </div>
+</dialog>
+<dialog class="sheet help" id="help" aria-labelledby="help-h">
+  <div class="sh-head"><h2 id="help-h">How to Use Festival Radar</h2><button type="button" class="sh-x" id="help-x" aria-label="Close">×</button></div>
+  <div class="sh-body">
+    <p class="help-intro">Festival Radar tracks electronic festivals and shows, warns you before tickets drop, and keeps your crew on the same page.</p>
+    <details open><summary>Getting Started</summary><ul>
+      <li>Sign in with Google or an email link. You'll confirm you're 18 or older once.</li>
+      <li>Join a crew from a friend's invite link, or start your own in Settings and invite people.</li>
+      <li>Add a photo and a short bio from Edit profile in My Radar, so your crew can put a face to a name.</li>
+    </ul></details>
+    <details><summary>Festivals and Picks</summary><ul>
+      <li>The Festivals tab lists events near you, around the USA and worldwide. Tap a festival name for its site and an artist for Spotify.</li>
+      <li>Mark Going, Maybe or Pass on each card. Your crew sees your picks, and you see theirs.</li>
+      <li>Tap the heart to save a festival to My Radar without deciding yet.</li>
+      <li>A glowing light on a card means tickets go on sale within a week. A dim light means the date isn't confirmed.</li>
+      <li>Calendar shows everything on a timeline. Tap a bar to open that festival.</li>
+    </ul></details>
+    <details><summary>My Radar and Alerts</summary><ul>
+      <li>My Radar collects the festivals you've hearted or marked Going or Maybe, plus upcoming presales for them.</li>
+      <li>Turn on alerts at the bottom of My Radar to get a heads-up 24 hours and 15 minutes before tickets go on sale. Tapping the alert takes you to tickets.</li>
+      <li>On iPhone, alerts need the site on your Home Screen: in Safari tap Share, then Add to Home Screen, and open it from there.</li>
+      <li>My Artists: pick your favorite artists. Festivals with your crew's favorites on the lineup get highlighted. Can't find one? Type it in and send it to Bill.</li>
+    </ul></details>
+    <details><summary>Your Crew</summary><ul>
+      <li>The Crew tab shows what your crew is going to, festivals with two or more of you Going, everyone's favorite artists, and recent activity.</li>
+      <li>Invite friends from the menu or Settings. Anyone with the link can join after signing in.</li>
+      <li>In several crews? Pick one at the top of the Crew tab, or view all of them together.</li>
+    </ul></details>
+    <details><summary>Chats</summary><ul>
+      <li>Every crew has a group chat, and every festival has a crew chat and a public chat. Tap the chat bubble on a festival card, or open Chats in the Crew tab.</li>
+      <li>Marking Going adds you to that festival's crew chat (you can turn this off in Settings).</li>
+      <li>Public chats are seen by everyone on Festival Radar. Don't share where you're staying or other private details.</li>
+      <li>Use the ⋯ next to a message to delete your own, report one, or mute someone in public chats.</li>
+    </ul></details>
+    <details><summary>Friends and Messages</summary><ul>
+      <li>Met someone at a show? Open My code in My Radar and let them scan it with their phone camera. You're friends right away.</li>
+      <li>Not together? Use Share link instead. It works for 7 days.</li>
+      <li>Friends can message you and see your name, main photo and artists you both love. Only your crew sees which festivals you're going to.</li>
+      <li>From a friend's profile you can message them or invite them to your crew.</li>
+    </ul></details>
+    <details><summary>Privacy and Safety</summary><ul>
+      <li>Make your profile private in Edit profile: people outside your crews then see only your name.</li>
+      <li>Tap anyone's name or photo to see their profile, block them, or report them.</li>
+      <li>Your birthday is never shown. You choose whether your age shows.</li>
+      <li>Read the full <a href="privacy.html">privacy policy</a>.</li>
+    </ul></details>
   </div>
 </dialog>
 <dialog class="sheet" id="fcode" aria-labelledby="fcode-h">
@@ -2538,12 +2602,27 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 
   async function resolveNames() {
     if (!user) return;
-    const ids = [...new Set([...Object.keys(state.picks), ...Object.keys(state.favs), ...Object.keys(state.hearts)])].filter(id => !(id in state.names));
+    const ids = [...new Set([...Object.keys(state.picks), ...Object.keys(state.favs), ...Object.keys(state.hearts)])].filter(id => !(id in state.names) && !(resolveNames.tried || (resolveNames.tried = new Set())).has(id));
+    ids.forEach(id => resolveNames.tried.add(id));
     if (!ids.length) return;
-    try { const ps = await user.profiles(ids); ids.forEach(id => { state.names[id] = (ps[id] && ps[id].name) || 'Someone'; }); } catch (e) {}
+    try { const ps = await user.profiles(ids); ids.forEach(id => { if (ps[id] && ps[id].name) state.names[id] = ps[id].name; }); } catch (e) {}
     renderBoard(); renderCards(); renderSpotifavs();
   }
-  const nameOf = id => id === state.me ? 'You' : (state.names[id] || 'Someone');
+  const realName = id => {
+    const n = state.names[id]; if (n && n !== 'Someone') return n;
+    for (const c of (window.FRVisibleCrews ? FRVisibleCrews() : [])) { const m = (c.members || []).find(x => x.id === id); if (m && m.name) return m.name; }
+    const p = window.FRProf && FRProf.get(id); if (p && p.name && p.name !== 'Someone') return p.name;
+    return null;
+  };
+  const nameOf = id => id === state.me ? 'You' : (realName(id) || 'Someone');
+  // How to Use guide: "?" by Settings on desktop and phone, and in the menu.
+  function openHelp() { const d = document.getElementById('help'); if (d && !d.open) d.showModal(); }
+  window.FRHelp = openHelp;
+  { const x = document.getElementById('help-x'); if (x) x.addEventListener('click', () => document.getElementById('help').close()); }
+  ['help-d', 'help-m'].forEach(id => { const b = document.getElementById(id); if (b) b.addEventListener('click', openHelp); });
+  (() => { const panel = document.getElementById('mn-panel'); if (!panel) return;
+    const b = el('button', 'mn-cta', 'How to use'); b.type = 'button'; b.id = 'mn-help';
+    b.addEventListener('click', () => { document.getElementById('mn-btn').click(); openHelp(); }); panel.appendChild(b); })();
 
   function votesFor(slug) {
     const out = { going: [], maybe: [], pass: [] };
