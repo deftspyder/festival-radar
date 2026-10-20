@@ -3232,13 +3232,17 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     Object.entries(state.hearts).forEach(([u, ids]) => { if (u === state.me) return; const tm = (state.heartTimes && state.heartTimes[u]) || {}; const ch = (state.picks[u] && state.picks[u].choices) || {};
       (ids || []).forEach(id => { const t = tm[id]; if (!t || Date.parse(t) < since || ch[id] === 'going' || ch[id] === 'maybe' || !fname(id)) return; items.push({ u, t, id, verb: 'hearted' }); });
     });
-    (window.FRVisibleCrews ? FRVisibleCrews() : []).forEach(c => (c.members || []).forEach(m => { if (m.id !== state.me && m.joined && Date.parse(m.joined) >= since) items.push({ u: m.id, t: m.joined, crew: c.name }); }));
+    (window.FRVisibleCrews ? FRVisibleCrews() : []).forEach(c => (c.members || []).forEach(m => {
+      if (!m.joined || Date.parse(m.joined) < since) return;
+      if (m.role === 'owner') items.push({ u: m.id, t: m.joined, crew: c.name, started: true }); // shown to everyone, the owner included
+      else if (m.id !== state.me) items.push({ u: m.id, t: m.joined, crew: c.name });
+    }));
     items.sort((a, b) => Date.parse(b.t) - Date.parse(a.t));
     if (!items.length) fd.appendChild(el('div', 'empty', 'Nothing yet. When your crew marks festivals, it shows up here.'));
     items.slice(0, feedAll ? 200 : 10).forEach(it => {
       const row = el('div', 'fd'); row.appendChild(avatar(it.u));
       const t = el('span', 'fd-t'); const who = el('button', 'fd-who', nameOf(it.u)); who.type = 'button'; who.addEventListener('click', () => window.FRProf && FRProf.open(it.u)); t.appendChild(who);
-      if (it.crew) t.append(' joined ' + it.crew);
+      if (it.crew) t.append((it.started ? ' started ' : ' joined ') + it.crew);
       else { t.append(' ' + it.verb + ' '); const b = el('button', null, fname(it.id)); b.type = 'button'; b.addEventListener('click', () => goToCard(it.id)); t.appendChild(b); }
       row.append(t, el('span', 'fd-when', ago(it.t))); fd.appendChild(row);
     });
