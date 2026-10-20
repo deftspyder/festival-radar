@@ -350,6 +350,53 @@ dialog.sheet .crop-frame canvas { width: 100%; height: 100%; display: block; }
 dialog.sheet .crop-zoom { display: flex; align-items: center; gap: 10px; margin: 14px auto 4px; width: min(100%, 300px); font-size: 13px; color: var(--muted); }
 dialog.sheet .crop-zoom input { flex: 1; accent-color: var(--pink); }
 dialog.sheet .crop-acts { justify-content: center; margin-top: 12px; }
+/* Chats */
+.cbtn { position: relative; width: 36px; height: 36px; margin: -6px 0; display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 50%; background: transparent; color: var(--muted); opacity: .7; cursor: pointer; padding: 0; flex: none; }
+.cbtn svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linejoin: round; }
+.cbtn:hover { opacity: 1; color: var(--cyan); }
+.cbtn .dot { position: absolute; top: 5px; right: 4px; width: 9px; height: 9px; border-radius: 50%; background: var(--pink); box-shadow: 0 0 6px var(--pink); border: 1.5px solid var(--panel); }
+.cbtn.has { color: var(--cyan); opacity: 1; }
+.flist.chats .fl-row { gap: 10px; }
+.flist.chats .ch-go { font: inherit; text-align: left; background: none; border: none; color: var(--fg); cursor: pointer; padding: 4px 0; min-width: 0; flex: 1; }
+.flist.chats .ch-go b { display: block; font-size: 15px; overflow-wrap: anywhere; }
+.flist.chats .ch-go small { display: block; color: var(--muted); font-size: 12px; }
+.flist.chats .ch-go:hover b { color: var(--pink); }
+.ch-n { flex: none; min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px; background: var(--pink); color: var(--on-accent); font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
+.flist.chats .fl-when { margin-left: 0; }
+dialog.sheet.chat { display: none; flex-direction: column; height: min(720px, calc(100dvh - 32px)); overflow: hidden; }
+dialog.sheet.chat[open] { display: flex; }
+dialog.chat .chat-hd { min-width: 0; } dialog.chat .chat-hd h2 { overflow-wrap: anywhere; } dialog.chat .chat-hd small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+dialog.chat .chat-top { padding: 10px 18px 0; flex: none; }
+dialog.chat .chat-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+dialog.chat .chat-tabs button { font: inherit; font-size: 14px; font-weight: 700; padding: 7px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
+dialog.chat .chat-tabs button[aria-selected="true"] { background: var(--panel-2); color: var(--fg); border-color: var(--cyan); }
+dialog.chat .chat-bar { display: flex; align-items: center; gap: 10px; justify-content: space-between; margin-bottom: 8px; min-height: 30px; }
+dialog.chat .chat-bar select { font: inherit; font-size: 14px; padding: 5px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); min-width: 0; max-width: 60%; }
+dialog.chat .chat-sw { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); margin-left: auto; }
+dialog.chat .sw.sm { transform: scale(.85); transform-origin: right center; }
+dialog.chat .chat-banner { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--orange); background: color-mix(in srgb, var(--orange) 12%, transparent); margin-bottom: 8px; }
+dialog.chat .chat-banner button { font: inherit; font-size: 18px; line-height: 1; background: none; border: none; color: var(--fg); cursor: pointer; padding: 0 2px; margin-left: auto; }
+dialog.chat .chat-list { flex: 1; overflow-y: auto; padding: 4px 18px 8px; border-top: 1px solid var(--line); overscroll-behavior: contain; }
+dialog.chat .chat-list .empty { margin-top: 16px; }
+dialog.chat .cm { display: flex; gap: 9px; padding: 7px 0; }
+dialog.chat .cm .av { width: 30px; height: 30px; margin-top: 2px; }
+dialog.chat .cm-b { min-width: 0; flex: 1; }
+dialog.chat .cm-h { display: flex; align-items: baseline; gap: 8px; font-size: 13px; }
+dialog.chat .cm-n { font: inherit; font-weight: 800; color: var(--fg); background: none; border: none; padding: 0; cursor: pointer; }
+dialog.chat .cm-t { color: var(--muted); font-size: 11px; }
+dialog.chat .cm-more { margin-left: auto; font: inherit; font-size: 16px; line-height: 1; background: none; border: none; color: var(--muted); cursor: pointer; padding: 0 4px; }
+dialog.chat .cm-x { font-size: 15px; white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 1px; }
+dialog.chat .cm.mine .cm-n { color: var(--cyan); }
+dialog.chat .cm-acts { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; margin-top: 4px; font-size: 13px; }
+dialog.chat .cm-acts select { font: inherit; font-size: 13px; padding: 4px 6px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); max-width: 100%; }
+dialog.chat .cm-day { text-align: center; font-size: 11px; color: var(--muted); margin: 10px 0 2px; letter-spacing: .04em; text-transform: uppercase; }
+dialog.chat .chat-foot { flex: none; padding: 8px 18px 14px; border-top: 1px solid var(--line); }
+dialog.chat .chat-form { display: flex; gap: 8px; align-items: flex-end; }
+dialog.chat .chat-form textarea { flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); resize: none; max-height: 120px; line-height: 1.35; }
+dialog.chat .chat-note { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
+dialog.chat .chat-bcool { font-size: 13px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--cyan); margin-bottom: 8px; }
+dialog.chat .chat-bcool p { margin: 0 0 6px; }
+@media (max-width: 700px) { dialog.sheet.chat { width: calc(100vw - 12px); height: calc(100dvh - 20px); max-height: none; } }
 #ad-reports .q .pv { width: 64px; height: 84px; object-fit: cover; border-radius: 8px; grid-column: 1 / -1; }
 /* Presale light: pulses when a confirmed sale is within 7 days; steady and dim for an expected one. */
 .salelight { position: relative; width: 22px; height: 22px; padding: 0; border: none; background: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex: none; }
@@ -759,7 +806,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <p class="sub-h">Festivals you've hearted or marked Going or Maybe. Tap a name to jump to its card.</p>
       <div class="radar-alerts">
         <div class="setrow"><span>Presale alerts on this device<br><span class="muted">A heads-up 24 hours and 15 minutes before tickets go on sale for your festivals.</span></span><button type="button" class="sw" id="set-notify" role="switch" aria-checked="false" aria-label="Presale alerts on this device"><span class="knob"></span></button></div>
-        <div class="setrow"><span>Crew pings on this device<br><span class="muted">When a crewmate marks Going on one of your festivals. At most one per festival a day.</span></span><button type="button" class="sw" id="set-crew" role="switch" aria-checked="false" aria-label="Crew pings on this device"><span class="knob"></span></button></div>
+        <div class="setrow"><span>Crew pings and chats on this device<br><span class="muted">When a crewmate marks Going on one of your festivals (at most one per festival a day), and new messages in your crew chats (bundled, at most every 10 minutes per chat).</span></span><button type="button" class="sw" id="set-crew" role="switch" aria-checked="false" aria-label="Crew pings on this device"><span class="knob"></span></button></div>
         <p class="muted set-note" id="set-notify-note" hidden></p>
         <div class="line" id="set-notify-allow-wrap" hidden><button type="button" class="abtn" id="set-notify-allow">Allow alerts</button></div>
         <div class="line" id="set-notify-test-wrap" hidden><button type="button" class="lnk" id="set-notify-test">Send a test alert</button><span class="muted" id="set-notify-test-msg" aria-live="polite"></span></div>
@@ -818,7 +865,10 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <div class="crew-chips" id="sf-crew"><div class="empty">No fav artists yet.</div></div>
     </section>
     <section class="panel" id="crew-activity">
-      <h2>Activity</h2>
+      <h2>Chats</h2>
+      <p class="sub-h" id="chats-sub">Your crew chats and the festival chats you follow.</p>
+      <div class="flist chats" id="crew-chats"><div class="empty">Sign in to chat with your crew.</div></div>
+      <h3 class="sub-title">Activity</h3>
       <p class="sub-h">What your crew has been up to in the last 30 days.</p>
       <div class="feed" id="crew-feed"></div>
     </section>
@@ -869,6 +919,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <p class="muted">Saved on this device.</p>
     </details>
     <h3>Notifications</h3>
+    <div class="setrow"><span>Add me to event crew chats when I select Going<br><span class="muted">Follows that festival's chat in each of your crews, so it shows in your Chats and can notify you.</span></span><button type="button" class="sw" id="set-chat-going" role="switch" aria-checked="true" aria-label="Add me to event crew chats when I select Going"><span class="knob"></span></button></div>
     <div class="setrow"><span>Presale alerts are in My Radar<br><span class="muted">Turn them on or off for this device there.</span></span><button type="button" class="abtn alt" id="set-open-radar">Open My Radar</button></div>
     <h3>Account</h3>
     <div class="line"><button type="button" class="abtn alt" id="set-invite">Invite friends</button><button type="button" class="abtn alt" id="set-signout">Sign out</button></div>
@@ -940,6 +991,21 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <div class="line pe-save"><button type="button" class="abtn" id="pe-save">Save</button><button type="button" class="abtn alt" id="pe-preview">Preview</button><span class="muted" id="pe-msg" aria-live="polite"></span></div>
     <h3>Blocked people</h3>
     <div id="pe-blocked"><p class="muted">Nobody blocked.</p></div>
+  </div>
+</dialog>
+<dialog class="sheet chat" id="chat" aria-labelledby="chat-title">
+  <div class="sh-head"><div class="chat-hd"><h2 id="chat-title">Chat</h2><small id="chat-where"></small></div><button type="button" class="sh-x" id="chat-x" aria-label="Close">×</button></div>
+  <div class="chat-top">
+    <div class="chat-tabs" id="chat-tabs" role="tablist"><button type="button" role="tab" data-k="crew" aria-selected="true">Crew</button><button type="button" role="tab" data-k="public" aria-selected="false">Everyone</button></div>
+    <div class="chat-bar"><select id="chat-crew" aria-label="Which crew" hidden></select><span class="chat-sw"><span id="chat-follow-l">Following</span><button type="button" class="sw sm" id="chat-follow" role="switch" aria-checked="false" aria-labelledby="chat-follow-l"><span class="knob"></span></button></span></div>
+    <div class="chat-banner" id="chat-banner" hidden><span>Public: everyone on Festival Radar can see this. Don't share sensitive info like where you're staying.</span><button type="button" id="chat-banner-x" aria-label="Dismiss">×</button></div>
+  </div>
+  <div class="chat-list" id="chat-list" aria-live="polite"></div>
+  <div class="chat-foot">
+    <p class="chat-note" id="chat-closed" hidden></p>
+    <div class="chat-bcool" id="chat-bcool" hidden><p><b>Be cool.</b> Public chats are for everyone going. Be kind, no spam or selling, and keep personal details to yourself. Bill can remove posts and people who break this.</p><div class="line"><button type="button" class="abtn" id="chat-bcool-ok">Post it</button><button type="button" class="lnk" id="chat-bcool-no">Cancel</button></div></div>
+    <form class="chat-form" id="chat-form"><textarea id="chat-input" rows="1" maxlength="1000" placeholder="Message" aria-label="Message"></textarea><button type="submit" class="abtn" id="chat-send">Send</button></form>
+    <p class="chat-note" id="chat-msg" aria-live="polite" hidden></p>
   </div>
 </dialog>
 <dialog class="sheet" id="pcrop" aria-labelledby="pcrop-h">
@@ -1600,22 +1666,279 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
         const { error } = await sb.rpc('admin_resolve_report', { p_id: r.id, p_action: action }); if (!error) loadReports();
       }); acts.appendChild(b); };
       if (r.status === 'new') {
-        if (r.kind === 'photo' && r.target_ref) act('Remove photo', 'remove_photo', 'ok');
+        if (r.kind === 'message') { if (r.message && !r.message.deleted) act('Delete message', 'delete_message', 'ok'); if (r.message && r.message.kind === 'public' && !r.banned) act('Remove from public chats', 'ban_public', 'ok'); }
+        else if (r.kind === 'photo' && r.target_ref) act('Remove photo', 'remove_photo', 'ok');
         else { if ((r.photos || []).length) act('Remove photos', 'remove_all_photos', 'ok'); if (r.bio) act('Clear bio', 'clear_bio', 'ok'); }
         act('Dismiss', 'dismiss');
       }
       row.append(n, acts);
       if (r.kind === 'photo' && r.target_ref && photoUrl(r.target_ref)) { const im = mk('img', 'pv'); im.src = photoUrl(r.target_ref); im.alt = 'Reported photo'; row.appendChild(im); }
-      if (r.kind !== 'photo' && r.bio) row.appendChild(mk('div', 'w', 'Bio: ' + r.bio));
+      if (r.kind === 'message') row.appendChild(mk('div', 'w', (r.message ? (r.message.kind === 'public' ? 'Public chat' : 'Crew chat') + ' message' + (r.message.deleted ? ' (deleted)' : '') + ': ' + r.message.body : 'Message no longer exists') + (r.banned ? ' · removed from public chats' : '')));
+      else if (r.kind !== 'photo' && r.bio) row.appendChild(mk('div', 'w', 'Bio: ' + r.bio));
       row.appendChild(mk('div', 'w', (r.reason || 'No reason given') + ' · reported by ' + r.by + ' · ' + fmtDate(r.created_at)));
       box.appendChild(row);
     });
   }
 
+
+  // ---------- Chats ----------
+  // Threads: 'c:<crew>' crew chat, 'cf:<crew>:<festival>' a festival thread in a crew, 'p:<festival>' public.
+  let chatList = [], chatMutes = new Set(), chatPrefs = { follow_going: true, banned: false };
+  let cur = null; // { kind, crew, fest, thread }
+  let curMsgs = [], chatSub = null, chatPoll = null, pendingSend = null;
+  const AVC = ['#ff3d9a', '#29d3f5', '#a86bff', '#ff9a4a', '#4ade80', '#facc15'];
+  const threadOf = (kind, crew, fest) => kind === 'crew' ? 'c:' + crew : kind === 'crewfest' ? 'cf:' + crew + ':' + fest : 'p:' + fest;
+  const festOf = id => (window.FRMainData && FRMainData.fest(id)) || null;
+  const festName = id => { const f = festOf(id); return f ? f.festival : id; };
+  const crewName = id => { const c = crews.find(x => x.id === id); return c ? c.name : 'Your crew'; };
+  const rowFor = t => chatList.find(r => r.thread === t) || null;
+  async function loadChats() {
+    if (!uid) return;
+    const { data } = await sb.rpc('my_chats');
+    chatList = Array.isArray(data) ? data : [];
+    window.dispatchEvent(new Event('fr-chats')); renderChatList();
+  }
+  window.FRChat = {
+    unreadFor: fid => chatList.filter(r => r.festival_id === fid && r.kind !== 'crew').reduce((t, r) => t + (r.unread || 0), 0),
+    openFest: fid => openChat({ kind: 'crewfest', fest: fid }),
+    openThread: t => openThreadKey(t),
+    refresh: () => loadChats().catch(() => {})
+  };
+  function renderChatList() {
+    const box = document.getElementById('crew-chats'); if (!box) return;
+    box.replaceChildren();
+    const vis = new Set((window.FRVisibleCrews ? FRVisibleCrews() : crews).map(c => c.id));
+    const rows = chatList.filter(r => r.kind === 'public' || vis.has(r.crew_id))
+      .sort((a, b) => (a.kind === 'crew' ? 0 : 1) - (b.kind === 'crew' ? 0 : 1) || (b.last_at || '').localeCompare(a.last_at || ''));
+    if (!rows.length) { box.appendChild(mk('div', 'empty', crews.length ? 'No chats yet.' : 'Join or start a crew to chat.')); return; }
+    rows.forEach(r => {
+      const row = mk('div', 'fl-row'); const b = mk('button', 'ch-go'); b.type = 'button';
+      b.appendChild(mk('b', null, r.kind === 'crew' ? r.crew_name + ' chat' : festName(r.festival_id)));
+      b.appendChild(mk('small', null, r.kind === 'crew' ? 'Everyone in the crew' : r.kind === 'crewfest' ? r.crew_name : 'Everyone (public)'));
+      b.addEventListener('click', () => openThreadKey(r.thread));
+      row.appendChild(b);
+      if (r.last_at) row.appendChild(mk('span', 'fl-when', ago2(r.last_at)));
+      if (r.unread) row.appendChild(mk('span', 'ch-n', r.unread > 99 ? '99+' : String(r.unread)));
+      box.appendChild(row);
+    });
+    document.getElementById('chats-sub').textContent = chatPrefs.follow_going ? 'Your crew chats, plus festival chats you follow. Marking Going follows that festival\'s chat in your crews.' : 'Your crew chats and the festival chats you follow.';
+  }
+  const ago2 = t => { const s = (Date.now() - Date.parse(t)) / 1000; return s < 60 ? 'now' : s < 3600 ? Math.floor(s / 60) + 'm' : s < 86400 ? Math.floor(s / 3600) + 'h' : Math.floor(s / 86400) + 'd'; };
+  function openThreadKey(t) {
+    if (!t) return;
+    if (t.startsWith('c:')) openChat({ kind: 'crew', crew: t.slice(2) });
+    else if (t.startsWith('cf:')) { const [, c, f] = t.split(':'); openChat({ kind: 'crewfest', crew: c, fest: f }); }
+    else if (t.startsWith('p:')) openChat({ kind: 'public', fest: t.slice(2) });
+  }
+  const defaultCrew = () => { const v = window.FRVisibleCrews ? FRVisibleCrews() : []; return (v[0] || crews[0] || {}).id || null; };
+  function lockedNote(fest) {
+    const f = festOf(fest); if (!f || !f.end) return null;
+    const close = Date.parse(f.end + 'T23:59:59') + 30 * 864e5;
+    return Date.now() > close ? 'This public chat closed 30 days after the festival ended.' : null;
+  }
+  function chatMsg(t) { const m = document.getElementById('chat-msg'); m.hidden = !t; m.textContent = t || ''; }
+  async function openChat(o) {
+    if (!uid) { FR.openSignIn(); return; }
+    o = { ...o };
+    if (o.kind !== 'public' && !o.crew) o.crew = defaultCrew();
+    if (o.kind !== 'public' && !o.crew) { if (o.fest) o.kind = 'public'; else return; } // no crew: only the public chat
+    o.thread = threadOf(o.kind, o.crew, o.fest);
+    cur = o; curMsgs = [];
+    const d = document.getElementById('chat');
+    document.getElementById('chat-title').textContent = o.kind === 'crew' ? crewName(o.crew) + ' Chat' : festName(o.fest);
+    document.getElementById('chat-where').textContent = o.kind === 'crew' ? 'Everyone in the crew' : o.kind === 'crewfest' ? 'Crew chat for this festival' : 'Public chat for this festival';
+    const tabs = document.getElementById('chat-tabs'); tabs.hidden = o.kind === 'crew';
+    tabs.querySelectorAll('button').forEach(b => { const on = (b.dataset.k === 'public') === (o.kind === 'public'); b.setAttribute('aria-selected', String(on)); b.disabled = b.dataset.k === 'crew' && !crews.length; });
+    const sel = document.getElementById('chat-crew'); sel.replaceChildren();
+    crews.forEach(c => { const op = mk('option', null, c.name); op.value = c.id; sel.appendChild(op); });
+    sel.value = o.crew || ''; sel.hidden = o.kind === 'public' || crews.length < 2;
+    const r = rowFor(o.thread);
+    const fl = document.getElementById('chat-follow'), fll = document.getElementById('chat-follow-l');
+    if (o.kind === 'crew') { fll.textContent = 'Notifications'; fl.setAttribute('aria-checked', String(r ? r.notify : true)); }
+    else { fll.textContent = 'Following'; fl.setAttribute('aria-checked', String(!!(r && r.following))); }
+    document.getElementById('chat-banner').hidden = !(o.kind === 'public' && !(r && r.banner_ok) && !bannerSeen(o.thread));
+    const lock = o.kind === 'public' ? lockedNote(o.fest) : null;
+    const banned = o.kind === 'public' && chatPrefs.banned;
+    const closed = document.getElementById('chat-closed'); closed.hidden = !(lock || banned); closed.textContent = banned ? 'You\'ve been removed from public chats.' : lock || '';
+    document.getElementById('chat-form').hidden = !!(lock || banned);
+    document.getElementById('chat-bcool').hidden = true; pendingSend = null; chatMsg('');
+    const inp = document.getElementById('chat-input');
+    inp.placeholder = o.kind === 'crew' ? 'Message ' + crewName(o.crew) : o.kind === 'crewfest' ? 'Message your crew' : 'Message everyone (public)';
+    document.getElementById('chat-list').replaceChildren(mk('div', 'empty', 'Loading…'));
+    if (!d.open) d.showModal();
+    subscribe(o.thread);
+    await loadMessages(true);
+  }
+  function bannerSeen(t) { try { return localStorage.getItem('fr-banner-' + uid + '-' + t) === '1'; } catch (e) { return false; } }
+  async function loadMessages(scroll) {
+    if (!cur) return;
+    const t = cur.thread;
+    const { data, error } = await sb.from('chat_messages').select('id,user_id,body,created_at,kind').eq('thread', t).order('id', { ascending: false }).limit(150);
+    if (!cur || cur.thread !== t) return;
+    if (error) { document.getElementById('chat-list').replaceChildren(mk('div', 'empty', 'Chat didn\'t load. Try again in a moment.')); return; }
+    curMsgs = (data || []).slice().reverse();
+    await window.FRProf.load([...new Set(curMsgs.map(m => m.user_id))]);
+    renderMessages(scroll);
+    markRead();
+  }
+  function avatarEl(u) {
+    const p = FRProf.get(u); const n = (p && p.name) || 'Someone';
+    const a = mk('button', 'av', n.trim().charAt(0).toUpperCase() || '?'); a.type = 'button';
+    let hsh = 0; for (const ch of String(u)) hsh = (hsh * 31 + ch.charCodeAt(0)) >>> 0;
+    a.style.setProperty('--avc', AVC[hsh % AVC.length]); a.setAttribute('aria-label', 'Profile: ' + n);
+    const ph = FRProf.photo(u); if (ph) { a.classList.add('ph'); a.style.backgroundImage = 'url("' + ph + '")'; }
+    a.addEventListener('click', () => openCard(u));
+    return a;
+  }
+  const hhmm = t => new Date(t).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const dayKey = t => { const d = new Date(t); return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate(); };
+  const dayLabel = t => { const d = new Date(t), now = new Date(); const y = new Date(now); y.setDate(now.getDate() - 1);
+    return dayKey(t) === dayKey(now) ? 'Today' : dayKey(t) === dayKey(y) ? 'Yesterday' : MON[d.getMonth()] + ' ' + d.getDate(); };
+  function renderMessages(scroll) {
+    const box = document.getElementById('chat-list');
+    const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+    box.replaceChildren();
+    const msgs = curMsgs.filter(m => !(cur.kind === 'public' && chatMutes.has(m.user_id)));
+    if (!msgs.length) { box.appendChild(mk('div', 'empty', cur.kind === 'public' ? 'No messages yet. Say hi to everyone going.' : 'No messages yet. Start the plan.')); return; }
+    let lastDay = null;
+    msgs.forEach(m => {
+      const dk = dayKey(m.created_at); if (dk !== lastDay) { box.appendChild(mk('div', 'cm-day', dayLabel(m.created_at))); lastDay = dk; }
+      const mine = m.user_id === uid, p = FRProf.get(m.user_id);
+      const row = mk('div', 'cm' + (mine ? ' mine' : '')); row.dataset.id = m.id;
+      const body = mk('div', 'cm-b'), hd = mk('div', 'cm-h');
+      const nm = mk('button', 'cm-n', mine ? 'You' : ((p && p.name) || 'Someone')); nm.type = 'button'; nm.addEventListener('click', () => openCard(m.user_id));
+      const more = mk('button', 'cm-more', '⋯'); more.type = 'button'; more.setAttribute('aria-label', 'Message options');
+      hd.append(nm, mk('span', 'cm-t', hhmm(m.created_at)), more);
+      const acts = mk('div', 'cm-acts'); acts.hidden = true;
+      more.addEventListener('click', () => { acts.hidden = !acts.hidden; if (!acts.hidden) fillActs(acts, m); });
+      body.append(hd, mk('div', 'cm-x', m.body), acts);
+      row.append(avatarEl(m.user_id), body); box.appendChild(row);
+    });
+    if (scroll || nearBottom) box.scrollTop = box.scrollHeight;
+  }
+  function fillActs(acts, m) {
+    acts.replaceChildren();
+    const link = (t, fn, cls) => { const b = mk('button', 'lnk' + (cls ? ' ' + cls : ''), t); b.type = 'button'; b.addEventListener('click', fn); acts.appendChild(b); return b; };
+    if (m.user_id === uid) { link('Delete', async () => { if (!confirm('Delete this message?')) return; const { error } = await sb.rpc('delete_message', { p_id: m.id }); if (!error) { curMsgs = curMsgs.filter(x => x.id !== m.id); renderMessages(); } }, 'danger'); return; }
+    link('Report', () => {
+      acts.replaceChildren();
+      const sel = mk('select'); ['Harassment or spam', 'Inappropriate', 'Sharing someone\'s private info', 'Seems under 18', 'Something else'].forEach(x => { const o = mk('option', null, x); o.value = x; sel.appendChild(o); });
+      const send = mk('button', 'lnk danger', 'Send report'); send.type = 'button'; const cancel = mk('button', 'lnk', 'Cancel'); cancel.type = 'button';
+      cancel.addEventListener('click', () => { acts.hidden = true; });
+      send.addEventListener('click', async () => {
+        const { error } = await sb.from('reports').insert({ reporter: uid, target_user: m.user_id, kind: 'message', target_ref: String(m.id), reason: sel.value });
+        acts.replaceChildren(mk('span', 'muted', error ? (/limit/i.test(error.message || '') ? 'That\'s the limit for today.' : 'That didn\'t send.') : 'Thanks. Bill will take a look.'));
+      });
+      acts.append(sel, send, cancel);
+    }, 'danger');
+    if (cur.kind === 'public') link(chatMutes.has(m.user_id) ? 'Unmute' : 'Mute in public chats', async () => {
+      if (chatMutes.has(m.user_id)) { await sb.from('chat_mutes').delete().eq('muter', uid).eq('muted', m.user_id); chatMutes.delete(m.user_id); }
+      else { await sb.from('chat_mutes').insert({ muter: uid, muted: m.user_id }); chatMutes.add(m.user_id); }
+      renderMessages(); loadChats().catch(() => {});
+    });
+    link('Profile', () => openCard(m.user_id));
+  }
+  async function markRead() {
+    if (!cur || !curMsgs.length || document.visibilityState !== 'visible') return;
+    const top = curMsgs[curMsgs.length - 1].id, r = rowFor(cur.thread);
+    if (r && r.last_read_id >= top) return;
+    await sb.from('chat_reads').upsert({ user_id: uid, thread: cur.thread, last_read_id: top, updated_at: new Date().toISOString() }, { onConflict: 'user_id,thread' });
+    if (r) { r.last_read_id = top; r.unread = 0; }
+    loadChats().catch(() => {});
+  }
+  function subscribe(t) {
+    unsubscribe();
+    try {
+      chatSub = sb.channel('chat-' + t).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: 'thread=eq.' + t }, async payload => {
+        const m = payload && payload.new; if (!m || !cur || m.thread !== cur.thread || curMsgs.some(x => x.id === m.id)) return;
+        if (m.deleted_at) return;
+        curMsgs.push({ id: m.id, user_id: m.user_id, body: m.body, created_at: m.created_at, kind: m.kind });
+        await FRProf.load([m.user_id]); renderMessages(); markRead();
+      }).subscribe();
+    } catch (e) {}
+    chatPoll = setInterval(() => { if (document.visibilityState === 'visible') loadMessages(false).catch(() => {}); }, 12000);
+  }
+  function unsubscribe() { if (chatSub) { try { sb.removeChannel(chatSub); } catch (e) {} chatSub = null; } if (chatPoll) { clearInterval(chatPoll); chatPoll = null; } }
+  async function sendNow(text) {
+    const btn = document.getElementById('chat-send'); btn.disabled = true; chatMsg('');
+    const { data, error } = await sb.rpc('post_message', { p_kind: cur.kind, p_crew: cur.kind === 'public' ? null : cur.crew, p_festival: cur.kind === 'crew' ? null : cur.fest, p_body: text });
+    btn.disabled = false;
+    if (error) {
+      const e = error.message || '';
+      chatMsg(/slow down/.test(e) ? 'Slow down a little, then try again.' : /daily limit/.test(e) ? 'That\'s the message limit for today.' : /closed/.test(e) ? 'This chat is closed.' : /removed/.test(e) ? 'You\'ve been removed from public chats.' : /welcome/.test(e) ? 'Finish the welcome check first.' : 'That didn\'t send. Try again.');
+      return false;
+    }
+    document.getElementById('chat-input').value = ''; autosize();
+    const r = rowFor(cur.thread); if (r) r.following = true;
+    if (cur.kind !== 'crew') document.getElementById('chat-follow').setAttribute('aria-checked', 'true');
+    if (data && !curMsgs.some(x => x.id === data.id)) curMsgs.push({ id: data.id, user_id: uid, body: text, created_at: data.created_at, kind: cur.kind });
+    renderMessages(true); loadChats().catch(() => {});
+    return true;
+  }
+  const autosize = () => { const t = document.getElementById('chat-input'); t.style.height = 'auto'; t.style.height = Math.min(120, t.scrollHeight) + 'px'; };
+  const bcoolSeen = () => { try { return localStorage.getItem('fr-bcool-' + uid) === '1'; } catch (e) { return false; } };
+  function wireChat() {
+    const d = document.getElementById('chat');
+    const close = () => { unsubscribe(); cur = null; d.close(); loadChats().catch(() => {}); };
+    document.getElementById('chat-x').addEventListener('click', close);
+    d.addEventListener('cancel', e => { e.preventDefault(); close(); });
+    document.getElementById('chat-tabs').addEventListener('click', e => {
+      const b = e.target.closest('button[data-k]'); if (!b || !cur || !cur.fest || b.disabled) return;
+      openChat(b.dataset.k === 'public' ? { kind: 'public', fest: cur.fest } : { kind: 'crewfest', fest: cur.fest, crew: cur.crew || defaultCrew() });
+    });
+    document.getElementById('chat-crew').addEventListener('change', e => { if (cur) openChat({ ...cur, crew: e.target.value }); });
+    document.getElementById('chat-follow').addEventListener('click', async () => {
+      if (!cur) return; const sw = document.getElementById('chat-follow'); const on = sw.getAttribute('aria-checked') !== 'true';
+      sw.setAttribute('aria-checked', String(on));
+      const row = { user_id: uid, thread: cur.thread, updated_at: new Date().toISOString() }; if (cur.kind === 'crew') row.notify = on; else row.following = on;
+      const { error } = await sb.from('chat_reads').upsert(row, { onConflict: 'user_id,thread' });
+      if (error) sw.setAttribute('aria-checked', String(!on)); else loadChats().catch(() => {});
+    });
+    document.getElementById('chat-banner-x').addEventListener('click', async () => {
+      if (!cur) return; document.getElementById('chat-banner').hidden = true;
+      try { localStorage.setItem('fr-banner-' + uid + '-' + cur.thread, '1'); } catch (e) {}
+      await sb.from('chat_reads').upsert({ user_id: uid, thread: cur.thread, banner_ok: true, updated_at: new Date().toISOString() }, { onConflict: 'user_id,thread' });
+      const r = rowFor(cur.thread); if (r) r.banner_ok = true;
+    });
+    const inp = document.getElementById('chat-input');
+    inp.addEventListener('input', autosize);
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && window.matchMedia('(hover: hover)').matches) { e.preventDefault(); document.getElementById('chat-form').requestSubmit(); } });
+    document.getElementById('chat-form').addEventListener('submit', async e => {
+      e.preventDefault(); if (!cur) return;
+      const text = inp.value.trim(); if (!text) return;
+      if (cur.kind === 'public' && !bcoolSeen()) { pendingSend = text; document.getElementById('chat-bcool').hidden = false; return; }
+      sendNow(text);
+    });
+    document.getElementById('chat-bcool-ok').addEventListener('click', async () => {
+      try { localStorage.setItem('fr-bcool-' + uid, '1'); } catch (e) {}
+      document.getElementById('chat-bcool').hidden = true; if (pendingSend) { const t = pendingSend; pendingSend = null; sendNow(t); }
+    });
+    document.getElementById('chat-bcool-no').addEventListener('click', () => { document.getElementById('chat-bcool').hidden = true; pendingSend = null; });
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { if (cur) loadMessages(false).catch(() => {}); loadChats().catch(() => {}); } });
+    // Settings: follow festival crew chats when marking Going
+    const sg = document.getElementById('set-chat-going');
+    sg.addEventListener('click', async () => {
+      const on = sg.getAttribute('aria-checked') !== 'true'; sg.setAttribute('aria-checked', String(on));
+      const { error } = await sb.rpc('set_chat_follow_going', { p_on: on });
+      if (error) sg.setAttribute('aria-checked', String(!on)); else { chatPrefs.follow_going = on; renderChatList(); }
+    });
+    setInterval(() => { if (uid && document.visibilityState === 'visible' && !cur) loadChats().catch(() => {}); }, 45000);
+  }
+  async function initChat() {
+    const [{ data: pr }, { data: mu }] = await Promise.all([sb.rpc('my_chat_prefs'), sb.from('chat_mutes').select('muted')]);
+    if (pr) chatPrefs = { follow_going: pr.follow_going !== false, banned: !!pr.banned };
+    document.getElementById('set-chat-going').setAttribute('aria-checked', String(chatPrefs.follow_going));
+    chatMutes = new Set((mu || []).map(r => r.muted));
+    await loadChats();
+    // A tapped chat notification opens ?chat=<thread>
+    let t = null; try { t = new URLSearchParams(location.search).get('chat'); } catch (e) {}
+    if (t) { try { const u = new URL(location.href); u.searchParams.delete('chat'); history.replaceState(null, '', u.pathname + u.search + u.hash); } catch (e) {} setTimeout(() => openThreadKey(t), 600); }
+  }
+
   async function initMember() {
     try { const { data: u } = await sb.auth.getUser(); userEmail = (u && u.user && u.user.email) || ''; } catch (e) {}
     wireMember();
-    wireNotify(); wireGate(); wireEditor(); wireCard();
+    wireNotify(); wireGate(); wireEditor(); wireCard(); wireChat();
     checkGate().catch(() => {});
     await redeemPending().catch(() => {});
     await loadCrews().catch(() => {});
@@ -1655,6 +1978,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   if (urlInvite) lsSet('fr-invite', urlInvite);
   function inviteQS() { const c = lsGet('fr-invite'); return c ? '?invite=' + encodeURIComponent(c) : ''; }
   window.inviteQS = inviteQS;
+  let chatInitDone = false;
   let crews = [], activeCrew = lsGet('fr-crew'), allCrews = lsGet('fr-all-crews') === '1', userEmail = '';
   const toast = t => { const e = document.getElementById('toast'); if (!e) return; e.textContent = t; e.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => { e.hidden = true; }, 4200); };
   window.FRVisibleCrews = () => uid ? (allCrews ? crews : crews.filter(c => c.id === activeCrew)) : [];
@@ -1695,6 +2019,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     if (!crews.find(c => c.id === activeCrew)) { activeCrew = crews.length ? crews[0].id : null; lsSet('fr-crew', activeCrew); }
     recomputeVisible(); emitAll(); renderCrewPick(); renderSettingsCrews();
     loadProfiles([uid, ...crews.flatMap(c => (c.members || []).map(m => m.id))]).catch(() => {});
+    if (!chatInitDone) { chatInitDone = true; initChat().catch(() => {}); } else { renderChatList(); loadChats().catch(() => {}); }
     // Names of everyone in my crews, for the board
     const ids = [...new Set(crews.flatMap(c => (c.members || []).map(m => m.id)))];
     return ids;
@@ -2171,6 +2496,21 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     lg.appendChild(el('span', null, 'Faded: dates not confirmed · Dashed line: today · Tap a bar for details'));
   }
 
+  // Chat button on each card; a dot when a chat you follow for this festival has new messages.
+  function chatBtn(f) {
+    const n = window.FRChat ? FRChat.unreadFor(f.id) : 0;
+    const b = el('button', 'cbtn' + (n ? ' has' : '')); b.type = 'button'; b.dataset.fid = f.id;
+    b.setAttribute('aria-label', 'Chat about ' + f.festival + (n ? ' (' + n + ' new)' : ''));
+    b.title = n ? n + ' new' : 'Chat';
+    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v10H10l-4.5 3.5V15.5H4z"/></svg>';
+    if (n) b.appendChild(el('span', 'dot'));
+    b.addEventListener('click', () => { if (!state.me) { if (window.FR && FR.openSignIn) FR.openSignIn(); return; } if (window.FRChat) FRChat.openFest(f.id); });
+    return b;
+  }
+  window.addEventListener('fr-chats', () => document.querySelectorAll('.cbtn[data-fid]').forEach(b => {
+    const n = FRChat.unreadFor(b.dataset.fid); b.classList.toggle('has', !!n); b.title = n ? n + ' new' : 'Chat';
+    const dot = b.querySelector('.dot'); if (n && !dot) b.appendChild(el('span', 'dot')); else if (!n && dot) dot.remove();
+  }));
   function makeCard(f) {
     const mine = (state.picks[state.me] && state.picks[state.me].choices) || {};
     const v = votesFor(f.id);
@@ -2178,7 +2518,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const top = el('div', 'card-top');
     const h = el('h3'); const href = safeLink(f.link);
     if (href) { const a = el('a', null, f.festival); a.href = href; a.target = '_blank'; a.rel = 'noopener'; h.appendChild(a); } else h.textContent = f.festival;
-    const acts = el('span', 'card-acts'); const sl = saleLight(f); if (sl) acts.appendChild(sl); acts.append(el('span', 'pill ' + statusClass(f.status), f.status), heartBtn(f));
+    const acts = el('span', 'card-acts'); const sl = saleLight(f); if (sl) acts.appendChild(sl); acts.append(el('span', 'pill ' + statusClass(f.status), f.status), chatBtn(f), heartBtn(f));
     top.append(h, acts);
     const meta = el('div', 'meta', f.dates + ' · ' + f.city + (dist(f) ? ' · ' + dist(f) + ' from Hermosa' : ''));
     const gw = el('div'); gw.appendChild(el('span', 'genre', f.genre)); if (f.kind === 'show') { gw.append(' '); gw.appendChild(el('span', 'show-tag', 'Show')); }
@@ -2584,7 +2924,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       const going = Object.keys(ch).filter(id => ch[id] === 'going').map(id => state._all.find(f => f.id === id)).filter(Boolean).sort((a, b) => (a.start || '9').localeCompare(b.start || '9'));
       return { going, top: (state.favs[u] || []).slice(0, 10) };
     },
-    goToCard: id => goToCard(id)
+    goToCard: id => goToCard(id),
+    fest: id => state._all.find(f => f.id === id) || null
   };
   window.addEventListener('fr-profiles', () => { renderCrewDash(); renderCards(); });
   const ago = t => { const m = Math.max(0, (Date.now() - Date.parse(t)) / 60000); return m < 1 ? 'now' : m < 60 ? Math.round(m) + 'm' : m < 1440 ? Math.round(m / 60) + 'h' : Math.round(m / 1440) + 'd'; };
