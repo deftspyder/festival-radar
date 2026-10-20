@@ -298,6 +298,44 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 .feed .fd-when { font-size: 12px; color: var(--muted); flex: none; }
 .feed .fd-more { margin-top: 8px; align-self: flex-start; }
 .feed .empty { font-size: 13px; color: var(--muted); padding: 6px 0; }
+/* Profiles */
+.radar-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.radar-head h2 { margin: 0; }
+.av { padding: 0; cursor: pointer; background-size: cover; background-position: center; }
+button.av:focus-visible { outline: 2px solid var(--cyan); outline-offset: 1px; }
+.av.ph { color: transparent; }
+.feed .fd-t .fd-who { font: inherit; font-weight: 700; color: inherit; background: none; border: none; padding: 0; cursor: pointer; }
+.feed .fd-t .fd-who:hover { text-decoration: underline; }
+dialog.sheet .mem .mem-name { color: var(--fg); font-size: 14px; text-align: left; }
+.crew [data-uid] { cursor: pointer; }
+dialog.sheet .gate-list { margin: 0 0 12px; padding-left: 18px; font-size: 14px; color: var(--muted); }
+dialog.sheet .gate-list li + li { margin-top: 4px; }
+dialog.sheet .gate-msg { margin: 10px 0 0; font-size: 14px; color: var(--orange); }
+dialog.sheet input[type=date] { font: inherit; font-size: 16px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); color-scheme: dark; min-height: 42px; }
+dialog.sheet .pe-l { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+dialog.sheet #pe-bio, dialog.sheet #pe-city { width: 100%; box-sizing: border-box; font: inherit; font-size: 16px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
+dialog.sheet .setrow + .setrow, dialog.sheet #pe-city + .setrow { margin-top: 12px; }
+dialog.sheet .pe-save { margin-top: 16px; }
+.pe-photos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.pe-slot { position: relative; aspect-ratio: 3 / 4; border-radius: 12px; border: 1px dashed var(--line); background: var(--panel-2) center / cover no-repeat; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
+.pe-slot.filled { border-style: solid; }
+.pe-slot .pe-add { font: inherit; font-size: 13px; font-weight: 700; color: var(--cyan); background: none; border: none; cursor: pointer; width: 100%; height: 100%; }
+.pe-slot .pe-main { position: absolute; top: 6px; left: 6px; font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 2px 6px; border-radius: 999px; background: var(--pink); color: var(--on-accent); }
+.pe-slot .pe-btns { display: flex; gap: 4px; padding: 6px; width: 100%; box-sizing: border-box; background: linear-gradient(transparent, rgba(0,0,0,.7)); }
+.pe-slot .pe-btns button { flex: 1; font: inherit; font-size: 11px; font-weight: 700; padding: 4px 2px; border-radius: 8px; border: 1px solid rgba(255,255,255,.35); background: rgba(0,0,0,.45); color: #fff; cursor: pointer; }
+.pe-blk { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+dialog.pcard .pc-photos { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; margin-bottom: 10px; }
+dialog.pcard .pc-photos:empty { display: none; }
+dialog.pcard .pc-photos img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 12px; display: block; background: var(--panel-2); }
+dialog.pcard .pc-photos.one { grid-template-columns: minmax(0, 220px); justify-content: center; }
+dialog.pcard .pc-meta { margin: 0 0 4px; font-weight: 700; color: var(--muted); }
+dialog.pcard .pc-meta:empty, dialog.pcard .pc-bio:empty { display: none; }
+dialog.pcard .pc-bio { margin: 0 0 8px; font-size: 15px; }
+dialog.pcard .pc-acts { margin-top: 14px; justify-content: flex-start; }
+dialog.pcard .pc-report { margin-top: 10px; }
+dialog.pcard select, dialog.pcard textarea { width: 100%; box-sizing: border-box; font: inherit; font-size: 15px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); margin-bottom: 8px; }
+dialog.pcard textarea { min-height: 70px; resize: vertical; }
+#ad-reports .q .pv { width: 64px; height: 84px; object-fit: cover; border-radius: 8px; grid-column: 1 / -1; }
 /* Presale light: pulses when a confirmed sale is within 7 days; steady and dim for an expected one. */
 .salelight { position: relative; width: 22px; height: 22px; padding: 0; border: none; background: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex: none; }
 .salelight::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--warn); box-shadow: 0 0 6px 1px color-mix(in srgb, var(--warn) 70%, transparent); }
@@ -702,7 +740,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 
   <div class="dash" data-tab="radar">
     <section class="panel" id="my-radar">
-      <h2>My Radar</h2>
+      <div class="radar-head"><h2>My Radar</h2><button type="button" class="abtn alt" id="radar-edit-profile" hidden>Edit profile</button></div>
       <p class="sub-h">Festivals you've hearted or marked Going or Maybe. Tap a name to jump to its card.</p>
       <div class="radar-alerts">
         <div class="setrow"><span>Presale alerts on this device<br><span class="muted">A heads-up 24 hours and 15 minutes before tickets go on sale for your festivals.</span></span><button type="button" class="sw" id="set-notify" role="switch" aria-checked="false" aria-label="Presale alerts on this device"><span class="knob"></span></button></div>
@@ -775,6 +813,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <h2>Admin</h2>
     <p class="sub-h">Only you can see this. Approve the suggestions and artists you like, then ask Claude to "add approved suggestions" and they go on the tracker.</p>
     <div class="kpis" id="ad-kpis"></div>
+    <h3>Reports</h3>
+    <p class="sub-h">Profiles and photos members reported. Dismiss, or remove what breaks the rules.</p>
+    <div id="ad-reports"><div class="empty">Loading…</div></div>
     <h3>Festival suggestions</h3>
     <div id="ad-queue"><div class="empty">Loading…</div></div>
     <h3>New artists</h3>
@@ -796,7 +837,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   <div class="sh-head"><h2 id="set-h">Settings</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
   <div class="sh-body">
     <h3>Profile</h3>
-    <div class="line"><input type="text" id="set-name" maxlength="60" aria-label="Your name"><button type="button" class="abtn" id="set-name-save">Save name</button></div>
+    <div class="line"><input type="text" id="set-name" maxlength="60" aria-label="Your name"><button type="button" class="abtn" id="set-name-save">Save name</button><button type="button" class="abtn alt" id="set-edit-profile">Edit profile</button></div>
     <p class="muted" id="set-email"></p>
     <h3>Your crews</h3>
     <div id="set-crews"></div>
@@ -842,8 +883,64 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <label class="opt"><input type="checkbox" id="si-optin"> <span>Email me festival deals and presale offers. Optional, and you can change it any time. Applies to Google sign-in too.</span></label>
     <div class="row"><button type="button" class="abtn alt" id="si-cancel">Cancel</button><button type="submit" class="abtn" id="si-send">Email me a link</button></div>
     <p class="msg" id="si-msg" hidden aria-live="polite"></p>
-    <p class="fine">By signing in you agree to the <a href="privacy.html">privacy policy</a>. Your name, picks and favorite artists are visible to other signed-in members.</p>
+    <p class="fine">Festival Radar is for ages 18 and up. By signing in you agree to the <a href="privacy.html">privacy policy</a>. Your crews see your profile, picks and favorite artists. Your name and main photo can appear in public festival chats unless you make your profile private.</p>
   </form>
+</dialog>
+<dialog class="sheet" id="gate" aria-labelledby="gate-h">
+  <div class="sh-head"><h2 id="gate-h">Welcome to Festival Radar</h2></div>
+  <div class="sh-body">
+    <p>Festival Radar is for ages 18 and up. What's your birthday?</p>
+    <div class="line"><input type="date" id="gate-bday" aria-label="Your birthday"></div>
+    <p class="muted">Your birthday stays private. You choose whether your age shows on your profile.</p>
+    <h3>About your profile</h3>
+    <ul class="gate-list">
+      <li>Your crews see your full profile, picks and favorite artists.</li>
+      <li>People outside your crews see your name and main photo in public festival chats, unless you make your profile private.</li>
+      <li>New: add photos, a short bio and your city any time from My Radar.</li>
+    </ul>
+    <div class="line"><button type="button" class="abtn" id="gate-go">Continue</button><button type="button" class="lnk" id="gate-out">Sign out</button></div>
+    <p class="gate-msg" id="gate-msg" aria-live="polite" hidden></p>
+  </div>
+</dialog>
+<dialog class="sheet" id="pedit" aria-labelledby="pedit-h">
+  <div class="sh-head"><h2 id="pedit-h">Edit Profile</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
+  <div class="sh-body">
+    <h3>Photos</h3>
+    <div class="pe-photos" id="pe-photos"></div>
+    <input type="file" id="pe-file" accept="image/*" hidden>
+    <p class="muted">Up to 3. The first is your main photo. Photos are resized on your device and location info is removed before upload. Keep it you, and keep it clean.</p>
+    <p class="muted pe-photo-msg" id="pe-photo-msg" aria-live="polite" hidden></p>
+    <h3>About</h3>
+    <label class="pe-l" for="pe-bio">Short bio</label>
+    <input type="text" id="pe-bio" maxlength="160" placeholder="Bass head, always at the rail">
+    <label class="pe-l" for="pe-city">City (optional)</label>
+    <input type="text" id="pe-city" maxlength="60" placeholder="Long Beach">
+    <div class="setrow"><span>Show my age<br><span class="muted" id="pe-age-note">From the birthday you gave us. Your birthday itself is never shown.</span></span><button type="button" class="sw" id="pe-showage" role="switch" aria-checked="false" aria-label="Show my age"><span class="knob"></span></button></div>
+    <h3>Privacy</h3>
+    <div class="setrow"><span>Private profile<br><span class="muted">People outside your crews see only your name. Your crews always see your full profile.</span></span><button type="button" class="sw" id="pe-private" role="switch" aria-checked="false" aria-label="Private profile"><span class="knob"></span></button></div>
+    <div class="line pe-save"><button type="button" class="abtn" id="pe-save">Save</button><button type="button" class="abtn alt" id="pe-preview">Preview</button><span class="muted" id="pe-msg" aria-live="polite"></span></div>
+    <h3>Blocked people</h3>
+    <div id="pe-blocked"><p class="muted">Nobody blocked.</p></div>
+  </div>
+</dialog>
+<dialog class="sheet pcard" id="pcard" aria-labelledby="pc-name">
+  <div class="sh-head"><h2 id="pc-name">Profile</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
+  <div class="sh-body">
+    <div class="pc-photos" id="pc-photos"></div>
+    <p class="pc-meta" id="pc-meta"></p>
+    <p class="pc-bio" id="pc-bio"></p>
+    <p class="muted" id="pc-note" hidden></p>
+    <div id="pc-going-wrap" hidden><h3>Going to</h3><div class="flist" id="pc-going"></div></div>
+    <div id="pc-top-wrap" hidden><h3>Top artists</h3><div class="crew-chips" id="pc-top"></div></div>
+    <div id="pc-both-wrap" hidden><h3>Artists you both love</h3><div class="crew-chips" id="pc-both"></div></div>
+    <div class="line pc-acts"><button type="button" class="abtn alt" id="pc-edit" hidden>Edit profile</button><button type="button" class="lnk" id="pc-block" hidden></button><button type="button" class="lnk danger" id="pc-report" hidden>Report</button></div>
+    <div class="pc-report" id="pc-report-form" hidden>
+      <label class="pe-l" for="pc-reason">What's wrong?</label>
+      <select id="pc-reason"><option value="Inappropriate photo">Inappropriate photo</option><option value="Not a real person or fake profile">Not a real person or fake profile</option><option value="Harassment or spam">Harassment or spam</option><option value="Seems under 18">Seems under 18</option><option value="Something else">Something else</option></select>
+      <textarea id="pc-report-note" maxlength="500" placeholder="Anything Bill should know? (optional)"></textarea>
+      <div class="line"><button type="button" class="abtn" id="pc-report-send">Send report</button><button type="button" class="lnk" id="pc-report-cancel">Cancel</button><span class="muted" id="pc-report-msg" aria-live="polite"></span></div>
+    </div>
+  </div>
 </dialog>
 <div class="ask-bar" id="ask-bar" role="dialog" aria-live="polite" aria-label="Presale alerts" hidden>
   <p id="ask-text">Want a heads-up before tickets drop? We'll alert you 24 hours and 15 minutes before presales for your festivals.</p>
@@ -1185,10 +1282,243 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     refreshNotify();
   }
 
+
+  // ---------- Profiles ----------
+  // get_profiles applies the visibility rules (crew sees all; others see name and main photo unless private;
+  // nothing across a block). Photos live in the private profile-photos bucket and are shown with short-lived links.
+  const profCache = {}, urlCache = {};
+  const PHOTO_BUCKET = 'profile-photos';
+  async function signPaths(paths) {
+    const need = [...new Set(paths)].filter(p => p && !(urlCache[p] && urlCache[p].exp > Date.now() + 60e3));
+    if (!need.length) return;
+    try {
+      const { data } = await sb.storage.from(PHOTO_BUCKET).createSignedUrls(need, 3600);
+      (data || []).forEach(r => { if (r && r.signedUrl && r.path) urlCache[r.path] = { url: r.signedUrl, exp: Date.now() + 3500e3 }; });
+    } catch (e) {}
+  }
+  async function loadProfiles(ids, force) {
+    ids = [...new Set(ids)].filter(id => id && (force || !profCache[id]));
+    if (!ids.length || !uid) return;
+    const { data } = await sb.rpc('get_profiles', { ids });
+    (Array.isArray(data) ? data : []).forEach(p => { profCache[p.id] = p; });
+    await signPaths((Array.isArray(data) ? data : []).flatMap(p => p.photos || []));
+    window.dispatchEvent(new Event('fr-profiles'));
+  }
+  const photoUrl = path => (urlCache[path] && urlCache[path].url) || null;
+  window.FRProf = {
+    get: id => profCache[id] || null,
+    photo: id => { const p = profCache[id]; return p && p.photos && p.photos[0] ? photoUrl(p.photos[0]) : null; },
+    load: ids => loadProfiles(ids).catch(() => {}),
+    open: id => openCard(id)
+  };
+
+  // One-time welcome check: 18+ (birthday kept private) and what others can see.
+  let gateDone = false;
+  async function checkGate() {
+    await loadProfiles([uid], true);
+    const me = profCache[uid]; if (!me || me.adult_ok) return;
+    const d = document.getElementById('gate'); if (!d || d.open) return;
+    const bd = document.getElementById('gate-bday'); bd.max = new Date().toISOString().slice(0, 10);
+    // Can't be skipped: Escape is ignored, and if the browser closes it anyway it comes back.
+    d.addEventListener('cancel', e => e.preventDefault());
+    d.addEventListener('close', () => { if (!gateDone) setTimeout(() => { if (!d.open) d.showModal(); }, 0); });
+    d.showModal();
+  }
+  function wireGate() {
+    const msg = document.getElementById('gate-msg');
+    const say = t => { msg.hidden = !t; msg.textContent = t || ''; };
+    document.getElementById('gate-go').addEventListener('click', async () => {
+      const v = document.getElementById('gate-bday').value;
+      if (!v) { say('Add your birthday to continue.'); return; }
+      say('');
+      const { data, error } = await sb.rpc('confirm_age', { p_birthday: v });
+      if (error) { say('That didn\'t save. Check the date and try again.'); return; }
+      if (data && data.ok === false) { say('Sorry, Festival Radar is for ages 18 and up.'); document.getElementById('gate-go').hidden = true; return; }
+      gateDone = true; document.getElementById('gate').close(); toast('Welcome! Add a photo any time from My Radar.');
+      await loadProfiles([uid], true);
+    });
+    document.getElementById('gate-out').addEventListener('click', () => FR.signOut());
+  }
+
+  // Shrink a photo on this device (max 1080px, JPEG). Redrawing drops all metadata, including location.
+  async function shrinkPhoto(file) {
+    let src;
+    try { src = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+    catch (e) { src = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = URL.createObjectURL(file); }); }
+    const w0 = src.width || src.naturalWidth, h0 = src.height || src.naturalHeight; const sc = Math.min(1, 1080 / Math.max(w0, h0));
+    const c = document.createElement('canvas'); c.width = Math.round(w0 * sc); c.height = Math.round(h0 * sc);
+    c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
+    let q = .85, blob;
+    do { blob = await new Promise(r => c.toBlob(r, 'image/jpeg', q)); q -= .1; } while (blob && blob.size > 580000 && q > .4);
+    if (!blob) throw new Error('could not read photo');
+    return blob;
+  }
+  let pe = null; // my profile while editing
+  const swOn = id => document.getElementById(id).getAttribute('aria-checked') === 'true';
+  const setSw = (id, v) => document.getElementById(id).setAttribute('aria-checked', String(!!v));
+  async function savePE(photos) {
+    const { error } = await sb.rpc('save_profile', { p_bio: document.getElementById('pe-bio').value, p_city: document.getElementById('pe-city').value, p_show_age: swOn('pe-showage'), p_private: swOn('pe-private'), p_photos: photos });
+    if (error) throw error;
+    pe.photos = photos;
+  }
+  function renderPEPhotos() {
+    const box = document.getElementById('pe-photos'); box.replaceChildren();
+    for (let i = 0; i < 3; i++) {
+      const path = pe.photos[i]; const s = mk('div', 'pe-slot' + (path ? ' filled' : ''));
+      if (path) {
+        const u = photoUrl(path); if (u) s.style.backgroundImage = 'url("' + u + '")';
+        if (i === 0) s.appendChild(mk('span', 'pe-main', 'Main'));
+        const bs = mk('div', 'pe-btns');
+        if (i > 0) { const m = mk('button', null, 'Make main'); m.type = 'button'; m.addEventListener('click', () => photoChange(() => [path, ...pe.photos.filter(p => p !== path)])); bs.appendChild(m); }
+        const r = mk('button', null, 'Remove'); r.type = 'button'; r.addEventListener('click', () => photoChange(() => pe.photos.filter(p => p !== path), path)); bs.appendChild(r);
+        s.appendChild(bs);
+      } else if (i === pe.photos.length) {
+        const a = mk('button', 'pe-add', '+ Add photo'); a.type = 'button'; a.addEventListener('click', () => document.getElementById('pe-file').click()); s.appendChild(a);
+      }
+      box.appendChild(s);
+    }
+  }
+  const photoMsg = t => { const m = document.getElementById('pe-photo-msg'); m.hidden = !t; m.textContent = t || ''; };
+  async function photoChange(next, removed) {
+    const prev = pe.photos.slice();
+    try { await savePE(next()); if (removed) await sb.storage.from(PHOTO_BUCKET).remove([removed]); photoMsg(''); }
+    catch (e) { pe.photos = prev; photoMsg('That didn\'t save. Try again.'); }
+    renderPEPhotos(); await loadProfiles([uid], true);
+  }
+  async function addPhoto(file) {
+    if (!file || pe.photos.length >= 3) return;
+    photoMsg('Uploading…');
+    try {
+      const blob = await shrinkPhoto(file);
+      const path = uid + '/' + crypto.randomUUID() + '.jpg';
+      const { error } = await sb.storage.from(PHOTO_BUCKET).upload(path, blob, { contentType: 'image/jpeg', upsert: false });
+      if (error) throw error;
+      await signPaths([path]);
+      try { await savePE([...pe.photos, path]); } catch (e) { await sb.storage.from(PHOTO_BUCKET).remove([path]); throw e; }
+      photoMsg('');
+    } catch (e) { photoMsg('That photo didn\'t upload. Try a JPEG or PNG under 20 MB.'); }
+    renderPEPhotos(); await loadProfiles([uid], true);
+  }
+  async function renderBlocked() {
+    const box = document.getElementById('pe-blocked'); box.replaceChildren();
+    const { data } = await sb.from('blocks').select('blocked');
+    const ids = (data || []).map(r => r.blocked);
+    if (!ids.length) { box.appendChild(mk('p', 'muted', 'Nobody blocked.')); return; }
+    await loadProfiles(ids, true);
+    ids.forEach(id => {
+      const row = mk('div', 'pe-blk'); row.appendChild(mk('span', null, (profCache[id] && profCache[id].name) || 'Someone'));
+      const u = mk('button', 'lnk', 'Unblock'); u.type = 'button'; u.addEventListener('click', async () => { await sb.from('blocks').delete().eq('blocker', uid).eq('blocked', id); await loadProfiles([id], true); renderBlocked(); });
+      row.appendChild(u); box.appendChild(row);
+    });
+  }
+  async function openEditor() {
+    await loadProfiles([uid], true);
+    const me = profCache[uid] || {};
+    pe = { photos: (me.photos || []).slice() };
+    document.getElementById('pe-bio').value = me.bio || ''; document.getElementById('pe-city').value = me.city || '';
+    setSw('pe-showage', me.show_age); setSw('pe-private', me.private);
+    document.getElementById('pe-msg').textContent = ''; photoMsg('');
+    renderPEPhotos(); renderBlocked();
+    const s = document.getElementById('settings'); if (s && s.open) s.close();
+    const c = document.getElementById('pcard'); if (c && c.open) c.close();
+    document.getElementById('pedit').showModal();
+  }
+  function wireEditor() {
+    window.FR.openProfileEditor = openEditor;
+    ['pe-showage', 'pe-private'].forEach(id => document.getElementById(id).addEventListener('click', () => setSw(id, !swOn(id))));
+    document.getElementById('pe-file').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; addPhoto(f); });
+    document.getElementById('pe-save').addEventListener('click', async () => {
+      const m = document.getElementById('pe-msg'); m.textContent = 'Saving…';
+      try { await savePE(pe.photos); m.textContent = 'Saved.'; await loadProfiles([uid], true); } catch (e) { m.textContent = 'That didn\'t save. Try again.'; }
+    });
+    document.getElementById('pe-preview').addEventListener('click', async () => { try { await savePE(pe.photos); } catch (e) {} await loadProfiles([uid], true); document.getElementById('pedit').close(); openCard(uid); });
+    ['radar-edit-profile', 'set-edit-profile', 'pc-edit'].forEach(id => { const b = document.getElementById(id); if (b) { b.hidden = false; b.addEventListener('click', openEditor); } });
+  }
+
+  // Profile card: tap a name or avatar anywhere.
+  let cardId = null, cardPhoto = 0;
+  async function openCard(id) {
+    if (!uid || !id) return;
+    cardId = id; cardPhoto = 0;
+    await loadProfiles([id], true);
+    const p = profCache[id] || { name: 'Someone', rel: 'other', photos: [] };
+    const self = id === uid, crew = p.rel === 'crew' || self;
+    document.getElementById('pc-name').textContent = self ? p.name + ' (you)' : p.name;
+    const ph = document.getElementById('pc-photos'); ph.replaceChildren(); ph.className = 'pc-photos' + ((p.photos || []).length === 1 ? ' one' : '');
+    (p.photos || []).forEach((path, i) => { const u = photoUrl(path); if (!u) return; const im = mk('img'); im.src = u; im.alt = p.name + ' photo ' + (i + 1); im.dataset.path = path; ph.appendChild(im); });
+    document.getElementById('pc-meta').textContent = [p.age ? String(p.age) : '', p.city || ''].filter(Boolean).join(' · ');
+    document.getElementById('pc-bio').textContent = p.bio || '';
+    const note = document.getElementById('pc-note');
+    note.hidden = true;
+    if (p.blocked) { note.hidden = false; note.textContent = p.blocked_by_me ? 'You blocked ' + p.name + '. You won\'t see their profile, and they won\'t see yours.' : 'This profile isn\'t available.'; }
+    else if (!crew && p.private) { note.hidden = false; note.textContent = 'Private profile.'; }
+    const ex = window.FRMainData ? FRMainData.forUser(id) : { going: [], top: [] };
+    const gw = document.getElementById('pc-going-wrap'), gl = document.getElementById('pc-going'); gl.replaceChildren();
+    gw.hidden = !(crew && !p.blocked && ex.going.length);
+    ex.going.forEach(f => { const row = mk('div', 'fl-row'); const b = mk('button', 'fl-go', f.festival); b.type = 'button'; b.addEventListener('click', () => { document.getElementById('pcard').close(); FRMainData.goToCard(f.id); }); row.appendChild(b); if (f.dates) row.appendChild(mk('span', 'fl-when', f.dates)); gl.appendChild(row); });
+    const tw = document.getElementById('pc-top-wrap'), tl = document.getElementById('pc-top'); tl.replaceChildren();
+    tw.hidden = !(crew && !p.blocked && ex.top.length); ex.top.slice(0, 10).forEach(a => tl.appendChild(mk('span', 'cchip', a)));
+    const bw = document.getElementById('pc-both-wrap'), bl = document.getElementById('pc-both'); bl.replaceChildren();
+    bw.hidden = self || !(p.both_love || []).length; (p.both_love || []).slice(0, 12).forEach(a => bl.appendChild(mk('span', 'cchip', a)));
+    document.getElementById('pc-edit').hidden = !self;
+    const blk = document.getElementById('pc-block'); blk.hidden = self || (p.blocked && !p.blocked_by_me); blk.textContent = p.blocked_by_me ? 'Unblock' : 'Block';
+    document.getElementById('pc-report').hidden = self || p.blocked;
+    document.getElementById('pc-report-form').hidden = true; document.getElementById('pc-report-msg').textContent = '';
+    const d = document.getElementById('pcard'); if (!d.open) d.showModal();
+  }
+  function wireCard() {
+    document.getElementById('pc-block').addEventListener('click', async () => {
+      const p = profCache[cardId]; if (!p) return;
+      if (p.blocked_by_me) await sb.from('blocks').delete().eq('blocker', uid).eq('blocked', cardId);
+      else { if (!confirm('Block ' + p.name + '? You won\'t see each other\'s profiles, and later their messages.')) return; await sb.from('blocks').insert({ blocker: uid, blocked: cardId }); }
+      openCard(cardId); window.dispatchEvent(new Event('fr-profiles'));
+    });
+    document.getElementById('pc-report').addEventListener('click', () => { document.getElementById('pc-report-form').hidden = false; });
+    document.getElementById('pc-report-cancel').addEventListener('click', () => { document.getElementById('pc-report-form').hidden = true; });
+    document.getElementById('pc-report-send').addEventListener('click', async () => {
+      const m = document.getElementById('pc-report-msg'); const reason = document.getElementById('pc-reason').value; const note = document.getElementById('pc-report-note').value.trim();
+      const photo = reason === 'Inappropriate photo' ? ((document.querySelector('#pc-photos img') || {}).dataset || {}).path : null;
+      m.textContent = 'Sending…';
+      const { error } = await sb.from('reports').insert({ reporter: uid, target_user: cardId, kind: photo ? 'photo' : 'profile', target_ref: photo || null, reason: reason + (note ? ': ' + note : '') });
+      m.textContent = error ? (/limit/i.test(error.message || '') ? 'That\'s the limit for today.' : 'That didn\'t send. Try again.') : 'Thanks. Bill will take a look.';
+      if (!error) { document.getElementById('pc-report-note').value = ''; setTimeout(() => { document.getElementById('pc-report-form').hidden = true; }, 1500); }
+    });
+  }
+
+  // Admin: reports queue.
+  async function loadReports() {
+    const box = document.getElementById('ad-reports'); if (!box) return;
+    const { data, error } = await sb.rpc('admin_reports'); if (error) return;
+    box.replaceChildren();
+    const rows = Array.isArray(data) ? data : [];
+    if (!rows.length) { box.appendChild(mk('div', 'empty', 'No reports.')); return; }
+    await signPaths(rows.filter(r => r.kind === 'photo' && r.target_ref).map(r => r.target_ref));
+    rows.forEach(r => {
+      const row = mk('div', 'q'); const n = mk('div', 'n', r.target_name); n.appendChild(mk('span', 'st-tag st-' + (r.status === 'new' ? 'new' : 'passed'), r.status === 'new' ? 'New' : (r.action === 'dismiss' ? 'Dismissed' : 'Resolved')));
+      const acts = mk('div', 'acts');
+      const act = (label, action, cls) => { const b = mk('button', cls || null, label); b.type = 'button'; b.addEventListener('click', async () => {
+        if (action === 'remove_photo' && r.target_ref) { try { await sb.storage.from(PHOTO_BUCKET).remove([r.target_ref]); } catch (e) {} }
+        if (action === 'remove_all_photos') { try { if ((r.photos || []).length) await sb.storage.from(PHOTO_BUCKET).remove(r.photos); } catch (e) {} }
+        const { error } = await sb.rpc('admin_resolve_report', { p_id: r.id, p_action: action }); if (!error) loadReports();
+      }); acts.appendChild(b); };
+      if (r.status === 'new') {
+        if (r.kind === 'photo' && r.target_ref) act('Remove photo', 'remove_photo', 'ok');
+        else { if ((r.photos || []).length) act('Remove photos', 'remove_all_photos', 'ok'); if (r.bio) act('Clear bio', 'clear_bio', 'ok'); }
+        act('Dismiss', 'dismiss');
+      }
+      row.append(n, acts);
+      if (r.kind === 'photo' && r.target_ref && photoUrl(r.target_ref)) { const im = mk('img', 'pv'); im.src = photoUrl(r.target_ref); im.alt = 'Reported photo'; row.appendChild(im); }
+      if (r.kind !== 'photo' && r.bio) row.appendChild(mk('div', 'w', 'Bio: ' + r.bio));
+      row.appendChild(mk('div', 'w', (r.reason || 'No reason given') + ' · reported by ' + r.by + ' · ' + fmtDate(r.created_at)));
+      box.appendChild(row);
+    });
+  }
+
   async function initMember() {
     try { const { data: u } = await sb.auth.getUser(); userEmail = (u && u.user && u.user.email) || ''; } catch (e) {}
     wireMember();
-    wireNotify();
+    wireNotify(); wireGate(); wireEditor(); wireCard();
+    checkGate().catch(() => {});
     await redeemPending().catch(() => {});
     await loadCrews().catch(() => {});
     loadMine().catch(() => {});
@@ -1216,7 +1546,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       document.getElementById('admin').hidden = false;
       const t = document.getElementById('btab-admin'); if (t) { t.hidden = false; t.parentElement.classList.add('five'); } const da = document.getElementById('dn-admin'); if (da) da.hidden = false; const ma = document.getElementById('mn-admin'); if (ma) ma.hidden = false;
       if (window.FRTabFromHash && FRTabFromHash() === 'admin' && window.FRTab) FRTab('admin', { push: false, scroll: false });
-      loadAdmin().catch(() => {});
+      loadAdmin().catch(() => {}); loadReports().catch(() => {});
     }
   }
 
@@ -1266,6 +1596,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     crews = Array.isArray(data) ? data : [];
     if (!crews.find(c => c.id === activeCrew)) { activeCrew = crews.length ? crews[0].id : null; lsSet('fr-crew', activeCrew); }
     recomputeVisible(); emitAll(); renderCrewPick(); renderSettingsCrews();
+    loadProfiles([uid, ...crews.flatMap(c => (c.members || []).map(m => m.id))]).catch(() => {});
     // Names of everyone in my crews, for the board
     const ids = [...new Set(crews.flatMap(c => (c.members || []).map(m => m.id)))];
     return ids;
@@ -1274,6 +1605,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const code = lsGet('fr-invite'); if (!code) return;
     lsSet('fr-invite', null);
     try { if (urlInvite) history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}
+    try { const { data: inf } = await sb.rpc('invite_info', { code }); if (inf && inf.crew && !inf.expired && !confirm('Join ' + inf.crew + '? Its members will see your profile, picks and favorites.')) return; } catch (e) {}
     const { data } = await sb.rpc('redeem_invite', { code });
     const st = data && data.status;
     if (st === 'joined') { activeCrew = data.crew_id; lsSet('fr-crew', activeCrew); allCrews = false; lsSet('fr-all-crews', '0'); toast('You joined ' + data.crew + '!'); }
@@ -1289,6 +1621,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     ban.replaceChildren();
     const t = mk('span'); t.append(mk('b', null, data.inviter), data.crew ? ' invited you to join ' : ' invited you to Festival Radar.');
     if (data.crew) { t.appendChild(mk('b', null, data.crew)); t.append(' on Festival Radar.'); }
+    if (data.crew && !data.expired) t.append(' Joining lets its members see your profile, picks and favorites.');
     if (data.expired) t.append(' This link has expired, but you can still sign up.');
     const b = mk('button', 'abtn', 'Sign in to join'); b.type = 'button'; b.addEventListener('click', () => FR.openSignIn());
     ban.append(t, b); ban.hidden = false;
@@ -1306,7 +1639,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       const lv = mk('button', 'lnk danger', 'Leave'); lv.type = 'button'; lv.addEventListener('click', async () => { if (!confirm('Leave ' + c.name + '?' + (own ? ' Ownership passes to the next member.' : ''))) return; const { error } = await sb.rpc('leave_or_remove', { c: c.id, who: uid }); if (!error) { toast('You left ' + c.name); loadCrews(); } }); acts.appendChild(lv);
       head.appendChild(acts); card.appendChild(head);
       (c.members || []).forEach(m => {
-        const row = mk('div', 'mem'); const nm = mk('span', null, m.name + (m.id === uid ? ' (you)' : '')); if (m.role === 'owner') nm.appendChild(mk('small', null, ' · owner'));
+        const row = mk('div', 'mem'); const nm = mk('button', 'lnk mem-name', m.name + (m.id === uid ? ' (you)' : '')); nm.type = 'button'; nm.addEventListener('click', () => openCard(m.id)); if (m.role === 'owner') nm.appendChild(mk('small', null, ' · owner'));
         row.appendChild(nm);
         if (own && m.id !== uid) { const rm = mk('button', 'lnk danger', 'Remove'); rm.type = 'button'; rm.addEventListener('click', async () => { if (!confirm('Remove ' + m.name + ' from ' + c.name + '?')) return; const { error } = await sb.rpc('leave_or_remove', { c: c.id, who: m.id }); if (!error) loadCrews(); }); row.appendChild(rm); }
         card.appendChild(row);
@@ -1773,8 +2106,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     });
     const crew = el('div', 'crew');
     if (!v.going.length && !v.maybe.length) crew.appendChild(el('span', 'none', 'Nobody yet'));
-    v.going.forEach(id => crew.appendChild(el('span', 'g', nameOf(id))));
-    v.maybe.forEach(id => crew.appendChild(el('span', 'm', nameOf(id) + '?')));
+    const chip = (id, cls, txt) => { const s = el('span', cls, txt); s.dataset.uid = id; s.tabIndex = 0; s.setAttribute('role', 'button'); s.addEventListener('click', () => window.FRProf && FRProf.open(id)); s.addEventListener('keydown', e => { if (e.key === 'Enter') s.click(); }); return s; };
+    v.going.forEach(id => crew.appendChild(chip(id, 'g', nameOf(id))));
+    v.maybe.forEach(id => crew.appendChild(chip(id, 'm', nameOf(id) + '?')));
     const matches = lineupFavs(f);
     if (matches.length) {
       const total = matches.reduce((t, m) => t + m.count, 0);
@@ -2138,10 +2472,23 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   // Avatars (initials) until profile photos arrive.
   const AV_COLORS = ['var(--pink)', 'var(--cyan)', 'var(--warn)', 'var(--violet)', 'var(--ok)', 'var(--orange)'];
   function avatar(u) {
-    const n = nameOf(u), a = el('span', 'av', (n === 'You' ? (state.names[u] || 'You') : n).trim().charAt(0).toUpperCase() || '?');
+    const n = nameOf(u), a = el('button', 'av', (n === 'You' ? (state.names[u] || 'You') : n).trim().charAt(0).toUpperCase() || '?'); a.type = 'button';
     let hsh = 0; for (const ch of String(u)) hsh = (hsh * 31 + ch.charCodeAt(0)) >>> 0;
-    a.style.setProperty('--avc', AV_COLORS[hsh % AV_COLORS.length]); a.title = n; return a;
+    a.style.setProperty('--avc', AV_COLORS[hsh % AV_COLORS.length]); a.title = n; a.setAttribute('aria-label', 'Profile: ' + n);
+    const ph = window.FRProf && FRProf.photo(u); if (ph) { a.classList.add('ph'); a.style.backgroundImage = 'url("' + ph + '")'; }
+    a.addEventListener('click', e => { e.stopPropagation(); if (window.FRProf) FRProf.open(u); });
+    return a;
   }
+  // Card and dashboard helpers the profile card uses (Going to, top artists, jump to a card).
+  window.FRMainData = {
+    forUser: u => {
+      const ch = (state.picks[u] && state.picks[u].choices) || {};
+      const going = Object.keys(ch).filter(id => ch[id] === 'going').map(id => state._all.find(f => f.id === id)).filter(Boolean).sort((a, b) => (a.start || '9').localeCompare(b.start || '9'));
+      return { going, top: (state.favs[u] || []).slice(0, 10) };
+    },
+    goToCard: id => goToCard(id)
+  };
+  window.addEventListener('fr-profiles', () => { renderCrewDash(); renderCards(); });
   const ago = t => { const m = Math.max(0, (Date.now() - Date.parse(t)) / 60000); return m < 1 ? 'now' : m < 60 ? Math.round(m) + 'm' : m < 1440 ? Math.round(m / 60) + 'h' : Math.round(m / 1440) + 'd'; };
   let feedAll = false;
   function renderCrewExtras() {
@@ -2177,7 +2524,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     if (!items.length) fd.appendChild(el('div', 'empty', 'Nothing yet. When your crew marks festivals, it shows up here.'));
     items.slice(0, feedAll ? 200 : 10).forEach(it => {
       const row = el('div', 'fd'); row.appendChild(avatar(it.u));
-      const t = el('span', 'fd-t'); t.appendChild(el('b', null, nameOf(it.u)));
+      const t = el('span', 'fd-t'); const who = el('button', 'fd-who', nameOf(it.u)); who.type = 'button'; who.addEventListener('click', () => window.FRProf && FRProf.open(it.u)); t.appendChild(who);
       if (it.crew) t.append(' joined ' + it.crew);
       else { t.append(' ' + it.verb + ' '); const b = el('button', null, fname(it.id)); b.type = 'button'; b.addEventListener('click', () => goToCard(it.id)); t.appendChild(b); }
       row.append(t, el('span', 'fd-when', ago(it.t))); fd.appendChild(row);
