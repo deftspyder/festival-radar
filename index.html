@@ -323,6 +323,10 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .sf-genres button[aria-pressed="true"] { color: var(--deep); background: var(--cyan); border-color: var(--cyan); }
 .sf-results { display: flex; flex-wrap: wrap; gap: 6px; max-height: 260px; overflow-y: auto; padding-right: 4px; }
 .sf-more { font-size: 12px; color: var(--muted); }
+.sf-browse { display: flex; flex-direction: column; gap: 10px; }
+.sf-toggle { align-self: flex-start; font: inherit; font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--violet); background: transparent; color: var(--fg); cursor: pointer; }
+.sf-toggle:hover { border-color: var(--pink); }
+.sf-toggle[aria-expanded="true"] { border-color: var(--line); color: var(--muted); }
 #leaderboard .sub-title { font-size: 15px; margin: 22px 0 6px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 #leaderboard .sub-title small { font-weight: 500; color: var(--muted); font-size: 12px; }
 .sf-grid.one { grid-template-columns: minmax(0, 1fr); }
@@ -544,8 +548,11 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
         <h3>Your fav artists <small id="sf-count"></small></h3>
         <div class="sf-selected" id="sf-selected"></div>
         <input class="sf-q" id="sf-q" type="search" placeholder="Search 1,100+ artists, or type any name to add it" aria-label="Search artists" autocomplete="off">
-        <div class="sf-results" id="sf-results"></div>
-        <div class="sf-genres" id="sf-genres" role="group" aria-label="Browse by genre"></div>
+        <button type="button" class="sf-toggle" id="sf-all" aria-expanded="false" aria-controls="sf-browse">See all artists</button>
+        <div class="sf-browse" id="sf-browse">
+          <div class="sf-genres" id="sf-genres" role="group" aria-label="Browse by genre" hidden></div>
+          <div class="sf-results" id="sf-results" hidden></div>
+        </div>
       </div>
     </div>
   </section>
@@ -1101,7 +1108,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   const SECTIONS = ['Local', 'USA', 'Worldwide'];
   const SEC_COLOR = ['var(--pink)', 'var(--violet)', 'var(--cyan)'];
   const LABEL = { going: 'Going', maybe: 'Maybe', pass: 'Pass' };
-  const state = { festivals: [], picks: {}, favs: {}, me: null, section: 'Local', canWrite: true, names: {}, sfGenre: 'SoCal scene', sfQuery: '' };
+  const state = { festivals: [], picks: {}, favs: {}, me: null, section: 'Local', canWrite: true, names: {}, sfGenre: 'SoCal scene', sfQuery: '', sfOpen: false };
   let SHOWS = false; try { SHOWS = localStorage.getItem('fr-show-shows') === '1'; } catch (e) {}
   state._all = [];
   Object.defineProperty(state, 'festivals', { configurable: true, get() { return SHOWS ? state._all : state._all.filter(f => f.kind !== 'show'); }, set(v) { state._all = Array.isArray(v) ? v : []; } });
@@ -1510,12 +1517,16 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const sel = $('sf-selected'); sel.replaceChildren();
     const mine = myFavs();
     $('sf-count').textContent = mine.length ? mine.length + ' picked' : '';
-    if (!mine.length) sel.appendChild(el('div', 'empty', state.me ? 'Tap artists below to add them.' : 'Log in to pick your favs, see the updated festivals, and choose shows to consider.'));
+    if (!mine.length) sel.appendChild(el('div', 'empty', state.me ? 'Search or tap See all artists to add some.' : 'Log in to pick your favs, see the updated festivals, and choose shows to consider.'));
     mine.forEach(n => sel.appendChild(favChip(n, { sel: true })));
     // results
-    renderGenres();
     const res = $('sf-results'); res.replaceChildren();
     const q = state.sfQuery.trim(); const nq = norm(q);
+    const showList = !!q || state.sfOpen;
+    res.hidden = !showList; $('sf-genres').hidden = !state.sfOpen || !!q;
+    const tg = $('sf-all'); tg.hidden = !!q; tg.setAttribute('aria-expanded', String(state.sfOpen)); tg.textContent = state.sfOpen ? 'Hide list' : 'See all artists';
+    if (!q && state.sfOpen) renderGenres();
+    if (showList) {
     let list;
     const all = pool();
     if (q) list = all.filter(d => norm(d.name).includes(nq)).sort((a, b) => (norm(a.name).startsWith(nq) ? 0 : 1) - (norm(b.name).startsWith(nq) ? 0 : 1) || (a.top || 999) - (b.top || 999));
@@ -1539,6 +1550,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     }
     if (!list.length && !q) res.appendChild(el('div', 'empty', 'Nothing here yet.'));
     if (list.length > LIMIT) res.appendChild(el('div', 'sf-more', 'Showing ' + LIMIT + ' of ' + list.length + '. Search to find more.'));
+    }
     // crew
     const tally = new Map();
     Object.entries(state.favs).forEach(([uid, arr]) => arr.forEach(n => {
@@ -1557,6 +1569,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       row.appendChild(w); crew.appendChild(row);
     });
   }
+  $('sf-all').addEventListener('click', () => { state.sfOpen = !state.sfOpen; renderSpotifavs(); });
   let sfT; $('sf-q').addEventListener('input', e => { clearTimeout(sfT); sfT = setTimeout(() => { state.sfQuery = e.target.value; renderSpotifavs(); }, 120); });
   $('sf-q').addEventListener('keydown', e => {
     if (e.key !== 'Enter') return; const q = e.target.value.trim(); if (!q) return;
