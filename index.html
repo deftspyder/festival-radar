@@ -773,6 +773,17 @@ dialog.sheet select, .crewpick select { font: inherit; font-size: 15px; padding:
 dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(--bg); border: 1px dashed var(--line); border-radius: 10px; padding: 8px 10px; margin-top: 10px; }
 .crewpick { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 0 0 12px; }
 .crewpick .cname { font-weight: 700; }
+.crewpick .waiting { font-size: 12px; font-weight: 700; color: var(--orange); border: 1px solid color-mix(in srgb, var(--orange) 50%, transparent); border-radius: 999px; padding: 3px 9px; }
+.nocrew { border: 1px dashed color-mix(in srgb, var(--violet) 60%, transparent); border-radius: 14px; padding: 16px; margin: 0 0 6px; }
+.nocrew h3 { margin: 0 0 6px; font-size: 16px; }
+.nocrew p { margin: 0 0 10px; color: var(--muted); font-size: 14px; line-height: 1.45; }
+.nocrew .line { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 0 0 10px; }
+.nocrew input { font: inherit; font-size: 16px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); flex: 1 1 160px; min-width: 0; }
+.nocrew .nc-msg, #newcrew .nc-msg { color: var(--pink); }
+.nocrew small { display: block; color: var(--muted); font-size: 13px; }
+#crew-main[hidden] { display: none; }
+#newcrew .nc-lbl { display: block; font-size: 13px; font-weight: 700; margin: 4px 0 6px; }
+#newcrew #nc-name { flex: 1 1 auto; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(90px + env(safe-area-inset-bottom, 0px)); z-index: 80; background: var(--deep); border: 1px solid var(--pink); color: var(--fg); padding: 10px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; box-shadow: 0 0 20px -6px var(--pink); max-width: calc(100vw - 32px); text-align: center; }
 .invite-banner { background: linear-gradient(90deg, color-mix(in srgb, var(--pink) 18%, transparent), color-mix(in srgb, var(--violet) 18%, transparent)); border: 1px solid color-mix(in srgb, var(--pink) 50%, transparent); border-radius: 12px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
 .invite-banner b { color: var(--fg); }
@@ -911,6 +922,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <section class="panel" id="leaderboard">
       <h2>Crew</h2>
       <div class="crewpick" id="crewpick"></div>
+      <div class="nocrew" id="nocrew" hidden></div>
+      <div class="crew-only" id="crew-main">
       <p class="sub-h" id="crew-sub">What your crew is going to, thinking about, and loving. Tap a festival to see its card.</p>
       <h3 class="sub-title">We're going <small id="crew-going-n"></small></h3>
       <div class="flist wego" id="crew-going"></div>
@@ -918,6 +931,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <div class="flist" id="crew-fests"><div class="empty">Nothing yet.</div></div>
       <h3 class="sub-title">Crew favorite artists</h3>
       <div class="crew-chips" id="sf-crew"><div class="empty">No fav artists yet.</div></div>
+      </div>
     </section>
     <section class="panel" id="crew-activity">
       <h2>Chats</h2>
@@ -1010,6 +1024,17 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <p class="fine">Festival Radar is for ages 18 and up. By signing in you agree to the <a href="privacy.html">privacy policy</a>. Your crews see your profile, picks and favorite artists. Your name and main photo can appear in public festival chats unless you make your profile private.</p>
   </form>
 </dialog>
+<dialog class="sheet" id="newcrew" aria-labelledby="nc-h">
+  <div class="sh-head"><h2 id="nc-h">Start a Crew</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
+  <div class="sh-body">
+    <p id="nc-lead">Festivals are better with a crew. See who's going, chat, and get a ping when your friends lock in a festival.</p>
+    <label class="nc-lbl" for="nc-name">Crew name</label>
+    <div class="line"><input type="text" id="nc-name" maxlength="40" placeholder="Like Beach Ravers" autocomplete="off"></div>
+    <p class="muted nc-msg" id="nc-msg" hidden></p>
+    <div class="line"><button type="button" class="abtn" id="nc-go">Start crew</button><button type="button" class="abtn alt" id="nc-solo">Just me for now</button></div>
+    <p class="muted">Next you'll send an invite link from your phone's share sheet, so you can pick friends from your contacts. Your crew is ready to use right away and goes live when the first friend joins.</p>
+  </div>
+</dialog>
 <dialog class="sheet" id="gate" aria-labelledby="gate-h">
   <div class="sh-head"><h2 id="gate-h">Welcome to Festival Radar</h2></div>
   <div class="sh-body">
@@ -1075,7 +1100,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     </ul></details>
     <details><summary>Your Crew</summary><ul>
       <li>The Crew tab shows what your crew is going to, festivals with two or more of you Going, everyone's favorite artists, and recent activity.</li>
-      <li>Invite friends from the menu or Settings. Anyone with the link can join after signing in.</li>
+      <li>Crews are optional. Planning solo? Everything else works without one.</li>
+      <li>Start a crew from the Crew tab (you can start up to 5). It works right away and shows "Waiting for your first member" until a friend joins.</li>
+      <li>Invite friends from the Crew tab, the menu or Settings. Share invite link opens your phone's share sheet, so you can send it by text to people in your contacts. Anyone with the link can join after signing in.</li>
       <li>In several crews? Pick one at the top of the Crew tab, or view all of them together.</li>
     </ul></details>
     <details><summary>Chats</summary><ul>
@@ -1590,6 +1617,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       if (data && data.ok === false) { say('Sorry, Festival Radar is for ages 18 and up.'); document.getElementById('gate-go').hidden = true; return; }
       gateDone = true; document.getElementById('gate').close(); toast('Welcome! Add a photo any time from My Radar.');
       await loadProfiles([uid], true);
+      maybeAskCrew();
     });
     document.getElementById('gate-out').addEventListener('click', () => FR.signOut());
   }
@@ -2302,6 +2330,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     checkGate().catch(() => {});
     await redeemPending().catch(() => {});
     await loadCrews().catch(() => {});
+    wireNewCrew(); maybeAskCrew();
     loadMine().catch(() => {});
     // The favorites card's add panel sends new artists and events through here.
     const cleanLink = l => { l = String(l || '').trim(); if (!l) return ''; if (!/^https?:\/\//i.test(l)) l = 'https://' + l; try { new URL(l); return l; } catch (e) { return null; } };
@@ -2352,11 +2381,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   function renderCrewPick() {
     const box = document.getElementById('crewpick'), sub = document.getElementById('crew-sub'); if (!box) return;
     box.replaceChildren();
-    if (!crews.length) {
-      box.appendChild(mk('span', 'muted', 'You\'re not in a crew yet.'));
-      const b = mk('button', 'abtn', 'Create a crew'); b.type = 'button'; b.addEventListener('click', () => FR.openSettings('crews')); box.appendChild(b);
-      if (sub) sub.textContent = 'Only your own favorites show until you join or create a crew.'; return;
-    }
+    renderNoCrew();
+    if (!crews.length) { box.hidden = true; return; }
+    box.hidden = false;
     if (crews.length === 1) { box.appendChild(mk('span', 'cname', crews[0].name)); }
     else {
       const sel = mk('select'); sel.setAttribute('aria-label', 'Which crew');
@@ -2369,7 +2396,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       box.appendChild(sel);
     }
     const n = allCrews ? new Set(crews.flatMap(c => (c.members || []).map(m => m.id))).size : ((crews.find(c => c.id === activeCrew) || {}).members || []).length;
-    box.appendChild(mk('span', 'muted', n + (n === 1 ? ' member' : ' members')));
+    if (n <= 1) box.appendChild(mk('span', 'waiting', 'Waiting for your first member'));
+    else box.appendChild(mk('span', 'muted', n + ' members'));
     const inv = mk('button', 'abtn alt', 'Invite friends'); inv.type = 'button'; inv.addEventListener('click', () => FR.openInvite()); box.appendChild(inv);
     if (sub) sub.textContent = 'What ' + (allCrews ? 'your crews are' : 'this crew is') + ' going to, thinking about, and loving. Tap a festival to see its card.';
   }
@@ -2378,14 +2406,17 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     crews = Array.isArray(data) ? data : [];
     if (!crews.find(c => c.id === activeCrew)) { activeCrew = crews.length ? crews[0].id : null; lsSet('fr-crew', activeCrew); }
     recomputeVisible(); emitAll(); renderCrewPick(); renderSettingsCrews();
+    if (crews.length) lsSet('fr-crew-asked-' + uid, '1');
     loadProfiles([uid, ...crews.flatMap(c => (c.members || []).map(m => m.id))]).catch(() => {});
     if (!chatInitDone) { chatInitDone = true; initChat().catch(() => {}); } else { renderChatList(); loadChats().catch(() => {}); }
     // Names of everyone in my crews, for the board
     const ids = [...new Set(crews.flatMap(c => (c.members || []).map(m => m.id)))];
     return ids;
   }
+  let cameByInvite = false;
   async function redeemPending() {
     const code = lsGet('fr-invite'); if (!code) return;
+    cameByInvite = true;
     lsSet('fr-invite', null);
     try { if (urlInvite) history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}
     try { const { data: inf } = await sb.rpc('invite_info', { code }); if (inf && inf.crew && !inf.expired && !confirm('Join ' + inf.crew + '? Its members will see your profile, picks and favorites.')) return; } catch (e) {}
@@ -2409,13 +2440,77 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const b = mk('button', 'abtn', 'Sign in to join'); b.type = 'button'; b.addEventListener('click', () => FR.openSignIn());
     ban.append(t, b); ban.hidden = false;
   }
+  // Start a crew: Crew tab card, the one-time pop-up and Settings all come through here.
+  async function startCrew(name) {
+    const n = String(name || '').trim().slice(0, 40); if (!n) return { error: 'Give your crew a name.' };
+    const { data, error } = await sb.rpc('create_crew', { crew_name: n });
+    if (error) return { error: /limit/i.test(error.message || '') ? 'You can start up to 5 crews.' : 'Couldn\'t start the crew. Try again.' };
+    activeCrew = data; allCrews = false; lsSet('fr-crew', activeCrew); lsSet('fr-all-crews', '0'); lsSet('fr-crew-asked-' + uid, '1');
+    toast('Started ' + n + '. Invite your friends!');
+    await loadCrews();
+    return { id: data };
+  }
+  function renderNoCrew() {
+    const box = document.getElementById('nocrew'), main = document.getElementById('crew-main'); if (!box) return;
+    const none = !!uid && !crews.length;
+    box.hidden = !none; if (main) main.hidden = none;
+    if (!none) { box.replaceChildren(); return; }
+    if (box.childElementCount) return;
+    box.appendChild(mk('h3', null, 'Start a crew'));
+    box.appendChild(mk('p', null, 'Crews are optional. Planning solo? Everything else works without one. With a crew you see who\'s going, chat, and get a ping when friends lock in a festival.'));
+    const line = mk('div', 'line'); const inp = mk('input'); inp.type = 'text'; inp.maxLength = 40; inp.placeholder = 'Crew name'; inp.setAttribute('aria-label', 'Crew name'); inp.autocomplete = 'off';
+    const go = mk('button', 'abtn', 'Start a crew'); go.type = 'button';
+    const msg = mk('p', 'nc-msg'); msg.hidden = true;
+    const run = async () => {
+      if (!inp.value.trim()) { msg.textContent = 'Give your crew a name.'; msg.hidden = false; inp.focus(); return; }
+      go.disabled = true; const r = await startCrew(inp.value); go.disabled = false;
+      if (r.error) { msg.textContent = r.error; msg.hidden = false; return; }
+      FR.openInvite(r.id);
+    };
+    go.addEventListener('click', run); inp.addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
+    line.append(inp, go); box.append(line, msg, mk('small', null, 'Got an invite link from a friend? Just open it and you\'ll join their crew.'));
+  }
+  // One-time "start a crew" pop-up for members with no crew who didn't come in through an invite.
+  let crewAskTimer = null;
+  function maybeAskCrew() {
+    if (!uid || crews.length || cameByInvite || lsGet('fr-crew-asked-' + uid)) return;
+    if (pendingFriend && pendingFriend()) return;
+    const me = profCache[uid]; if (!me || !(me.adult_ok || gateDone)) return;
+    clearTimeout(crewAskTimer);
+    crewAskTimer = setTimeout(() => {
+      if (crews.length || lsGet('fr-crew-asked-' + uid)) return;
+      if (document.querySelector('dialog[open]')) { maybeAskCrew(); return; }
+      openNewCrew(true);
+    }, 1500);
+  }
+  function openNewCrew(ask) {
+    const d = document.getElementById('newcrew'); if (!d || !uid) return;
+    document.getElementById('nc-h').textContent = ask ? 'Start a Crew?' : 'Start a Crew';
+    document.getElementById('nc-solo').textContent = ask ? 'Just me for now' : 'Cancel';
+    document.getElementById('nc-msg').hidden = true; document.getElementById('nc-name').value = '';
+    d.dataset.ask = ask ? '1' : '';
+    if (ask) lsSet('fr-crew-asked-' + uid, '1');
+    d.showModal();
+  }
+  function wireNewCrew() {
+    const d = document.getElementById('newcrew'); if (!d) return;
+    const inp = document.getElementById('nc-name'), msg = document.getElementById('nc-msg'), go = document.getElementById('nc-go');
+    const run = async () => {
+      if (!inp.value.trim()) { msg.textContent = 'Give your crew a name.'; msg.hidden = false; inp.focus(); return; }
+      go.disabled = true; const r = await startCrew(inp.value); go.disabled = false;
+      if (r.error) { msg.textContent = r.error; msg.hidden = false; return; }
+      d.close(); FR.openInvite(r.id);
+    };
+    go.addEventListener('click', run); inp.addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
+    document.getElementById('nc-solo').addEventListener('click', () => { d.close(); if (d.dataset.ask) toast('No problem. You can start a crew any time from the Crew tab.'); });
+  }
   function renderSettingsCrews() {
     const box = document.getElementById('set-crews'); if (!box) return; box.replaceChildren();
     if (!crews.length) box.appendChild(mk('p', 'muted', 'No crews yet. Create one below, or ask a friend for an invite link.'));
     crews.forEach(c => {
       const own = c.owner === uid; const card = mk('details', 'crew-card'); const head = mk('div', 'ct');
       const n = (c.members || []).length; card.open = n <= 3;
-      const sum = mk('summary'); sum.append(mk('b', null, c.name), mk('small', null, n + (n === 1 ? ' member' : ' members'))); card.appendChild(sum);
+      const sum = mk('summary'); sum.append(mk('b', null, c.name), mk('small', null, n <= 1 ? 'Waiting for your first member' : n + ' members')); card.appendChild(sum);
       const acts = mk('div', 'line');
       if (own) { const r = mk('button', 'lnk', 'Rename'); r.type = 'button'; r.addEventListener('click', async () => { const n = prompt('Crew name:', c.name); if (!n || !n.trim()) return; const { error } = await sb.from('crews').update({ name: n.trim().slice(0, 40) }).eq('id', c.id); if (!error) { toast('Renamed to ' + n.trim().slice(0, 40)); loadCrews(); } }); acts.appendChild(r); }
       const iv = mk('button', 'lnk', 'Invite'); iv.type = 'button'; iv.addEventListener('click', () => FR.openInvite(c.id)); acts.appendChild(iv);
@@ -2449,9 +2544,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     document.getElementById('set-name-save').addEventListener('click', async () => { const ok = await FR.setName(document.getElementById('set-name').value); if (ok) { toast('Name saved'); setTimeout(() => location.reload(), 700); } });
     document.getElementById('set-newcrew-go').addEventListener('click', async () => {
       const inp = document.getElementById('set-newcrew'); const n = inp.value.trim(); if (!n) { inp.focus(); return; }
-      const { data, error } = await sb.rpc('create_crew', { crew_name: n });
-      if (error) { toast(/limit/i.test(error.message) ? 'You can own up to 10 crews.' : 'Couldn\'t create the crew.'); return; }
-      inp.value = ''; activeCrew = data; lsSet('fr-crew', activeCrew); toast('Created ' + n); await loadCrews(); FR.openInvite(data);
+      const r = await startCrew(n); if (r.error) { toast(r.error); return; }
+      inp.value = ''; document.getElementById('settings').close(); FR.openInvite(r.id);
     });
     const sa = document.getElementById('set-allcrews');
     sa.addEventListener('click', () => { allCrews = !allCrews; lsSet('fr-all-crews', allCrews ? '1' : '0'); sa.setAttribute('aria-checked', String(allCrews)); recomputeVisible(); emitAll(); renderCrewPick(); });
@@ -2540,7 +2634,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     crews.forEach(c => { const o = mk('option', null, c.name); o.value = c.id; if (c.id === (crewId || activeCrew)) o.selected = true; sel.appendChild(o); });
     const has = crews.length > 0; on.checked = has; on.disabled = !has; sel.disabled = !has; sel.hidden = !has;
     document.getElementById('inv-new').hidden = !has;
-    document.getElementById('inv-link').hidden = true; document.getElementById('inv-note').textContent = has ? '' : 'Create a crew in Settings to invite friends into it. This link invites them to the site.';
+    document.getElementById('inv-link').hidden = true; document.getElementById('inv-note').textContent = has ? '' : 'Start a crew from the Crew tab to invite friends into it. This link invites them to the site.';
     d.showModal(); makeLink(false);
   };
 
@@ -2554,7 +2648,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       if (!error) myName = v; return !error;
     }
   };
-  window.FR.openSettings = openSettings; window.FR.openInvite = openInvite;
+  window.FR.openSettings = openSettings; window.FR.openInvite = openInvite; window.FR.openNewCrew = () => openNewCrew(false);
   const googleOn = fetch(SB_URL + '/auth/v1/settings', { headers: { apikey: SB_KEY } }).then(r => r.ok ? r.json() : null).then(j => !!(j && j.external && j.external.google)).catch(() => false);
   const wire = () => {
     sessionP.then(sess => { if (!sess) { showInviteBanner().catch(() => {}); if (pendingFriend()) setTimeout(() => { toast('Sign in to add your friend.'); FR.openSignIn(); }, 400); } });
