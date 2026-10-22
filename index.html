@@ -282,6 +282,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 .flist .fl-when { margin-left: auto; font-size: 12px; color: var(--muted); text-align: right; flex: none; white-space: nowrap; }
 .flist .fl-tag { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; flex: none; }
 .flist .fl-tag.going { color: var(--going); } .flist .fl-tag.maybe { color: var(--maybe); }
+.series-ask { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 6px; }
+.series-ask .sa { border: 1px solid color-mix(in srgb, var(--violet) 55%, transparent); border-radius: 12px; padding: 10px 12px; background: color-mix(in srgb, var(--violet) 10%, transparent); }
+.series-ask .sa p { margin: 0 0 8px; font-size: 14px; line-height: 1.4; }
+.series-ask .sa .line { display: flex; gap: 8px; flex-wrap: wrap; }
+.series-ask .sa .abtn { font-size: 13px; padding: 6px 14px; }
+#series-watch .fl-row .sw-name { font-size: 15px; font-weight: 700; }
+#series-watch .fl-row .sw-sub { display: block; font-size: 12px; color: var(--muted); font-weight: 500; }
+#series-watch .fl-row .sw-sub button { font: inherit; color: var(--cyan); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+#series-watch .fl-row .lnk { margin-left: auto; flex: none; font: inherit; font-size: 13px; font-weight: 700; color: var(--cyan); background: none; border: none; padding: 4px 0; cursor: pointer; }
 .flist .fl-row > .fl-tag + .fheart, .flist .fl-row > .fl-tag:last-child { margin-left: 0; }
 .flist .fl-row .fl-go + .fl-tag { margin-left: auto; }
 .flist .fl-who b { color: var(--going); font-weight: 700; } .flist .fl-who i { color: var(--maybe); font-style: normal; font-weight: 700; }
@@ -862,10 +871,16 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <section class="panel" id="my-radar">
       <div class="radar-head"><h2>My Radar</h2><button type="button" class="abtn alt" id="radar-edit-profile" hidden>Edit profile</button></div>
       <p class="sub-h">Festivals you've hearted or marked Going or Maybe. Tap a name to jump to its card.</p>
+      <div class="series-ask" id="series-ask" hidden></div>
       <h3 class="sub-title">Upcoming presales <small id="my-sales-n"></small></h3>
       <div class="flist" id="my-sales"></div>
       <h3 class="sub-title">My festivals <small id="my-fests-n"></small></h3>
       <div class="flist" id="my-fests"></div>
+      <div id="series-sec" hidden>
+        <h3 class="sub-title">Watching for next year <small id="series-n"></small></h3>
+        <p class="sub-h">When the next one is announced, it's added to your festivals so presale alerts just work.</p>
+        <div class="flist" id="series-watch"></div>
+      </div>
       <div id="friends-sec" hidden>
         <h3 class="sub-title">Friends</h3>
         <p class="sub-h">Met someone at a show? Show them your code. Friends can message you and see your name, main photo and the artists you both love. Only your crews see which festivals you're going to.</p>
@@ -1095,6 +1110,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <details><summary>My Radar and Alerts</summary><ul>
       <li>My Radar collects the festivals you've hearted or marked Going or Maybe, plus upcoming presales for them.</li>
       <li>Turn on alerts at the bottom of My Radar to get a heads-up 24 hours and 15 minutes before tickets go on sale. Tapping the alert takes you to tickets.</li>
+      <li>Next year: when a festival you went to ends, its next edition is added to your festivals automatically once it's announced, so you get its presale alerts. Undo it any time under Watching for next year. For festivals you only hearted or marked Maybe, My Radar asks "Watch for next year?" instead.</li>
       <li>On iPhone, alerts need the site on your Home Screen: in Safari tap Share, then Add to Home Screen, and open it from there.</li>
       <li>My Artists: pick your favorite artists. Festivals with your crew's favorites on the lineup get highlighted. Can't find one? Type it in and send it to Bill.</li>
     </ul></details>
@@ -1319,6 +1335,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     if (dels.length) { const { error } = await sb.from('favs').delete().eq('user_id', uid).in('artist', dels); if (error) throw denied(error) ? { code: 'not_granted' } : error; }
     caches.favs[uid] = { artists: [...artists] };
   }
+  window.FRReloadHearts = () => uid ? loadHearts() : Promise.resolve();
   setInterval(() => { if (uid && document.visibilityState === 'visible') { loadPicks().catch(() => {}); loadFavs().catch(() => {}); loadHearts().catch(() => {}); } }, 45000);
 
   const db = {
@@ -2331,6 +2348,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     await redeemPending().catch(() => {});
     await loadCrews().catch(() => {});
     wireNewCrew(); maybeAskCrew();
+    loadSeries().catch(() => {});
     loadMine().catch(() => {});
     // The favorites card's add panel sends new artists and events through here.
     const cleanLink = l => { l = String(l || '').trim(); if (!l) return ''; if (!/^https?:\/\//i.test(l)) l = 'https://' + l; try { new URL(l); return l; } catch (e) { return null; } };
@@ -2440,6 +2458,63 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const b = mk('button', 'abtn', 'Sign in to join'); b.type = 'button'; b.addEventListener('click', () => FR.openSignIn());
     ban.append(t, b); ban.hidden = false;
   }
+  // Next year: festivals that come back each year. Going is watched automatically when it ends; hearts and
+  // Maybe get a one-time "Watch for next year?" ask. Watched series get the next edition hearted (server side).
+  let seriesData = { prompts: [], watching: [] };
+  async function loadSeries() {
+    const { data, error } = await sb.rpc('my_series'); if (error || !data) return;
+    const before = JSON.stringify(seriesData.watching.map(w => (w.next || []).map(n => n.id)));
+    seriesData = { prompts: data.prompts || [], watching: data.watching || [] };
+    if (JSON.stringify(seriesData.watching.map(w => (w.next || []).map(n => n.id))) !== before && window.FRReloadHearts) window.FRReloadHearts().catch(() => {});
+    renderSeries();
+  }
+  async function setSeries(series, watch, from) {
+    const { data, error } = await sb.rpc('set_series_watch', { p_series: series, p_watch: watch, p_from: from || null });
+    if (error) { toast('That didn\'t save. Try again.'); return false; }
+    if (window.FRReloadHearts) await window.FRReloadHearts().catch(() => {});
+    ((data && data.unheart) || []).forEach(id => window.FRSetHeart && window.FRSetHeart(id, false));
+    await loadSeries();
+    return true;
+  }
+  function renderSeries() {
+    const ask = document.getElementById('series-ask'), sec = document.getElementById('series-sec'), list = document.getElementById('series-watch');
+    if (!ask || !sec || !list) return;
+    ask.replaceChildren(); list.replaceChildren();
+    seriesData.prompts.slice(0, 3).forEach(p => {
+      const box = mk('div', 'sa'); const t = mk('p'); t.append(mk('b', null, p.festival), ' is over. Watch for next year?');
+      const line = mk('div', 'line');
+      const yes = mk('button', 'abtn', 'Watch'); yes.type = 'button';
+      yes.addEventListener('click', async () => { yes.disabled = true; if (await setSeries(p.series, true, p.festival_id)) toast('Watching ' + p.name + '. Next year\'s will be added to your festivals.'); else yes.disabled = false; });
+      const no = mk('button', 'abtn alt', 'No thanks'); no.type = 'button';
+      no.addEventListener('click', async () => { no.disabled = true; await setSeries(p.series, false, p.festival_id); });
+      line.append(yes, no); box.append(t, line); ask.appendChild(box);
+    });
+    ask.hidden = !seriesData.prompts.length;
+    const w = seriesData.watching; sec.hidden = !w.length;
+    document.getElementById('series-n').textContent = w.length ? w.length + ' watching' : '';
+    w.forEach(x => {
+      const row = mk('div', 'fl-row'); const main = mk('div');
+      main.appendChild(mk('span', 'sw-name', x.name));
+      const sub = mk('span', 'sw-sub');
+      const nx = (x.next || [])[0];
+      if (nx) {
+        sub.append(x.auto ? 'You went. ' : '', 'Next: ');
+        const b = mk('button', null, nx.festival); b.type = 'button';
+        if (window.FRHasFest && FRHasFest(nx.id)) b.addEventListener('click', () => FRGoToCard(nx.id)); else b.disabled = true;
+        sub.append(b, ' is in your festivals');
+      } else sub.textContent = (x.auto ? 'You went. ' : '') + 'Waiting for next year\'s to be announced';
+      main.appendChild(sub);
+      const stop = mk('button', 'lnk', x.auto ? 'Undo' : 'Stop'); stop.type = 'button';
+      stop.title = 'Stop watching ' + x.name;
+      stop.addEventListener('click', async () => {
+        if (nx && !confirm('Stop watching ' + x.name + '? ' + nx.festival + ' comes off your festivals too.')) return;
+        stop.disabled = true; if (await setSeries(x.series, false)) toast('Stopped watching ' + x.name + '.'); else stop.disabled = false;
+      });
+      row.append(main, stop); list.appendChild(row);
+    });
+  }
+  window.addEventListener('fr-tab', e => { if (e && e.detail === 'radar' && uid) loadSeries().catch(() => {}); });
+
   // Start a crew: Crew tab card, the one-time pop-up and Settings all come through here.
   async function startCrew(name) {
     const n = String(name || '').trim().slice(0, 40); if (!n) return { error: 'Give your crew a name.' };
@@ -4876,6 +4951,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     return b;
   }
   let heartWriting = Promise.resolve();
+  window.FRSetHeart = (id, on) => setHeart(id, on);
+  window.FRGoToCard = id => goToCard(id);
+  window.FRHasFest = id => !!(state._all || []).find(f => f.id === id);
   function setHeart(id, on, pop) {
     if (!state.me || !state.canWrite) return;
     const cur = myHearts().slice(); const has = cur.includes(id);
