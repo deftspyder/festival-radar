@@ -2666,13 +2666,33 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       } });
       const box = document.getElementById('si-gis');
       google.accounts.id.renderButton(box, { type: 'standard', theme: 'outline', size: 'large', shape: 'pill', text: 'continue_with', logo_alignment: 'center', width: Math.min(320, box.clientWidth || 320) });
-      box.hidden = false; gisReady = true; return true;
+      box.hidden = false; gisReady = true; watchGisFit(box); return true;
     };
+    // Google draws its button in its own frame. With a large phone text size it can come out wider
+    // than the sign-in box and get clipped; then swap in our own Continue with Google button.
+    let gisTooWide = false;
+    function watchGisFit(box) {
+      const check = () => {
+        if (gisTooWide || box.hidden || !box.offsetParent) return;
+        const kid = box.firstElementChild; if (!kid) return;
+        const fr = kid.querySelector('iframe') || kid;
+        const br = box.getBoundingClientRect(), kr = fr.getBoundingClientRect();
+        if (!br.width || !kr.width) return;
+        if (kr.width > br.width + 2 || kr.left < br.left - 2 || kr.right > br.right + 2) {
+          gisTooWide = true; box.hidden = true;
+          const g = document.getElementById('si-google'); if (g) g.hidden = false;
+        }
+      };
+      [400, 1200, 2500].forEach(t => setTimeout(check, t));
+      try { const ro = new ResizeObserver(check); ro.observe(box); new MutationObserver(() => { const f = box.querySelector('iframe'); if (f) ro.observe(f); check(); }).observe(box, { childList: true, subtree: true }); } catch (e) {}
+      const d = document.getElementById('signin'); if (d) d.addEventListener('click', () => setTimeout(check, 0), { once: true });
+      window.FR._gisCheck = check;
+    }
     window.FR._setupGis = () => googleOn.then(on => {
       const g = document.getElementById('si-google'), o = document.querySelector('dialog.signin .or');
       if (!on) { if (g) g.hidden = true; if (o) o.hidden = true; return; }
       if (o) o.hidden = false;
-      setupGis().then(ok => { if (g) g.hidden = !!ok; }).catch(() => { if (g) g.hidden = false; });
+      setupGis().then(ok => { if (g) g.hidden = !!ok && !gisTooWide; const bx = document.getElementById('si-gis'); if (bx && gisTooWide) bx.hidden = true; if (window.FR._gisCheck) setTimeout(window.FR._gisCheck, 300); }).catch(() => { if (g) g.hidden = false; });
     });
     const d = document.getElementById('signin'), f = document.getElementById('signin-form'); if (!d || !f) return;
     const msg = document.getElementById('si-msg'), send = document.getElementById('si-send');
