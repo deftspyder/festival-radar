@@ -634,6 +634,14 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .showbar-sub { font-size: 12px; color: var(--muted); }
 .showbar.in-panel { margin: 0; padding: 6px 12px; background: var(--panel-2); flex-wrap: nowrap; }
 .showbar-txt { display: flex; flex-direction: column; line-height: 1.25; }
+.fsearch { position: relative; margin: 12px 0 4px; max-width: 420px; }
+.fsearch svg { position: absolute; left: 12px; top: 50%; width: 18px; height: 18px; transform: translateY(-50%); fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; pointer-events: none; }
+.fsearch input { font: inherit; font-size: 16px; width: 100%; padding: 10px 40px 10px 38px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
+.fsearch input:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px color-mix(in srgb, var(--cyan) 25%, transparent); }
+.fsearch input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+.fsearch button { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; border: 0; background: transparent; color: var(--muted); font-size: 22px; line-height: 1; cursor: pointer; }
+.fsearch button:hover { color: var(--fg); }
+.fsearch-note { margin: 4px 0 8px; font-size: 13px; color: var(--muted); }
 .list-ctrls { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; }
 #sf-crew { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 16px; }
 #sf-crew > .empty { grid-column: 1 / -1; }
@@ -863,6 +871,12 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
         </div>
       </div>
     </div>
+    <div class="fsearch" role="search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+      <input type="search" id="fest-q" placeholder="Search by name" aria-label="Search festivals and shows by name" autocomplete="off" enterkeyhint="search" maxlength="60">
+      <button type="button" id="fest-q-x" aria-label="Clear search" hidden>×</button>
+    </div>
+    <p class="fsearch-note" id="fest-q-note" aria-live="polite" hidden></p>
     <p class="notice" id="notice" hidden></p>
     <div class="cards" id="cards"><div class="empty">Loading festivals…</div></div>
   </section>
@@ -1102,6 +1116,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     </ul></details>
     <details><summary>Festivals and Picks</summary><ul>
       <li>The Festivals tab lists events near you, around the USA and worldwide. Tap a festival name for its site and an artist for Spotify.</li>
+      <li>Know the name? Type it in the search box above the list. It searches every section, plus club shows and concerts.</li>
       <li>Mark Going, Maybe or Pass on each card. Your crew sees your picks, and you see theirs.</li>
       <li>Tap the heart to save a festival to My Radar without deciding yet.</li>
       <li>A glowing light on a card means tickets go on sale within a week. A dim light means the date isn't confirmed.</li>
@@ -4834,6 +4849,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 
   function goToCard(id) {
     if (window.FRTab) FRTab('festivals', { scroll: false });
+    if (festQ) setFestQ('');
     const f = state._all.find(x => x.id === id);
     if (f && f.kind === 'show' && !SHOWS && !document.getElementById('card-' + id)) { SHOWS = true; try { localStorage.setItem('fr-show-shows', '1'); } catch (e) {} renderAll(); }
     let card = document.getElementById('card-' + id);
@@ -4843,9 +4859,28 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
     setTimeout(() => card.classList.remove('flash'), 2400);
   }
+  // Type to search: filters by name across every section, and includes club shows even when they're switched off.
+  let festQ = '';
+  function setFestQ(v, keepInput) {
+    festQ = String(v || '').trim();
+    const inp = $('fest-q'); if (inp && !keepInput) inp.value = festQ;
+    const x = $('fest-q-x'); if (x) x.hidden = !(inp && inp.value);
+    renderCards();
+  }
+  function renderSearchResults(cards) {
+    const words = festQ.split(/\s+/).map(norm).filter(Boolean);
+    const list = state._all.filter(f => { const n = norm(f.festival); return words.every(w => n.includes(w)); }).sort(byStart);
+    const note = $('fest-q-note');
+    cards.className = 'cards';
+    if (note) { note.hidden = false; note.textContent = list.length ? (list.length === 1 ? '1 match' : list.length + ' matches') + ' in all sections' : ''; note.hidden = !list.length; }
+    if (!list.length) { cards.appendChild(el('div', 'empty', 'Nothing matches "' + festQ + '". Check the spelling, or try part of the name.')); return; }
+    list.forEach(f => cards.appendChild(makeCard(f)));
+  }
   function renderCards() {
     renderRadar();
     const cards = $('cards'); cards.replaceChildren();
+    const qn = $('fest-q-note'); if (qn && !festQ) qn.hidden = true;
+    if (festQ && state._all.length) { renderSearchResults(cards); return; }
     if (!state.festivals.length) { cards.className = 'cards'; cards.appendChild(el('div', 'empty', 'The festival list is empty. Ask Bill to add festivals.')); return; }
     if (state.section === 'All') {
       cards.className = 'cols';
@@ -5269,7 +5304,14 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     SHOWS = !SHOWS; try { localStorage.setItem('fr-show-shows', SHOWS ? '1' : '0'); } catch (e) {}
     renderAll();
   });
+  (() => {
+    const inp = $('fest-q'), x = $('fest-q-x'); if (!inp) return;
+    let qt; inp.addEventListener('input', () => { x.hidden = !inp.value; clearTimeout(qt); qt = setTimeout(() => setFestQ(inp.value, true), 120); });
+    inp.addEventListener('keydown', e => { if (e.key === 'Escape') { setFestQ(''); } else if (e.key === 'Enter') { clearTimeout(qt); setFestQ(inp.value, true); inp.blur(); } });
+    x.addEventListener('click', () => { setFestQ(''); inp.focus(); });
+  })();
   document.querySelectorAll('#tabs button').forEach(btn => btn.addEventListener('click', () => {
+    if (festQ) setFestQ('');
     state.section = btn.dataset.sec;
     document.querySelectorAll('#tabs button').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
     renderCards();
