@@ -400,6 +400,23 @@ dialog.pcard .pc-inv select { width: auto; flex: 1; min-width: 0; margin: 0; }
 .cbtn:hover { opacity: 1; color: var(--cyan); }
 .cbtn .dot { position: absolute; top: 5px; right: 4px; width: 9px; height: 9px; border-radius: 50%; background: var(--pink); box-shadow: 0 0 6px var(--pink); border: 1.5px solid var(--panel); }
 .cbtn.has { color: var(--cyan); opacity: 1; }
+.cbtn.share svg { stroke-linecap: round; }
+#share .sh-fest { margin: 0 0 12px; }
+#share .sh-fest b { display: block; font-size: 17px; }
+#share .sh-fest span { font-size: 14px; color: var(--muted); }
+#share .sh-list { display: flex; flex-direction: column; }
+#share .sh-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
+#share .sh-row:last-child { border-bottom: 0; }
+#share .sh-row .nm { flex: 1; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
+#share .sh-row .nm small { display: block; font-weight: 500; color: var(--muted); font-size: 12px; }
+#share .sh-row .abtn { flex: none; font-size: 13px; padding: 6px 14px; }
+#share .sh-row .sent { flex: none; font-size: 13px; font-weight: 700; color: var(--going); }
+#share .sh-list .empty { font-size: 13px; }
+dialog.chat .cm-fest { margin-top: 4px; padding: 10px 12px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--violet) 55%, transparent); background: color-mix(in srgb, var(--violet) 10%, transparent); max-width: 340px; }
+dialog.chat .cm-fest .cf-k { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--cyan); }
+dialog.chat .cm-fest b { display: block; font-size: 15px; margin: 2px 0; overflow-wrap: anywhere; }
+dialog.chat .cm-fest .cf-m { font-size: 13px; color: var(--muted); }
+dialog.chat .cm-fest .abtn { margin-top: 8px; font-size: 13px; padding: 6px 14px; }
 .flist.chats .fl-row { gap: 10px; }
 .flist.chats .ch-go { font: inherit; text-align: left; background: none; border: none; color: var(--fg); cursor: pointer; padding: 4px 0; min-width: 0; flex: 1; }
 .flist.chats .ch-go b { display: block; font-size: 15px; overflow-wrap: anywhere; }
@@ -1053,6 +1070,21 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <p class="fine">Festival Radar is for ages 18 and up. By signing in you agree to the <a href="privacy.html">privacy policy</a>. Your crews see your profile, picks and favorite artists. Your name and main photo can appear in public festival chats unless you make your profile private.</p>
   </form>
 </dialog>
+<dialog class="sheet" id="share" aria-labelledby="sh-h">
+  <div class="sh-head"><h2 id="sh-h">Share</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
+  <div class="sh-body">
+    <p class="sh-fest" id="sh-fest"></p>
+    <div class="line"><button type="button" class="abtn" id="sh-text">Text or share</button><button type="button" class="abtn alt" id="sh-copy">Copy link</button></div>
+    <p class="muted" id="sh-text-note">Opens your phone's share sheet, so you can text it to someone in your contacts or drop it in a group chat.</p>
+    <div id="sh-member">
+      <h3>Send to my crew</h3>
+      <div class="sh-list" id="sh-crews"></div>
+      <h3>Send to a friend</h3>
+      <div class="sh-list" id="sh-friends"></div>
+    </div>
+    <p class="muted" id="sh-signin" hidden>Sign in to send it to your crew or friends on Festival Radar.</p>
+  </div>
+</dialog>
 <dialog class="sheet" id="newcrew" aria-labelledby="nc-h">
   <div class="sh-head"><h2 id="nc-h">Start a Crew</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
   <div class="sh-body">
@@ -1119,6 +1151,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <li>Know the name? Type it in the search box above the list. It searches every section, plus club shows and concerts.</li>
       <li>Mark Going, Maybe or Pass on each card. Your crew sees your picks, and you see theirs.</li>
       <li>Tap the heart to save a festival to My Radar without deciding yet.</li>
+      <li>Tap the share arrow on a card to text it to a friend (the link shows the festival's picture and dates), send it to your crew chat, or message it to a Festival Radar friend.</li>
       <li>A glowing light on a card means tickets go on sale within a week. A dim light means the date isn't confirmed.</li>
       <li>Calendar shows everything on a timeline. Tap a bar to open that festival.</li>
     </ul></details>
@@ -2229,11 +2262,24 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       hd.append(nm, mk('span', 'cm-t', hhmm(m.created_at)), more);
       const acts = mk('div', 'cm-acts'); acts.hidden = true;
       more.addEventListener('click', () => { acts.hidden = !acts.hidden; if (!acts.hidden) fillActs(acts, m); });
-      body.append(hd, mk('div', 'cm-x', m.body), acts);
+      const fm = String(m.body || '').match(SHARE_RE);
+      body.append(hd, fm ? festMsg(fm[2], fm[1]) : mk('div', 'cm-x', m.body), acts);
       row.append(avatarEl(m.user_id), body); box.appendChild(row);
     });
     if (scroll || nearBottom) box.scrollTop = box.scrollHeight;
   }
+  // A shared festival is sent as "Shared <name>\n[fr:<id>]" and shown as a card.
+  const SHARE_RE = /^Shared (.{1,160})\n\[fr:([a-z0-9][a-z0-9-]{0,150})\]$/;
+  function festMsg(id, name) {
+    const f = festOf(id); const box = mk('div', 'cm-fest');
+    box.append(mk('div', 'cf-k', 'Festival'), mk('b', null, f ? f.festival : name));
+    if (f) box.appendChild(mk('div', 'cf-m', [f.dates, f.city].filter(Boolean).join(' · ')));
+    const go = mk('button', 'abtn alt', f ? 'See festival' : 'No longer listed'); go.type = 'button';
+    if (f) go.addEventListener('click', () => { const d = document.getElementById('chat'); if (d && d.open) d.close(); if (window.FRGoToCard) FRGoToCard(id); });
+    else go.disabled = true;
+    box.appendChild(go); return box;
+  }
+  window.FRShareBody = f => 'Shared ' + String(f.festival).slice(0, 160) + '\n[fr:' + f.id + ']';
   function fillActs(acts, m) {
     acts.replaceChildren();
     const link = (t, fn, cls) => { const b = mk('button', 'lnk' + (cls ? ' ' + cls : ''), t); b.type = 'button'; b.addEventListener('click', fn); acts.appendChild(b); return b; };
@@ -2447,6 +2493,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     return ids;
   }
   let cameByInvite = false;
+  const sharedCardLink = (() => { try { return !!new URLSearchParams(location.search).get('card'); } catch (e) { return false; } })();
   async function redeemPending() {
     const code = lsGet('fr-invite'); if (!code) return;
     cameByInvite = true;
@@ -2459,7 +2506,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     else if (st === 'already') { activeCrew = data.crew_id; lsSet('fr-crew', activeCrew); toast('You\'re already in ' + data.crew + '.'); }
     else if (st === 'expired') toast('That invite to ' + data.crew + ' expired. Ask for a new link.');
     else if (st === 'full') toast(data.crew + ' is full (50 members).');
-    else if (st === 'site') toast('Welcome to Festival Radar!');
+    else if (st === 'site' && !sharedCardLink) toast('Welcome to Festival Radar!');
   }
   async function showInviteBanner() {
     const code = lsGet('fr-invite'); const ban = document.getElementById('invite-banner'); if (!code || !ban || !sb) return;
@@ -2529,6 +2576,80 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     });
   }
   window.addEventListener('fr-tab', e => { if (e && e.detail === 'radar' && uid) loadSeries().catch(() => {}); });
+
+  // Share a festival: text it (phone share sheet, link to its preview page), or send it to a crew chat or a friend.
+  let shareFid = null, siteCode = null;
+  const SHARE_BASE = 'https://deftspyder.github.io/festival-radar/f/';
+  async function shareUrl(f) {
+    let u = SHARE_BASE + f.id + '.html';
+    if (uid) {
+      if (!siteCode) { try { const { data } = await sb.rpc('crew_invite', { c: null, fresh: false }); if (data) siteCode = data; } catch (e) {} }
+      if (siteCode) u += '?i=' + siteCode;
+    }
+    return u;
+  }
+  const shareText = f => 'Check out ' + f.festival + (f.dates ? ', ' + f.dates : '') + (f.city ? ' in ' + f.city : '') + ' on Festival Radar';
+  async function sendShare(btn, rowEl, fn) {
+    btn.disabled = true;
+    const { error } = await fn();
+    if (error) {
+      const e = error.message || '';
+      toast(/slow down/.test(e) ? 'Slow down a little, then try again.' : /daily limit/.test(e) ? 'That\'s the message limit for today.' : /welcome/.test(e) ? 'Finish the welcome check first.' : 'That didn\'t send. Try again.');
+      btn.disabled = false; return false;
+    }
+    btn.replaceWith(mk('span', 'sent', 'Sent'));
+    if (window.FRChat) FRChat.refresh();
+    return true;
+  }
+  async function openShare(fid) {
+    const d = document.getElementById('share'); const f = festOf(fid); if (!d || !f) return;
+    shareFid = fid;
+    const head = document.getElementById('sh-fest'); head.replaceChildren(mk('b', null, f.festival), mk('span', null, [f.dates, f.city].filter(Boolean).join(' · ')));
+    document.getElementById('sh-h').textContent = 'Share';
+    const canShare = !!navigator.share;
+    document.getElementById('sh-text').hidden = !canShare;
+    document.getElementById('sh-copy').className = canShare ? 'abtn alt' : 'abtn';
+    document.getElementById('sh-text-note').textContent = canShare ? 'Opens your phone\'s share sheet, so you can text it to someone in your contacts or drop it in a group chat.' : 'Copies a link you can paste into a text or group chat. It shows this festival\'s picture and dates.';
+    document.getElementById('sh-member').hidden = !uid; document.getElementById('sh-signin').hidden = !!uid;
+    if (uid) {
+      const cb = document.getElementById('sh-crews'); cb.replaceChildren();
+      if (!crews.length) cb.appendChild(mk('div', 'empty', 'You\'re not in a crew yet. Start one from the Crew tab.'));
+      crews.forEach(c => {
+        const row = mk('div', 'sh-row'); const nm = mk('span', 'nm', c.name); nm.appendChild(mk('small', null, 'Crew chat'));
+        const b = mk('button', 'abtn', 'Send'); b.type = 'button'; b.setAttribute('aria-label', 'Send to ' + c.name);
+        b.addEventListener('click', () => sendShare(b, row, () => sb.rpc('post_message', { p_kind: 'crew', p_crew: c.id, p_festival: null, p_body: window.FRShareBody(f) })).then(ok => { if (ok) toast('Sent to ' + c.name); }));
+        row.append(nm, b); cb.appendChild(row);
+      });
+      const fb = document.getElementById('sh-friends'); fb.replaceChildren(mk('div', 'empty', 'Loading friends…'));
+      if (!friends.length) await loadFriends().catch(() => {});
+      if (shareFid !== fid) return;
+      fb.replaceChildren();
+      const list = friends.filter(x => !x.blocked);
+      if (!list.length) fb.appendChild(mk('div', 'empty', 'No friends yet. Add friends with your code in My Radar.'));
+      list.forEach(fr => {
+        const row = mk('div', 'sh-row'); const nm = mk('span', 'nm', fr.name); if (fr.crew) nm.appendChild(mk('small', null, 'Crew'));
+        const b = mk('button', 'abtn', 'Send'); b.type = 'button'; b.setAttribute('aria-label', 'Send to ' + fr.name);
+        b.addEventListener('click', () => sendShare(b, row, () => sb.rpc('send_dm', { p_to: fr.id, p_body: window.FRShareBody(f) })).then(ok => { if (ok) toast('Sent to ' + fr.name); }));
+        row.append(nm, b); fb.appendChild(row);
+      });
+    }
+    if (!d.open) d.showModal();
+  }
+  function wireShare() {
+    const d = document.getElementById('share'); if (!d || wireShare._done) return; wireShare._done = true;
+    d.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => d.close()));
+    d.addEventListener('click', e => { if (e.target === d) d.close(); });
+    document.getElementById('sh-text').addEventListener('click', async () => {
+      const f = festOf(shareFid); if (!f) return; const url = await shareUrl(f);
+      try { await navigator.share({ title: f.festival, text: shareText(f), url }); } catch (e) {}
+    });
+    document.getElementById('sh-copy').addEventListener('click', async () => {
+      const f = festOf(shareFid); if (!f) return; const url = await shareUrl(f);
+      try { await navigator.clipboard.writeText(shareText(f) + ' ' + url); toast('Link copied. Paste it in a text.'); }
+      catch (e) { prompt('Copy this link:', url); }
+    });
+  }
+  window.FRShare = { open: fid => { wireShare(); openShare(fid); } };
 
   // Start a crew: Crew tab card, the one-time pop-up and Settings all come through here.
   async function startCrew(name) {
@@ -4759,6 +4880,13 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     b.addEventListener('click', () => { if (!state.me) { if (window.FR && FR.openSignIn) FR.openSignIn(); return; } if (window.FRChat) FRChat.openFest(f.id); });
     return b;
   }
+  function shareBtn(f) {
+    const b = el('button', 'cbtn share'); b.type = 'button';
+    b.setAttribute('aria-label', 'Share ' + f.festival); b.title = 'Share';
+    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 12.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-6.5"/></svg>';
+    b.addEventListener('click', () => { if (window.FRShare) FRShare.open(f.id); });
+    return b;
+  }
   window.addEventListener('fr-chats', () => document.querySelectorAll('.cbtn[data-fid]').forEach(b => {
     const n = FRChat.unreadFor(b.dataset.fid); b.classList.toggle('has', !!n); b.title = n ? n + ' new' : 'Chat';
     const dot = b.querySelector('.dot'); if (n && !dot) b.appendChild(el('span', 'dot')); else if (!n && dot) dot.remove();
@@ -4770,7 +4898,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const top = el('div', 'card-top');
     const h = el('h3'); const href = safeLink(f.link);
     if (href) { const a = el('a', null, f.festival); a.href = href; a.target = '_blank'; a.rel = 'noopener'; h.appendChild(a); } else h.textContent = f.festival;
-    const acts = el('span', 'card-acts'); const sl = saleLight(f); if (sl) acts.appendChild(sl); acts.append(el('span', 'pill ' + statusClass(f.status), f.status), chatBtn(f), heartBtn(f));
+    const acts = el('span', 'card-acts'); const sl = saleLight(f); if (sl) acts.appendChild(sl); acts.append(el('span', 'pill ' + statusClass(f.status), f.status), shareBtn(f), chatBtn(f), heartBtn(f));
     top.append(h, acts);
     const meta = el('div', 'meta', f.dates + ' · ' + f.city + (dist(f) ? ' · ' + dist(f) + ' from Hermosa' : ''));
     const gw = el('div'); gw.appendChild(el('span', 'genre', f.genre)); if (f.kind === 'show') { gw.append(' '); gw.appendChild(el('span', 'show-tag', 'Show')); }
