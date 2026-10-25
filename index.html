@@ -401,6 +401,8 @@ dialog.pcard .pc-inv select { width: auto; flex: 1; min-width: 0; margin: 0; }
 .cbtn .dot { position: absolute; top: 5px; right: 4px; width: 9px; height: 9px; border-radius: 50%; background: var(--pink); box-shadow: 0 0 6px var(--pink); border: 1.5px solid var(--panel); }
 .cbtn.has { color: var(--cyan); opacity: 1; }
 .cbtn.share svg { stroke-linecap: round; }
+#sharedwel #sw-lead { font-size: 16px; margin: 0 0 6px; }
+#sharedwel #sw-lead b { color: var(--fg); }
 #share .sh-fest { margin: 0 0 12px; }
 #share .sh-fest b { display: block; font-size: 17px; }
 #share .sh-fest span { font-size: 14px; color: var(--muted); }
@@ -1069,6 +1071,14 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <p class="msg" id="si-msg" hidden aria-live="polite"></p>
     <p class="fine">Festival Radar is for ages 18 and up. By signing in you agree to the <a href="privacy.html">privacy policy</a>. Your crews see your profile, picks and favorite artists. Your name and main photo can appear in public festival chats unless you make your profile private.</p>
   </form>
+</dialog>
+<dialog class="sheet" id="sharedwel" aria-labelledby="sw-h">
+  <div class="sh-head"><h2 id="sw-h">Shared With You</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
+  <div class="sh-body">
+    <p id="sw-lead"></p>
+    <p class="muted">Sign in to mark Going, see who else is going and get a heads-up before tickets go on sale. It's free.</p>
+    <div class="line"><button type="button" class="abtn" id="sw-in">Sign in to see who's going</button><button type="button" class="abtn alt" id="sw-look">Just look</button></div>
+  </div>
 </dialog>
 <dialog class="sheet" id="share" aria-labelledby="sh-h">
   <div class="sh-head"><h2 id="sh-h">Share</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
@@ -2446,6 +2456,16 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   if (urlInvite) lsSet('fr-invite', urlInvite);
   function inviteQS() { const c = lsGet('fr-invite'); return c ? '?invite=' + encodeURIComponent(c) : ''; }
   window.inviteQS = inviteQS;
+  // A signed-out visitor from a shared link: remember the festival (and a Going/Maybe/Pass they tapped) through sign-in.
+  window.FRPending = {
+    get() { try { const p = JSON.parse(localStorage.getItem('fr-pending-card') || 'null'); return p && p.id && Date.now() - p.at < 3 * 3600e3 ? p : null; } catch (e) { return null; } },
+    set(id, pick) { try { const old = this.get(); localStorage.setItem('fr-pending-card', JSON.stringify({ id, pick: pick || (old && old.id === id ? old.pick : null) || null, at: Date.now() })); } catch (e) {} },
+    clear() { try { localStorage.removeItem('fr-pending-card'); } catch (e) {} }
+  };
+  function returnQS() {
+    const q = inviteQS(); const p = window.FRPending.get();
+    return p ? (q ? q + '&' : '?') + 'card=' + encodeURIComponent(p.id) : q;
+  }
   let chatInitDone = false;
   let crews = [], activeCrew = lsGet('fr-crew'), allCrews = lsGet('fr-all-crews') === '1', userEmail = '';
   const toast = t => { const e = document.getElementById('toast'); if (!e) return; e.textContent = t; e.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => { e.hidden = true; }, 4200); };
@@ -2650,6 +2670,21 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     });
   }
   window.FRShare = { open: fid => { wireShare(); openShare(fid); } };
+  window.FRSharedWelcome = async fid => {
+    const d = document.getElementById('sharedwel'); const f = festOf(fid); if (!d || !f || uid) return;
+    window.FRPending.set(fid);
+    let who = 'A friend';
+    const code = lsGet('fr-invite');
+    if (code && sb) { try { const { data } = await sb.rpc('invite_info', { code }); if (data && data.inviter) who = data.inviter; } catch (e) {} }
+    const lead = document.getElementById('sw-lead'); lead.replaceChildren(mk('b', null, who), ' shared ', mk('b', null, f.festival), ' with you.');
+    if (!d._wired) {
+      d._wired = true;
+      d.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => d.close()));
+      document.getElementById('sw-look').addEventListener('click', () => d.close());
+      document.getElementById('sw-in').addEventListener('click', () => { d.close(); FR.openSignIn(); });
+    }
+    if (!document.querySelector('dialog[open]')) d.showModal();
+  };
 
   // Start a crew: Crew tab card, the one-time pop-up and Settings all come through here.
   async function startCrew(name) {
@@ -2914,7 +2949,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       try { if (document.getElementById('si-optin').checked) localStorage.setItem('fr-pending-optin', '1'); else localStorage.removeItem('fr-pending-optin'); } catch (e) {}
       const on = await googleOn; if (!on) { say('Google sign-in isn\'t turned on yet. Use the email link for now.', true); return; }
       say('Opening Google…');
-      const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname + inviteQS() } });
+      const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname + returnQS() } });
       if (error) say(/not enabled|unsupported provider/i.test(error.message || '') ? 'Google sign-in isn\'t turned on yet. Use the email link for now.' : 'That didn\'t work: ' + error.message, true);
     });
     f.addEventListener('submit', async e => {
@@ -2925,7 +2960,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       const optin = document.getElementById('si-optin').checked;
       if (!email) return;
       send.disabled = true; say('Sending…');
-      const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname + inviteQS(), data: { full_name: name, marketing_opt_in: optin } } });
+      const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname + returnQS(), data: { full_name: name, marketing_opt_in: optin } } });
       send.disabled = false;
       if (error) say(error.status === 429 ? 'Too many sign-in emails just now. Wait a few minutes and try again.' : 'That didn\'t work: ' + error.message, true);
       else say('Check your email for a sign-in link from Supabase. Open it on this device.');
@@ -4918,8 +4953,11 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const choice = el('div', 'choice'); choice.setAttribute('role', 'group'); choice.setAttribute('aria-label', 'Your pick for ' + f.festival);
     ['going', 'maybe', 'pass'].forEach(k => {
       const b = el('button', null, LABEL[k]); b.type = 'button'; b.dataset.v = k;
-      b.setAttribute('aria-pressed', String(mine[f.id] === k)); b.disabled = !state.canWrite || !state.me;
-      b.addEventListener('click', () => setPick(f.id, mine[f.id] === k ? null : k));
+      b.setAttribute('aria-pressed', String(mine[f.id] === k)); b.disabled = !!state.me && !state.canWrite;
+      b.addEventListener('click', () => {
+        if (!state.me) { if (window.FRPending) FRPending.set(f.id, k); if (window.FR && FR.openSignIn) FR.openSignIn(); return; }
+        setPick(f.id, mine[f.id] === k ? null : k);
+      });
       choice.appendChild(b);
     });
     const crew = el('div', 'crew');
@@ -5406,9 +5444,20 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   function openCardFromLink() {
     if (cardLinkDone) return; cardLinkDone = true;
     let id = null; try { id = new URLSearchParams(location.search).get('card'); } catch (e) {}
-    if (!id || !state._all.some(f => f.id === id)) return;
+    const pend = window.FRPending ? FRPending.get() : null;
+    if (!id && pend && state.me) id = pend.id; // back from sign-in
+    if (!id || !state._all.some(f => f.id === id)) { if (pend && state.me) FRPending.clear(); return; }
     try { const u = new URL(location.href); u.searchParams.delete('card'); history.replaceState(null, '', u.pathname + u.search + u.hash); } catch (e) {}
     setTimeout(() => goToCard(id), 300);
+    if (!state.me) { setTimeout(() => window.FRSharedWelcome && FRSharedWelcome(id), 1400); return; }
+    if (pend && pend.id === id) { pendingPick = pend; applyPendingPick(); }
+  }
+  // A pick tapped while signed out is saved once the member's picks have loaded.
+  let pendingPick = null;
+  function applyPendingPick() {
+    if (!pendingPick || !picksReady || !state.me || !state.canWrite) return;
+    const p = pendingPick; pendingPick = null; FRPending.clear();
+    if (p.pick && ['going', 'maybe', 'pass'].includes(p.pick) && myPick(p.id) !== p.pick) setPick(p.id, p.pick);
   }
 
   let writing = Promise.resolve();
@@ -5463,7 +5512,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     snap.docs.forEach(d => { const data = d.data(); if (data && data.choices && typeof data.choices === 'object') next[d.id] = data; });
     state.picks = next;
     renderBoard(); renderCards(); renderCalendar(); resolveNames();
-    picksReady = true; backfillGoing();
+    picksReady = true; backfillGoing(); applyPendingPick();
   }, () => {});
 
   db.collection('hearts').onSnapshot(snap => {
