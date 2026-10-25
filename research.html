@@ -1,0 +1,852 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c0c0d">
+<meta name="robots" content="noindex">
+<title>Tower Control Research</title>
+<meta name="description" content="Rate Tower Control's mixes from your phone.">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Tower Control Research on Festival Radar: the same Research as the PC (helper/ui/tower.html), made for a phone.
+   Data comes from Supabase (tc_* tables, synced from the PC by tower/fr_sync.py). Ratings go into tc_ratings and
+   the PC applies them; only an admin's ratings change the scores, Review and Arrange. */
+:root {
+  --bg: #0c0c0d; --panel: #161718; --panel2: #121314; --raised: #1c1d20; --raised2: #222427;
+  --line: #2c2e31; --line2: #34373b; --ink: #e9eaec; --muted: #a3a6ab; --faint: #6f737a; --off: #2a2c30;
+  --plan: #3fe0c5; --plan-bg: #10302b; --plan-ink: #8ff0df;
+  --warn: #ffb547; --warn-bg: #2b2112; --bad: #ff6b5e; --bad-bg: #2e1513;
+  --sec-peak: #ffa62a; --sec-groove: #35a095; --sec-bassout: #899198; --sec-breakdown: #8a4554; --sec-fade: #596168; --sec-other: #3f8290;
+  --display: "Barlow Condensed", "Arial Narrow", "Segoe UI", system-ui, sans-serif;
+  --body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box }
+html { -webkit-text-size-adjust: 100% }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.4 var(--body); padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px) }
+body.playing { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 84px) }
+button, select, input, textarea { font: inherit; color: inherit }
+button { cursor: pointer }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--plan); outline-offset: 2px }
+button:disabled { opacity: .45; cursor: not-allowed }
+a { color: var(--plan-ink) }
+[hidden] { display: none !important }
+.muted { color: var(--muted) } .small { font-size: 13px } .mono { font-family: var(--mono) }
+.lab { font: 600 13px var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted) }
+.h { font: 700 19px var(--display); letter-spacing: .07em; text-transform: uppercase; margin: 0 }
+
+/* top bar */
+.top { position: sticky; top: 0; z-index: 20; background: rgba(12,12,13,.94); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line); padding: calc(env(safe-area-inset-top, 0px) + 8px) 16px 8px; display: grid; gap: 6px }
+.top .row { display: flex; align-items: center; gap: 10px; min-width: 0 }
+.brand { font: 700 20px var(--display); letter-spacing: .1em; text-transform: uppercase; white-space: nowrap }
+.brand b { color: var(--plan) }
+.top .grow { flex: 1; min-width: 0 }
+.syncl { font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.syncl i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--plan); margin-right: 6px; vertical-align: 0 }
+.syncl.old i { background: var(--warn) }
+.iconbtn { min-width: 44px; min-height: 40px; border-radius: 8px; border: 1px solid var(--line2); background: var(--raised2); font-weight: 600; padding: 0 10px; white-space: nowrap }
+.back { color: var(--muted); text-decoration: none; font-size: 13px; white-space: nowrap; flex: none }
+@media (max-width: 420px) { .brand { font-size: 18px; letter-spacing: .07em } .top .lab { font-size: 12px } }
+
+.wrap { padding: 12px 16px; display: grid; gap: 12px; max-width: 1280px; margin: 0 auto }
+.controls { display: grid; gap: 8px }
+select, input[type=search], input[type=text], textarea { background: #0f1011; border: 1px solid var(--line2); border-radius: 8px; padding: 9px 10px; min-height: 44px; width: 100%; font-size: 16px }
+textarea { min-height: 70px; resize: vertical }
+.seg { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px }
+.seg::-webkit-scrollbar { display: none }
+.seg button { flex: none; background: #0f1011; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; min-height: 40px; color: var(--muted); font-weight: 600; white-space: nowrap }
+.seg button[aria-pressed="true"] { background: #2a2c30; color: #fff; border-color: var(--line2) }
+
+/* pairings */
+.cols { display: grid; gap: 12px }
+@media (min-width: 900px) { .cols { grid-template-columns: minmax(300px, 380px) minmax(0, 1fr); align-items: start } .pairs { position: sticky; top: 92px; max-height: calc(100vh - 110px); overflow-y: auto } }
+.pairs { display: grid; gap: 6px; align-content: start }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; text-align: left; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); min-height: 56px }
+.pair[aria-pressed="true"] { border-color: var(--plan); background: #142320 }
+.pair b { font-weight: 600; font-size: 14.5px; overflow: hidden; text-overflow: ellipsis }
+.pair .bd { align-self: start; font: 700 11px/20px var(--display); letter-spacing: .08em; padding: 0 8px; border-radius: 999px; color: #0c0c0d; white-space: nowrap }
+.pair .sub { font-size: 12.5px; color: var(--ink) }
+.pair .pcode { font: 500 11.5px var(--mono); color: var(--faint); justify-self: end; align-self: end }
+.empty { padding: 26px 14px; text-align: center; color: var(--muted); border: 1px dashed var(--line2); border-radius: 10px }
+.more { justify-self: center; margin-top: 4px }
+@media (max-width: 899px) { .cols.open .pairs, .cols.open .controls-pairs { display: none } .cols:not(.open) .detail { display: none } }
+
+/* one pairing */
+.detail { display: grid; gap: 10px; min-width: 0 }
+.dhead { display: grid; gap: 2px }
+.dhead .bk { justify-self: start; min-height: 40px; padding: 0 12px 0 8px; border-radius: 8px; border: 1px solid var(--line2); background: var(--raised2); font-weight: 600; margin-bottom: 6px }
+@media (min-width: 900px) { .dhead .bk { display: none } }
+.dtitle { font: 700 22px/1.1 var(--display); letter-spacing: .04em; text-transform: uppercase }
+.opts { display: grid; gap: 8px }
+.opt { display: grid; gap: 8px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel) }
+.opt.sel { border-color: #3a6f67; background: #121c1b }
+.opt.vari { border-left: 3px solid #6fd3ff }
+.opt.dropped { opacity: .6 }
+.opt .r1 { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center }
+.rk { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--raised2); font: 700 14px var(--display) }
+.rk.v { background: #12303a; color: #8fe3ff; font-size: 12px }
+.opt .nm { font-weight: 600; font-size: 14px; line-height: 1.25 }
+.opt .why { font-size: 12.5px; color: var(--muted) }
+.vtag { display: inline-block; padding: 0 7px; margin-right: 6px; border-radius: 999px; background: #12303a; color: #8fe3ff; font: 700 11px/18px var(--display); letter-spacing: .07em; vertical-align: 1px }
+.foot { display: flex; align-items: center; gap: 8px; justify-content: space-between }
+.out { padding: 5px 9px; border-radius: 8px; font-size: 12px; font-weight: 600; background: var(--raised2); color: var(--muted) }
+.ocode { font: 500 11.5px var(--mono); color: var(--faint); white-space: nowrap }
+.others { display: flex; flex-wrap: wrap; gap: 4px }
+.others span { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--raised2); border: 1px solid var(--line2) }
+.others span b { color: var(--rc) }
+.pv { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line2); background: var(--raised2); font-weight: 600; white-space: nowrap; justify-content: center }
+.pv.playing { border-color: var(--plan); color: var(--plan) }
+.pv.ask { font-size: 13px; color: var(--muted); padding: 0 12px }
+.rate { display: flex; gap: 4px }
+.rate button { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 1px; min-height: 52px; padding: 3px 1px; border-radius: 7px; border: 1px solid var(--line2); background: var(--raised); font: 700 11px var(--display); letter-spacing: .03em; color: var(--rc) }
+.rate button span { font: 600 10px var(--mono); color: var(--faint) }
+.rate button[aria-pressed="true"] { border: 2px solid var(--rc); background: #26282c }
+.rate button.pend { border-style: dashed }
+.rate.off { opacity: .35; pointer-events: none }
+.pendnote { font-size: 12px; color: #8fe3ff }
+.crashbtn { justify-self: start; background: none; border: 0; padding: 4px 0; color: #ffb0a8; font-size: 12.5px; text-decoration: underline }
+.crash { display: grid; gap: 4px; font-size: 12.5px; padding: 8px 10px; border-radius: 8px; background: #1d1414; border: 1px solid #3c2422 }
+
+/* lanes */
+.lanes { display: grid; gap: 6px; position: relative }
+.lane { display: grid; gap: 3px }
+.lane .lc { display: flex; gap: 8px; font-size: 12px; color: var(--muted); min-width: 0 }
+.lane .lc b { font: 700 12.5px var(--display); letter-spacing: .08em; white-space: nowrap }
+.lane .lc span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.lane canvas { width: 100%; display: block; border-radius: 6px }
+.beats { position: relative; height: 22px; border-radius: 6px; background: #121314 }
+.beats i { position: absolute; top: 2px; bottom: 2px; border-radius: 3px; font: 600 9.5px/18px var(--mono); color: #0c0c0d; text-align: center; font-style: normal; overflow: hidden }
+.verdict { font-size: 12.5px }
+.phead { position: absolute; top: 0; bottom: 0; width: 2px; background: #fff; pointer-events: none; display: none; box-shadow: 0 0 6px rgba(255,255,255,.6) }
+
+/* cards: compare, suggest */
+.card { display: grid; gap: 8px; padding: 12px; border-radius: 10px; border: 1px solid #2c4a52; background: #0f1a1d }
+.cmpgrid { display: grid; gap: 8px; grid-template-columns: 1fr 1fr }
+@media (max-width: 420px) { .cmpgrid { grid-template-columns: 1fr } }
+.cmpside { display: grid; gap: 6px; padding: 10px; border-radius: 8px; border: 1px solid var(--line2); background: var(--panel); align-content: start }
+.cmpwin { display: grid; gap: 6px; grid-template-columns: 1fr 1fr 1fr }
+.btn { background: var(--raised2); border: 1px solid var(--line2); border-radius: 8px; padding: 8px 12px; min-height: 44px; font-weight: 600 }
+.btn.primary { background: var(--plan-bg); border-color: #2a6f63; color: var(--plan-ink) }
+.chips { display: flex; flex-wrap: wrap; gap: 6px }
+.schip { min-height: 38px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line2); background: var(--raised); font-size: 13px; font-weight: 600 }
+.schip[aria-pressed="true"] { border: 2px solid #6fd3ff; background: #12303a; color: #bfefff }
+
+/* sheet (rating popup, people) */
+.back-drop { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.6); display: grid; grid-template-columns: minmax(0, 1fr); align-items: end; justify-items: center }
+.sheet { width: min(720px, 100%); min-width: 0; overflow-x: hidden; max-height: 92vh; overflow-y: auto; background: var(--panel); border: 1px solid var(--line2); border-radius: 16px 16px 0 0;
+  padding: 14px 16px calc(env(safe-area-inset-bottom, 0px) + 16px); display: grid; gap: 10px }
+@media (min-width: 760px) { .back-drop { align-items: center } .sheet { border-radius: 14px } }
+.sheet .pairnm { font-size: 13px; color: var(--muted) }
+.fbg { display: grid; gap: 6px }
+.fbgrid { display: grid; gap: 6px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) }
+.fbc { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 1px 9px; text-align: left; min-height: 56px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line2); background: var(--raised) }
+.fbc .bx { grid-row: span 3; width: 16px; height: 16px; margin-top: 2px; border-radius: 4px; border: 2px solid #5a5e64 }
+.fbc.on { border: 2px solid var(--plan); background: #1e2a28 } .fbc.on .bx { background: var(--plan); border-color: var(--plan) }
+.fbc b { font-size: 13.5px } .fbc .mn { font-size: 12px; color: #c9ccd1 } .fbc .tc { font-size: 11.5px; color: var(--plan-ink) }
+.sheet .actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap }
+.rpill { padding: 4px 10px; border-radius: 999px; background: var(--raised2); font-weight: 700; font-family: var(--display); letter-spacing: .05em }
+.person { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line) }
+.switch { min-width: 88px; min-height: 40px; border-radius: 999px; border: 1px solid var(--line2); background: var(--raised2); font-weight: 600 }
+.switch[aria-pressed="true"] { background: var(--plan-bg); border-color: #2a6f63; color: var(--plan-ink) }
+
+/* player */
+.player { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; background: #111213; border-top: 1px solid var(--line2);
+  padding: 8px 16px calc(env(safe-area-inset-bottom, 0px) + 8px); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center }
+.player .pn { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.player .pt { font: 500 12px var(--mono); color: var(--muted) }
+.player .prog { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: var(--off); overflow: hidden }
+.player .prog i { display: block; height: 100%; width: 0; background: var(--plan) }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 92px); z-index: 45; max-width: min(560px, calc(100% - 32px));
+  background: #232528; border: 1px solid var(--line2); border-radius: 10px; padding: 10px 14px; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.5) }
+.gate { max-width: 520px; margin: 12vh auto 0; padding: 22px; display: grid; gap: 12px; text-align: center; border: 1px solid var(--line2); border-radius: 14px; background: var(--panel) }
+.loading { padding: 40px 16px; text-align: center; color: var(--muted) }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="row">
+    <span class="brand">Tower <b>Control</b></span>
+    <span class="lab" style="color:var(--plan-ink)">Research</span>
+    <span class="grow"></span>
+    <button type="button" class="iconbtn" id="peopleBtn" hidden>People</button>
+  </div>
+  <div class="row"><div class="syncl grow" id="syncLine" aria-live="polite"></div><a class="back" href="./">← Festival Radar</a></div>
+</header>
+
+<main class="wrap" id="main"><div class="loading">Loading Tower Control…</div></main>
+
+<div class="player" id="player" hidden>
+  <span class="pn" id="pName"></span>
+  <button type="button" class="pv" id="pStop" aria-label="Stop the preview"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14"/></svg>Stop</button>
+  <span class="pt" id="pTime"></span>
+  <div class="prog"><i id="pBar"></i></div>
+</div>
+<audio id="audio" preload="none" controlslist="nodownload"></audio>
+<div class="toast" id="toast" hidden role="status"></div>
+<div id="sheetRoot"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+(() => {
+"use strict";
+const SB_URL = "https://jgxxrmvhjnwpzlxmmgvs.supabase.co";
+const SB_KEY = "sb_publishable_ssrd2j825Mi3CJVEMxBvwA_eq4OHvkY";   // the same public key as index.html
+const BUCKET = "tc-previews";
+const sb = window.supabase && window.supabase.createClient
+  ? window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } }) : null;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+function toast(t, ms = 6000) { const el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { el.hidden = true; }, ms); }
+
+const RATE = [
+  { n: 1, l: "Crash", c: "#ff6b5e", r: 40, m: "doesn't work at all" },
+  { n: 2, l: "Go-around", c: "#ffb547", r: -20, m: "abort, try another approach" },
+  { n: 3, l: "Bumpy", c: "#f0c72e", r: 7, m: "got down, not pretty" },
+  { n: 4, l: "Smooth", c: "#3fe0c5", r: 0, m: "a good mix, worth refining" },
+  { n: 5, l: "G6", c: "#e9eaec", r: 0, m: "perfect: goes to Arrange" },
+];
+const plane = (rot, col, w = 24) => `<svg aria-hidden="true" width="${w}" height="${Math.round(w * .58)}" viewBox="0 0 34 20" style="transform:rotate(${rot}deg)"><path d="M2 10 L13 9 L19 2 L22 2 L18 9 L28 9 Q33 10 28 11 L18 11 L22 18 L19 18 L13 11 L2 10 Z M3 10 L6 6 L8 6 L7 10 L8 14 L6 14 Z" fill="${col}"/></svg>`;
+const SEC_VAR = { Peak: "--sec-peak", Groove: "--sec-groove", "Bass out": "--sec-bassout", Breakdown: "--sec-breakdown", Fade: "--sec-fade" };
+const SKIN = { low: "#ff2a9d", mid: "#9b5cff", high: "#29f0ff", bg: "#160b26" };
+
+let ME = null, ADMIN = false, NAMES = {}, META = { sync: null, feedback: null };
+let SONGS = {}, PLS = [], OPTS = {}, RAT = [], LAST_OPT = null;
+const ui = { pl: lsGet("tcr-pl"), f: lsGet("tcr-f") || "rate", pair: null, opt: null, shown: 60, showDropped: false, playing: null, cmpDone: new Set(), sg: new Set(), sgFor: null, asked: new Set() };
+
+/* ---------- data ---------- */
+async function all(q, page = 1000) {
+  let out = [], i = 0;
+  for (;;) {
+    const { data, error } = await q().range(i, i + page - 1);
+    if (error) throw error;
+    out = out.concat(data || []);
+    if (!data || data.length < page) return out;
+    i += page;
+  }
+}
+async function loadMeta() {
+  const { data } = await sb.from("tc_meta").select("key,value,updated_at");
+  for (const r of data || []) META[r.key] = r.value;
+}
+async function loadAll() {
+  await loadMeta();
+  const [songs, pls, opts] = await Promise.all([
+    all(() => sb.from("tc_songs").select("*")),
+    all(() => sb.from("tc_playlists").select("*").order("sort")),
+    all(() => sb.from("tc_options").select("*").order("id")),
+  ]);
+  SONGS = {}; songs.forEach(s => SONGS[s.id] = s);
+  PLS = pls;
+  OPTS = {}; opts.forEach(o => OPTS[o.id] = o);
+  LAST_OPT = opts.reduce((m, o) => o.updated_at > m ? o.updated_at : m, "");
+  await loadRatings();
+}
+async function loadRatings() {
+  RAT = await all(() => sb.from("tc_ratings").select("id,option_id,user_id,kind,rating,winner,symptoms,good,suggest,note,created_at,synced_at,result").order("id"));
+}
+async function refresh() {
+  if (document.hidden) return;
+  try {
+    await loadMeta();
+    if (LAST_OPT) {
+      const ch = await all(() => sb.from("tc_options").select("*").gt("updated_at", LAST_OPT).order("updated_at"));
+      ch.forEach(o => { OPTS[o.id] = o; if (o.updated_at > LAST_OPT) LAST_OPT = o.updated_at; });
+    }
+    if (!refresh.n || ++refresh.n % 6 === 0) {        // every few minutes: drop the ones the PC removed
+      const ids = new Set((await all(() => sb.from("tc_options").select("id"))).map(x => x.id));
+      for (const k of Object.keys(OPTS)) if (!ids.has(k)) delete OPTS[k];
+      refresh.n = refresh.n || 1;
+    }
+    await loadRatings();
+    const a = document.activeElement;
+    if (a && a.closest && a.closest("#detail") && /^(INPUT|TEXTAREA)$/.test(a.tagName)) { renderSync(); return; }   // don't redraw under your typing
+    render();
+  } catch (e) { /* offline for a moment: try again next time */ }
+}
+
+/* ---------- ratings: yours, pending ones, other people's ---------- */
+const mine = () => RAT.filter(r => r.user_id === ME.id);
+function myLatest(id, kinds = ["rate", "clear"]) {
+  let best = null; for (const r of RAT) if (r.user_id === ME.id && r.option_id === id && kinds.includes(r.kind)) best = r; return best;
+}
+// the rating that counts for what you see: an admin's own unsynced rating wins until the PC has applied it
+function rating(id) {
+  const o = OPTS[id]; if (!o) return null;
+  if (ADMIN) { const p = myLatest(id); if (p && !p.synced_at) return p.kind === "clear" ? null : p.rating; return o.rating; }
+  const m = myLatest(id); return m && m.kind === "rate" ? m.rating : null;
+}
+const pending = id => { const p = myLatest(id); return !!(p && !p.synced_at); };
+const billRating = id => OPTS[id] ? OPTS[id].rating : null;
+function othersFor(id) {
+  const by = {};
+  for (const r of RAT) if (r.option_id === id && r.kind === "rate" && r.user_id !== ME.id && r.rating) by[r.user_id] = r;
+  return Object.values(by);
+}
+
+/* ---------- pairings (the PC's Research list) ---------- */
+const song = id => SONGS[id] || { title: "?", sections: [], bpm: 120 };
+const shortT = t => (t.title || "").replace(/ - Purple Disco Machine.*$/i, "").replace(/ \(feat\..*?\)/i, "").replace(/ \(.*?\)$/, "");
+const sec = (tid, i) => (song(tid).sections || []).find(s => s.i === i);
+const fam = o => o.data.fam || o.id;
+const vn = o => o.data.vn || 1;
+const fixingNow = o => !!o.data.fixing_now;
+const hasPv = o => !!o.preview_path;
+const rankKey = o => { const r = rating(o.id); return r == null ? 2.5 : r >= 3 ? r : r - 10; };
+function canCompare(o) {
+  const v = o.data.variant;
+  if (!ADMIN || !v || v.compared || ui.cmpDone.has(o.id) || rating(o.id) != null || !hasPv(o) || fixingNow(o)) return false;
+  const old = OPTS[v.parent || v.base]; return !!(old && hasPv(old));
+}
+function plSet() {
+  const k = String(ui.pl || "all"); if (k === "all") return null;
+  const p = PLS.find(x => String(x.id) === k); return p ? new Set(p.tracks) : null;
+}
+function pairings() {
+  const by = {};
+  for (const o of Object.values(OPTS)) { const k = o.pair_code; (by[k] = by[k] || { key: o.pair_code, a: o.a, b: o.b, opts: [] }).opts.push(o); }
+  const out = Object.values(by);
+  for (const p of out) {
+    const fr = {}, fe = {};
+    for (const o of p.opts) { const f = fam(o); fr[f] = Math.max(fr[f] ?? -99, rankKey(o)); fe[f] = Math.max(fe[f] ?? -99, o.score); }
+    p.opts.sort((x, y) => { const a = fam(x), b = fam(y); return fr[b] - fr[a] || fe[b] - fe[a] || (a < b ? -1 : a > b ? 1 : 0) || vn(x) - vn(y); });
+    p.best = Math.max(...p.opts.map(o => o.score)); p.raw = Math.max(...p.opts.map(o => o.data.raw || o.score));
+    const br = ADMIN ? rating : billRating;
+    p.n5 = p.opts.filter(o => br(o.id) === 5).length; p.n4 = p.opts.filter(o => br(o.id) === 4).length;
+    p.todo = p.opts.filter(o => rating(o.id) == null && (ADMIN ? !fixingNow(o) : hasPv(o))).length;
+    p.mine = p.opts.filter(o => rating(o.id) != null).length;
+    p.ready = ADMIN ? p.opts.filter(o => o.status === "ready" && !pending(o.id)).length : 0;
+    p.fixing = p.opts.filter(o => o.status === "fixing").length;
+    p.reprop = p.opts.filter(o => o.data.variant && rating(o.id) == null && hasPv(o) && !fixingNow(o)).length;
+    p.cmp = p.opts.filter(canCompare).length;
+    p.heard = p.opts.filter(hasPv).length;
+  }
+  return out.sort((x, y) => y.raw - x.raw || (x.key < y.key ? -1 : 1));
+}
+const codeQuery = q => { const m = q.trim().toUpperCase().match(/^([A-Z?]{2})2([A-Z?]{2})(?:-(\d+)(?:V(\d+))?)?$/); return m ? { pair: m[1] + "2" + m[2], opt: m[3] ? +m[3] : null, v: m[4] ? +m[4] : null } : null; };
+const FILTERS = () => ADMIN
+  ? [["rate", "To rate", p => p.todo > 0 || p.ready > 0], ["refine", "Review", p => p.n4 > 0], ["arrange", "In Arrange", p => p.n5 > 0], ["fixing", "Being fixed", p => p.fixing > 0], ["all", "All", () => true]]
+  : [["rate", "To rate", p => p.todo > 0], ["mine", "Rated by you", p => p.mine > 0], ["arrange", "In Arrange", p => p.n5 > 0], ["all", "All", () => true]];
+function pairShown(p, ps, q) {
+  if (ps && !(ps.has(p.a) && ps.has(p.b))) return false;
+  const cq = codeQuery(q);
+  if (cq) return p.key === cq.pair;
+  if (q && !song(p.a).title.toLowerCase().includes(q) && !song(p.b).title.toLowerCase().includes(q)) return false;
+  const f = FILTERS().find(x => x[0] === ui.f) || FILTERS()[0];
+  return f[2](p);
+}
+
+/* ---------- render ---------- */
+function renderSync() {
+  const s = META.sync, el = $("syncLine");
+  if (!s || !s.at) { el.className = "syncl old"; el.innerHTML = `<i></i>The PC hasn't synced yet. Ratings wait until it does.`; return; }
+  const ago = Date.now() / 1000 - s.at, old = ago > 600;
+  const when = ago < 90 ? "just now" : ago < 3600 ? `${Math.round(ago / 60)} min ago` : ago < 86400 ? `${Math.round(ago / 3600)} h ago` : new Date(s.at * 1000).toLocaleDateString();
+  const n = mine().filter(r => !r.synced_at && r.kind !== "request").length;
+  el.className = "syncl" + (old ? " old" : "");
+  el.innerHTML = `<i></i>PC synced ${when}${old ? ": it applies ratings when the helper is running and no deck is playing" : ""}${n ? ` · ${n} of yours waiting` : ""}`;
+}
+let pairsCache = null;
+function render() {
+  if (!ME) return;
+  renderSync();
+  const main = $("main");
+  if (!main.dataset.built) {
+    main.dataset.built = "1";
+    main.innerHTML = `<div class="cols" id="cols">
+      <div class="pairs" id="pairsCol">
+        <div class="controls controls-pairs">
+          <select id="plSel" aria-label="Playlist"></select>
+          <input type="search" id="search" placeholder="Search a song or an ID like GL2LY" aria-label="Search" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <div class="seg" id="fSeg" role="group" aria-label="Show"></div>
+        </div>
+        <div id="pairList" style="display:grid;gap:6px"></div>
+      </div>
+      <section class="detail" id="detail" aria-live="polite"></section>
+    </div>`;
+    $("plSel").onchange = e => { ui.pl = e.target.value; lsSet("tcr-pl", ui.pl); ui.shown = 60; render(); };
+    $("search").oninput = () => { ui.shown = 60; render(); };
+  }
+  const ps = plSet(), q = $("search").value.trim().toLowerCase();
+  // playlists
+  const sel = $("plSel"), plk = String(ui.pl || "all");
+  const plHtml = `<option value="all">All playlists</option>` + PLS.map(p => `<option value="${p.id}">${esc(p.name)} · ${p.tracks.length} analyzed</option>`).join("");
+  if (sel.dataset.h !== plHtml) { sel.innerHTML = plHtml; sel.dataset.h = plHtml; }
+  sel.value = PLS.some(p => String(p.id) === plk) ? plk : "all";
+  const allP = pairings(); pairsCache = allP;
+  const inPl = p => !ps || (ps.has(p.a) && ps.has(p.b));
+  $("fSeg").innerHTML = FILTERS().map(([k, l, fn]) => `<button type="button" aria-pressed="${ui.f === k}" data-f="${k}">${l}${k !== "all" ? " " + allP.filter(p => inPl(p) && fn(p)).length : ""}</button>`).join("");
+  $("fSeg").querySelectorAll("[data-f]").forEach(b => b.onclick = () => { ui.f = b.dataset.f; lsSet("tcr-f", ui.f); ui.shown = 60; render(); });
+  const shown = allP.filter(p => pairShown(p, ps, q));
+  $("pairList").innerHTML = shown.slice(0, ui.shown).map(p => {
+    const bd = p.ready ? ["LISTEN AGAIN", "#d25cff"] : p.cmp ? ["COMPARE", "#6fd3ff"] : p.reprop ? ["RE-PROPOSAL", "#6fd3ff"] : p.todo === p.opts.length ? ["NEW", "#f0c72e"] : p.todo ? null : p.fixing ? ["FIXING", "#ffb547"] : ["DONE", "#3fe0c5"];
+    const sub = `${p.opts.length} way${p.opts.length > 1 ? "s" : ""} · best ${Math.round(p.best)}${p.n5 ? ` · ${p.n5} in Arrange` : ""}${p.n4 ? ` · ${p.n4} in Review` : ""}${!ADMIN && p.mine ? ` · you rated ${p.mine}` : ""}`;
+    return `<button type="button" class="pair" aria-pressed="${ui.pair === p.key}" data-pair="${esc(p.key)}"><b>${esc(shortT(song(p.a)))} → ${esc(shortT(song(p.b)))}</b>${bd ? `<span class="bd" style="background:${bd[1]}">${bd[0]}</span>` : "<span></span>"}<span class="sub">${sub}</span><span class="pcode">${esc(p.key)}</span></button>`;
+  }).join("") + (shown.length > ui.shown ? `<button type="button" class="btn more" id="moreBtn">Show more (${shown.length - ui.shown} left)</button>` : "")
+    || `<div class="empty">${Object.keys(OPTS).length ? "No pairings here. Try another filter or playlist." : "Nothing synced from the PC yet."}</div>`;
+  $("pairList").querySelectorAll("[data-pair]").forEach(b => b.onclick = () => openPair(b.dataset.pair, true));
+  if ($("moreBtn")) $("moreBtn").onclick = () => { ui.shown += 60; render(); };
+  const cq = codeQuery(q);
+  if (cq && shown.length === 1 && ui.pair !== shown[0].key && matchMedia("(min-width: 900px)").matches) ui.pair = shown[0].key;
+  renderDetail(allP.find(p => p.key === ui.pair) || null, cq);
+}
+function openPair(key, push) {
+  ui.pair = key; ui.opt = null; ui.showDropped = false;
+  if (push) { try { history.pushState({ pair: key }, "", "#" + key); } catch (e) {} }
+  render();
+  if (!matchMedia("(min-width: 900px)").matches) window.scrollTo({ top: 0 });
+}
+function closePair() { ui.pair = null; ui.opt = null; render(); }
+window.addEventListener("popstate", () => { const k = location.hash.slice(1).toUpperCase(); if (k && pairsCache && pairsCache.some(p => p.key === k)) openPair(k, false); else closePair(); });
+
+function optOutcome(o, p) {
+  const r = billRating(o.id), mr = rating(o.id);
+  if (ADMIN && pending(o.id)) return [mr == null ? "Clearing: waiting for the PC" : `Rated ${mr}: waiting for the PC`, "#12303a", "#8fe3ff"];
+  if (o.status === "arrange") return [`In Arrange · option ${p.opts.filter(x => billRating(x.id) === 5).indexOf(o) + 1}`, "#10302b", "#8ff0df"];
+  const map = { review: ["#2b2712", "#f6dc77"], looking: ["#2b2712", "#f6dc77"], dropped: ["#2e1513", "#ffb0a8"], ready: ["#3a1f40", "#eab6ff"], fixing: ["#2b2112", "#ffcf86"], making: ["#2b2112", "#ffcf86"] };
+  const c = map[o.status];
+  if (!ADMIN && o.status === "todo") return [r == null ? "Bill hasn't rated it" : "", "", ""];
+  return [o.data.out || "Not rated yet", c ? c[0] : "", c ? c[1] : ""];
+}
+function rateButtons(id, cur, attr, off) {
+  const pend = pending(id);
+  return `<div class="rate${off ? " off" : ""}" role="group" aria-label="Rate the landing"${off ? ' aria-hidden="true"' : ""}>${RATE.map(x => `<button type="button" ${attr}="${x.n}" data-id="${esc(id)}" aria-pressed="${cur === x.n}" class="${cur === x.n && pend ? "pend" : ""}" style="--rc:${x.c}" aria-label="${x.n} ${x.l}: ${x.m}"><span>${x.n}</span>${plane(x.r, x.c)}${x.l.toUpperCase()}</button>`).join("")}</div>`;
+}
+function pvBtn(o) {
+  const playing = ui.playing === o.id;
+  if (hasPv(o)) return `<button type="button" class="pv${playing ? " playing" : ""}" data-pv="${esc(o.id)}" aria-label="${playing ? "Stop" : "Play"} the preview">${playing ? '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14"/></svg>Stop' : '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>Play'}</button>`;
+  const asked = ui.asked.has(o.id) || mine().some(r => r.option_id === o.id && r.kind === "request" && Date.now() - new Date(r.created_at).getTime() < 3600e3);
+  if (asked) return `<span class="pv ask">Asked: up in a few min</span>`;
+  if (o.data.make || o.data.fixing_now) return `<span class="pv ask">Being made</span>`;
+  return `<button type="button" class="pv ask" data-ask="${esc(o.id)}">${o.data.has_pv ? "Get preview" : "Ask for a preview"}</button>`;
+}
+function crashHtml(rep) {
+  const cause = { preview: "TCM's preview, not the songs", mix: "the way it was mixed: the songs can still work", songs: "the two songs together", mixed: "a bit of both" }[rep.cause] || rep.cause || "";
+  return `<div class="crash"><div><b>Why TCM suggested it:</b> scored ${esc(rep.score)}${rep.strong && rep.strong.length ? `, strongest on ${rep.strong.map(x => `${esc(x.words)} ${(+x.score).toFixed(2)}`).join(", ")}` : ""}. ${esc(rep.why || "")}</div>
+    <div><b>What you heard:</b> ${esc((rep.heard || []).join(", ") || "not said")}. <b>Where it went wrong:</b> ${esc(cause)}.</div>${(rep.lessons || []).map(l => `<div>· ${esc(l)}</div>`).join("")}</div>`;
+}
+// the PC writes "you" meaning Bill: say whose it is when someone else is looking
+const who = s => ADMIN ? String(s || "").replace(/from Bill's ratings/g, "from your ratings")
+  : String(s || "").replace(/^Your idea/, "Bill's idea").replace(/^Your pair/, "Bill's pair").replace(/You suggested/g, "Bill suggested").replace(/you asked for/g, "Bill asked for");
+function optCard(o, i, p) {
+  const r = rating(o.id), v = o.data.variant, [out, bg, fg] = optOutcome(o, p), sel = ui.opt === o.id;
+  const sub = v ? `<span class="vtag">RE-PROPOSAL V${v.n}</span>${esc(who(v.why))}`
+    : `score ${Math.round(o.score)}${o.data.adj ? ` (${o.data.adj > 0 ? "+" : "−"}${Math.abs(Math.round(o.data.adj))} from ${ADMIN ? "your" : "Bill's"} ratings)` : ""} · ${esc((o.data.why || {}).short || "")}`;
+  const oth = othersFor(o.id);
+  const othHtml = oth.length ? `<div class="others" aria-label="Other people's ratings">${oth.map(x => { const R = RATE[x.rating - 1]; return `<span style="--rc:${R.c}" title="${esc(x.note || "")}">${esc(NAMES[x.user_id] || "Member")} <b>${x.rating}</b>${x.note ? " · " + esc(x.note.slice(0, 40)) : ""}</span>`; }).join("")}</div>` : "";
+  const dropped = billRating(o.id) === 1 || billRating(o.id) === 2;
+  const crash = ADMIN && o.data.crash;
+  return `<article class="opt${sel ? " sel" : ""}${v ? " vari" : ""}${dropped ? " dropped" : ""}" data-opt="${esc(o.id)}">
+    <div class="r1"><span class="rk${v ? " v" : ""}">${v ? "v" + v.n : i}</span><div style="display:grid;gap:2px;min-width:0"><span class="nm">${esc(who(o.data.name))}</span><span class="why">${sub}</span></div>${pvBtn(o)}</div>
+    ${othHtml}
+    ${rateButtons(o.id, r, "data-rate", !hasPv(o))}
+    ${ADMIN && pending(o.id) ? `<span class="pendnote">Sent. Your PC applies it on its next sync.</span>` : ""}
+    ${crash ? `<button type="button" class="crashbtn" data-crash="${esc(o.id)}">${ui.crashOpen === o.id ? "Hide the crash report" : "Why did this crash?"}</button>${ui.crashOpen === o.id ? crashHtml(o.data.crash) : ""}` : ""}
+    <div class="foot">${out ? `<span class="out" style="${bg ? `background:${bg};color:${fg}` : ""}">${esc(out)}</span>` : "<span></span>"}<span class="ocode">${esc(o.opt_code)}</span></div>
+    ${sel ? `<div class="lanes" id="lanes"></div>` : ""}
+  </article>`;
+}
+function renderDetail(p, cq) {
+  const el = $("detail"), cols = $("cols");
+  cols.classList.toggle("open", !!p);
+  if (!p) { el.innerHTML = matchMedia("(min-width: 900px)").matches ? `<div class="empty">Pick a pairing to hear its ways to mix.</div>` : ""; stopLanes(); return; }
+  const A = song(p.a), B = song(p.b);
+  if (cq && cq.opt && ui.optFromCode !== $("search").value) {
+    const hit = p.opts.find(o => o.opt_code === `${p.key}-${cq.opt}${cq.v ? "v" + cq.v : ""}`);
+    if (hit) { ui.opt = hit.id; ui.optFromCode = $("search").value; }
+  }
+  const live = p.opts.filter(o => !(billRating(o.id) === 1 || billRating(o.id) === 2)), dropped = p.opts.filter(o => billRating(o.id) === 1 || billRating(o.id) === 2);
+  if (!p.opts.some(o => o.id === ui.opt)) ui.opt = (live.find(o => rating(o.id) == null && hasPv(o)) || live.find(hasPv) || live[0] || p.opts[0]).id;
+  const famNo = {}; let fn = 0; for (const o of [...live, ...dropped]) if (famNo[fam(o)] == null) famNo[fam(o)] = ++fn;
+  const keep = $("sgNote") ? $("sgNote").value : "";
+  el.innerHTML = `<div class="dhead"><button type="button" class="bk" id="bkBtn">← Pairings</button>
+      <div class="dtitle">${esc(shortT(A))} → ${esc(shortT(B))}</div>
+      <div class="small muted">${esc(p.key)} · ${esc(A.cam)} → ${esc(B.cam)} · ${Math.round(A.bpm)} → ${Math.round(B.bpm)} BPM · energy ${A.energy} → ${B.energy}</div></div>
+    <div id="cmpCard"></div>
+    <div class="opts" id="opts">${live.map(o => optCard(o, famNo[fam(o)], p)).join("")}
+      ${dropped.length ? `<button type="button" class="btn" id="dropBtn" style="justify-self:start">${ui.showDropped ? "Hide" : "Show"} dropped (${dropped.length})</button>` + (ui.showDropped ? dropped.map(o => optCard(o, famNo[fam(o)], p)).join("") : "") : ""}</div>
+    <div id="sgCard"></div>`;
+  $("bkBtn").onclick = () => { if (history.state && history.state.pair) history.back(); else closePair(); };
+  if ($("dropBtn")) $("dropBtn").onclick = () => { ui.showDropped = !ui.showDropped; render(); };
+  el.querySelectorAll("[data-opt]").forEach(c => c.onclick = e => { if (e.target.closest("button")) return; if (ui.opt !== c.dataset.opt) { ui.opt = c.dataset.opt; render(); } });
+  el.querySelectorAll("[data-pv]").forEach(b => b.onclick = () => play(b.dataset.pv));
+  el.querySelectorAll("[data-ask]").forEach(b => b.onclick = () => askPreview(b.dataset.ask));
+  el.querySelectorAll("[data-crash]").forEach(b => b.onclick = () => { ui.crashOpen = ui.crashOpen === b.dataset.crash ? null : b.dataset.crash; render(); });
+  el.querySelectorAll("[data-rate]").forEach(b => b.onclick = () => {
+    const id = b.dataset.id, n = +b.dataset.rate; ui.opt = id;
+    if (rating(id) === n && ADMIN) return clearRating(id);
+    openRate(id, n);
+  });
+  renderCompare(p); renderSuggest(p, keep);
+  signAhead(p.opts);
+  drawLanes();
+}
+
+/* ---------- compare and suggest (as on the PC) ---------- */
+const vlab = o => o.data.variant ? "v" + o.data.variant.n : "v1";
+function renderCompare(p) {
+  const el = $("cmpCard"), o = p.opts.filter(canCompare).sort((x, y) => vn(x) - vn(y))[0];
+  if (!o) { el.innerHTML = ""; return; }
+  const v = o.data.variant, old = OPTS[v.parent || v.base], r = rating(old.id);
+  el.innerHTML = `<div class="card">
+    <div><span class="lab" style="color:#8fe3ff">Compare: which is better?</span><div class="small muted">${v.by === "you" ? "TCM made the change you asked for" : "TCM tried a change after your rating"}. Listen to both, then pick.</div></div>
+    <div class="cmpgrid">
+      <div class="cmpside"><span><span class="vtag">${vlab(old).toUpperCase()} · BEFORE</span></span><b class="small">${esc(old.data.variant ? old.data.variant.what : old.data.name)}</b><span class="small muted">${r ? `Rated ${r} · ${RATE[r - 1].l}` : "Not rated yet"}</span>${pvBtn(old)}</div>
+      <div class="cmpside" style="border-color:#2c4a52"><span><span class="vtag">${vlab(o).toUpperCase()} · THE CHANGE</span></span><b class="small">${esc(v.what)}</b><span class="small muted">${esc(who(v.why))}</span>${pvBtn(o)}</div>
+    </div>
+    <button type="button" class="btn" id="cmpBoth">Play ${vlab(old)} then ${vlab(o)}</button>
+    <div class="cmpwin"><button type="button" class="btn" data-win="old">${vlab(old)} is better</button><button type="button" class="btn" data-win="same">About the same</button><button type="button" class="btn primary" data-win="new">${vlab(o)} is better</button></div>
+  </div>`;
+  el.querySelectorAll("[data-pv]").forEach(b => b.onclick = () => play(b.dataset.pv));
+  el.querySelectorAll("[data-ask]").forEach(b => b.onclick = () => askPreview(b.dataset.ask));
+  $("cmpBoth").onclick = () => { ui.queue = [o.id]; play(old.id, true); };
+  el.querySelectorAll("[data-win]").forEach(b => b.onclick = () => sendCompare(o, old, b.dataset.win));
+}
+async function sendCompare(o, old, win) {
+  const row = await send({ option_id: o.id, kind: "compare", winner: win });
+  if (!row) return;
+  ui.cmpDone.add(o.id); stop();
+  if (win === "new") { const pr = rating(old.id); ui.opt = o.id; openRate(o.id, Math.min(5, (pr || 3) + 1), `You picked ${vlab(o)} (${o.data.variant.what}) over ${vlab(old)}${pr ? `, which you rated ${pr}` : ""}. Rate ${vlab(o)}: a 5 sends it to Arrange.`); }
+  else { toast(win === "same" ? `About the same: ${vlab(o)} gets the same rating when your PC syncs.` : `The earlier version stays ahead. ${vlab(o)} goes one rating below it when your PC syncs.`); render(); }
+}
+function renderSuggest(p, keep) {
+  const el = $("sgCard"), o = OPTS[ui.opt], r = o && rating(o.id), sug = (META.feedback && META.feedback.suggest) || [];
+  if (!o || !(r === 3 || r === 4) || !sug.length || !hasPv(o)) { el.innerHTML = ""; return; }
+  if (ui.sgFor !== o.id) { ui.sgFor = o.id; ui.sg = new Set(); }
+  const kids = Object.values(OPTS).filter(x => x.data.variant && x.data.variant.base === fam(o));
+  const next = 2 + kids.length, sel = ui.sg;
+  el.innerHTML = `<div class="card">
+    <div><span class="lab" style="color:#8fe3ff">${ADMIN ? "Not there yet? Suggest the next try" : "Got an idea? Send it to Bill"}</span><div class="small muted">for ${o.data.variant ? "v" + o.data.variant.n : "this option"}, rated ${r} · ${RATE[r - 1].l}</div></div>
+    <div class="chips">${sug.map(s => `<button type="button" class="schip" aria-pressed="${sel.has(s.id)}" data-sg="${esc(s.id)}" title="${esc(s.what || "")}">${esc(s.label)}</button>`).join("")}</div>
+    <input type="text" id="sgNote" placeholder="Or say it in your own words" aria-label="Your idea for this mix" maxlength="500">
+    <button type="button" class="btn primary" id="sgMake">${ADMIN ? (sel.size > 1 ? `Make v${next} to v${next + sel.size - 1}` : `Make v${next}`) : "Send the idea"}</button>
+    <div class="small muted">${ADMIN ? "Each idea becomes its own re-proposal, made on your PC in the background (never while a deck plays). When it's ready it shows up here to compare." : "Bill sees it next to this mix. Only his ratings change the mixes."}</div>
+  </div>`;
+  $("sgNote").value = keep || "";
+  el.querySelectorAll("[data-sg]").forEach(b => b.onclick = () => { const k = b.dataset.sg; sel.has(k) ? sel.delete(k) : sel.add(k); const v = $("sgNote").value; renderSuggest(p, v); });
+  $("sgMake").onclick = async () => {
+    const body = { option_id: o.id, kind: "suggest", suggest: [...sel], note: $("sgNote").value.trim() || null };
+    if (!body.suggest.length && !body.note) return toast("Pick an idea or type one first");
+    if (await send(body)) { ui.sg = new Set(); toast(ADMIN ? "Sent. Your PC makes the re-proposal on its next sync." : "Sent to Bill."); renderSuggest(p, ""); }
+  };
+}
+
+/* ---------- sending: a row in tc_ratings, which the PC picks up ---------- */
+async function send(row) {
+  const { data, error } = await sb.from("tc_ratings").insert(row).select("id,option_id,user_id,kind,rating,winner,symptoms,good,suggest,note,created_at,synced_at,result").single();
+  if (error) { toast("Couldn't send: " + (error.message || "check your connection")); return null; }
+  RAT.push(data); watch(data.id); renderSync();
+  return data;
+}
+const watching = new Set();
+function watch(id) {
+  if (watching.has(id)) return; watching.add(id);
+  let n = 0;
+  const tick = async () => {
+    n++;
+    const { data } = await sb.from("tc_ratings").select("synced_at,result").eq("id", id).maybeSingle();
+    if (data && data.synced_at) {
+      watching.delete(id);
+      const r = RAT.find(x => x.id === id); if (r) Object.assign(r, data);
+      const res = data.result || {};
+      if (r && r.kind !== "request" && res.message) showResult(r, res);
+      refresh();
+      return;
+    }
+    if (n < 40) setTimeout(tick, n < 6 ? 8000 : 20000); else watching.delete(id);
+  };
+  setTimeout(tick, 8000);
+}
+function showResult(r, res) {
+  const o = OPTS[r.option_id];
+  if (!res.findings || !res.findings.length) { toast((o ? o.opt_code + ": " : "") + res.message, 8000); return; }
+  const kindTxt = { glitch: "Glitch · fixing", retry: "Fixable · retrying", real: "Real · lowered" };
+  sheet(`<div class="h">What TCM found</div><div class="pairnm">${esc(o ? o.opt_code + " · " + shortT(song(o.a)) + " → " + shortT(song(o.b)) : r.option_id)}</div>
+    ${res.findings.map(f => `<div class="small"><span class="vtag">${esc(kindTxt[f.kind] || f.kind)}</span><b>${esc(f.label)}.</b> ${esc(f.text)}</div>`).join("")}
+    <div class="small" style="border-top:1px solid var(--line);padding-top:8px">${esc(res.message || "")}</div>
+    <div class="actions"><button type="button" class="btn primary" data-close>Done</button></div>`);
+}
+async function clearRating(id) { if (await send({ option_id: id, kind: "clear" })) { toast("Clearing the rating: your PC applies it on its next sync."); render(); } }
+async function askPreview(id) {
+  ui.asked.add(id); render();
+  const o = OPTS[id];
+  if (await send({ option_id: id, kind: "request" })) toast(o && o.data.has_pv ? "Asked for it: it goes up on the PC's next sync, in a few minutes." : "Asked for it: the PC makes it (never while a deck plays), then it goes up.");
+}
+
+/* ---------- the rating sheet (the PC's popup) ---------- */
+function sheet(html) {
+  const root = $("sheetRoot");
+  root.innerHTML = `<div class="back-drop" id="drop"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle">${html}</div></div>`;
+  ui.sheetReturn = ui.sheetReturn || document.activeElement;
+  $("drop").onclick = e => { if (e.target === $("drop")) closeSheet(); };
+  root.querySelectorAll("[data-close]").forEach(b => b.onclick = closeSheet);
+  const f = root.querySelector("[data-first]") || root.querySelector("button"); if (f) f.focus({ preventScroll: true });
+}
+function closeSheet() { $("sheetRoot").innerHTML = ""; ui.fv = null; if (ui.sheetReturn && ui.sheetReturn.focus) ui.sheetReturn.focus({ preventScroll: true }); ui.sheetReturn = null; }
+document.addEventListener("keydown", e => { if (e.key === "Escape" && $("sheetRoot").innerHTML) closeSheet(); });
+function openRate(id, r, ctx) { ui.fv = { id, r, chips: new Set(), good: new Set(), sugg: new Set(), ctx: ctx || "" }; rateSheet(); }
+function rateSheet() {
+  const fv = ui.fv; if (!fv) return;
+  const o = OPTS[fv.id], FB = META.feedback || { symptoms: [], good: [], groups: [], suggest: [] };
+  const r = fv.r, low = r <= 3, R = RATE[r - 1], keep = $("fbNote") ? $("fbNote").value : "";
+  const groups = FB.groups && FB.groups.length ? FB.groups : [{ id: "", label: "", note: "" }];
+  const gcol = { preview: "#ffb547", mix: "#3fe0c5", songs: "#ff9f2e" };
+  const chip = s => `<button type="button" class="fbc${fv.chips.has(s.id) ? " on" : ""}" aria-pressed="${fv.chips.has(s.id)}" data-chip="${esc(s.id)}"><span class="bx"></span><b>${esc(s.label)}</b>${s.meaning ? `<span class="mn">${esc(s.meaning)}</span>` : s.hint ? `<span class="mn">${esc(s.hint)}</span>` : ""}${ADMIN && s.tcm ? `<span class="tc">TCM: ${esc(s.tcm)}</span>` : ""}</button>`;
+  const body = low ? groups.map(g => { const items = (FB.symptoms || []).filter(s => (s.group || "") === g.id && s.id !== "unsure");
+      return items.length ? `<div class="fbg">${g.label ? `<div><span class="lab" style="color:${gcol[g.id] || "var(--muted)"}">${esc(g.label)}</span> <span class="small muted">${esc(g.note || "")}</span></div>` : ""}<div class="fbgrid">${items.map(chip).join("")}</div></div>` : ""; }).join("")
+      + `<div class="fbgrid">${(FB.symptoms || []).filter(s => s.id === "unsure").map(chip).join("")}</div><label class="small muted" for="fbNote" style="display:grid;gap:4px">Anything else? (optional)<textarea id="fbNote" maxlength="500"></textarea></label>`
+    : `<div class="fbgrid">${(FB.good || []).map(g => `<button type="button" class="fbc${fv.good.has(g.id) ? " on" : ""}" aria-pressed="${fv.good.has(g.id)}" data-good="${esc(g.id)}"><span class="bx"></span><b>${esc(g.label)}</b></button>`).join("")}</div>
+      ${r === 4 && (FB.suggest || []).length ? `<div class="lab" style="color:#8fe3ff">What would get it to a G6? <span class="small muted" style="text-transform:none;letter-spacing:0;font-family:var(--body)">optional${ADMIN ? " · each becomes a re-proposal to rate" : ""}</span></div><div class="chips">${FB.suggest.map(s => `<button type="button" class="schip" aria-pressed="${fv.sugg.has(s.id)}" data-sugg="${esc(s.id)}">${esc(s.label)}</button>`).join("")}</div>` : ""}
+      <label class="small muted" for="fbNote" style="display:grid;gap:4px">${r === 4 ? "Or say it in your own words (optional)" : "Anything else? (optional)"}<textarea id="fbNote" maxlength="500"></textarea></label>`;
+  const q = r <= 2 ? "What did you hear?" : r === 3 ? "What would make it better?" : "What made it good? (optional)";
+  sheet(`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 class="h" id="shTitle">Rate the landing</h2><span class="rpill" style="color:${R.c}">${r} · ${R.l}</span></div>
+    <div class="pairnm">${esc(o.opt_code)} · ${esc(shortT(song(o.a)))} → ${esc(shortT(song(o.b)))}</div>
+    ${fv.ctx ? `<div class="small" style="color:#8fe3ff">${esc(fv.ctx)}</div>` : ""}
+    ${rateButtons(fv.id, r, "data-fr")}
+    <div class="small muted">${esc(R.m)}${ADMIN ? (r === 5 ? ". It goes to Arrange's approved mixes." : r === 4 ? ". Kept for refining, not for a set yet." : "") : ". Bill sees your rating; only his move the mixes."}</div>
+    <div class="lab" style="color:var(--ink)">${q}</div>
+    ${low ? `<div class="small muted">Pick everything that fits, grouped by who is probably to blame.</div>` : ""}
+    ${body}
+    <div class="actions"><button type="button" class="btn" id="fbSkip">Skip, just rate it</button><button type="button" class="btn primary" id="fbSend" data-first>Send</button></div>`);
+  if ($("fbNote")) $("fbNote").value = keep;
+  const root = $("sheetRoot");
+  root.querySelectorAll("[data-fr]").forEach(b => b.onclick = () => { fv.r = +b.dataset.fr; rateSheet(); });
+  root.querySelectorAll("[data-chip]").forEach(b => b.onclick = () => { const k = b.dataset.chip, on = !fv.chips.has(k); if (k === "unsure" && on) fv.chips.clear(); else if (on) fv.chips.delete("unsure"); on ? fv.chips.add(k) : fv.chips.delete(k); rateSheet(); });
+  root.querySelectorAll("[data-good]").forEach(b => b.onclick = () => { const k = b.dataset.good; fv.good.has(k) ? fv.good.delete(k) : fv.good.add(k); rateSheet(); });
+  root.querySelectorAll("[data-sugg]").forEach(b => b.onclick = () => { const k = b.dataset.sugg; fv.sugg.has(k) ? fv.sugg.delete(k) : fv.sugg.add(k); rateSheet(); });
+  $("fbSkip").onclick = () => sendRate(true);
+  $("fbSend").onclick = () => sendRate(false);
+}
+async function sendRate(skip) {
+  const fv = ui.fv; if (!fv || fv.sent) return; fv.sent = true;
+  const low = fv.r <= 3, note = skip ? "" : (($("fbNote") || {}).value || "").trim();
+  const row = { option_id: fv.id, kind: "rate", rating: fv.r, note: note || null,
+    symptoms: skip || !low ? [] : [...fv.chips], good: skip || low ? [] : [...fv.good], suggest: skip || fv.r !== 4 ? [] : [...fv.sugg] };
+  const ok = await send(row);
+  if (!ok) { fv.sent = false; return; }
+  closeSheet();
+  toast(ADMIN ? `Rated ${fv.r} · ${RATE[fv.r - 1].l}. Your PC applies it on its next sync.` : `Rated ${fv.r} · ${RATE[fv.r - 1].l}. Bill sees it.`);
+  render();
+}
+
+/* ---------- previews: signed links (an hour), one player ---------- */
+const URLS = {};
+async function signAhead(opts) {
+  const need = opts.filter(o => o.preview_path && !(URLS[o.preview_path] && URLS[o.preview_path].exp > Date.now())).map(o => o.preview_path);
+  if (!need.length) return;
+  const { data } = await sb.storage.from(BUCKET).createSignedUrls(need, 3600);
+  for (const d of data || []) if (d.signedUrl) URLS[d.path] = { url: d.signedUrl, exp: Date.now() + 3300e3 };
+}
+async function urlFor(path) {
+  const u = URLS[path]; if (u && u.exp > Date.now()) return u.url;
+  const { data, error } = await sb.storage.from(BUCKET).createSignedUrl(path, 3600);
+  if (error || !data) return null;
+  URLS[path] = { url: data.signedUrl, exp: Date.now() + 3300e3 }; return data.signedUrl;
+}
+const audio = $("audio");
+async function play(id, keepQueue) {
+  const o = OPTS[id]; if (!o || !o.preview_path) return;
+  if (!keepQueue && ui.playing !== id) ui.queue = [];
+  if (ui.playing === id) { stop(); return; }
+  ui.opt = id; ui.playing = id;
+  const cached = URLS[o.preview_path] && URLS[o.preview_path].exp > Date.now() ? URLS[o.preview_path].url : null;
+  const url = cached || await urlFor(o.preview_path);
+  if (!url || ui.playing !== id) { if (!url) toast("Couldn't get the preview. Try again in a moment."); return; }
+  audio.src = url;
+  audio.play().catch(() => toast("Tap Play again to start the preview"));
+  $("pName").textContent = `${o.opt_code} · ${o.data.variant ? o.data.variant.what : who(o.data.name)}`;
+  $("player").hidden = false; document.body.classList.add("playing");
+  render(); tick();
+}
+function stop() { audio.pause(); ui.playing = null; ui.queue = []; $("player").hidden = true; document.body.classList.remove("playing"); render(); }
+$("pStop").onclick = stop;
+audio.addEventListener("ended", () => { const nx = (ui.queue || []).shift(); if (nx) { ui.playing = null; play(nx, true); } else stop(); });
+const fmt = s => isFinite(s) ? `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}` : "0:00";
+function tick() {
+  if (!ui.playing) return;
+  const d = audio.duration || (OPTS[ui.playing] && OPTS[ui.playing].data.pv && OPTS[ui.playing].data.pv.secs) || 30, t = audio.currentTime || 0;
+  $("pBar").style.width = Math.min(100, t / d * 100) + "%"; $("pTime").textContent = `${fmt(t)} / ${fmt(d)}`;
+  const ph = $("phead"), o = OPTS[ui.opt];
+  if (ph) { if (ui.playing === ui.opt && o && o.data.pv) { ph.style.display = "block"; ph.style.left = `calc(${Math.min(100, t / (o.data.pv.secs || d) * 100)}% - 1px)`; } else ph.style.display = "none"; }
+  requestAnimationFrame(tick);
+}
+
+/* ---------- lanes: A out, B in, the mix (the PC's Research lanes) ---------- */
+const WV = {}, MIXW = {};
+function waveGet(tid) {
+  const s = SONGS[tid]; if (!s || !s.wave_path) return { state: "none" };
+  if (WV[tid]) return WV[tid];
+  WV[tid] = { state: "loading" };
+  sb.storage.from(BUCKET).download(s.wave_path).then(({ data, error }) => { if (error) throw error; return data.text(); }).then(txt => {
+    const j = JSON.parse(txt), bin = atob(j.data), a = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+    WV[tid] = { state: "ok", n: j.n, rate: j.rate, bar1: j.bar1_s, barLen: j.bar_len, data: a }; drawLanes(true);
+  }).catch(() => { WV[tid] = { state: "none" }; });
+  return WV[tid];
+}
+function mixWave(o) {
+  const k = o.preview_path; if (MIXW[k]) return MIXW[k];
+  MIXW[k] = { state: "loading" };
+  urlFor(k).then(u => fetch(u)).then(r => r.arrayBuffer()).then(buf => {
+    const AC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    const ctx = new AC(1, 44100, 44100);
+    return new Promise((res, rej) => { const p = ctx.decodeAudioData(buf, res, rej); if (p && p.then) p.then(res, rej); });
+  }).then(ab => {
+    const sr = ab.sampleRate, ch = [...Array(ab.numberOfChannels)].map((_, i) => ab.getChannelData(i)), n = ab.length;
+    const hop = Math.round(sr / 100), frames = Math.floor(n / hop), acc = [new Float32Array(frames), new Float32Array(frames), new Float32Array(frames)];
+    const k1 = Math.exp(-2 * Math.PI * 200 / sr), k2 = Math.exp(-2 * Math.PI * 2500 / sr);
+    let l1 = 0, l2 = 0;
+    for (let i = 0; i < frames * hop; i++) {
+      let x = 0; for (const c of ch) x += c[i]; x /= ch.length;
+      l1 = (1 - k1) * x + k1 * l1; l2 = (1 - k2) * x + k2 * l2;
+      const f = (i / hop) | 0; acc[0][f] += l1 * l1; acc[1][f] += (l2 - l1) * (l2 - l1); acc[2][f] += (x - l2) * (x - l2);
+    }
+    const data = new Uint8Array(frames * 3);
+    for (let b = 0; b < 3; b++) {
+      const v = acc[b].map(s => Math.sqrt(s / hop)), srt = Array.from(v).sort((a, c) => a - c), ref = srt[Math.floor(srt.length * .995)] || 1;
+      for (let f = 0; f < frames; f++) data[f * 3 + b] = Math.round(Math.min(1, Math.pow(v[f] / ref, .75)) * 255);
+    }
+    MIXW[k] = { state: "ok", n: frames, rate: 100, data }; drawLanes(true);
+  }).catch(() => { MIXW[k] = { state: "none" }; });
+  return MIXW[k];
+}
+const barLen = tid => (WV[tid] && WV[tid].state === "ok" && WV[tid].barLen) || 240 / (song(tid).bpm || 120);
+function bar1(tid) {
+  const w = WV[tid]; if (w && w.state === "ok" && w.bar1 != null) return w.bar1;
+  const t = song(tid), s = (t.sections || []).find(x => x.t0 > 0) || (t.sections || [])[0];
+  return s ? s.t0 - s.bar * barLen(tid) : 0;
+}
+function geom(o) {
+  const pv = o.data.pv; if (!pv) return null;
+  const A = song(o.a), B = song(o.b), barA = 240 / A.bpm, sa = sec(o.a, o.data.a_sec), lp = o.data.loop;
+  const g = { A, B, pv, secs: pv.secs || 30, bIn: pv.b_starts_at, swap: pv.swap_at, aOut: pv.a_out_at, rate: A.bpm / B.bpm };
+  g.loopT = lp ? lp.t : Math.max(0, sa ? sa.t0 : 0); g.loopLen = (lp ? lp.len : 4) * barA;
+  g.mapA = t => t < g.bIn ? g.loopT - (g.bIn - t) : t > g.aOut + barA ? null : g.loopT + ((t - g.bIn) % g.loopLen);
+  g.bE = pv.b_src0 != null ? pv.b_src0 : o.data.b_entry_t; g.bHeard = pv.style === "cut" ? g.aOut : g.bIn;
+  g.mapB = t => g.bE + (t - g.bIn) / g.rate;
+  return g;
+}
+function canvasOf(cv) {
+  const r = window.devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
+  if (cv.width !== Math.round(w * r) || cv.height !== Math.round(h * r)) { cv.width = Math.round(w * r); cv.height = Math.round(h * r); }
+  const g = cv.getContext("2d"); g.setTransform(r, 0, 0, r, 0, 0); return { g, w, h };
+}
+function lane(cv, o) {
+  if (!cv) return;
+  const { g, w, h } = canvasOf(cv);
+  g.fillStyle = SKIN.bg; g.fillRect(0, 0, w, h);
+  const mid = h / 2, amp = h / 2 - 4, wv = o.wave, tOf = x => x / w * o.secs;
+  if (wv && wv.state === "ok") {
+    for (const [k, band, sc] of [["low", 0, 1], ["mid", 1, .72], ["high", 2, .48]]) {
+      g.fillStyle = SKIN[k];
+      for (let x = 0; x < w; x++) {
+        const s0 = o.map(tOf(x)), s1 = o.map(tOf(x + 1)); if (s0 == null) continue;
+        let fa = Math.floor(s0 * wv.rate), fb = Math.floor((s1 != null && s1 > s0 ? s1 : s0 + o.secs / w) * wv.rate);
+        if (fb <= fa) fb = fa + 1; if (fb <= 0 || fa >= wv.n) continue;
+        let m = 0; for (let f = Math.max(0, fa); f < Math.min(wv.n, fb); f++) { const v = wv.data[f * 3 + band]; if (v > m) m = v; }
+        const hh = m / 255 * amp * sc; if (hh > .4) g.fillRect(x, mid - hh, 1, hh * 2);
+      }
+    }
+  } else { g.fillStyle = "#6f737a"; g.font = "12px system-ui"; g.fillText(wv && wv.state === "loading" ? "Loading the waveform…" : "No waveform yet", 10, mid + 4); }
+  if (o.dimBefore != null) { g.fillStyle = "rgba(12,12,13,.6)"; g.fillRect(0, 0, o.dimBefore / o.secs * w, h); }
+  if (o.dimAfter != null) { g.fillStyle = "rgba(12,12,13,.6)"; const x = o.dimAfter / o.secs * w; g.fillRect(x, 0, w - x, h); }
+  for (const tk of o.ticks || []) {
+    let prev = null;
+    for (let x = 0; x < w; x++) {
+      const s = tk.map(tOf(x)); if (s == null) { prev = null; continue; }
+      const bar = Math.floor((s - tk.bar1) / tk.barLen);
+      if (prev != null && bar !== prev) { g.fillStyle = tk.c; g.fillRect(x, tk.top ? 0 : h - 9, 2, 9); if (tk.line) { g.globalAlpha = .2; g.fillRect(x, 0, 1, h); g.globalAlpha = 1; } }
+      prev = bar;
+    }
+  }
+  for (const mk of o.marks || []) { const x = mk.t / o.secs * w; g.strokeStyle = "#3fe0c5"; g.lineWidth = 2; g.setLineDash(mk.dash || []); g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); g.setLineDash([]); }
+}
+function stopLanes() { const el = $("lanes"); if (el) { el.innerHTML = ""; delete el.dataset.id; } }
+function drawLanes(redrawOnly) {
+  const el = $("lanes"); if (!el) return;
+  const o = OPTS[ui.opt];
+  if (!o) { stopLanes(); return; }
+  const gm = geom(o);
+  if (!gm || !o.preview_path) { delete el.dataset.id; el.innerHTML = `<div class="empty small">${o.data.has_pv ? "This preview isn't on your phone yet. Tap Get preview." : "No preview for this option yet."}</div>`; return; }
+  const sa = sec(o.a, o.data.a_sec) || {}, sb_ = sec(o.b, o.data.b_sec) || {};
+  if (el.dataset.id !== o.id) {
+    if (redrawOnly) return;
+    el.dataset.id = o.id;
+    el.innerHTML = `<div class="lane"><div class="lc"><b style="color:#ffb547">A · OUT</b><span>${esc(shortT(gm.A))} · ${esc(sa.label || "")}, bar ${sa.bar ?? ""}</span></div><canvas id="lnA" style="height:52px"></canvas></div>
+      <div class="lane"><div class="lc"><b style="color:#6fb6ff">B · IN</b><span>${esc(shortT(gm.B))} · ${esc(sb_.label || "")}, bar ${sb_.bar ?? ""}</span></div><canvas id="lnB" style="height:52px"></canvas></div>
+      <div class="lane" style="position:relative"><div class="lc"><b>THE MIX</b><span>the preview, both grids</span></div><div style="position:relative"><canvas id="lnM" style="height:76px"></canvas><span class="phead" id="phead"></span></div></div>
+      <div class="lane"><div class="lc"><span>Beats, bar by bar</span></div><div class="beats" id="lnBeats"></div></div>
+      <div class="verdict" id="lnVerdict"></div>`;
+  }
+  const wA = waveGet(o.a), wB = waveGet(o.b), wM = mixWave(o);
+  const tA = { map: gm.mapA, bar1: bar1(o.a), barLen: barLen(o.a), c: "#ffb547", top: true }, tB = { map: gm.mapB, bar1: bar1(o.b), barLen: barLen(o.b), c: "#6fb6ff", top: false };
+  const marks = [{ t: gm.bIn }, { t: gm.swap, dash: [4, 3] }, { t: gm.aOut, dash: [4, 3] }];
+  lane($("lnA"), { wave: wA, map: gm.mapA, secs: gm.secs, ticks: [{ ...tA, line: true }], marks: [marks[0]], dimAfter: gm.aOut });
+  lane($("lnB"), { wave: wB, map: gm.mapB, secs: gm.secs, ticks: [{ ...tB, top: true, line: true }], marks: [{ t: gm.bHeard }], dimBefore: gm.bHeard });
+  lane($("lnM"), { wave: wM, map: t => t, secs: gm.secs, ticks: [tA, tB], marks });
+  const qc = gm.pv.qc, offs = (qc && qc.bar_offsets_ms) || [], bw = (gm.aOut - gm.bIn) / Math.max(1, offs.length);
+  $("lnBeats").innerHTML = offs.map((x, i) => { const a = Math.abs(x), left = (gm.bIn + i * bw) / gm.secs * 100, wd = bw / gm.secs * 100;
+    return `<i style="left:calc(${left.toFixed(2)}% + 1px);width:calc(${wd.toFixed(2)}% - 2px);background:${a <= 8 ? "#3fe0c5" : a <= 20 ? "#ffb547" : "#ff6b5e"}" title="Bar ${i + 1}: B ${a.toFixed(1)} ms ${x < 0 ? "early" : "late"}">${Math.round(a)}</i>`; }).join("");
+  const good = qc && qc.beats_max_ms <= 15;
+  $("lnVerdict").innerHTML = !qc ? `<span class="muted">No beat check for this preview.</span>`
+    : `<b style="color:${good ? "#3fe0c5" : "#ff6b5e"}">${good ? "Beats line up." : "Beats flam."}</b> <span class="muted">Orange ticks are A's bars, blue are B's; in the mix they should sit on top of each other. Median ${(+qc.beats_median_ms).toFixed(1)} ms, worst ${(+qc.beats_max_ms).toFixed(1)} ms.</span>`;
+}
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => drawLanes(true), 150); });
+
+/* ---------- people (admin): who can open Research ---------- */
+async function people() {
+  const { data, error } = await sb.rpc("tc_members");
+  if (error) return toast("Couldn't load the members");
+  const list = data || [];
+  sheet(`<div style="display:flex;justify-content:space-between;align-items:center"><h2 class="h" id="shTitle">Who can open Research</h2><button type="button" class="btn" data-close>Close</button></div>
+    <div class="small muted">People you turn on here can listen and rate on this page. Their ratings show next to yours by name; only yours change your scores, Review and Arrange.</div>
+    <div>${list.map(m => `<div class="person"><span>${esc(m.name)}${m.admin ? ' <span class="small muted">· admin</span>' : ""}</span>${m.admin ? `<span class="small muted">Always</span>` : `<button type="button" class="switch" aria-pressed="${!!m.access}" data-uid="${esc(m.id)}">${m.access ? "On" : "Off"}</button>`}</div>`).join("") || `<div class="empty">No members yet.</div>`}</div>`);
+  $("sheetRoot").querySelectorAll("[data-uid]").forEach(b => b.onclick = async () => {
+    const on = b.getAttribute("aria-pressed") !== "true";
+    b.disabled = true;
+    const { error } = await sb.rpc("tc_set_access", { p_user: b.dataset.uid, p_on: on });
+    b.disabled = false;
+    if (error) return toast("Couldn't change it: " + error.message);
+    b.setAttribute("aria-pressed", String(on)); b.textContent = on ? "On" : "Off";
+    NAMES = (await sb.rpc("tc_names")).data || NAMES;
+  });
+}
+$("peopleBtn").onclick = () => { ui.sheetReturn = $("peopleBtn"); people(); };
+
+/* ---------- start ---------- */
+function gate(html) { $("main").innerHTML = `<div class="gate">${html}</div>`; $("syncLine").textContent = ""; }
+async function boot() {
+  if (!sb) return gate(`<div class="h">Couldn't load</div><p class="muted">The sign-in library didn't load. Check your connection and reload.</p>`);
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return gate(`<div class="h">Sign in first</div><p class="muted">Tower Control Research uses your Festival Radar account.</p><a class="btn primary" style="display:inline-grid;place-items:center;text-decoration:none" href="./">Sign in on Festival Radar</a><p class="small muted">Then come back to this page.</p>`);
+  ME = session.user;
+  const { data: ok, error } = await sb.rpc("tc_allowed");
+  if (error || ok !== true) return gate(`<div class="h">Not on the list yet</div><p class="muted">Tower Control Research is invite only. Ask Bill to turn you on under People.</p><a href="./">Back to Festival Radar</a>`);
+  ADMIN = (await sb.rpc("is_admin")).data === true;
+  $("peopleBtn").hidden = !ADMIN;
+  try { NAMES = (await sb.rpc("tc_names")).data || {}; } catch (e) {}
+  try { await loadAll(); }
+  catch (e) { return gate(`<div class="h">Couldn't load</div><p class="muted">${esc(e.message || e)}</p><button type="button" class="btn" onclick="location.reload()">Try again</button>`); }
+  if (ui.pl == null) ui.pl = ADMIN && META.sync && META.sync.research_playlist ? String(META.sync.research_playlist) : "all";
+  const h = location.hash.slice(1).toUpperCase();
+  render();
+  if (h && pairsCache.some(p => p.key === h)) { ui.pair = h; render(); }
+  for (const r of mine()) if (!r.synced_at && Date.now() - new Date(r.created_at).getTime() < 3600e3) watch(r.id);
+  setInterval(refresh, 30000);
+  setInterval(renderSync, 30000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
+}
+boot();
+})();
+</script>
+</body>
+</html>

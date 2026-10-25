@@ -497,6 +497,8 @@ dialog.chat .chat-bcool p { margin: 0 0 6px; }
   .dnav .dn-title { font-family: var(--display); font-size: 18px; letter-spacing: .03em; white-space: nowrap; text-decoration: none; background: var(--title-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .dnav .dn-links { display: flex; gap: 2px; flex: 1; justify-content: center; min-width: 0; }
   .dnav .dn-links button { font: inherit; font-size: 14px; font-weight: 600; white-space: nowrap; color: var(--muted); background: transparent; border: none; padding: 7px 12px; border-radius: 999px; cursor: pointer; transition: background .15s, color .15s; }
+  .dnav .dn-links a { font-size: 14px; font-weight: 600; white-space: nowrap; color: var(--muted); text-decoration: none; padding: 7px 12px; border-radius: 999px; }
+  .dnav .dn-links a:hover { color: var(--fg); background: color-mix(in srgb, var(--pink) 10%, transparent); }
   .dnav .dn-links button:hover { color: var(--fg); background: color-mix(in srgb, var(--pink) 10%, transparent); }
   .dnav .dn-links button[aria-current="true"] { color: var(--pink); background: color-mix(in srgb, var(--pink) 15%, transparent); }
   .dnav .dn-right { display: flex; gap: 8px; align-items: center; }
@@ -839,6 +841,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <button type="button" data-go="radar">My Radar</button>
       <button type="button" data-go="crew">Crew</button>
       <button type="button" data-go="admin" id="dn-admin" hidden>Admin</button>
+      <a href="research.html" id="dn-research" hidden>Research</a>
     </div>
     <div class="dn-right">
       <button type="button" class="abtn alt" id="dn-invite" hidden>Invite friends</button>
@@ -2441,6 +2444,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       }
     };
     const { data: isAdmin } = await sb.rpc('is_admin');
+    // Tower Control Research (research.html): only for people Bill gave access to
+    sb.rpc('tc_allowed').then(({ data }) => { if (data === true) ['dn-research', 'mn-research'].forEach(id => { const x = document.getElementById(id); if (x) x.hidden = false; }); }).catch(() => {});
     if (isAdmin === true) {
       document.getElementById('admin').hidden = false;
       const t = document.getElementById('btab-admin'); if (t) { t.hidden = false; t.parentElement.classList.add('five'); } const da = document.getElementById('dn-admin'); if (da) da.hidden = false; const ma = document.getElementById('mn-admin'); if (ma) ma.hidden = false;
@@ -4659,6 +4664,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       b.addEventListener('click', () => go(id));
       panel.appendChild(b);
     });
+    const rs = document.createElement('a'); rs.href = 'research.html'; rs.id = 'mn-research'; rs.hidden = true; rs.textContent = 'Tower Control Research'; panel.appendChild(rs);
     const extra = document.getElementById('mn-extra-link');
     if (extra) { const sep = document.createElement('div'); sep.className = 'mn-sep'; panel.appendChild(sep); const a = extra.cloneNode(true); a.removeAttribute('id'); a.hidden = false; a.className = 'mn-cta'; panel.appendChild(a); }
     btn.addEventListener('click', e => { e.stopPropagation(); panel.hidden ? open() : close(); });
