@@ -536,6 +536,11 @@ dialog.pcard .pc-inv select { width: auto; flex: 1; min-width: 0; margin: 0; }
 #chat .cm-h { display: flex; align-items: baseline; gap: 8px; font-size: 13px; }
 #chat .cm-n { font: inherit; font-weight: 800; color: var(--fg); background: none; border: none; padding: 0; cursor: pointer; }
 #chat .cm-t { color: var(--muted); font-size: 11px; }
+#chat .cm-ed { color: var(--muted); font-size: 11px; font-style: italic; }
+#chat .cm-edit { margin-top: 4px; display: flex; flex-direction: column; gap: 6px; }
+#chat .cm-edit textarea { font: inherit; font-size: 16px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--cyan); background: var(--bg); color: var(--fg); resize: vertical; min-height: 44px; }
+#chat .cm-edit .line { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+#chat .cm-edit .cm-enote { font-size: 12px; }
 #chat .cm-more { margin-left: auto; font: inherit; font-size: 16px; line-height: 1; background: none; border: none; color: var(--muted); cursor: pointer; padding: 0 4px; }
 #chat .cm-x { font-size: 15px; white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 1px; }
 #chat .cm.mine .cm-n { color: var(--cyan); }
@@ -1313,7 +1318,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <li>Your friends sit in a row of circles at the top of Chats. A pink ring means they sent you something new. Tap a circle to message them. To add friends, use My code or Share link in My Radar.</li>
       <li>Marking Going adds you to that festival's crew chat (you can turn this off in Settings).</li>
       <li>Public chats are seen by everyone on Festival Radar. Don't share where you're staying or other private details.</li>
-      <li>Use the ⋯ next to a message to delete your own, report one, or mute someone in public chats.</li>
+      <li>Use the ⋯ next to a message to edit or delete your own, report one, or mute someone in public chats. You can edit a message for 15 minutes after sending it, and it shows "edited".</li>
     </ul></details>
     <details><summary>Friends and Messages</summary><ul>
       <li>Met someone at a show? Open My code in My Radar and let them scan it with their phone camera. You're friends right away.</li>
@@ -2039,7 +2044,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       }
       row.append(n, acts);
       if (r.kind === 'photo' && r.target_ref && photoUrl(r.target_ref)) { const im = mk('img', 'pv'); im.src = photoUrl(r.target_ref); im.alt = 'Reported photo'; row.appendChild(im); }
-      if (r.kind === 'message') row.appendChild(mk('div', 'w', (r.message ? (r.message.kind === 'public' ? 'Public chat' : r.message.kind === 'dm' ? 'Direct' : 'Crew chat') + ' message' + (r.message.deleted ? ' (deleted)' : '') + ': ' + r.message.body : 'Message no longer exists') + (r.banned ? ' · removed from public chats' : '')));
+      if (r.kind === 'message') row.appendChild(mk('div', 'w', (r.message ? (r.message.kind === 'public' ? 'Public chat' : r.message.kind === 'dm' ? 'Direct' : 'Crew chat') + ' message' + (r.message.deleted ? ' (deleted)' : '') + (r.message.edited_at ? ' (edited)' : '') + ': ' + r.message.body : 'Message no longer exists') + (r.banned ? ' · removed from public chats' : '')));
+      if (r.kind === 'message' && r.message && r.message.original != null) row.appendChild(mk('div', 'w', 'Originally said: ' + r.message.original));
       else if (r.kind !== 'photo' && r.bio) row.appendChild(mk('div', 'w', 'Bio: ' + r.bio));
       row.appendChild(mk('div', 'w', (r.reason || 'No reason given') + ' · reported by ' + r.by + ' · ' + fmtDate(r.created_at)));
       box.appendChild(row);
@@ -2258,7 +2264,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   let chatList = [], chatMutes = new Set(), chatPrefs = { follow_going: true, banned: false, show_read: true };
   let cur = null; // { kind, crew, fest, thread }
   let curMsgs = [], chatSub = null, chatPoll = null, pendingSend = null;
-  let curReads = [], typers = new Map(), typeTimer = null, lastTypingSent = 0;
+  let curReads = [], typers = new Map(), typeTimer = null, lastTypingSent = 0, curEdit = null; // curEdit: { id, text } while editing
   const AVC = ['#ff3d9a', '#29d3f5', '#a86bff', '#ff9a4a', '#4ade80', '#facc15'];
   const dmThread = other => 'd:' + (uid < other ? uid + ':' + other : other + ':' + uid);
   const threadOf = (kind, crew, fest, other) => kind === 'dm' ? dmThread(other) : kind === 'crew' ? 'c:' + crew : kind === 'crewfest' ? 'cf:' + crew + ':' + fest : 'p:' + fest;
@@ -2439,7 +2445,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     sel.value = o.crew || ''; sel.hidden = o.kind === 'public' || o.kind === 'dm' || crews.length < 2;
     const r = rowFor(o.thread);
     o.readAt = r ? (r.last_read_id || 0) : 0; o.whereText = document.getElementById('chat-where').textContent;
-    curReads = []; typers.clear(); showTyping();
+    curReads = []; typers.clear(); showTyping(); curEdit = null;
     const fl = document.getElementById('chat-follow'), fll = document.getElementById('chat-follow-l');
     if (o.kind === 'crew' || o.kind === 'dm') { fll.textContent = 'Notifications'; fl.setAttribute('aria-checked', String(r ? r.notify : true)); }
     else { fll.textContent = 'Following'; fl.setAttribute('aria-checked', String(!!(r && r.following))); }
@@ -2478,7 +2484,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     if (!cur) return;
     const t = cur.thread;
     const dm = cur.kind === 'dm';
-    const { data, error } = await sb.from(dm ? 'dm_messages' : 'chat_messages').select(dm ? 'id,user_id,body,created_at' : 'id,user_id,body,created_at,kind').eq('thread', t).order('id', { ascending: false }).limit(150);
+    const { data, error } = await sb.from(dm ? 'dm_messages' : 'chat_messages').select(dm ? 'id,user_id,body,created_at,edited_at' : 'id,user_id,body,created_at,kind,edited_at').eq('thread', t).order('id', { ascending: false }).limit(150);
     if (!cur || cur.thread !== t) return;
     if (error) { document.getElementById('chat-list').replaceChildren(mk('div', 'empty', 'Chat didn\'t load. Try again in a moment.')); return; }
     curMsgs = (data || []).slice().reverse();
@@ -2517,11 +2523,13 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       const body = mk('div', 'cm-b'), hd = mk('div', 'cm-h');
       const nm = mk('button', 'cm-n', mine ? 'You' : ((p && p.name) || 'Someone')); nm.type = 'button'; nm.addEventListener('click', () => openCard(m.user_id));
       const more = mk('button', 'cm-more', '⋯'); more.type = 'button'; more.setAttribute('aria-label', 'Message options');
-      hd.append(nm, mk('span', 'cm-t', hhmm(m.created_at)), more);
+      hd.append(nm, mk('span', 'cm-t', hhmm(m.created_at)));
+      if (m.edited_at) hd.appendChild(mk('span', 'cm-ed', 'edited'));
+      hd.appendChild(more);
       const acts = mk('div', 'cm-acts'); acts.hidden = true;
       more.addEventListener('click', () => { acts.hidden = !acts.hidden; if (!acts.hidden) fillActs(acts, m); });
       const fm = String(m.body || '').match(SHARE_RE);
-      body.append(hd, fm ? festMsg(fm[2], fm[1]) : mk('div', 'cm-x', m.body), acts);
+      body.append(hd, curEdit && curEdit.id === m.id && mine ? editBox(m) : fm ? festMsg(fm[2], fm[1]) : mk('div', 'cm-x', m.body), acts);
       row.append(avatarEl(m.user_id), body); box.appendChild(row);
     });
     renderSeen(msgs[msgs.length - 1]);
@@ -2584,9 +2592,39 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     box.appendChild(go); return box;
   }
   window.FRShareBody = f => 'Shared ' + String(f.festival).slice(0, 160) + '\n[fr:' + f.id + ']';
+  // Editing your own message: allowed for 15 minutes after sending (the database enforces this too).
+  const EDIT_MS = 15 * 60e3;
+  const canEdit = m => m.user_id === uid && !SHARE_RE.test(String(m.body || '')) && Date.now() - Date.parse(m.created_at) < EDIT_MS;
+  function editBox(m) {
+    const wrap = mk('div', 'cm-edit'), ta = mk('textarea'); ta.maxLength = 1000; ta.rows = 2; ta.value = curEdit.text; ta.setAttribute('aria-label', 'Edit message');
+    ta.addEventListener('input', () => { curEdit.text = ta.value; });
+    const save = mk('button', 'abtn', 'Save'); save.type = 'button'; const cancel = mk('button', 'lnk', 'Cancel'); cancel.type = 'button';
+    const note = mk('span', 'muted cm-enote');
+    const done = () => { curEdit = null; renderMessages(); };
+    cancel.addEventListener('click', done);
+    ta.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(); }
+      else if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && window.matchMedia('(hover: hover)').matches) { e.preventDefault(); save.click(); }
+    });
+    save.addEventListener('click', async () => {
+      const text = ta.value.trim(); if (!text) { note.textContent = 'Type something, or delete the message instead.'; return; }
+      if (text === m.body) { done(); return; }
+      save.disabled = true; note.textContent = '';
+      const { data, error } = await sb.rpc(cur.kind === 'dm' ? 'edit_dm' : 'edit_message', { p_id: m.id, p_body: text });
+      save.disabled = false;
+      if (error) { const e = error.message || ''; note.textContent = /window/.test(e) ? 'Too late to edit. Messages can be edited for 15 minutes.' : /closed/.test(e) ? 'This chat is closed.' : /removed/.test(e) ? 'You\'ve been removed from public chats.' : 'That didn\'t save. Try again.'; return; }
+      const x = curMsgs.find(y => y.id === m.id); if (x && data) { x.body = data.body; x.edited_at = data.edited_at; }
+      done(); loadChats().catch(() => {});
+    });
+    const row = mk('div', 'line'); row.append(save, cancel, note);
+    wrap.append(ta, row);
+    setTimeout(() => { if (document.activeElement !== ta && curEdit && curEdit.id === m.id) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } }, 0);
+    return wrap;
+  }
   function fillActs(acts, m) {
     acts.replaceChildren();
     const link = (t, fn, cls) => { const b = mk('button', 'lnk' + (cls ? ' ' + cls : ''), t); b.type = 'button'; b.addEventListener('click', fn); acts.appendChild(b); return b; };
+    if (m.user_id === uid && canEdit(m)) link('Edit', () => { curEdit = { id: m.id, text: m.body }; renderMessages(); });
     if (m.user_id === uid) { link('Delete', async () => { if (!confirm('Delete this message?')) return; const { error } = await sb.rpc(cur.kind === 'dm' ? 'delete_dm' : 'delete_message', { p_id: m.id }); if (!error) { curMsgs = curMsgs.filter(x => x.id !== m.id); renderMessages(); } }, 'danger'); return; }
     link('Report', () => {
       acts.replaceChildren();
@@ -2624,6 +2662,12 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
         curMsgs.push({ id: m.id, user_id: m.user_id, body: m.body, created_at: m.created_at, kind: m.kind });
         if (typers.delete(m.user_id)) showTyping();
         await FRProf.load([m.user_id]); renderMessages(); markRead(); loadReads().catch(() => {});
+      }).on('postgres_changes', { event: 'UPDATE', schema: 'public', table: t.startsWith('d:') ? 'dm_messages' : 'chat_messages', filter: 'thread=eq.' + t }, payload => {
+        const m = payload && payload.new; if (!m || !cur || m.thread !== cur.thread) return;
+        const i = curMsgs.findIndex(x => x.id === m.id); if (i < 0) return;
+        if (m.deleted_at) { curMsgs.splice(i, 1); if (curEdit && curEdit.id === m.id) curEdit = null; }
+        else { curMsgs[i].body = m.body; curMsgs[i].edited_at = m.edited_at; }
+        renderMessages(); loadChats().catch(() => {});
       }).on('broadcast', { event: 'typing' }, ({ payload }) => {
         const u = payload && payload.u; if (!cur || cur.kind === 'public' || !u || u === uid) return;
         typers.set(u, Date.now() + 5000); FRProf.load([u]).then(showTyping);
