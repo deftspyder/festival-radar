@@ -489,24 +489,34 @@ dialog.pcard .pc-inv select { width: auto; flex: 1; min-width: 0; margin: 0; }
 .ch-row.unread .ch-time { color: var(--pink); font-weight: 700; }
 .ch-mute { flex: none; color: var(--muted); display: flex; }
 .ch-ic { flex: none; width: 48px; height: 48px; position: relative; }
-.ch-fest { width: 48px; height: 48px; border-radius: 14px; background: var(--avc, var(--violet)); color: #120a24; font: 14px var(--display); display: flex; align-items: center; justify-content: center; }
+.ch-date { width: 48px; height: 48px; box-sizing: border-box; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; background: var(--panel-2); border: 1px solid var(--line); }
+.ch-date .cd-m { background: var(--avc, var(--violet)); color: #120a24; font: 800 10px/16px var(--body); letter-spacing: .08em; text-transform: uppercase; text-align: center; }
+.ch-date .cd-d { flex: 1; display: flex; align-items: center; justify-content: center; font: 19px var(--display); color: var(--fg); }
+.ch-date.tba .cd-d { font: 800 11px var(--body); color: var(--muted); }
 .ch-pav { width: 48px; height: 48px; border-radius: 50%; background: var(--avc, var(--cyan)) center / cover; color: #120a24; font: 800 16px var(--body); display: flex; align-items: center; justify-content: center; }
 .ch-pav.ph { color: transparent; }
 .ch-stack .ch-mini { position: absolute; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--panel); background: var(--avc, var(--cyan)) center / cover; color: #120a24; font: 800 12px var(--body); display: flex; align-items: center; justify-content: center; }
 .ch-stack .ch-mini.ph { color: transparent; }
 .ch-stack .ch-mini:nth-child(1) { left: 0; top: 0; } .ch-stack .ch-mini:nth-child(2) { left: 18px; top: 2px; } .ch-stack .ch-mini:nth-child(3) { left: 9px; top: 18px; }
-.ch-box.ch-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-.ch-tile { position: relative; display: flex; flex-direction: column; gap: 7px; padding: 12px; min-height: 140px; box-sizing: border-box; border-radius: 16px; border: 1px solid var(--line); background: var(--panel-2); color: var(--fg); font: inherit; text-align: left; cursor: pointer; min-width: 0; }
+.ch-box.ch-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.ch-tile { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 10px; box-sizing: border-box; border-radius: 16px; border: 1px solid var(--line); background: var(--panel-2); color: var(--fg); font: inherit; text-align: left; cursor: pointer; min-width: 0; }
 .ch-tile.unread { border-color: var(--pink); }
-.ch-tile .ch-ic { width: 38px; height: 38px; }
-.ch-tile .ch-fest { width: 38px; height: 38px; border-radius: 11px; font-size: 12px; }
-.ch-tile .ch-pav { width: 38px; height: 38px; font-size: 14px; }
+.ch-tile .ch-th { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.ch-tile .ch-ic { width: 36px; height: 36px; }
+.ch-tile .ch-date { width: 36px; height: 36px; border-radius: 9px; }
+.ch-tile .ch-date .cd-m { font-size: 8px; line-height: 12px; }
+.ch-tile .ch-date .cd-d { font-size: 14px; }
+.ch-tile .ch-date.tba .cd-d { font-size: 9px; }
+.ch-tile .ch-pav { width: 36px; height: 36px; font-size: 14px; }
 .ch-tile .ch-stack .ch-mini { width: 22px; height: 22px; font-size: 10px; }
 .ch-tile .ch-stack .ch-mini:nth-child(2) { left: 14px; } .ch-tile .ch-stack .ch-mini:nth-child(3) { left: 7px; top: 14px; }
-.ch-tile .ch-t { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.25; font-size: 14px; }
+.ch-tile .ch-t { flex: 1; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.25; font-size: 14px; }
 .ch-tile .ch-p { font-size: 13px; }
-.ch-tile .ch-foot { margin-top: auto; font-size: 11px; font-weight: 600; color: var(--muted); display: flex; align-items: center; gap: 6px; }
-.ch-tile .ch-foot .ch-mute { margin-left: auto; }
+.ch-tile .ch-foot { margin-top: auto; font-size: 11px; font-weight: 600; color: var(--muted); display: flex; align-items: center; gap: 5px; min-width: 0; }
+.ch-tile .ch-meta { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ch-tile .ch-foot .ch-end { margin-left: auto; }
+.ch-tile .ch-foot .ch-time { font-size: 11px; }
+.ch-tile.unread .ch-p { color: var(--fg); }
 #chat .chat-hd { min-width: 0; } #chat .chat-hd h2 { overflow-wrap: anywhere; } #chat .chat-hd small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
 #chat .chat-top { padding: 10px 18px 0; flex: none; }
 #chat .chat-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
@@ -2277,7 +2287,6 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   let chView = chLs('fr-chats-view') === 'tiles' ? 'tiles' : 'list';
   const hashCol = s => { let h = 0; for (const ch of String(s)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return AVC[h % AVC.length]; };
   const firstName = n => String(n || 'Someone').trim().split(/\s+/)[0];
-  const festIni = id => { const w = festName(id).replace(/\b(19|20)\d\d\b/g, '').split(/[^A-Za-z0-9]+/).filter(Boolean); return ((w[0] || '?')[0] + ((w[1] || '')[0] || '')).toUpperCase(); };
   const chTime = t => { if (!t) return ''; const d = new Date(t), now = new Date(), days = (now - d) / 864e5;
     return dayKey(t) === dayKey(now) ? hhmm(t) : days < 6 ? d.toLocaleDateString([], { weekday: 'short' }) : MON[d.getMonth()] + ' ' + d.getDate(); };
   const muteSvg = () => { const s = mk('span', 'ch-mute'); s.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Notifications off"><path d="M13.7 21a2 2 0 0 1-3.4 0"/><path d="M18 8a6 6 0 0 0-9.3-5"/><path d="M6.3 6.3A6 6 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="m2 2 20 20"/></svg>'; return s; };
@@ -2294,8 +2303,16 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       const c = crews.find(x => x.id === r.crew_id), ms = ((c && c.members) || []).filter(m => m.id !== uid).slice(0, 3);
       (ms.length ? ms : [{ id: r.crew_id, name: r.crew_name }]).forEach(m => ic.appendChild(personAv(m.id, (FRProf.get(m.id) || {}).name || m.name, 'ch-mini')));
     } else if (r.kind === 'dm') ic.appendChild(personAv(r.other_id, (FRProf.get(r.other_id) || {}).name || r.other_name, 'ch-pav'));
-    else { const f = mk('span', 'ch-fest', festIni(r.festival_id)); f.style.setProperty('--avc', hashCol(r.festival_id)); f.setAttribute('aria-hidden', 'true'); ic.appendChild(f); }
+    else ic.appendChild(festDate(r.festival_id));
     return ic;
+  }
+  // Festival chats show the festival's start date as a little calendar badge (month on top, day below).
+  function festDate(fid) {
+    const f = festOf(fid), el = mk('span', 'ch-date'); el.style.setProperty('--avc', hashCol(fid));
+    const m = f && /^(\d{4})-(\d{2})-(\d{2})$/.exec(f.start || '');
+    if (m) { el.append(mk('span', 'cd-m', MON[+m[2] - 1]), mk('span', 'cd-d', String(+m[3]))); el.setAttribute('aria-label', 'Starts ' + MON[+m[2] - 1] + ' ' + (+m[3])); el.setAttribute('role', 'img'); }
+    else { el.classList.add('tba'); el.append(mk('span', 'cd-m', 'Date'), mk('span', 'cd-d', 'TBA')); el.setAttribute('aria-hidden', 'true'); }
+    return el;
   }
   const chTitle = r => r.kind === 'dm' ? (r.other_name || 'Someone') : r.kind === 'crew' ? r.crew_name + ' chat' : festName(r.festival_id);
   function chPreview(r) {
@@ -2327,14 +2344,15 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
   function chTile(r) {
     const b = mk('button', 'ch-tile' + (r.unread ? ' unread' : '') + (cur && cur.thread === r.thread ? ' on' : '')); b.type = 'button';
     if (cur && cur.thread === r.thread) b.setAttribute('aria-current', 'true');
-    const top = mk('span', 'ch-top'); top.appendChild(chIcon(r));
-    top.appendChild(r.unread ? Object.assign(mk('span', 'ch-n', r.unread > 99 ? '99+' : String(r.unread)), { style: 'margin-left:auto' }) : mk('span', 'ch-time', chTime(r.last_at)));
+    const head = mk('span', 'ch-th'); head.append(chIcon(r), mk('span', 'ch-t', chTitle(r)));
     const foot = mk('span', 'ch-foot');
     const c = crews.find(x => x.id === r.crew_id);
-    foot.appendChild(document.createTextNode(r.kind === 'crewfest' ? (r.going ? r.going + ' going' : r.crew_name || '') : r.kind === 'crew' ? (((c && c.members) || []).length + ' members') : r.kind === 'dm' ? 'Direct message' : 'Public'));
+    foot.appendChild(mk('span', 'ch-meta', r.kind === 'crewfest' ? (r.going ? r.going + ' going' : r.crew_name || '') : r.kind === 'crew' ? (((c && c.members) || []).length + ' members') : r.kind === 'dm' ? 'Message' : 'Public'));
     if (r.kind === 'crew') foot.appendChild(pinSvg());
     if (r.notify === false) foot.appendChild(muteSvg());
-    b.append(top, mk('span', 'ch-t', chTitle(r)), mk('span', 'ch-p', chPreview(r)), foot);
+    foot.appendChild(r.unread ? mk('span', 'ch-n ch-end', r.unread > 99 ? '99+' : String(r.unread)) : mk('span', 'ch-time ch-end', chTime(r.last_at)));
+    // The footer already says how many are going, so an empty chat just says so.
+    b.append(head, mk('span', 'ch-p', r.last_body ? chPreview(r) : 'No messages yet'), foot);
     b.addEventListener('click', () => openThreadKey(r.thread));
     return b;
   }
