@@ -510,6 +510,12 @@ dialog.chat .cm-x { font-size: 15px; white-space: pre-wrap; overflow-wrap: anywh
 dialog.chat .cm.mine .cm-n { color: var(--cyan); }
 dialog.chat .cm-acts { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; margin-top: 4px; font-size: 13px; }
 dialog.chat .cm-acts select { font: inherit; font-size: 13px; padding: 4px 6px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); max-width: 100%; }
+dialog.chat .cm-new { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; color: var(--pink); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+dialog.chat .cm-new::before, dialog.chat .cm-new::after { content: ""; flex: 1; height: 1px; background: var(--pink); opacity: .6; }
+dialog.chat .cm-seen { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin: 2px 4px 6px; font-size: 11px; color: var(--muted); }
+dialog.chat .cm-seen .av { width: 18px; height: 18px; font-size: 9px; border-width: 1px; }
+dialog.chat .cm-seen .av + .av { margin-left: -6px; }
+#chat-where.typing { color: var(--cyan); font-weight: 600; }
 dialog.chat .cm-day { text-align: center; font-size: 11px; color: var(--muted); margin: 10px 0 2px; letter-spacing: .04em; text-transform: uppercase; }
 dialog.chat .chat-foot { flex: none; padding: 8px 18px 14px; border-top: 1px solid var(--line); }
 dialog.chat .chat-form { display: flex; gap: 8px; align-items: flex-end; }
@@ -1116,6 +1122,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     </details>
     <h3>Notifications</h3>
     <div class="setrow"><span>Add me to event crew chats when I select Going<br><span class="muted">Follows that festival's chat in each of your crews, so it shows in your Chats and can notify you.</span></span><button type="button" class="sw" id="set-chat-going" role="switch" aria-checked="true" aria-label="Add me to event crew chats when I select Going"><span class="knob"></span></button></div>
+    <div class="setrow"><span>Show when I've read messages<br><span class="muted">Your crew and friends see "Seen by" under messages you've read. Turn it off and you won't see theirs either.</span></span><button type="button" class="sw" id="set-show-read" role="switch" aria-checked="true" aria-label="Show when I've read messages"><span class="knob"></span></button></div>
     <div class="setrow"><span>Presale alerts are in My Radar<br><span class="muted">Turn them on or off for this device there.</span></span><button type="button" class="abtn alt" id="set-open-radar">Open My Radar</button></div>
     <h3>Account</h3>
     <div class="line"><button type="button" class="abtn alt" id="set-invite">Invite friends</button><button type="button" class="abtn alt" id="set-feedback">Send feedback</button><button type="button" class="abtn alt" id="set-signout">Sign out</button></div>
@@ -1258,6 +1265,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <details><summary>Chats</summary><ul>
       <li>Every crew has a group chat, and every festival has a crew chat and a public chat. Tap the chat bubble on a festival card, or open Chats in the Crew tab.</li>
       <li>In Chats, each chat shows its newest message, and a pink number shows how many you haven't read. Use the two buttons next to the Chats title to switch between a list and tiles; your phone remembers your pick. Search and the All, Unread, Crew and Festivals buttons help you find a chat.</li>
+      <li>In a crew chat or a message with a friend, you'll see when someone is typing, a "New" line above messages you haven't read yet, and "Seen by" under the newest message. Don't want others to see when you've read something? Turn off "Show when I've read messages" in Settings (you won't see theirs either).</li>
       <li>Your friends sit in a row of circles at the top of Chats. A pink ring means they sent you something new. Tap a circle to message them, or tap Add to share your friend code.</li>
       <li>Marking Going adds you to that festival's crew chat (you can turn this off in Settings).</li>
       <li>Public chats are seen by everyone on Festival Radar. Don't share where you're staying or other private details.</li>
@@ -2216,9 +2224,10 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 
   // ---------- Chats ----------
   // Threads: 'c:<crew>' crew chat, 'cf:<crew>:<festival>' a festival thread in a crew, 'p:<festival>' public.
-  let chatList = [], chatMutes = new Set(), chatPrefs = { follow_going: true, banned: false };
+  let chatList = [], chatMutes = new Set(), chatPrefs = { follow_going: true, banned: false, show_read: true };
   let cur = null; // { kind, crew, fest, thread }
   let curMsgs = [], chatSub = null, chatPoll = null, pendingSend = null;
+  let curReads = [], typers = new Map(), typeTimer = null, lastTypingSent = 0;
   const AVC = ['#ff3d9a', '#29d3f5', '#a86bff', '#ff9a4a', '#4ade80', '#facc15'];
   const dmThread = other => 'd:' + (uid < other ? uid + ':' + other : other + ':' + uid);
   const threadOf = (kind, crew, fest, other) => kind === 'dm' ? dmThread(other) : kind === 'crew' ? 'c:' + crew : kind === 'crewfest' ? 'cf:' + crew + ':' + fest : 'p:' + fest;
@@ -2388,6 +2397,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     crews.forEach(c => { const op = mk('option', null, c.name); op.value = c.id; sel.appendChild(op); });
     sel.value = o.crew || ''; sel.hidden = o.kind === 'public' || o.kind === 'dm' || crews.length < 2;
     const r = rowFor(o.thread);
+    o.readAt = r ? (r.last_read_id || 0) : 0; o.whereText = document.getElementById('chat-where').textContent;
+    curReads = []; typers.clear(); showTyping();
     const fl = document.getElementById('chat-follow'), fll = document.getElementById('chat-follow-l');
     if (o.kind === 'crew' || o.kind === 'dm') { fll.textContent = 'Notifications'; fl.setAttribute('aria-checked', String(r ? r.notify : true)); }
     else { fll.textContent = 'Following'; fl.setAttribute('aria-checked', String(!!(r && r.following))); }
@@ -2416,6 +2427,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     await window.FRProf.load([...new Set(curMsgs.map(m => m.user_id))]);
     renderMessages(scroll);
     markRead();
+    loadReads().catch(() => {});
   }
   function avatarEl(u) {
     const p = FRProf.get(u); const n = (p && p.name) || 'Someone';
@@ -2437,8 +2449,11 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const msgs = curMsgs.filter(m => !(cur.kind === 'public' && chatMutes.has(m.user_id)));
     if (!msgs.length) { box.appendChild(mk('div', 'empty', cur.kind === 'public' ? 'No messages yet. Say hi to everyone going.' : cur.kind === 'dm' ? 'No messages yet. Say hi.' : 'No messages yet. Start the plan.')); return; }
     let lastDay = null;
-    msgs.forEach(m => {
+    // "New" line above the first message from someone else since this chat was last read (not at the very top).
+    const firstNew = cur.readAt ? msgs.findIndex(m => m.id > cur.readAt && m.user_id !== uid) : -1;
+    msgs.forEach((m, i) => {
       const dk = dayKey(m.created_at); if (dk !== lastDay) { box.appendChild(mk('div', 'cm-day', dayLabel(m.created_at))); lastDay = dk; }
+      if (i === firstNew && i > 0) box.appendChild(mk('div', 'cm-new', 'New'));
       const mine = m.user_id === uid, p = FRProf.get(m.user_id);
       const row = mk('div', 'cm' + (mine ? ' mine' : '')); row.dataset.id = m.id;
       const body = mk('div', 'cm-b'), hd = mk('div', 'cm-h');
@@ -2451,7 +2466,53 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       body.append(hd, fm ? festMsg(fm[2], fm[1]) : mk('div', 'cm-x', m.body), acts);
       row.append(avatarEl(m.user_id), body); box.appendChild(row);
     });
+    renderSeen(msgs[msgs.length - 1]);
     if (scroll || nearBottom) box.scrollTop = box.scrollHeight;
+  }
+  // "Seen by" under the newest message: crewmates or the DM friend who have read it (not its sender).
+  function renderSeen(last) {
+    const box = document.getElementById('chat-list'); box.querySelectorAll('.cm-seen').forEach(e => e.remove());
+    if (!cur || cur.kind === 'public' || !last || !chatPrefs.show_read) return;
+    const who = curReads.filter(r => r.user_id !== last.user_id && r.user_id !== uid && r.last_read_id >= last.id).map(r => r.user_id);
+    if (!who.length) return;
+    const el = mk('div', 'cm-seen');
+    if (cur.kind === 'dm') el.appendChild(document.createTextNode('Seen'));
+    else {
+      el.appendChild(document.createTextNode('Seen by'));
+      const names = who.map(u => firstName((FRProf.get(u) || {}).name)); el.title = names.join(', ');
+      el.setAttribute('aria-label', 'Seen by ' + names.join(', '));
+      who.slice(0, 6).forEach(u => { const a = avatarEl(u); a.tabIndex = -1; el.appendChild(a); });
+      if (who.length > 6) el.appendChild(document.createTextNode('+' + (who.length - 6)));
+    }
+    box.appendChild(el);
+  }
+  async function loadReads() {
+    if (!cur || cur.kind === 'public' || !chatPrefs.show_read) { curReads = []; return; }
+    const t = cur.thread;
+    const { data, error } = await sb.rpc('thread_reads', { p_thread: t });
+    if (error || !cur || cur.thread !== t) return;
+    curReads = Array.isArray(data) ? data : [];
+    await FRProf.load(curReads.map(r => r.user_id));
+    const box = document.getElementById('chat-list'), near = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+    const msgs = curMsgs.filter(m => !(cur.kind === 'public' && chatMutes.has(m.user_id)));
+    renderSeen(msgs[msgs.length - 1]);
+    if (near) box.scrollTop = box.scrollHeight;
+  }
+  // Typing: a short-lived broadcast on the open chat's live channel, never saved. Crew, crew festival and DM chats only.
+  function showTyping() {
+    const el = document.getElementById('chat-where'); if (!el) return;
+    const now = Date.now();
+    for (const [u, t] of typers) if (t < now) typers.delete(u);
+    const names = [...typers.keys()].map(u => FRProf.get(u)).filter(p => !(p && (p.blocked || p.blocked_by_me))).map(p => firstName(p && p.name));
+    if (!cur || !names.length) { el.classList.remove('typing'); el.textContent = cur ? cur.whereText || '' : el.textContent; if (typeTimer) { clearInterval(typeTimer); typeTimer = null; } return; }
+    el.classList.add('typing');
+    el.textContent = names.length === 1 ? names[0] + ' is typing...' : names.length === 2 ? names[0] + ' and ' + names[1] + ' are typing...' : 'Several people are typing...';
+    if (!typeTimer) typeTimer = setInterval(showTyping, 1000);
+  }
+  function sendTyping() {
+    if (!cur || cur.kind === 'public' || !chatSub || Date.now() - lastTypingSent < 3000) return;
+    lastTypingSent = Date.now();
+    try { chatSub.send({ type: 'broadcast', event: 'typing', payload: { u: uid } }); } catch (e) {}
   }
   // A shared festival is sent as "Shared <name>\n[fr:<id>]" and shown as a card.
   const SHARE_RE = /^Shared (.{1,160})\n\[fr:([a-z0-9][a-z0-9-]{0,150})\]$/;
@@ -2493,6 +2554,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     if (r && r.last_read_id >= top) return;
     await sb.from('chat_reads').upsert({ user_id: uid, thread: cur.thread, last_read_id: top, updated_at: new Date().toISOString() }, { onConflict: 'user_id,thread' });
     if (r) { r.last_read_id = top; r.unread = 0; }
+    if (chatSub && cur && cur.kind !== 'public' && chatPrefs.show_read) { try { chatSub.send({ type: 'broadcast', event: 'read', payload: { u: uid } }); } catch (e) {} }
     loadChats().catch(() => {});
   }
   function subscribe(t) {
@@ -2502,7 +2564,13 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
         const m = payload && payload.new; if (!m || !cur || m.thread !== cur.thread || curMsgs.some(x => x.id === m.id)) return;
         if (m.deleted_at) return;
         curMsgs.push({ id: m.id, user_id: m.user_id, body: m.body, created_at: m.created_at, kind: m.kind });
-        await FRProf.load([m.user_id]); renderMessages(); markRead();
+        if (typers.delete(m.user_id)) showTyping();
+        await FRProf.load([m.user_id]); renderMessages(); markRead(); loadReads().catch(() => {});
+      }).on('broadcast', { event: 'typing' }, ({ payload }) => {
+        const u = payload && payload.u; if (!cur || cur.kind === 'public' || !u || u === uid) return;
+        typers.set(u, Date.now() + 5000); FRProf.load([u]).then(showTyping);
+      }).on('broadcast', { event: 'read' }, ({ payload }) => {
+        if (payload && payload.u !== uid) loadReads().catch(() => {});
       }).subscribe();
     } catch (e) {}
     chatPoll = setInterval(() => { if (document.visibilityState === 'visible') loadMessages(false).catch(() => {}); }, 12000);
@@ -2529,7 +2597,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   const bcoolSeen = () => { try { return localStorage.getItem('fr-bcool-' + uid) === '1'; } catch (e) { return false; } };
   function wireChat() {
     const d = document.getElementById('chat');
-    const close = () => { unsubscribe(); cur = null; d.close(); loadChats().catch(() => {}); };
+    const close = () => { unsubscribe(); cur = null; typers.clear(); showTyping(); d.close(); loadChats().catch(() => {}); };
     document.getElementById('chat-x').addEventListener('click', close);
     d.addEventListener('cancel', e => { e.preventDefault(); close(); });
     document.getElementById('chat-tabs').addEventListener('click', e => {
@@ -2551,7 +2619,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       const r = rowFor(cur.thread); if (r) r.banner_ok = true;
     });
     const inp = document.getElementById('chat-input');
-    inp.addEventListener('input', autosize);
+    inp.addEventListener('input', () => { autosize(); if (inp.value.trim()) sendTyping(); });
     inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && window.matchMedia('(hover: hover)').matches) { e.preventDefault(); document.getElementById('chat-form').requestSubmit(); } });
     document.getElementById('chat-form').addEventListener('submit', async e => {
       e.preventDefault(); if (!cur) return;
@@ -2572,11 +2640,19 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       const { error } = await sb.rpc('set_chat_follow_going', { p_on: on });
       if (error) sg.setAttribute('aria-checked', String(!on)); else { chatPrefs.follow_going = on; renderChatList(); }
     });
+    const sr = document.getElementById('set-show-read');
+    sr.addEventListener('click', async () => {
+      const on = sr.getAttribute('aria-checked') !== 'true'; sr.setAttribute('aria-checked', String(on));
+      const { error } = await sb.rpc('set_show_read', { p_on: on });
+      if (error) { sr.setAttribute('aria-checked', String(!on)); return; }
+      chatPrefs.show_read = on; if (cur) { curReads = []; renderMessages(); loadReads().catch(() => {}); }
+    });
     setInterval(() => { if (uid && document.visibilityState === 'visible' && !cur) loadChats().catch(() => {}); }, 45000);
   }
   async function initChat() {
     const [{ data: pr }, { data: mu }] = await Promise.all([sb.rpc('my_chat_prefs'), sb.from('chat_mutes').select('muted')]);
-    if (pr) chatPrefs = { follow_going: pr.follow_going !== false, banned: !!pr.banned };
+    if (pr) chatPrefs = { follow_going: pr.follow_going !== false, banned: !!pr.banned, show_read: pr.show_read !== false };
+    document.getElementById('set-show-read').setAttribute('aria-checked', String(chatPrefs.show_read !== false));
     document.getElementById('set-chat-going').setAttribute('aria-checked', String(chatPrefs.follow_going));
     chatMutes = new Set((mu || []).map(r => r.muted));
     await loadChats();
