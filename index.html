@@ -471,7 +471,6 @@ dialog.pcard .pc-inv select { width: auto; flex: 1; min-width: 0; margin: 0; }
 .chf.unread .chf-ring { border-color: var(--pink); }
 .chf-av { width: 50px; height: 50px; border-radius: 50%; background: var(--avc, var(--cyan)) center / cover; color: #120a24; font: 800 18px var(--body); display: flex; align-items: center; justify-content: center; }
 .chf-av.ph { color: transparent; }
-.chf-add .chf-ring { border-style: dashed; color: var(--fg); }
 .chf-n { font-size: 12px; font-weight: 500; max-width: 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chf.unread .chf-n { font-weight: 800; }
 .chf .ch-n { position: absolute; top: -4px; right: -6px; border: 2px solid var(--panel); }
@@ -1318,7 +1317,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <li>Every crew has a group chat, and every festival has a crew chat and a public chat. Everything lives in the Chats tab. Tapping the chat bubble on a festival card, Message on a profile, or Open crew chat in the Crew tab takes you straight to that chat.</li>
       <li>In Chats, each chat shows its newest message, and a pink number shows how many you haven't read. Use the two buttons next to the Chats title to switch between a list and tiles; your phone remembers your pick. Search and the All, Unread, Crew and Festivals buttons help you find a chat.</li>
       <li>In a crew chat or a message with a friend, you'll see when someone is typing, a "New" line above messages you haven't read yet, and "Seen by" under the newest message. Don't want others to see when you've read something? Turn off "Show when I've read messages" in Settings (you won't see theirs either).</li>
-      <li>Your friends sit in a row of circles at the top of Chats. A pink ring means they sent you something new. Tap a circle to message them, or tap Add to share your friend code.</li>
+      <li>Your friends sit in a row of circles at the top of Chats. A pink ring means they sent you something new. Tap a circle to message them. To add friends, use My code or Share link in My Radar.</li>
       <li>Marking Going adds you to that festival's crew chat (you can turn this off in Settings).</li>
       <li>Public chats are seen by everyone on Festival Radar. Don't share where you're staying or other private details.</li>
       <li>Use the ⋯ next to a message to delete your own, report one, or mute someone in public chats.</li>
@@ -2358,11 +2357,6 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const box = document.getElementById('ch-friends'); if (!box) return;
     box.hidden = !uid; if (!uid) return;
     box.replaceChildren();
-    const add = mk('button', 'chf chf-add'); add.type = 'button'; add.setAttribute('aria-label', 'Add a friend');
-    const ring = mk('span', 'chf-ring'); ring.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
-    add.append(ring, mk('span', 'chf-n', 'Add'));
-    add.addEventListener('click', () => { const b = document.getElementById('fr-mycode'); if (b) b.click(); });
-    box.appendChild(add);
     const last = id => { const r = rowFor(dmThread(id)); return (r && r.last_at) || ''; };
     friends.filter(f => !f.blocked)
       .map(f => ({ f, n: FRChat.dmUnread(f.id), t: last(f.id) }))
@@ -2376,6 +2370,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
         b.addEventListener('click', () => FRChat.openDm(f.id));
         box.appendChild(b);
       });
+    box.hidden = !box.children.length;
   }
   function renderChatBadges() {
     const tot = uid ? chatList.reduce((t, r) => t + (r.unread || 0), 0) : 0, txt = tot > 99 ? '99+' : String(tot);
