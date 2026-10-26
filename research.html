@@ -447,8 +447,9 @@ function optCard(o, i, p) {
   const crash = ADMIN && o.data.crash;
   return `<article class="opt${sel ? " sel" : ""}${v ? " vari" : ""}${dropped ? " dropped" : ""}" data-opt="${esc(o.id)}">
     <div class="r1"><span class="rk${v ? " v" : ""}">${v ? "v" + v.n : i}</span><div style="display:grid;gap:2px;min-width:0"><span class="nm">${esc(who(o.data.name))}</span><span class="why">${sub}</span></div>${pvBtn(o)}</div>
+    ${o.data.held ? `<span class="small" style="color:#ffcf86">${esc(o.data.out)}. It comes back to rate when the new preview is ready.</span>` : o.data.beats_off && hasPv(o) ? `<span class="small" style="color:#ffb0a8">Beat check: the kicks don't line up in this preview. Rate what you hear.</span>` : ""}
     ${othHtml}
-    ${rateButtons(o.id, r, "data-rate", !hasPv(o))}
+    ${rateButtons(o.id, r, "data-rate", !hasPv(o) || o.data.held)}
     ${ADMIN && pending(o.id) ? `<span class="pendnote">Sent. Your PC applies it on its next sync.</span>` : ""}
     ${crash ? `<button type="button" class="crashbtn" data-crash="${esc(o.id)}">${ui.crashOpen === o.id ? "Hide the crash report" : "Why did this crash?"}</button>${ui.crashOpen === o.id ? crashHtml(o.data.crash) : ""}` : ""}
     <div class="foot">${out ? `<span class="out" style="${bg ? `background:${bg};color:${fg}` : ""}">${esc(out)}</span>` : "<span></span>"}<span class="ocode">${esc(o.opt_code)}</span></div>
