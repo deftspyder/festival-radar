@@ -426,6 +426,64 @@ dialog.chat .cm-fest .abtn { margin-top: 8px; font-size: 13px; padding: 6px 14px
 .flist.chats .ch-go:hover b { color: var(--pink); }
 .ch-n { flex: none; min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px; background: var(--pink); color: var(--on-accent); font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
 .flist.chats .fl-when { margin-left: 0; }
+/* Chats panel: friend circles, list and tile views */
+.ch-head { display: flex; align-items: center; gap: 10px; }
+.ch-head h2 { flex: 1; }
+.ch-view { display: flex; padding: 3px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); }
+.ch-view button { width: 40px; height: 36px; border-radius: 9px; border: 0; background: transparent; color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.ch-view button[aria-pressed="true"] { background: var(--pink); color: var(--on-accent); }
+.ch-friends { display: flex; gap: 14px; overflow-x: auto; padding: 4px 2px 10px; scrollbar-width: none; }
+.ch-friends::-webkit-scrollbar { display: none; }
+.chf { flex: none; display: flex; flex-direction: column; align-items: center; gap: 5px; width: 64px; background: none; border: 0; padding: 0; color: var(--fg); font: inherit; cursor: pointer; }
+.chf-ring { position: relative; width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--line); box-sizing: border-box; display: flex; align-items: center; justify-content: center; }
+.chf.unread .chf-ring { border-color: var(--pink); }
+.chf-av { width: 50px; height: 50px; border-radius: 50%; background: var(--avc, var(--cyan)) center / cover; color: #120a24; font: 800 18px var(--body); display: flex; align-items: center; justify-content: center; }
+.chf-av.ph { color: transparent; }
+.chf-add .chf-ring { border-style: dashed; color: var(--fg); }
+.chf-n { font-size: 12px; font-weight: 500; max-width: 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chf.unread .chf-n { font-weight: 800; }
+.chf .ch-n { position: absolute; top: -4px; right: -6px; border: 2px solid var(--panel); }
+.chf:hover .chf-n { color: var(--pink); }
+.ch-tools { display: flex; flex-direction: column; gap: 8px; margin-bottom: 6px; }
+.ch-tools input { width: 100%; box-sizing: border-box; height: 40px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel-2); color: var(--fg); font: 400 15px var(--body); }
+.ch-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.ch-pills button { height: 32px; padding: 0 12px; border-radius: 16px; border: 1px solid var(--line); background: transparent; color: var(--fg); font: 600 13px var(--body); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.ch-pills button[aria-pressed="true"] { background: var(--pink); border-color: var(--pink); color: var(--on-accent); }
+.ch-pn { background: var(--pink); color: var(--on-accent); border-radius: 9px; padding: 0 6px; font-size: 11px; font-weight: 800; line-height: 18px; }
+.ch-pills button[aria-pressed="true"] .ch-pn { background: var(--on-accent); color: var(--pink); }
+.ch-sec { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: 10px 2px 2px; }
+.ch-row { display: flex; gap: 12px; align-items: center; width: 100%; padding: 9px 8px; margin: 0 -8px; box-sizing: content-box; border: 0; border-radius: 12px; background: transparent; color: var(--fg); font: inherit; text-align: left; cursor: pointer; }
+.ch-row:hover, .ch-tile:hover { background: var(--panel-2); }
+.ch-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.ch-top, .ch-bot { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.ch-t { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; font-weight: 600; }
+.ch-tag { flex: none; font-size: 11px; font-weight: 700; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; padding: 0 6px; line-height: 16px; }
+.ch-time { margin-left: auto; flex: none; font-size: 12px; color: var(--muted); }
+.ch-p { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; color: var(--muted); }
+.ch-row.unread .ch-t, .ch-tile.unread .ch-t { font-weight: 800; }
+.ch-row.unread .ch-p, .ch-tile.unread .ch-p { color: var(--fg); font-weight: 600; }
+.ch-row.unread .ch-time { color: var(--pink); font-weight: 700; }
+.ch-mute { flex: none; color: var(--muted); display: flex; }
+.ch-ic { flex: none; width: 48px; height: 48px; position: relative; }
+.ch-fest { width: 48px; height: 48px; border-radius: 14px; background: var(--avc, var(--violet)); color: #120a24; font: 14px var(--display); display: flex; align-items: center; justify-content: center; }
+.ch-pav { width: 48px; height: 48px; border-radius: 50%; background: var(--avc, var(--cyan)) center / cover; color: #120a24; font: 800 16px var(--body); display: flex; align-items: center; justify-content: center; }
+.ch-pav.ph { color: transparent; }
+.ch-stack .ch-mini { position: absolute; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--panel); background: var(--avc, var(--cyan)) center / cover; color: #120a24; font: 800 12px var(--body); display: flex; align-items: center; justify-content: center; }
+.ch-stack .ch-mini.ph { color: transparent; }
+.ch-stack .ch-mini:nth-child(1) { left: 0; top: 0; } .ch-stack .ch-mini:nth-child(2) { left: 18px; top: 2px; } .ch-stack .ch-mini:nth-child(3) { left: 9px; top: 18px; }
+.ch-box.ch-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.ch-box.ch-tiles .ch-sec { grid-column: 1 / -1; }
+.ch-tile { position: relative; display: flex; flex-direction: column; gap: 7px; padding: 12px; min-height: 140px; box-sizing: border-box; border-radius: 16px; border: 1px solid var(--line); background: var(--panel-2); color: var(--fg); font: inherit; text-align: left; cursor: pointer; min-width: 0; }
+.ch-tile.unread { border-color: var(--pink); }
+.ch-tile .ch-ic { width: 38px; height: 38px; }
+.ch-tile .ch-fest { width: 38px; height: 38px; border-radius: 11px; font-size: 12px; }
+.ch-tile .ch-pav { width: 38px; height: 38px; font-size: 14px; }
+.ch-tile .ch-stack .ch-mini { width: 22px; height: 22px; font-size: 10px; }
+.ch-tile .ch-stack .ch-mini:nth-child(2) { left: 14px; } .ch-tile .ch-stack .ch-mini:nth-child(3) { left: 7px; top: 14px; }
+.ch-tile .ch-t { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.25; font-size: 14px; }
+.ch-tile .ch-p { font-size: 13px; }
+.ch-tile .ch-foot { margin-top: auto; font-size: 11px; font-weight: 600; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.ch-tile .ch-foot .ch-mute { margin-left: auto; }
 dialog.sheet.chat { display: none; flex-direction: column; height: min(720px, calc(100dvh - 32px)); overflow: hidden; }
 dialog.sheet.chat[open] { display: flex; }
 dialog.chat .chat-hd { min-width: 0; } dialog.chat .chat-hd h2 { overflow-wrap: anywhere; } dialog.chat .chat-hd small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
@@ -985,9 +1043,24 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       </div>
     </section>
     <section class="panel" id="crew-activity">
-      <h2>Chats</h2>
+      <div class="ch-head"><h2>Chats</h2>
+        <div class="ch-view" id="ch-view" role="group" aria-label="Chat layout" hidden>
+          <button type="button" data-v="list" aria-label="List view" aria-pressed="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button>
+          <button type="button" data-v="tiles" aria-label="Tile view" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>
+        </div>
+      </div>
       <p class="sub-h" id="chats-sub">Your crew chats and the festival chats you follow.</p>
-      <div class="flist chats" id="crew-chats"><div class="empty">Sign in to chat with your crew.</div></div>
+      <div class="ch-friends" id="ch-friends" hidden></div>
+      <div class="ch-tools" id="ch-tools" hidden>
+        <input type="search" id="ch-q" placeholder="Search chats" aria-label="Search chats" autocomplete="off">
+        <div class="ch-pills" role="group" aria-label="Show">
+          <button type="button" data-f="all" aria-pressed="true">All</button>
+          <button type="button" data-f="unread" aria-pressed="false">Unread<span class="ch-pn" id="ch-un" hidden></span></button>
+          <button type="button" data-f="crew" aria-pressed="false">Crew</button>
+          <button type="button" data-f="fest" aria-pressed="false">Festivals</button>
+        </div>
+      </div>
+      <div class="ch-box ch-list" id="crew-chats"><div class="empty">Sign in to chat with your crew.</div></div>
       <h3 class="sub-title">Activity</h3>
       <p class="sub-h">What your crew has been up to in the last 30 days.</p>
       <div class="feed" id="crew-feed"></div>
@@ -1184,6 +1257,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     </ul></details>
     <details><summary>Chats</summary><ul>
       <li>Every crew has a group chat, and every festival has a crew chat and a public chat. Tap the chat bubble on a festival card, or open Chats in the Crew tab.</li>
+      <li>In Chats, each chat shows its newest message, and a pink number shows how many you haven't read. Use the two buttons next to the Chats title to switch between a list and tiles; your phone remembers your pick. Search and the All, Unread, Crew and Festivals buttons help you find a chat.</li>
+      <li>Your friends sit in a row of circles at the top of Chats. A pink ring means they sent you something new. Tap a circle to message them, or tap Add to share your friend code.</li>
       <li>Marking Going adds you to that festival's crew chat (you can turn this off in Settings).</li>
       <li>Public chats are seen by everyone on Festival Radar. Don't share where you're staying or other private details.</li>
       <li>Use the ⋯ next to a message to delete your own, report one, or mute someone in public chats.</li>
@@ -2022,7 +2097,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const sec = document.getElementById('friends-sec'); if (!sec) return;
     sec.hidden = !uid; const box = document.getElementById('fr-friends'); box.replaceChildren();
     const list = friends.filter(f => !f.blocked);
-    if (!list.length) { box.appendChild(mk('div', 'empty', 'No friends added yet. Your crewmates are already friends.')); return; }
+    if (!list.length) { box.appendChild(mk('div', 'empty', 'No friends added yet. Your crewmates are already friends.')); if (window.FRChat) renderChatList(); return; }
     list.forEach(f => {
       const row = mk('div', 'fl-row'); const b = mk('button', 'fr-go', f.name); b.type = 'button'; b.addEventListener('click', () => openCard(f.id));
       row.appendChild(b); if (f.crew) row.appendChild(mk('span', 'fr-crew', 'Crew'));
@@ -2030,6 +2105,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       const m = mk('button', 'lnk', 'Message'); m.type = 'button'; m.addEventListener('click', () => FRChat.openDm(f.id)); row.appendChild(m);
       box.appendChild(row);
     });
+    if (window.FRChat) renderChatList();
   }
   function loadQrLib() {
     if (window.qrcode) return Promise.resolve(window.qrcode);
@@ -2152,7 +2228,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   const rowFor = t => chatList.find(r => r.thread === t) || null;
   async function loadChats() {
     if (!uid) return;
-    const { data } = await sb.rpc('my_chats');
+    let { data, error } = await sb.rpc('my_chats_v2');
+    if (error) ({ data } = await sb.rpc('my_chats'));
     chatList = Array.isArray(data) ? data : [];
     window.dispatchEvent(new Event('fr-chats')); renderChatList(); renderFriends();
   }
@@ -2164,25 +2241,120 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     dmUnread: other => { const r = rowFor(uid ? dmThread(other) : ''); return r ? r.unread || 0 : 0; },
     refresh: () => loadChats().catch(() => {})
   };
+  // Chats panel: friend circles on top, then crew and festival chats as a list or tiles (remembered per device).
+  const chLs = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } };
+  const chTried = new Set();
+  let chView = chLs('fr-chats-view') === 'tiles' ? 'tiles' : 'list', chFilter = 'all', chQuery = '';
+  const hashCol = s => { let h = 0; for (const ch of String(s)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return AVC[h % AVC.length]; };
+  const firstName = n => String(n || 'Someone').trim().split(/\s+/)[0];
+  const festIni = id => { const w = festName(id).replace(/\b(19|20)\d\d\b/g, '').split(/[^A-Za-z0-9]+/).filter(Boolean); return ((w[0] || '?')[0] + ((w[1] || '')[0] || '')).toUpperCase(); };
+  const chTime = t => { if (!t) return ''; const d = new Date(t), now = new Date(), days = (now - d) / 864e5;
+    return dayKey(t) === dayKey(now) ? hhmm(t) : days < 6 ? d.toLocaleDateString([], { weekday: 'short' }) : MON[d.getMonth()] + ' ' + d.getDate(); };
+  const muteSvg = () => { const s = mk('span', 'ch-mute'); s.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Notifications off"><path d="M13.7 21a2 2 0 0 1-3.4 0"/><path d="M18 8a6 6 0 0 0-9.3-5"/><path d="M6.3 6.3A6 6 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="m2 2 20 20"/></svg>'; return s; };
+  function personAv(id, name, cls) {
+    const a = mk('span', cls, firstName(name).charAt(0).toUpperCase() || '?'); a.setAttribute('aria-hidden', 'true');
+    a.style.setProperty('--avc', hashCol(id));
+    const ph = id && FRProf.photo(id); if (ph) { a.classList.add('ph'); a.style.backgroundImage = 'url("' + ph + '")'; }
+    return a;
+  }
+  function chIcon(r) {
+    const ic = mk('span', 'ch-ic');
+    if (r.kind === 'crew') {
+      ic.classList.add('ch-stack');
+      const c = crews.find(x => x.id === r.crew_id), ms = ((c && c.members) || []).filter(m => m.id !== uid).slice(0, 3);
+      (ms.length ? ms : [{ id: r.crew_id, name: r.crew_name }]).forEach(m => ic.appendChild(personAv(m.id, (FRProf.get(m.id) || {}).name || m.name, 'ch-mini')));
+    } else if (r.kind === 'dm') ic.appendChild(personAv(r.other_id, (FRProf.get(r.other_id) || {}).name || r.other_name, 'ch-pav'));
+    else { const f = mk('span', 'ch-fest', festIni(r.festival_id)); f.style.setProperty('--avc', hashCol(r.festival_id)); f.setAttribute('aria-hidden', 'true'); ic.appendChild(f); }
+    return ic;
+  }
+  const chTitle = r => r.kind === 'dm' ? (r.other_name || 'Someone') : r.kind === 'crew' ? r.crew_name + ' chat' : festName(r.festival_id);
+  function chPreview(r) {
+    if (r.last_body) {
+      const body = String(r.last_body).replace(/\s*\[fr:[^\]]+\]\s*/g, ' ').replace(/\s+/g, ' ').trim();
+      const who = r.last_user_id === uid ? 'You: ' : r.kind === 'dm' ? '' : firstName(r.last_name) + ': ';
+      return who + body;
+    }
+    if (r.kind === 'crewfest' && r.going) return r.going + ' going. Say hi.';
+    return r.kind === 'crew' ? 'No messages yet. Start the plan.' : 'No messages yet';
+  }
+  const chTag = r => r.kind === 'public' ? 'Public' : r.kind === 'crewfest' && crews.length > 1 ? r.crew_name : '';
+  const chSearch = r => (chTitle(r) + ' ' + chPreview(r) + ' ' + (r.crew_name || '')).toLowerCase();
+  function chRow(r) {
+    const b = mk('button', 'ch-row' + (r.unread ? ' unread' : '')); b.type = 'button';
+    const mid = mk('span', 'ch-mid'), top = mk('span', 'ch-top'), bot = mk('span', 'ch-bot');
+    top.appendChild(mk('span', 'ch-t', chTitle(r)));
+    const tg = chTag(r); if (tg) top.appendChild(mk('span', 'ch-tag', tg));
+    top.appendChild(mk('span', 'ch-time', chTime(r.last_at)));
+    bot.appendChild(mk('span', 'ch-p', chPreview(r)));
+    if (r.notify === false) bot.appendChild(muteSvg());
+    if (r.unread) bot.appendChild(mk('span', 'ch-n', r.unread > 99 ? '99+' : String(r.unread)));
+    mid.append(top, bot); b.append(chIcon(r), mid);
+    b.addEventListener('click', () => openThreadKey(r.thread));
+    return b;
+  }
+  function chTile(r) {
+    const b = mk('button', 'ch-tile' + (r.unread ? ' unread' : '')); b.type = 'button';
+    const top = mk('span', 'ch-top'); top.appendChild(chIcon(r));
+    top.appendChild(r.unread ? Object.assign(mk('span', 'ch-n', r.unread > 99 ? '99+' : String(r.unread)), { style: 'margin-left:auto' }) : mk('span', 'ch-time', chTime(r.last_at)));
+    const foot = mk('span', 'ch-foot');
+    const c = crews.find(x => x.id === r.crew_id);
+    foot.appendChild(document.createTextNode(r.kind === 'crewfest' ? (r.going ? r.going + ' going' : r.crew_name || '') : r.kind === 'crew' ? (((c && c.members) || []).length + ' members') : r.kind === 'dm' ? 'Direct message' : 'Public'));
+    if (r.notify === false) foot.appendChild(muteSvg());
+    b.append(top, mk('span', 'ch-t', chTitle(r)), mk('span', 'ch-p', chPreview(r)), foot);
+    b.addEventListener('click', () => openThreadKey(r.thread));
+    return b;
+  }
+  function renderChatFriends() {
+    const box = document.getElementById('ch-friends'); if (!box) return;
+    box.hidden = !uid; if (!uid) return;
+    box.replaceChildren();
+    const add = mk('button', 'chf chf-add'); add.type = 'button'; add.setAttribute('aria-label', 'Add a friend');
+    const ring = mk('span', 'chf-ring'); ring.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+    add.append(ring, mk('span', 'chf-n', 'Add'));
+    add.addEventListener('click', () => { const b = document.getElementById('fr-mycode'); if (b) b.click(); });
+    box.appendChild(add);
+    const last = id => { const r = rowFor(dmThread(id)); return (r && r.last_at) || ''; };
+    friends.filter(f => !f.blocked)
+      .map(f => ({ f, n: FRChat.dmUnread(f.id), t: last(f.id) }))
+      .sort((a, b) => (b.n > 0) - (a.n > 0) || b.t.localeCompare(a.t) || String(a.f.name || '').localeCompare(String(b.f.name || '')))
+      .forEach(({ f, n }) => {
+        const b = mk('button', 'chf' + (n ? ' unread' : '')); b.type = 'button';
+        b.setAttribute('aria-label', 'Message ' + (f.name || 'friend') + (n ? ', ' + n + ' new' : ''));
+        const rg = mk('span', 'chf-ring'); rg.appendChild(personAv(f.id, f.name, 'chf-av'));
+        if (n) rg.appendChild(mk('span', 'ch-n', n > 99 ? '99+' : String(n)));
+        b.append(rg, mk('span', 'chf-n', firstName(f.name)));
+        b.addEventListener('click', () => FRChat.openDm(f.id));
+        box.appendChild(b);
+      });
+  }
   function renderChatList() {
     const box = document.getElementById('crew-chats'); if (!box) return;
-    box.replaceChildren();
+    box.replaceChildren(); box.className = 'ch-box ' + (chView === 'tiles' ? 'ch-tiles' : 'ch-list');
+    document.getElementById('ch-view').hidden = !uid;
+    document.querySelectorAll('#ch-view button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === chView)));
+    document.querySelectorAll('.ch-pills button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.f === chFilter)));
+    renderChatFriends();
     const vis = new Set((window.FRVisibleCrews ? FRVisibleCrews() : crews).map(c => c.id));
-    const rows = chatList.filter(r => r.kind === 'public' || r.kind === 'dm' || vis.has(r.crew_id))
+    const friendIds = new Set(friends.filter(f => !f.blocked).map(f => f.id));
+    const all = chatList.filter(r => r.kind === 'public' || (r.kind === 'dm' && !friendIds.has(r.other_id)) || vis.has(r.crew_id))
       .sort((a, b) => (a.kind === 'crew' ? 0 : 1) - (b.kind === 'crew' ? 0 : 1) || (b.last_at || '').localeCompare(a.last_at || ''));
-    if (!rows.length) { box.appendChild(mk('div', 'empty', crews.length ? 'No chats yet.' : 'Join or start a crew to chat.')); return; }
-    rows.forEach(r => {
-      const row = mk('div', 'fl-row'); const b = mk('button', 'ch-go'); b.type = 'button';
-      b.appendChild(mk('b', null, r.kind === 'dm' ? (r.other_name || 'Someone') : r.kind === 'crew' ? r.crew_name + ' chat' : festName(r.festival_id)));
-      b.appendChild(mk('small', null, r.kind === 'dm' ? 'Direct message' : r.kind === 'crew' ? 'Everyone in the crew' : r.kind === 'crewfest' ? r.crew_name : 'Everyone (public)'));
-      b.addEventListener('click', () => openThreadKey(r.thread));
-      row.appendChild(b);
-      if (r.last_at) row.appendChild(mk('span', 'fl-when', ago2(r.last_at)));
-      if (r.unread) row.appendChild(mk('span', 'ch-n', r.unread > 99 ? '99+' : String(r.unread)));
-      box.appendChild(row);
-    });
+    document.getElementById('ch-tools').hidden = !uid || !all.length;
+    const un = all.filter(r => r.unread).length, unEl = document.getElementById('ch-un');
+    unEl.hidden = !un; unEl.textContent = String(un);
     document.getElementById('chats-sub').textContent = chatPrefs.follow_going ? 'Your crew chats, plus festival chats you follow. Marking Going follows that festival\'s chat in your crews.' : 'Your crew chats and the festival chats you follow.';
+    if (!all.length) { box.appendChild(mk('div', 'empty', crews.length ? 'No chats yet.' : 'Join or start a crew to chat.')); return; }
+    const q = chQuery.trim().toLowerCase();
+    const rows = all.filter(r => (chFilter === 'all' || (chFilter === 'unread' && r.unread) || (chFilter === 'crew' && r.kind === 'crew') || (chFilter === 'fest' && (r.kind === 'crewfest' || r.kind === 'public'))) && (!q || chSearch(r).includes(q)));
+    if (!rows.length) { box.appendChild(mk('div', 'empty', q ? 'No chats match "' + chQuery.trim() + '".' : chFilter === 'unread' ? 'You\'re all caught up.' : 'Nothing here yet.')); return; }
+    const make = chView === 'tiles' ? chTile : chRow;
+    const groups = [['Crew', rows.filter(r => r.kind === 'crew')], ['Festival chats', rows.filter(r => r.kind === 'crewfest' || r.kind === 'public')], ['Messages', rows.filter(r => r.kind === 'dm')]];
+    groups.forEach(([label, list]) => { if (!list.length) return; box.appendChild(mk('div', 'ch-sec', label)); list.forEach(r => box.appendChild(make(r))); });
+    const need = [...new Set(all.flatMap(r => r.kind === 'crew' ? (((crews.find(x => x.id === r.crew_id) || {}).members) || []).map(m => m.id) : r.kind === 'dm' ? [r.other_id] : []).concat([...friendIds]))].filter(id => id && !FRProf.get(id) && !chTried.has(id));
+    if (need.length) { need.forEach(id => chTried.add(id)); FRProf.load(need).then(() => renderChatList()); }
   }
+  document.querySelectorAll('#ch-view button').forEach(b => b.addEventListener('click', () => { chView = b.dataset.v; chLs('fr-chats-view', chView); renderChatList(); }));
+  document.querySelectorAll('.ch-pills button').forEach(b => b.addEventListener('click', () => { chFilter = b.dataset.f; renderChatList(); }));
+  document.getElementById('ch-q').addEventListener('input', e => { chQuery = e.target.value; renderChatList(); });
   const ago2 = t => { const s = (Date.now() - Date.parse(t)) / 1000; return s < 60 ? 'now' : s < 3600 ? Math.floor(s / 60) + 'm' : s < 86400 ? Math.floor(s / 3600) + 'h' : Math.floor(s / 86400) + 'd'; };
   function openThreadKey(t) {
     if (!t) return;
