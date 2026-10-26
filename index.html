@@ -414,11 +414,11 @@ dialog.pcard .pc-inv select { width: auto; flex: 1; min-width: 0; margin: 0; }
 #share .sh-row .abtn { flex: none; font-size: 13px; padding: 6px 14px; }
 #share .sh-row .sent { flex: none; font-size: 13px; font-weight: 700; color: var(--going); }
 #share .sh-list .empty { font-size: 13px; }
-dialog.chat .cm-fest { margin-top: 4px; padding: 10px 12px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--violet) 55%, transparent); background: color-mix(in srgb, var(--violet) 10%, transparent); max-width: 340px; }
-dialog.chat .cm-fest .cf-k { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--cyan); }
-dialog.chat .cm-fest b { display: block; font-size: 15px; margin: 2px 0; overflow-wrap: anywhere; }
-dialog.chat .cm-fest .cf-m { font-size: 13px; color: var(--muted); }
-dialog.chat .cm-fest .abtn { margin-top: 8px; font-size: 13px; padding: 6px 14px; }
+#chat .cm-fest { margin-top: 4px; padding: 10px 12px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--violet) 55%, transparent); background: color-mix(in srgb, var(--violet) 10%, transparent); max-width: 340px; }
+#chat .cm-fest .cf-k { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--cyan); }
+#chat .cm-fest b { display: block; font-size: 15px; margin: 2px 0; overflow-wrap: anywhere; }
+#chat .cm-fest .cf-m { font-size: 13px; color: var(--muted); }
+#chat .cm-fest .abtn { margin-top: 8px; font-size: 13px; padding: 6px 14px; }
 .flist.chats .fl-row { gap: 10px; }
 .flist.chats .ch-go { font: inherit; text-align: left; background: none; border: none; color: var(--fg); cursor: pointer; padding: 4px 0; min-width: 0; flex: 1; }
 .flist.chats .ch-go b { display: block; font-size: 15px; overflow-wrap: anywhere; }
@@ -428,6 +428,38 @@ dialog.chat .cm-fest .abtn { margin-top: 8px; font-size: 13px; padding: 6px 14px
 .flist.chats .fl-when { margin-left: 0; }
 /* Chats panel: friend circles, list and tile views */
 .ch-head { display: flex; align-items: center; gap: 10px; }
+/* Chats tab: list on the left, open chat on the right; on phones the open chat covers the screen */
+.chatsdash { display: grid; grid-template-columns: minmax(290px, 380px) minmax(0, 1fr); gap: 20px; align-items: start; }
+.chats-side { position: sticky; top: 72px; max-height: calc(100dvh - 96px); overflow-y: auto; }
+#chat { display: flex; flex-direction: column; padding: 0; overflow: hidden; position: sticky; top: 72px; height: calc(100dvh - 96px); min-height: 460px; }
+#chat .chat-head { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line); flex: none; }
+#chat .chat-head .chat-hd { flex: 1; }
+#chat .chat-head h2 { margin: 0; }
+#chat .chat-x { order: 2; flex: none; font: inherit; font-size: 22px; line-height: 1; width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+#chat .cx-back { display: none; }
+#chat .chat-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 24px; text-align: center; color: var(--muted); }
+#chat .chat-empty b { color: var(--fg); font-size: 16px; }
+#chat[hidden] { display: none !important; }
+.chatsdash:has(> #chat[hidden]) { grid-template-columns: minmax(0, 560px); }
+#chat:not(.open) > :not(.chat-empty) { display: none !important; }
+#chat.open > .chat-empty { display: none; }
+.ch-row.on { background: var(--panel-2); box-shadow: inset 3px 0 0 var(--pink); }
+.ch-tile.on { outline: 2px solid var(--cyan); outline-offset: -1px; }
+.crew-chat-go { display: inline-flex; align-items: center; gap: 8px; margin: 2px 0 12px; }
+.tab-n { min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 9px; background: var(--pink); color: var(--on-accent); font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
+.dnav .tab-n { margin-left: 6px; vertical-align: 1px; }
+.btabs .bt-ic { position: relative; display: flex; }
+.btabs .bt-ic .tab-n { position: absolute; top: -6px; right: -12px; border: 2px solid var(--bg); }
+@media (max-width: 700px) {
+  .chatsdash { grid-template-columns: minmax(0, 1fr); }
+  .chats-side { position: static; max-height: none; overflow: visible; }
+  #chat:not(.open) { display: none; }
+  #chat.open { position: fixed; inset: 0; z-index: 70; height: 100dvh; min-height: 0; border-radius: 0; border: 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  #chat .chat-head { padding-top: max(12px, env(safe-area-inset-top, 0px)); }
+  #chat .chat-x { order: 0; border: 0; width: 44px; height: 44px; margin-left: -10px; }
+  #chat .cx-x { display: none; } #chat .cx-back { display: block; }
+  html.chat-full, html.chat-full body { overflow: hidden; }
+}
 .ch-head h2 { flex: 1; }
 .ch-view { display: flex; padding: 3px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); }
 .ch-view button { width: 40px; height: 36px; border-radius: 9px; border: 0; background: transparent; color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -484,46 +516,43 @@ dialog.chat .cm-fest .abtn { margin-top: 8px; font-size: 13px; padding: 6px 14px
 .ch-tile .ch-p { font-size: 13px; }
 .ch-tile .ch-foot { margin-top: auto; font-size: 11px; font-weight: 600; color: var(--muted); display: flex; align-items: center; gap: 6px; }
 .ch-tile .ch-foot .ch-mute { margin-left: auto; }
-dialog.sheet.chat { display: none; flex-direction: column; height: min(720px, calc(100dvh - 32px)); overflow: hidden; }
-dialog.sheet.chat[open] { display: flex; }
-dialog.chat .chat-hd { min-width: 0; } dialog.chat .chat-hd h2 { overflow-wrap: anywhere; } dialog.chat .chat-hd small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
-dialog.chat .chat-top { padding: 10px 18px 0; flex: none; }
-dialog.chat .chat-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
-dialog.chat .chat-tabs button { font: inherit; font-size: 14px; font-weight: 700; padding: 7px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
-dialog.chat .chat-tabs button[aria-selected="true"] { background: var(--panel-2); color: var(--fg); border-color: var(--cyan); }
-dialog.chat .chat-bar { display: flex; align-items: center; gap: 10px; justify-content: space-between; margin-bottom: 8px; min-height: 30px; }
-dialog.chat .chat-bar select { font: inherit; font-size: 14px; padding: 5px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); min-width: 0; max-width: 60%; }
-dialog.chat .chat-sw { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); margin-left: auto; }
-dialog.chat .sw.sm { transform: scale(.85); transform-origin: right center; }
-dialog.chat .chat-banner { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--orange); background: color-mix(in srgb, var(--orange) 12%, transparent); margin-bottom: 8px; }
-dialog.chat .chat-banner button { font: inherit; font-size: 18px; line-height: 1; background: none; border: none; color: var(--fg); cursor: pointer; padding: 0 2px; margin-left: auto; }
-dialog.chat .chat-list { flex: 1; overflow-y: auto; padding: 4px 18px 8px; border-top: 1px solid var(--line); overscroll-behavior: contain; }
-dialog.chat .chat-list .empty { margin-top: 16px; }
-dialog.chat .cm { display: flex; gap: 9px; padding: 7px 0; }
-dialog.chat .cm .av { width: 30px; height: 30px; margin-top: 2px; }
-dialog.chat .cm-b { min-width: 0; flex: 1; }
-dialog.chat .cm-h { display: flex; align-items: baseline; gap: 8px; font-size: 13px; }
-dialog.chat .cm-n { font: inherit; font-weight: 800; color: var(--fg); background: none; border: none; padding: 0; cursor: pointer; }
-dialog.chat .cm-t { color: var(--muted); font-size: 11px; }
-dialog.chat .cm-more { margin-left: auto; font: inherit; font-size: 16px; line-height: 1; background: none; border: none; color: var(--muted); cursor: pointer; padding: 0 4px; }
-dialog.chat .cm-x { font-size: 15px; white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 1px; }
-dialog.chat .cm.mine .cm-n { color: var(--cyan); }
-dialog.chat .cm-acts { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; margin-top: 4px; font-size: 13px; }
-dialog.chat .cm-acts select { font: inherit; font-size: 13px; padding: 4px 6px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); max-width: 100%; }
-dialog.chat .cm-new { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; color: var(--pink); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-dialog.chat .cm-new::before, dialog.chat .cm-new::after { content: ""; flex: 1; height: 1px; background: var(--pink); opacity: .6; }
-dialog.chat .cm-seen { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin: 2px 4px 6px; font-size: 11px; color: var(--muted); }
-dialog.chat .cm-seen .av { width: 18px; height: 18px; font-size: 9px; border-width: 1px; }
-dialog.chat .cm-seen .av + .av { margin-left: -6px; }
+#chat .chat-hd { min-width: 0; } #chat .chat-hd h2 { overflow-wrap: anywhere; } #chat .chat-hd small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+#chat .chat-top { padding: 10px 18px 0; flex: none; }
+#chat .chat-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+#chat .chat-tabs button { font: inherit; font-size: 14px; font-weight: 700; padding: 7px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
+#chat .chat-tabs button[aria-selected="true"] { background: var(--panel-2); color: var(--fg); border-color: var(--cyan); }
+#chat .chat-bar { display: flex; align-items: center; gap: 10px; justify-content: space-between; margin-bottom: 8px; min-height: 30px; }
+#chat .chat-bar select { font: inherit; font-size: 14px; padding: 5px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); min-width: 0; max-width: 60%; }
+#chat .chat-sw { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); margin-left: auto; }
+#chat .sw.sm { transform: scale(.85); transform-origin: right center; }
+#chat .chat-banner { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--orange); background: color-mix(in srgb, var(--orange) 12%, transparent); margin-bottom: 8px; }
+#chat .chat-banner button { font: inherit; font-size: 18px; line-height: 1; background: none; border: none; color: var(--fg); cursor: pointer; padding: 0 2px; margin-left: auto; }
+#chat .chat-list { flex: 1; overflow-y: auto; padding: 4px 18px 8px; border-top: 1px solid var(--line); overscroll-behavior: contain; }
+#chat .chat-list .empty { margin-top: 16px; }
+#chat .cm { display: flex; gap: 9px; padding: 7px 0; }
+#chat .cm .av { width: 30px; height: 30px; margin-top: 2px; }
+#chat .cm-b { min-width: 0; flex: 1; }
+#chat .cm-h { display: flex; align-items: baseline; gap: 8px; font-size: 13px; }
+#chat .cm-n { font: inherit; font-weight: 800; color: var(--fg); background: none; border: none; padding: 0; cursor: pointer; }
+#chat .cm-t { color: var(--muted); font-size: 11px; }
+#chat .cm-more { margin-left: auto; font: inherit; font-size: 16px; line-height: 1; background: none; border: none; color: var(--muted); cursor: pointer; padding: 0 4px; }
+#chat .cm-x { font-size: 15px; white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 1px; }
+#chat .cm.mine .cm-n { color: var(--cyan); }
+#chat .cm-acts { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; margin-top: 4px; font-size: 13px; }
+#chat .cm-acts select { font: inherit; font-size: 13px; padding: 4px 6px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); max-width: 100%; }
+#chat .cm-new { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; color: var(--pink); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+#chat .cm-new::before, #chat .cm-new::after { content: ""; flex: 1; height: 1px; background: var(--pink); opacity: .6; }
+#chat .cm-seen { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin: 2px 4px 6px; font-size: 11px; color: var(--muted); }
+#chat .cm-seen .av { width: 18px; height: 18px; font-size: 9px; border-width: 1px; }
+#chat .cm-seen .av + .av { margin-left: -6px; }
 #chat-where.typing { color: var(--cyan); font-weight: 600; }
-dialog.chat .cm-day { text-align: center; font-size: 11px; color: var(--muted); margin: 10px 0 2px; letter-spacing: .04em; text-transform: uppercase; }
-dialog.chat .chat-foot { flex: none; padding: 8px 18px 14px; border-top: 1px solid var(--line); }
-dialog.chat .chat-form { display: flex; gap: 8px; align-items: flex-end; }
-dialog.chat .chat-form textarea { flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); resize: none; max-height: 120px; line-height: 1.35; }
-dialog.chat .chat-note { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
-dialog.chat .chat-bcool { font-size: 13px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--cyan); margin-bottom: 8px; }
-dialog.chat .chat-bcool p { margin: 0 0 6px; }
-@media (max-width: 700px) { dialog.sheet.chat { width: calc(100vw - 12px); height: calc(100dvh - 20px); max-height: none; } }
+#chat .cm-day { text-align: center; font-size: 11px; color: var(--muted); margin: 10px 0 2px; letter-spacing: .04em; text-transform: uppercase; }
+#chat .chat-foot { flex: none; padding: 8px 18px 14px; border-top: 1px solid var(--line); }
+#chat .chat-form { display: flex; gap: 8px; align-items: flex-end; }
+#chat .chat-form textarea { flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); resize: none; max-height: 120px; line-height: 1.35; }
+#chat .chat-note { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
+#chat .chat-bcool { font-size: 13px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--cyan); margin-bottom: 8px; }
+#chat .chat-bcool p { margin: 0 0 6px; }
 #ad-reports .q .pv { width: 64px; height: 84px; object-fit: cover; border-radius: 8px; grid-column: 1 / -1; }
 /* Presale light: pulses when a confirmed sale is within 7 days; steady and dim for an expected one. */
 .salelight { position: relative; width: 22px; height: 22px; padding: 0; border: none; background: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex: none; }
@@ -739,7 +768,7 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .show-tag { display: inline-block; font-size: 12px; font-weight: 700; color: var(--cyan); background: color-mix(in srgb, var(--cyan) 14%, transparent); padding: 2px 8px; border-radius: 8px; }
 .btabs { display: none; }
 @media (max-width: 700px) {
-  .btabs { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 55;
+  .btabs { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 55;
     padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px));
     background: color-mix(in srgb, var(--bg) 96%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-top: 1px solid var(--line); }
   .btabs button { font: inherit; font-size: 11px; font-weight: 600; letter-spacing: .02em; color: var(--muted); background: transparent; border: none; border-radius: 10px;
@@ -820,7 +849,7 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
 #admin .q .lk { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; }
 #admin .q .lk a { color: var(--cyan); }
 @media (max-width: 560px) { #admin .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.btabs.five { grid-template-columns: repeat(5, 1fr); }
+.btabs.six { grid-template-columns: repeat(6, 1fr); }
 .help-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--fg); font: inherit; font-weight: 800; font-size: 17px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0; flex: none; }
 .help-btn:hover { border-color: var(--cyan); color: var(--cyan); }
 .help-btn.wide { width: auto; height: 36px; border-radius: 999px; padding: 0 14px; font-size: 13px; font-weight: 700; white-space: nowrap; }
@@ -904,6 +933,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <button type="button" data-go="calendar">Calendar</button>
       <button type="button" data-go="radar">My Radar</button>
       <button type="button" data-go="crew">Crew</button>
+      <button type="button" data-go="chats">Chats<span class="tab-n" id="dn-chats-n" hidden></span></button>
       <button type="button" data-go="admin" id="dn-admin" hidden>Admin</button>
       <a href="research.html" id="dn-research" hidden>Research</a>
     </div>
@@ -1040,6 +1070,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <div class="nocrew" id="nocrew" hidden></div>
       <div class="crew-only" id="crew-main">
       <p class="sub-h" id="crew-sub">What your crew is going to, thinking about, and loving. Tap a festival to see its card.</p>
+      <button type="button" class="abtn alt crew-chat-go" id="crew-chat-go" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/></svg>Open crew chat<span class="ch-n" id="crew-chat-n" hidden></span></button>
       <h3 class="sub-title">We're going <small id="crew-going-n"></small></h3>
       <div class="flist wego" id="crew-going"></div>
       <h3 class="sub-title">Festivals</h3>
@@ -1049,6 +1080,14 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       </div>
     </section>
     <section class="panel" id="crew-activity">
+      <h2>Activity</h2>
+      <p class="sub-h">What your crew has been up to in the last 30 days.</p>
+      <div class="feed" id="crew-feed"></div>
+    </section>
+  </div>
+
+  <div class="chatsdash" data-tab="chats" id="chats-tab">
+    <section class="panel chats-side" id="chats-side">
       <div class="ch-head"><h2>Chats</h2>
         <div class="ch-view" id="ch-view" role="group" aria-label="Chat layout" hidden>
           <button type="button" data-v="list" aria-label="List view" aria-pressed="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button>
@@ -1066,10 +1105,23 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
           <button type="button" data-f="fest" aria-pressed="false">Festivals</button>
         </div>
       </div>
-      <div class="ch-box ch-list" id="crew-chats"><div class="empty">Sign in to chat with your crew.</div></div>
-      <h3 class="sub-title">Activity</h3>
-      <p class="sub-h">What your crew has been up to in the last 30 days.</p>
-      <div class="feed" id="crew-feed"></div>
+      <div class="ch-box ch-list" id="crew-chats"><div class="empty">Sign in to chat with your crew and friends. <button type="button" class="abtn" id="chats-signin">Sign in</button></div></div>
+    </section>
+    <section class="panel chat" id="chat" aria-labelledby="chat-title" hidden>
+      <div class="chat-empty" id="chat-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/></svg><b>Pick a chat</b><span>Your crew chat, festival chats and friends are on the left.</span></div>
+      <div class="chat-head"><button type="button" class="chat-x" id="chat-x" aria-label="Back to chats"><span class="cx-x" aria-hidden="true">×</span><svg class="cx-back" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><div class="chat-hd"><h2 id="chat-title">Chat</h2><small id="chat-where"></small></div></div>
+      <div class="chat-top">
+        <div class="chat-tabs" id="chat-tabs" role="tablist"><button type="button" role="tab" data-k="crew" aria-selected="true">Crew</button><button type="button" role="tab" data-k="public" aria-selected="false">Everyone</button></div>
+        <div class="chat-bar"><select id="chat-crew" aria-label="Which crew" hidden></select><span class="chat-sw"><span id="chat-follow-l">Following</span><button type="button" class="sw sm" id="chat-follow" role="switch" aria-checked="false" aria-labelledby="chat-follow-l"><span class="knob"></span></button></span></div>
+        <div class="chat-banner" id="chat-banner" hidden><span>Public: everyone on Festival Radar can see this. Don't share sensitive info like where you're staying.</span><button type="button" id="chat-banner-x" aria-label="Dismiss">×</button></div>
+      </div>
+      <div class="chat-list" id="chat-list" aria-live="polite"></div>
+      <div class="chat-foot">
+        <p class="chat-note" id="chat-closed" hidden></p>
+        <div class="chat-bcool" id="chat-bcool" hidden><p><b>Be cool.</b> Public chats are for everyone going. Be kind, no spam or selling, and keep personal details to yourself. Bill can remove posts and people who break this.</p><div class="line"><button type="button" class="abtn" id="chat-bcool-ok">Post it</button><button type="button" class="lnk" id="chat-bcool-no">Cancel</button></div></div>
+        <form class="chat-form" id="chat-form"><textarea id="chat-input" rows="1" maxlength="1000" placeholder="Message" aria-label="Message"></textarea><button type="submit" class="abtn" id="chat-send">Send</button></form>
+        <p class="chat-note" id="chat-msg" aria-live="polite" hidden></p>
+      </div>
     </section>
   </div>
 
@@ -1263,7 +1315,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <li>In several crews? Pick one at the top of the Crew tab, or view all of them together.</li>
     </ul></details>
     <details><summary>Chats</summary><ul>
-      <li>Every crew has a group chat, and every festival has a crew chat and a public chat. Tap the chat bubble on a festival card, or open Chats in the Crew tab.</li>
+      <li>Every crew has a group chat, and every festival has a crew chat and a public chat. Everything lives in the Chats tab. Tapping the chat bubble on a festival card, Message on a profile, or Open crew chat in the Crew tab takes you straight to that chat.</li>
       <li>In Chats, each chat shows its newest message, and a pink number shows how many you haven't read. Use the two buttons next to the Chats title to switch between a list and tiles; your phone remembers your pick. Search and the All, Unread, Crew and Festivals buttons help you find a chat.</li>
       <li>In a crew chat or a message with a friend, you'll see when someone is typing, a "New" line above messages you haven't read yet, and "Seen by" under the newest message. Don't want others to see when you've read something? Turn off "Show when I've read messages" in Settings (you won't see theirs either).</li>
       <li>Your friends sit in a row of circles at the top of Chats. A pink ring means they sent you something new. Tap a circle to message them, or tap Add to share your friend code.</li>
@@ -1320,21 +1372,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <div class="line"><button type="button" class="abtn" id="fadd-go" hidden>Add friend</button><button type="button" class="abtn" id="fadd-dm" hidden>Message</button><button type="button" class="lnk" id="fadd-no">Not now</button></div>
   </div>
 </dialog>
-<dialog class="sheet chat" id="chat" aria-labelledby="chat-title">
-  <div class="sh-head"><div class="chat-hd"><h2 id="chat-title">Chat</h2><small id="chat-where"></small></div><button type="button" class="sh-x" id="chat-x" aria-label="Close">×</button></div>
-  <div class="chat-top">
-    <div class="chat-tabs" id="chat-tabs" role="tablist"><button type="button" role="tab" data-k="crew" aria-selected="true">Crew</button><button type="button" role="tab" data-k="public" aria-selected="false">Everyone</button></div>
-    <div class="chat-bar"><select id="chat-crew" aria-label="Which crew" hidden></select><span class="chat-sw"><span id="chat-follow-l">Following</span><button type="button" class="sw sm" id="chat-follow" role="switch" aria-checked="false" aria-labelledby="chat-follow-l"><span class="knob"></span></button></span></div>
-    <div class="chat-banner" id="chat-banner" hidden><span>Public: everyone on Festival Radar can see this. Don't share sensitive info like where you're staying.</span><button type="button" id="chat-banner-x" aria-label="Dismiss">×</button></div>
-  </div>
-  <div class="chat-list" id="chat-list" aria-live="polite"></div>
-  <div class="chat-foot">
-    <p class="chat-note" id="chat-closed" hidden></p>
-    <div class="chat-bcool" id="chat-bcool" hidden><p><b>Be cool.</b> Public chats are for everyone going. Be kind, no spam or selling, and keep personal details to yourself. Bill can remove posts and people who break this.</p><div class="line"><button type="button" class="abtn" id="chat-bcool-ok">Post it</button><button type="button" class="lnk" id="chat-bcool-no">Cancel</button></div></div>
-    <form class="chat-form" id="chat-form"><textarea id="chat-input" rows="1" maxlength="1000" placeholder="Message" aria-label="Message"></textarea><button type="submit" class="abtn" id="chat-send">Send</button></form>
-    <p class="chat-note" id="chat-msg" aria-live="polite" hidden></p>
-  </div>
-</dialog>
+
 <dialog class="sheet" id="pcrop" aria-labelledby="pcrop-h">
   <div class="sh-head"><h2 id="pcrop-h">Crop Photo</h2><button type="button" class="sh-x" id="crop-x" aria-label="Cancel">×</button></div>
   <div class="sh-body">
@@ -1373,14 +1411,15 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   <button type="button" data-go="calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendar</button>
   <button type="button" data-go="radar"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><path d="M12 12l5.5-5.5"/></svg>My Radar</button>
   <button type="button" data-go="crew"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="16.5" cy="9.5" r="2.6"/><path d="M15.5 14.2c2.4-.2 4.4 1.3 5 4.3"/></svg>Crew</button>
+  <button type="button" data-go="chats"><span class="bt-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.5a8 8 0 0 1-11.7 7.1L3.5 20l1.4-4.9a8 8 0 1 1 15.6-3.6Z"/></svg><span class="tab-n" id="bt-chats-n" hidden></span></span>Chats</button>
   <button type="button" data-go="admin" id="btab-admin" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Admin</button>
 </nav>
 <script>
 (() => {
   // Tabs: the desktop top bar, phone bottom tabs and phone menu all switch between these.
   // The URL hash (#radar, #crew...) remembers the tab so links and the back button work. Older links (#alerts, #favorites) open My Radar.
-  const TABS = ['festivals', 'calendar', 'radar', 'crew', 'admin'];
-  const ALIAS = { alerts: 'radar', favorites: 'radar' };
+  const TABS = ['festivals', 'calendar', 'radar', 'crew', 'chats', 'admin'];
+  const ALIAS = { alerts: 'radar', favorites: 'radar', chat: 'chats', messages: 'chats' };
   const btns = [...document.querySelectorAll('#btabs button[data-go], #dnav button[data-go]')];
   let reduce = false; try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
   let cur = null;
@@ -2289,7 +2328,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   const chTag = r => r.kind === 'public' ? 'Public' : r.kind === 'crewfest' && crews.length > 1 ? r.crew_name : '';
   const chSearch = r => (chTitle(r) + ' ' + chPreview(r) + ' ' + (r.crew_name || '')).toLowerCase();
   function chRow(r) {
-    const b = mk('button', 'ch-row' + (r.unread ? ' unread' : '')); b.type = 'button';
+    const b = mk('button', 'ch-row' + (r.unread ? ' unread' : '') + (cur && cur.thread === r.thread ? ' on' : '')); b.type = 'button';
+    if (cur && cur.thread === r.thread) b.setAttribute('aria-current', 'true');
     const mid = mk('span', 'ch-mid'), top = mk('span', 'ch-top'), bot = mk('span', 'ch-bot');
     top.appendChild(mk('span', 'ch-t', chTitle(r)));
     const tg = chTag(r); if (tg) top.appendChild(mk('span', 'ch-tag', tg));
@@ -2302,7 +2342,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     return b;
   }
   function chTile(r) {
-    const b = mk('button', 'ch-tile' + (r.unread ? ' unread' : '')); b.type = 'button';
+    const b = mk('button', 'ch-tile' + (r.unread ? ' unread' : '') + (cur && cur.thread === r.thread ? ' on' : '')); b.type = 'button';
+    if (cur && cur.thread === r.thread) b.setAttribute('aria-current', 'true');
     const top = mk('span', 'ch-top'); top.appendChild(chIcon(r));
     top.appendChild(r.unread ? Object.assign(mk('span', 'ch-n', r.unread > 99 ? '99+' : String(r.unread)), { style: 'margin-left:auto' }) : mk('span', 'ch-time', chTime(r.last_at)));
     const foot = mk('span', 'ch-foot');
@@ -2336,7 +2377,16 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
         box.appendChild(b);
       });
   }
+  function renderChatBadges() {
+    const tot = uid ? chatList.reduce((t, r) => t + (r.unread || 0), 0) : 0, txt = tot > 99 ? '99+' : String(tot);
+    ['dn-chats-n', 'bt-chats-n'].forEach(id => { const e = document.getElementById(id); if (e) { e.hidden = !tot; e.textContent = txt; } });
+    const c = uid ? defaultCrew() : null, r = c ? rowFor('c:' + c) : null, n = r ? r.unread || 0 : 0;
+    const cb = document.getElementById('crew-chat-n'); if (cb) { cb.hidden = !n; cb.textContent = n > 99 ? '99+' : String(n); }
+    const go = document.getElementById('crew-chat-go'); if (go) { go.hidden = !c; go.setAttribute('aria-label', 'Open crew chat' + (n ? ', ' + n + ' new' : '')); }
+  }
   function renderChatList() {
+    renderChatBadges();
+    const pn = document.getElementById('chat'); if (pn) pn.hidden = !uid;
     const box = document.getElementById('crew-chats'); if (!box) return;
     box.replaceChildren(); box.className = 'ch-box ' + (chView === 'tiles' ? 'ch-tiles' : 'ch-list');
     document.getElementById('ch-view').hidden = !uid;
@@ -2364,6 +2414,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   document.querySelectorAll('#ch-view button').forEach(b => b.addEventListener('click', () => { chView = b.dataset.v; chLs('fr-chats-view', chView); renderChatList(); }));
   document.querySelectorAll('.ch-pills button').forEach(b => b.addEventListener('click', () => { chFilter = b.dataset.f; renderChatList(); }));
   document.getElementById('ch-q').addEventListener('input', e => { chQuery = e.target.value; renderChatList(); });
+  document.getElementById('chats-signin').addEventListener('click', () => { if (window.FR && FR.openSignIn) FR.openSignIn(); });
+  document.getElementById('crew-chat-go').addEventListener('click', () => { const c = defaultCrew(); if (c) openThreadKey('c:' + c); });
   const ago2 = t => { const s = (Date.now() - Date.parse(t)) / 1000; return s < 60 ? 'now' : s < 3600 ? Math.floor(s / 60) + 'm' : s < 86400 ? Math.floor(s / 3600) + 'h' : Math.floor(s / 86400) + 'd'; };
   function openThreadKey(t) {
     if (!t) return;
@@ -2381,13 +2433,13 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   function chatMsg(t) { const m = document.getElementById('chat-msg'); m.hidden = !t; m.textContent = t || ''; }
   async function openChat(o) {
     if (!uid) { FR.openSignIn(); return; }
+    if (window.FRTabNow && FRTabNow() !== 'chats') FRTab('chats');
     o = { ...o };
     if (o.kind === 'dm') { if (!o.other || o.other === uid) return; await window.FRProf.load([o.other]); }
     else if (o.kind !== 'public' && !o.crew) o.crew = defaultCrew();
     if (o.kind !== 'public' && o.kind !== 'dm' && !o.crew) { if (o.fest) o.kind = 'public'; else return; } // no crew: only the public chat
     o.thread = threadOf(o.kind, o.crew, o.fest, o.other);
     cur = o; curMsgs = [];
-    const d = document.getElementById('chat');
     const otherName = o.kind === 'dm' ? ((FRProf.get(o.other) || {}).name || 'Someone') : '';
     document.getElementById('chat-title').textContent = o.kind === 'dm' ? otherName : o.kind === 'crew' ? crewName(o.crew) + ' Chat' : festName(o.fest);
     document.getElementById('chat-where').textContent = o.kind === 'dm' ? 'Direct message' : o.kind === 'crew' ? 'Everyone in the crew' : o.kind === 'crewfest' ? 'Crew chat for this festival' : 'Public chat for this festival';
@@ -2411,10 +2463,27 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const inp = document.getElementById('chat-input');
     inp.placeholder = o.kind === 'dm' ? 'Message ' + otherName : o.kind === 'crew' ? 'Message ' + crewName(o.crew) : o.kind === 'crewfest' ? 'Message your crew' : 'Message everyone (public)';
     document.getElementById('chat-list').replaceChildren(mk('div', 'empty', 'Loading…'));
-    if (!d.open) d.showModal();
+    showPane(); renderChatList();
     subscribe(o.thread);
     await loadMessages(true);
   }
+  const isPhone = () => window.matchMedia('(max-width: 700px)').matches;
+  function showPane() {
+    document.getElementById('chat').classList.add('open');
+    if (isPhone()) {
+      document.documentElement.classList.add('chat-full');
+      // A history entry so the phone's back gesture closes the chat instead of leaving the tab.
+      if (!(history.state && history.state.frChat)) { try { history.pushState({ frChat: 1 }, '', '#chats'); } catch (e) {} }
+    }
+  }
+  function closePane() {
+    unsubscribe(); cur = null; typers.clear(); showTyping();
+    document.getElementById('chat').classList.remove('open');
+    document.documentElement.classList.remove('chat-full');
+    renderChatList(); loadChats().catch(() => {});
+  }
+  window.addEventListener('popstate', () => { if (cur && !(history.state && history.state.frChat)) closePane(); });
+  window.addEventListener('fr-tab', e => { if (e.detail !== 'chats' && cur) closePane(); });
   function bannerSeen(t) { try { return localStorage.getItem('fr-banner-' + uid + '-' + t) === '1'; } catch (e) { return false; } }
   async function loadMessages(scroll) {
     if (!cur) return;
@@ -2521,7 +2590,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     box.append(mk('div', 'cf-k', 'Festival'), mk('b', null, f ? f.festival : name));
     if (f) box.appendChild(mk('div', 'cf-m', [f.dates, f.city].filter(Boolean).join(' · ')));
     const go = mk('button', 'abtn alt', f ? 'See festival' : 'No longer listed'); go.type = 'button';
-    if (f) go.addEventListener('click', () => { const d = document.getElementById('chat'); if (d && d.open) d.close(); if (window.FRGoToCard) FRGoToCard(id); });
+    if (f) go.addEventListener('click', () => { if (window.FRGoToCard) FRGoToCard(id); });
     else go.disabled = true;
     box.appendChild(go); return box;
   }
@@ -2596,10 +2665,10 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   const autosize = () => { const t = document.getElementById('chat-input'); t.style.height = 'auto'; t.style.height = Math.min(120, t.scrollHeight) + 'px'; };
   const bcoolSeen = () => { try { return localStorage.getItem('fr-bcool-' + uid) === '1'; } catch (e) { return false; } };
   function wireChat() {
-    const d = document.getElementById('chat');
-    const close = () => { unsubscribe(); cur = null; typers.clear(); showTyping(); d.close(); loadChats().catch(() => {}); };
-    document.getElementById('chat-x').addEventListener('click', close);
-    d.addEventListener('cancel', e => { e.preventDefault(); close(); });
+    const pane = document.getElementById('chat');
+    const back = () => { if (history.state && history.state.frChat) history.back(); else closePane(); };
+    document.getElementById('chat-x').addEventListener('click', back);
+    pane.addEventListener('keydown', e => { if (e.key === 'Escape' && cur && !e.target.closest('select')) { e.preventDefault(); back(); } });
     document.getElementById('chat-tabs').addEventListener('click', e => {
       const b = e.target.closest('button[data-k]'); if (!b || !cur || !cur.fest || b.disabled) return;
       openChat(b.dataset.k === 'public' ? { kind: 'public', fest: cur.fest } : { kind: 'crewfest', fest: cur.fest, crew: cur.crew || defaultCrew() });
@@ -2696,7 +2765,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     sb.rpc('tc_allowed').then(({ data }) => { if (data === true) ['dn-research', 'mn-research'].forEach(id => { const x = document.getElementById(id); if (x) x.hidden = false; }); }).catch(() => {});
     if (isAdmin === true) {
       document.getElementById('admin').hidden = false;
-      const t = document.getElementById('btab-admin'); if (t) { t.hidden = false; t.parentElement.classList.add('five'); } const da = document.getElementById('dn-admin'); if (da) da.hidden = false; const ma = document.getElementById('mn-admin'); if (ma) ma.hidden = false;
+      const t = document.getElementById('btab-admin'); if (t) { t.hidden = false; t.parentElement.classList.add('six'); } const da = document.getElementById('dn-admin'); if (da) da.hidden = false; const ma = document.getElementById('mn-admin'); if (ma) ma.hidden = false;
       if (window.FRTabFromHash && FRTabFromHash() === 'admin' && window.FRTab) FRTab('admin', { push: false, scroll: false });
       loadAdmin().catch(() => {}); loadReports().catch(() => {}); loadFeedbackAdmin().catch(() => {});
     }
@@ -2743,7 +2812,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       const all = mk('option', null, 'All my crews (' + crews.length + ')'); all.value = '*'; if (allCrews) all.selected = true; sel.appendChild(all);
       sel.addEventListener('change', () => {
         if (sel.value === '*') allCrews = true; else { allCrews = false; activeCrew = sel.value; lsSet('fr-crew', activeCrew); }
-        lsSet('fr-all-crews', allCrews ? '1' : '0'); recomputeVisible(); emitAll(); renderCrewPick();
+        lsSet('fr-all-crews', allCrews ? '1' : '0'); recomputeVisible(); emitAll(); renderCrewPick(); renderChatList();
       });
       box.appendChild(sel);
     }
@@ -4755,7 +4824,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   (function () {
     const btn = document.getElementById('mn-btn'), panel = document.getElementById('mn-panel');
     if (!btn || !panel) return;
-    const SECTIONS_NAV = [['festivals', 'Festivals'], ['calendar', 'Festival Calendar'], ['radar', 'My Radar'], ['crew', 'Crew'], ['admin', 'Admin']];
+    const SECTIONS_NAV = [['festivals', 'Festivals'], ['calendar', 'Festival Calendar'], ['radar', 'My Radar'], ['crew', 'Crew'], ['chats', 'Chats'], ['admin', 'Admin']];
     const close = () => { panel.hidden = true; btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-label', 'Open menu'); };
     const open = () => { panel.hidden = false; btn.setAttribute('aria-expanded', 'true'); btn.setAttribute('aria-label', 'Close menu'); const f = panel.querySelector('button, a'); if (f) f.focus(); };
     const go = id => { close(); if (window.FRTab) FRTab(id); };
