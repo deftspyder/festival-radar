@@ -685,7 +685,8 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
   .card.fest.open .card-top h3 { display: none; }
   .card.fest.open .card-top { justify-content: flex-end; }
   .card.fest.mine-pass:not(.open) { opacity: .6; }
-  .mdiv { display: block; height: 1px; margin: 4px 6px; background: color-mix(in srgb, var(--muted) 35%, transparent); }
+  .mdiv { display: flex; align-items: center; gap: 8px; margin: 2px 6px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; line-height: 1; }
+  .mdiv::before, .mdiv::after { content: ""; flex: 1; height: 1px; background: color-mix(in srgb, var(--muted) 35%, transparent); }
 }
 .fr-badge { position: relative; flex: none; }
 .fr-badge .ch-date { width: 40px; height: 40px; border-radius: 9px; }
@@ -5235,12 +5236,12 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     if (!list.length) { cards.appendChild(el('div', 'empty', 'No festivals in this section yet.')); return; }
     addCards(cards, list);
   }
-  // Cards in date order, with a thin line where the month changes (shown on phones only).
+  // Cards in date order, with a thin line and the new month's short name where the month changes (phones only).
   function addCards(box, list) {
     let prev = null;
     list.forEach(f => {
       const k = /^\d{4}-\d{2}/.test(f.start || '') ? f.start.slice(0, 7) : 'tba';
-      if (prev !== null && k !== prev) { const d = el('div', 'mdiv'); d.setAttribute('aria-hidden', 'true'); box.appendChild(d); }
+      if (prev !== null && k !== prev) { const d = el('div', 'mdiv'); d.setAttribute('aria-hidden', 'true'); d.appendChild(el('span', null, k === 'tba' ? 'TBA' : FR_MON[+k.slice(5, 7) - 1])); box.appendChild(d); }
       prev = k; box.appendChild(makeCard(f));
     });
   }
