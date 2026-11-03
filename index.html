@@ -672,6 +672,36 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 
 @keyframes cardflash { 0%, 60% { box-shadow: 0 0 0 2px var(--pink), 0 0 26px -4px var(--pink); } 100% { box-shadow: none; } }
 .card.flash { animation: cardflash 2.4s ease-out; }
+/* Phones: festival cards collapse to slim rows (date badge, name, dates and city, pick chip, details arrow). Desktop keeps full cards. */
+.card.fest .frow { display: none; }
+@media (max-width: 700px) {
+  .cards, .col { gap: 6px; }
+  .card.fest .frow { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; }
+  .card.fest:not(.open) { padding: 6px 2px 6px 8px; gap: 0; }
+  .card.fest:not(.open) > :not(.frow) { display: none; }
+  .card.fest.open { gap: 9px; padding: 6px 2px 14px 8px; }
+  .card.fest.open > :not(.frow) { margin-right: 10px; }
+  .card.fest.open .card-top h3 { display: none; }
+  .card.fest.open .card-top { justify-content: flex-end; }
+  .card.fest.mine-pass:not(.open) { opacity: .6; }
+}
+.fr-badge { position: relative; flex: none; }
+.fr-badge .ch-date { width: 40px; height: 40px; border-radius: 9px; }
+.fr-badge .ch-date .cd-d { font-size: 15px; }
+.fr-badge .ch-date.tba .cd-d { font-size: 10px; }
+.fr-badge .salelight { position: absolute; top: -8px; right: -9px; }
+.fr-main { flex: 1; min-width: 0; }
+.fr-name { font-size: 15px; font-weight: 700; line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow-wrap: anywhere; }
+.fr-name .fr-hot { color: var(--pink); font-weight: 700; font-size: 12px; margin-left: 5px; }
+.fr-sub { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fr-pick { flex: none; min-width: 64px; height: 32px; padding: 0 10px; border-radius: 999px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; background: transparent; color: var(--muted); border: 1px dashed var(--line); }
+.fr-pick[data-v="going"] { background: var(--going); border: 1px solid var(--going); color: var(--deep); }
+.fr-pick[data-v="maybe"] { color: var(--maybe); border: 1.5px solid var(--maybe); }
+.fr-pick[data-v="pass"] { color: var(--pass); border: 1px solid var(--line); }
+.fr-pick:disabled { cursor: default; opacity: .6; }
+.fr-chev { flex: none; width: 40px; height: 44px; padding: 0; border: 0; background: none; color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.fr-chev svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s; }
+.card.open .fr-chev svg { transform: rotate(180deg); }
 #cal svg rect[role=link]:focus { outline: none; stroke: var(--fg); stroke-width: 2; }
 .card { background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 9px; min-width: 0; }
 .card.mine-going { border-color: color-mix(in srgb, var(--cyan) 60%, transparent); box-shadow: 0 0 18px -10px var(--going); }
@@ -1292,6 +1322,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <li>The Festivals tab lists events near you, around the USA and worldwide. Tap a festival name for its site and an artist for Spotify.</li>
       <li>Know the name? Type it in the search box above the list. It searches every section, plus club shows and concerts.</li>
       <li>Mark Going, Maybe or Pass on each card. Your crew sees your picks, and you see theirs.</li>
+      <li>On a phone, festivals show as slim rows to fit more on screen. Tap the pick button to switch between Going, Maybe, Pass and no pick, or tap the row or its arrow to see the lineup, tickets and who's going.</li>
       <li>Tap the heart to save a festival to My Radar without deciding yet.</li>
       <li>Tap the share arrow on a card to text it to a friend (the link shows the festival's picture and dates), send it to your crew chat, or message it to a Festival Radar friend.</li>
       <li>A glowing light on a card means tickets go on sale within a week. A dim light means the date isn't confirmed.</li>
@@ -5009,10 +5040,51 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     const n = FRChat.unreadFor(b.dataset.fid); b.classList.toggle('has', !!n); b.title = n ? n + ' new' : 'Chat';
     const dot = b.querySelector('.dot'); if (n && !dot) b.appendChild(el('span', 'dot')); else if (!n && dot) dot.remove();
   }));
+  // Slim row shown on phones: tap anywhere on it (or the arrow) for details; the chip cycles Going, Maybe, Pass, none.
+  const OPEN_CARDS = new Set();
+  const FR_MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const FR_BAND = ['var(--pink)', 'var(--cyan)', 'var(--violet)', 'var(--orange)', 'var(--ok)', 'var(--warn)'];
+  function setCardOpen(card, id, on) {
+    card.classList.toggle('open', on);
+    if (on) OPEN_CARDS.add(id); else OPEN_CARDS.delete(id);
+    const b = card.querySelector('.fr-chev'); if (b) { b.setAttribute('aria-expanded', String(on)); b.setAttribute('aria-label', (on ? 'Hide' : 'Show') + ' details'); }
+  }
+  function slimRow(f, pick, card) {
+    const row = el('div', 'frow');
+    const badge = el('span', 'fr-badge'), d = el('span', 'ch-date');
+    let h = 0; for (const ch of String(f.id)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    d.style.setProperty('--avc', FR_BAND[h % FR_BAND.length]);
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(f.start || '');
+    if (m) d.append(el('span', 'cd-m', FR_MON[+m[2] - 1]), el('span', 'cd-d', String(+m[3])));
+    else { d.classList.add('tba'); d.append(el('span', 'cd-m', 'Date'), el('span', 'cd-d', 'TBA')); }
+    d.setAttribute('aria-hidden', 'true');
+    badge.appendChild(d); const sl = saleLight(f); if (sl) badge.appendChild(sl);
+    const main = el('div', 'fr-main');
+    main.append(el('div', 'fr-name', f.festival), el('div', 'fr-sub', String(f.dates || '').replace(/,? 20\d\d/g, '') + ' · ' + f.city));
+    const chip = el('button', 'fr-pick', pick ? LABEL[pick] : 'Pick'); chip.type = 'button';
+    if (pick) chip.dataset.v = pick;
+    chip.setAttribute('aria-label', 'Your pick for ' + f.festival + ': ' + (pick ? LABEL[pick] : 'none') + '. Tap to change');
+    chip.disabled = !!state.me && !state.canWrite;
+    chip.addEventListener('click', e => {
+      e.stopPropagation();
+      const next = { '': 'going', going: 'maybe', maybe: 'pass', pass: null }[pick || ''];
+      if (!state.me) { if (window.FRPending) FRPending.set(f.id, 'going'); if (window.FR && FR.openSignIn) FR.openSignIn(); return; }
+      setPick(f.id, next);
+    });
+    const chev = el('button', 'fr-chev'); chev.type = 'button';
+    chev.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+    const on = OPEN_CARDS.has(f.id);
+    chev.setAttribute('aria-expanded', String(on)); chev.setAttribute('aria-label', (on ? 'Hide' : 'Show') + ' details for ' + f.festival);
+    chev.addEventListener('click', e => { e.stopPropagation(); setCardOpen(card, f.id, !card.classList.contains('open')); });
+    row.addEventListener('click', e => { if (e.target.closest('.salelight')) return; setCardOpen(card, f.id, !card.classList.contains('open')); });
+    row.append(badge, main, chip, chev);
+    return row;
+  }
   function makeCard(f) {
     const mine = (state.picks[state.me] && state.picks[state.me].choices) || {};
     const v = votesFor(f.id);
-    const card = el('article', 'card' + (mine[f.id] === 'going' ? ' mine-going' : ''));
+    const card = el('article', 'card fest' + (mine[f.id] === 'going' ? ' mine-going' : '') + (mine[f.id] === 'pass' ? ' mine-pass' : '') + (OPEN_CARDS.has(f.id) ? ' open' : ''));
+    const frow = slimRow(f, mine[f.id] || null, card);
     const top = el('div', 'card-top');
     const h = el('h3'); const href = safeLink(f.link);
     if (href) { const a = el('a', null, f.festival); a.href = href; a.target = '_blank'; a.rel = 'noopener'; h.appendChild(a); } else h.textContent = f.festival;
@@ -5053,8 +5125,9 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       const total = matches.reduce((t, m) => t + m.count, 0);
       const lvl = total >= 8 ? 4 : total >= 5 ? 3 : total >= 3 ? 2 : 1;
       if (lvl >= 3) card.classList.add('hot');
-      card.append(top, meta, gw, el('div', 'sf-tag', 'Crew favs playing: ' + matches.map(m => m.name + ' ♥' + m.count).join(', ')), tix, lu, choice, crew);
-    } else card.append(top, meta, gw, tix, lu, choice, crew);
+      const hot = frow.querySelector('.fr-name'); hot.appendChild(el('span', 'fr-hot', '♥' + total)); hot.title = 'Crew favs playing';
+      card.append(frow, top, meta, gw, el('div', 'sf-tag', 'Crew favs playing: ' + matches.map(m => m.name + ' ♥' + m.count).join(', ')), tix, lu, choice, crew);
+    } else card.append(frow, top, meta, gw, tix, lu, choice, crew);
     card.id = 'card-' + f.id;
     return card;
   }
@@ -5118,6 +5191,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     let card = document.getElementById('card-' + id);
     if (!card || !card.offsetParent) { const all = document.querySelector('#tabs button[data-sec="All"]'); if (all) all.click(); card = document.getElementById('card-' + id); }
     if (!card) return;
+    if (card.classList.contains('fest')) setCardOpen(card, id, true);
     card.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
     card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
     setTimeout(() => card.classList.remove('flash'), 2400);
