@@ -653,7 +653,12 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .board-row .who-list .m { color: var(--maybe); font-weight: 700; } .bar .g { background: var(--going); } .bar .m { background: var(--maybe); }
 
 .cal { position: relative; min-height: 200px; }
-.cal svg { display: block; width: 100%; height: auto; }
+.cal svg { display: block; max-width: none; }
+.cal-zoom { margin-bottom: 10px; gap: 6px; }
+.cal-zoom button { font-size: 13px; padding: 5px 12px; }
+.cal-scroll { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; scrollbar-width: thin; }
+.cal-labels { position: absolute; left: 0; top: 0; width: 74px; pointer-events: none; background: linear-gradient(90deg, var(--panel) 72%, transparent); }
+.cal-labels span { position: absolute; left: 0; font-size: 12px; color: var(--muted); }
 .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 8px; }
 .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
 .tip { position: absolute; pointer-events: none; z-index: 5; background: var(--deep); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 12px; max-width: 18rem; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
@@ -1002,6 +1007,12 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   <section class="panel" id="calendar" data-tab="calendar">
     <h2>Festival Calendar</h2>
     <p class="sub-h">When each festival runs. Hover or tap a bar for details. Festivals without dates are left off.</p>
+    <div class="tabs cal-zoom" id="cal-zoom" role="group" aria-label="Calendar zoom">
+      <button type="button" data-z="1" aria-pressed="false">1M</button>
+      <button type="button" data-z="3" aria-pressed="false">3M</button>
+      <button type="button" data-z="6" aria-pressed="false">6M</button>
+      <button type="button" data-z="12" aria-pressed="false">Year</button>
+    </div>
     <div class="cal" id="cal"></div>
     <div class="legend" id="legend"></div>
   </section>
@@ -4947,31 +4958,58 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
   }
   function renderBoard() { renderFavDash(); }
 
+  // Calendar zoom: 1, 3, 6 or 12 months fill the width; anything longer scrolls sideways. Choice saved per device.
+  let CAL_Z = 0; try { CAL_Z = +localStorage.getItem('fr-cal-zoom') || 0; } catch (e) {}
+  if (![1, 3, 6, 12].includes(CAL_Z)) CAL_Z = innerWidth <= 700 ? 3 : 12;
+  let calLeftT = null; // date at the left edge of the scrolled view, kept across redraws and zoom changes
+  document.querySelectorAll('#cal-zoom button').forEach(b => b.addEventListener('click', () => {
+    CAL_Z = +b.dataset.z; try { localStorage.setItem('fr-cal-zoom', String(CAL_Z)); } catch (e) {}
+    renderCalendar();
+  }));
   function renderCalendar() {
     const box = $('cal'); box.replaceChildren();
+    document.querySelectorAll('#cal-zoom button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.z === CAL_Z)));
     const data = withFavShows().filter(f => f.start && f.end).map(f => ({ ...f, s: Date.parse(f.start + 'T00:00:00Z'), e: Date.parse(f.end + 'T23:59:59Z') }));
     if (!data.length) { box.appendChild(el('div', 'empty', 'No dated festivals yet.')); return; }
-    const W = Math.max(320, box.clientWidth || 700), rowH = 24, top = 6, left = 84, right = 12;
+    const V = Math.max(320, box.clientWidth || 700), rowH = 24, top = 6, left = 78, right = 12;
+    const nowD = new Date();
+    const d0 = new Date(Math.min(Date.UTC(nowD.getUTCFullYear(), nowD.getUTCMonth(), 1), ...data.map(d => d.s))); const d1 = new Date(Math.max(...data.map(d => d.e)));
+    const t0 = Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth(), 1), t1 = Date.UTC(d1.getUTCFullYear(), d1.getUTCMonth() + 1, 1);
+    const pxPerMs = Math.max((V - left - right) / (t1 - t0), (V - left - right) / (CAL_Z * 30.44 * 864e5));
+    // Names show beside each bar when months are wide enough; lanes leave room for them.
+    const named = 30.44 * 864e5 * pxPerMs >= 70;
+    const myPicks = (state.picks[state.me] && state.picks[state.me].choices) || {};
+    data.forEach(d => {
+      const nm = d.festival.replace(/ 20\d\d$/, ''); d.short = nm.length > 22 ? nm.slice(0, 21) + '…' : nm;
+      const bw = Math.max(8, (d.e - d.s) * pxPerMs), mark = myPicks[d.id] === 'going' && bw < 22 ? 18 : 0;
+      d.inside = named && bw - 12 - (myPicks[d.id] === 'going' ? 18 : 0) >= d.short.length * 6.3;
+      d.tail = (named && !d.inside ? mark + 8 + d.short.length * 6.3 : mark) + 10;
+    });
     const lanes = {}, offs = {};
     SECTIONS.forEach(sec => {
       const ends = [];
       data.filter(d => d.section === sec).sort((a, b) => a.s - b.s).forEach(d => {
         let i = ends.findIndex(e => e < d.s); if (i < 0) { i = ends.length; ends.push(0); }
-        ends[i] = d.e + 9 * 864e5; d.lane = i;
+        ends[i] = d.e + Math.max(named ? 0 : 9 * 864e5, d.tail / pxPerMs); d.lane = i;
       });
       lanes[sec] = Math.max(1, ends.length);
     });
     let y = top; SECTIONS.forEach(sec => { offs[sec] = y; y += lanes[sec] * rowH + 14; });
     const H = y + 20;
-    const d0 = new Date(Math.min(...data.map(d => d.s))); const d1 = new Date(Math.max(...data.map(d => d.e)));
-    const t0 = Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth(), 1), t1 = Date.UTC(d1.getUTCFullYear(), d1.getUTCMonth() + 1, 1);
-    const x = t => left + (t - t0) / (t1 - t0) * (W - left - right);
+    const W = Math.ceil(left + right + (t1 - t0) * pxPerMs);
+    const x = t => left + (t - t0) * pxPerMs;
     const NS = 'http://www.w3.org/2000/svg';
-    const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', 'Festival calendar');
+    const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', 'Festival calendar');
     const mk = (tag, attrs) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; };
-    const step = W < 560 ? 3 : 1;
+    const monthPx = 30.44 * 864e5 * pxPerMs;
+    const step = monthPx < 28 ? 3 : monthPx < 45 ? 2 : 1;
     const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     for (let dt = new Date(t0), i = 0; +dt <= t1; dt = new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth() + 1, 1)), i++) {
+      if (monthPx >= 90 && +dt < t1) [8, 15, 22].forEach(day => {
+        const wx = x(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), day));
+        svg.appendChild(mk('line', { x1: wx, x2: wx, y1: top, y2: H - 20, style: 'stroke: var(--line)', 'stroke-width': 1, 'stroke-dasharray': '2 4', opacity: .6 }));
+        if (monthPx >= 260) { const wl = mk('text', { x: wx, y: H - 5, 'text-anchor': 'middle', style: 'fill: var(--muted)', 'font-size': 10, opacity: .8 }); wl.textContent = String(day); svg.appendChild(wl); }
+      });
       if (i % step) continue;
       const xx = x(+dt);
       svg.appendChild(mk('line', { x1: xx, x2: xx, y1: top, y2: H - 20, style: 'stroke: var(--line)', 'stroke-width': 1 }));
@@ -4979,7 +5017,6 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       lab.textContent = dt.getUTCMonth() === 0 ? MON[0] + " '" + String(dt.getUTCFullYear()).slice(2) : MON[dt.getUTCMonth()];
       svg.appendChild(lab);
     }
-    SECTIONS.forEach(sec => { const t = mk('text', { x: 0, y: offs[sec] + lanes[sec] * rowH / 2 + 4, style: 'fill: var(--muted)', 'font-size': 12 }); t.textContent = sec; svg.appendChild(t); });
     const now = Date.now();
     if (now >= t0 && now <= t1) svg.appendChild(mk('line', { x1: x(now), x2: x(now), y1: top, y2: H - 20, style: 'stroke: var(--orange)', 'stroke-dasharray': '3 3' }));
     const tip = el('div', 'tip'); tip.hidden = true; box.appendChild(tip);
@@ -4989,7 +5026,6 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       const r = box.getBoundingClientRect(); const mx = ev.clientX - r.left, my = ev.clientY - r.top;
       tip.style.left = Math.min(Math.max(0, mx + 12), box.clientWidth - tip.offsetWidth) + 'px'; tip.style.top = (my + 12) + 'px';
     };
-    const myPicks = (state.picks[state.me] && state.picks[state.me].choices) || {};
     data.forEach(d => {
       const ch = myPicks[d.id], bx = x(d.s), by = offs[d.section] + d.lane * rowH + 4, bw = Math.max(8, x(d.e) - x(d.s)), bh = rowH - 8;
       const r = mk('rect', { x: bx, y: by, width: bw, height: bh, rx: 4,
@@ -5003,22 +5039,35 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       r.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); goToCard(d.id); } });
       r.addEventListener('mouseleave', () => { tip.hidden = true; });
       svg.appendChild(r);
+      if (named) {
+        const outX = bx + bw + 6 + (ch === 'going' && bw < 22 ? 18 : 0);
+        const t = mk('text', { x: d.inside ? bx + 6 : outX, y: by + bh / 2 + 4, 'font-size': 11, 'font-weight': 700, 'pointer-events': 'none', class: 'cal-name',
+          style: 'fill: ' + (d.inside && ch !== 'pass' ? 'var(--deep)' : 'var(--fg)'), opacity: ch === 'pass' ? .55 : 1 });
+        t.textContent = d.short;
+        svg.appendChild(t);
+      }
       if (ch === 'going') {
         const cx = bw >= 22 ? bx + bw - 9 : Math.min(bx + bw + 9, W - 8), cy = by + bh / 2;
         const g = mk('g', { 'pointer-events': 'none' });
-        g.appendChild(mk('circle', { cx, cy, r: 7, style: 'fill: var(--pink); stroke: var(--fg)', 'stroke-width': 1.5 }));
-        g.appendChild(mk('path', { d: `M${cx - 3.2} ${cy + .2} l2.2 2.3 l4.2 -4.6`, fill: 'none', style: 'stroke: var(--on-accent)', 'stroke-width': 1.8, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+        g.appendChild(mk('circle', { cx, cy, r: 7, style: 'fill: var(--fg); stroke: var(--deep)', 'stroke-width': 1.5 }));
+        g.appendChild(mk('path', { d: `M${cx - 3.2} ${cy + .2} l2.2 2.3 l4.2 -4.6`, fill: 'none', style: 'stroke: var(--deep)', 'stroke-width': 1.8, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
         svg.appendChild(g);
       }
     });
-    box.appendChild(svg);
+    const sc = el('div', 'cal-scroll'); sc.appendChild(svg); box.insertBefore(sc, tip);
+    const labs = el('div', 'cal-labels'); labs.style.height = (H - 20) + 'px'; labs.setAttribute('aria-hidden', 'true');
+    SECTIONS.forEach(sec => { const t = el('span', null, sec === 'Worldwide' ? 'World' : sec); t.style.top = (offs[sec] + lanes[sec] * rowH / 2 - 8) + 'px'; labs.appendChild(t); });
+    box.appendChild(labs);
+    if (calLeftT === null) calLeftT = Date.UTC(nowD.getUTCFullYear(), nowD.getUTCMonth(), 1) - 3 * 864e5;
+    sc.scrollLeft = Math.max(0, x(calLeftT) - left);
+    sc.addEventListener('scroll', () => { tip.hidden = true; calLeftT = t0 + sc.scrollLeft / pxPerMs; }, { passive: true });
     const lg = $('legend'); lg.replaceChildren();
     SECTIONS.forEach((sec, i) => { const s = el('span'); const dot = el('i'); dot.style.background = SEC_COLOR[i]; s.append(dot, sec); lg.appendChild(s); });
     if (state.me && state.canWrite !== false) {
-      const gk = el('span'); const gi = el('i'); gi.style.cssText = 'background:var(--pink);border:1.5px solid var(--fg)'; gk.append(gi, 'You\'re going'); lg.appendChild(gk);
+      const gk = el('span'); const gi = el('i'); gi.style.cssText = 'background:var(--fg);border:1.5px solid var(--deep);box-sizing:border-box'; gk.append(gi, 'You\'re going'); lg.appendChild(gk);
       const pk = el('span'); const pi = el('i'); pi.style.background = 'var(--pass-bar)'; pk.append(pi, 'You passed'); lg.appendChild(pk);
     }
-    lg.appendChild(el('span', null, 'Faded: dates not confirmed · Dashed line: today · Tap a bar for details'));
+    lg.appendChild(el('span', null, 'Faded: dates not confirmed · Dashed line: today · Tap a bar for details' + (W > V + 4 ? ' · Swipe sideways for more' : '')));
   }
 
   // Chat button on each card; a dot when a chat you follow for this festival has new messages.
