@@ -838,6 +838,13 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .showbar-sub { font-size: 12px; color: var(--muted); }
 .showbar.in-panel { margin: 0; padding: 6px 12px; background: var(--panel-2); flex-wrap: nowrap; }
 .showbar[hidden] { display: none; }
+.list-head > .list-ctrls { flex: 1 1 100%; flex-wrap: nowrap; justify-content: space-between; align-items: flex-start; }
+.minisw { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
+.msw { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.msw[hidden] { display: none; }
+.sw.mini { width: 34px; height: 20px; }
+.sw.mini .knob { top: 2px; left: 2px; width: 14px; height: 14px; }
+.sw.mini[aria-checked="true"] .knob { left: 16px; }
 .showbar-txt { display: flex; flex-direction: column; line-height: 1.25; }
 .fsearch { position: relative; margin: 12px 0 4px; max-width: 420px; }
 .fsearch svg { position: absolute; left: 12px; top: 50%; width: 18px; height: 18px; transform: translateY(-50%); fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; pointer-events: none; }
@@ -1074,15 +1081,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
           <button type="button" data-sec="USA" aria-pressed="false">USA</button>
           <button type="button" data-sec="Worldwide" aria-pressed="false">World</button>
         </div>
-        <div class="showbar in-panel" id="localbar" hidden>
-          <button type="button" class="sw" id="local-toggle" role="switch" aria-checked="true"><span class="knob"></span></button>
-          <span class="showbar-txt"><label for="local-toggle">Include Local festivals</label>
-          <span class="showbar-sub" id="local-sub">Near the crew's home base (SoCal for now)</span></span>
-        </div>
-        <div class="showbar in-panel" id="showbar">
-          <button type="button" class="sw" id="show-toggle" role="switch" aria-checked="false"><span class="knob"></span></button>
-          <span class="showbar-txt"><label for="show-toggle">Include club shows and concerts</label>
-          <span class="showbar-sub" id="show-sub">SoCal, next 60 days</span></span>
+        <div class="minisw">
+          <label class="msw" title="Include club shows and concerts (SoCal, next 60 days)"><span id="show-sub-l">Shows</span><button type="button" class="sw mini" id="show-toggle" role="switch" aria-checked="false" aria-label="Include club shows and concerts"><span class="knob"></span></button></label>
+          <label class="msw" id="localbar" hidden title="Include Local festivals (near the crew's home base)"><span>Local</span><button type="button" class="sw mini" id="local-toggle" role="switch" aria-checked="true" aria-label="Include Local festivals"><span class="knob"></span></button></label>
         </div>
       </div>
     </div>
@@ -4974,7 +4975,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
   function renderShowToggle() {
     const n = state._all.filter(f => f.kind === 'show').length;
     const b = document.getElementById('show-toggle'); if (b) b.setAttribute('aria-checked', String(SHOWS));
-    const s = document.getElementById('show-sub'); if (s) s.textContent = 'SoCal, next 60 days' + (n ? ' (' + n + ' listed)' : ' (none listed yet)');
+    const s = document.querySelector('.msw[title^="Include club"]'); if (s) s.title = 'Include club shows and concerts (SoCal, next 60 days, ' + (n ? n + ' listed' : 'none listed yet') + ')';
   }
   const DJS = JSON.parse(document.getElementById('dj-data').textContent).map(([name, genre, top, socal]) => ({ name, genre, top, socal: !!socal }));
   const norm = n => String(n).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/&/g, 'and').replace(/[^a-z0-9]/g, '');
