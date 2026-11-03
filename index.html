@@ -739,6 +739,13 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
   .card.fest.open .card-top h3 { display: none; }
   .card.fest.open .card-top { justify-content: flex-end; }
   .card.fest.mine-pass:not(.open) { opacity: .6; }
+  /* More room for festival names: slimmer panel and card padding, tighter row parts. */
+  #festivals.panel { padding: 14px 10px; }
+  .card.fest .frow { gap: 8px; }
+  .card.fest:not(.open) { padding: 6px 0 6px 8px; }
+  .card.fest.open { padding: 6px 0 14px 8px; }
+  .fr-pick { min-width: 0; height: 30px; padding: 0 11px; font-size: 12px; }
+  .fr-chev { width: 32px; }
   .mdiv { display: flex; align-items: center; gap: 8px; margin: 2px 6px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; line-height: 1; }
   .mdiv::before, .mdiv::after { content: ""; flex: 1; height: 1px; background: color-mix(in srgb, var(--muted) 35%, transparent); }
 }
@@ -748,7 +755,7 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .fr-badge .ch-date.tba .cd-d { font-size: 10px; }
 .fr-badge .salelight { position: absolute; top: -8px; right: -9px; }
 .fr-main { flex: 1; min-width: 0; }
-.fr-name { font-size: 15px; font-weight: 700; line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow-wrap: anywhere; }
+.fr-name { font-size: 15px; font-weight: 700; line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow-wrap: break-word; }
 .fr-name .fr-hot { color: var(--pink); font-weight: 700; font-size: 12px; margin-left: 5px; }
 .fr-sub { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .fr-pick { flex: none; min-width: 64px; height: 32px; padding: 0 10px; border-radius: 999px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; background: transparent; color: var(--muted); border: 1px dashed var(--line); }
@@ -5462,7 +5469,8 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     d.setAttribute('aria-hidden', 'true');
     badge.appendChild(d); const sl = saleLight(f); if (sl) badge.appendChild(sl);
     const main = el('div', 'fr-main');
-    main.append(el('div', 'fr-name', f.festival), el('div', 'fr-sub', String(f.dates || '').replace(/,? 20\d\d/g, '') + ' · ' + f.city));
+    const nm = el('div', 'fr-name', f.festival.replace(/ 20\d\d$/, '')); nm.title = f.festival; // the year is in the date badge and details
+    main.append(nm, el('div', 'fr-sub', String(f.dates || '').replace(/,? 20\d\d/g, '') + ' · ' + f.city));
     const chip = el('button', 'fr-pick', pick ? LABEL[pick] : 'Pick'); chip.type = 'button';
     if (pick) chip.dataset.v = pick;
     chip.setAttribute('aria-label', 'Your pick for ' + f.festival + ': ' + (pick ? LABEL[pick] : 'none') + '. Tap to change');
