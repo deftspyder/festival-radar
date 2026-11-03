@@ -687,6 +687,9 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 
 .pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
 .st-presale { color: var(--pink); } .st-onsale { color: var(--ok); } .st-wait { color: var(--warn); } .st-watch { color: var(--muted); }
+/* On sale: a soft glow pulse so it stands out (still for reduced motion). */
+@keyframes onsale-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 0%, transparent); background: transparent; } 50% { box-shadow: 0 0 10px 1px color-mix(in srgb, var(--ok) 55%, transparent); background: color-mix(in srgb, var(--ok) 14%, transparent); } }
+@media (prefers-reduced-motion: no-preference) { .pill.st-onsale { animation: onsale-pulse 2.2s ease-in-out infinite; } }
 
 .board { display: flex; flex-direction: column; gap: 8px; }
 .board-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; }
