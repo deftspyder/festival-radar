@@ -735,7 +735,7 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
   .card.fest:not(.open) { padding: 6px 2px 6px 8px; gap: 0; }
   .card.fest:not(.open) > :not(.frow) { display: none; }
   .card.fest.open { gap: 9px; padding: 6px 2px 14px 8px; }
-  .card.fest.open > :not(.frow) { margin-right: 10px; }
+  .card.fest.open > :not(.frow):not(.fdet) { margin-right: 10px; }
   .card.fest.open .card-top h3 { display: none; }
   .card.fest.open .card-top { justify-content: flex-end; }
   .card.fest.mine-pass:not(.open) { opacity: .6; }
@@ -750,7 +750,37 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
   .mdiv::before, .mdiv::after { content: ""; flex: 1; height: 1px; background: color-mix(in srgb, var(--muted) 35%, transparent); }
 }
 .fr-badge { position: relative; flex: none; }
-.fr-badge .ch-date { width: 40px; height: 40px; border-radius: 9px; }
+.fr-badge .ch-date { width: 46px; height: 42px; border-radius: 9px; }
+.fr-badge .ch-date .cd-m { white-space: nowrap; overflow: hidden; }
+.fr-badge .ch-date.two .cd-m { font-size: 8px; letter-spacing: 0; }
+.fr-badge .ch-date.rng .cd-d { font-size: 12px; }
+.fr-crew { display: flex; align-items: center; gap: 5px; margin-top: 3px; font-size: 12px; font-weight: 700; color: var(--going); }
+.fr-avs { display: inline-flex; }
+.fr-av { width: 16px; height: 16px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font: 800 9px var(--body); color: #120a24; border: 1.5px solid var(--panel-2); }
+.fr-av + .fr-av { margin-left: -5px; }
+.fdet { display: none; }
+@media (max-width: 700px) {
+  .card.fest.open > :not(.frow):not(.fdet) { display: none !important; }
+  .card.fest.open > .fdet { display: flex; flex-direction: column; gap: 12px; padding: 10px 10px 2px 2px; }
+  .fd-tags { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .fd-info { display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+  .fd-line { display: flex; gap: 10px; align-items: flex-start; }
+  .fd-ic { flex: none; color: var(--cyan); display: flex; margin-top: 1px; }
+  .fd-ic svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .fd-t { flex: 1; min-width: 0; }
+  .fd-tix { flex: none; font-size: 13px; font-weight: 700; color: var(--deep); background: var(--cyan); border-radius: 999px; padding: 4px 12px; text-decoration: none; }
+  .fd-h { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .fd-pick { display: flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; height: 40px; }
+  .fd-pick button { flex: 1; border: 0; font: inherit; font-size: 14px; font-weight: 600; background: transparent; color: var(--fg); cursor: pointer; }
+  .fd-pick button + button { border-left: 1px solid var(--line); }
+  .fd-pick button[aria-pressed="true"][data-v="going"] { background: var(--going); color: var(--deep); }
+  .fd-pick button[aria-pressed="true"][data-v="maybe"] { background: var(--maybe); color: var(--deep); }
+  .fd-pick button[aria-pressed="true"][data-v="pass"] { background: var(--pass); color: var(--deep); }
+  .fd-pick button:disabled { cursor: default; opacity: .6; }
+  .fd-foot { display: flex; align-items: center; gap: 8px; }
+  .fd-who { flex: 1; min-width: 0; }
+  .fd-acts { display: flex; gap: 6px; flex: none; align-items: center; }
+}
 .fr-badge .ch-date .cd-d { font-size: 15px; }
 .fr-badge .ch-date.tba .cd-d { font-size: 10px; }
 .fr-badge .salelight { position: absolute; top: -8px; right: -9px; }
@@ -5463,14 +5493,28 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     const badge = el('span', 'fr-badge'), d = el('span', 'ch-date');
     let h = 0; for (const ch of String(f.id)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
     d.style.setProperty('--avc', FR_BAND[h % FR_BAND.length]);
-    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(f.start || '');
-    if (m) d.append(el('span', 'cd-m', FR_MON[+m[2] - 1]), el('span', 'cd-d', String(+m[3])));
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(f.start || ''), e = /^(\d{4})-(\d{2})-(\d{2})$/.exec(f.end || '') || m;
+    if (m) {
+      // Start and end day: "NOV / 20-21", or "DEC-JAN / 31-1" across months; one day shows just the day.
+      const m1 = FR_MON[+m[2] - 1], m2 = FR_MON[+e[2] - 1], same = f.start === (f.end || f.start);
+      const mon = m1 === m2 || same ? m1 : m1 + '\u2013' + m2, days = same ? String(+m[3]) : (+m[3]) + '\u2013' + (+e[3]);
+      d.append(el('span', 'cd-m', mon), el('span', 'cd-d', days));
+      if (mon.length > 3) d.classList.add('two'); if (days.length > 3) d.classList.add('rng');
+    }
     else { d.classList.add('tba'); d.append(el('span', 'cd-m', 'Date'), el('span', 'cd-d', 'TBA')); }
     d.setAttribute('aria-hidden', 'true');
     badge.appendChild(d); const sl = saleLight(f); if (sl) badge.appendChild(sl);
     const main = el('div', 'fr-main');
     const nm = el('div', 'fr-name', f.festival.replace(/ 20\d\d$/, '')); nm.title = f.festival; // the year is in the date badge and details
-    main.append(nm, el('div', 'fr-sub', String(f.dates || '').replace(/,? 20\d\d/g, '') + ' · ' + f.city));
+    // Line 2 is where it is (the badge already has the dates); line 3 shows crew going as tiny avatars and a count.
+    main.append(nm, el('div', 'fr-sub', [String(f.city || '').split(',')[0], dist(f)].filter(Boolean).join(' · ')));
+    const goers = votesFor(f.id).going;
+    if (goers.length) {
+      const cg = el('div', 'fr-crew'), avs = el('span', 'fr-avs');
+      goers.slice(0, 3).forEach(id => { const a = el('span', 'fr-av', String(nameOf(id) || '?').charAt(0).toUpperCase()); let hh = 0; for (const ch of String(id)) hh = (hh * 31 + ch.charCodeAt(0)) >>> 0; a.style.background = FR_BAND[hh % FR_BAND.length]; avs.appendChild(a); });
+      cg.append(avs, goers.length + ' going'); cg.title = goers.map(nameOf).join(', ') + ' going';
+      main.appendChild(cg);
+    }
     const chip = el('button', 'fr-pick', pick ? LABEL[pick] : 'Pick'); chip.type = 'button';
     if (pick) chip.dataset.v = pick;
     chip.setAttribute('aria-label', 'Your pick for ' + f.festival + ': ' + (pick ? LABEL[pick] : 'none') + '. Tap to change');
@@ -5538,8 +5582,58 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       const hot = frow.querySelector('.fr-name'); hot.appendChild(el('span', 'fr-hot', '♥' + total)); hot.title = 'Crew favs playing';
       card.append(frow, top, meta, gw, el('div', 'sf-tag', 'Crew favs playing: ' + matches.map(m => m.name + ' ♥' + m.count).join(', ')), tix, lu, choice, crew);
     } else card.append(frow, top, meta, gw, tix, lu, choice, crew);
+    card.appendChild(detBlock(f, mine[f.id] || null, v, lu, matches, chip));
     card.id = 'card-' + f.id;
     return card;
+  }
+  // Phone details when a slim row is opened: status and genre, then When, Where and Tickets lines, the lineup,
+  // Going / Maybe / Pass, and who's going with share, chat and heart. Desktop keeps the full card.
+  const FD_ICON = {
+    cal: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v15H5zM5 9h14M9 3v4M15 3v4"/></svg>',
+    pin: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.4"/></svg>',
+    tix: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8a2 2 0 0 0 0 4v4h16v-4a2 2 0 0 1 0-4V4H4zM14 4v16"/></svg>'
+  };
+  const FD_DAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  function longDates(f) {
+    const p = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); if (!m) return null; const t = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])); return { y: m[1], s: FD_DAY[t.getUTCDay()] + ', ' + FR_MON[+m[2] - 1] + ' ' + (+m[3]) }; };
+    const a = p(f.start), b = p(f.end) || a; if (!a) return f.dates || 'Dates TBA';
+    if (f.start === (f.end || f.start)) return a.s + ', ' + a.y;
+    return a.y === b.y ? a.s + ' to ' + b.s + ', ' + b.y : a.s + ', ' + a.y + ' to ' + b.s + ', ' + b.y;
+  }
+  function detBlock(f, pick, v, lu, matches, chip) {
+    const d = el('div', 'fdet');
+    const tags = el('div', 'fd-tags'); tags.append(el('span', 'pill ' + statusClass(f.status), f.status), el('span', 'genre', f.genre));
+    if (f.kind === 'show') tags.appendChild(el('span', 'show-tag', 'Show'));
+    if (state.section !== 'Local' && f.section === 'Local') tags.appendChild(el('span', 'socal-tag', 'SoCal'));
+    const line = (ic, text, extra) => { const r = el('div', 'fd-line'), i = el('span', 'fd-ic'); i.innerHTML = FD_ICON[ic]; r.append(i, el('span', 'fd-t', text)); if (extra) r.appendChild(extra); return r; };
+    const info = el('div', 'fd-info');
+    info.appendChild(line('cal', longDates(f)));
+    info.appendChild(line('pin', (f.city || 'Location TBA') + (dist(f) ? ' · ' + dist(f) + ' from Hermosa' : '')));
+    const sale = [f.next_sale_label || (f.status === 'On sale' ? 'On sale now' : ''), f.price_from ? 'from ' + f.price_from : ''].filter(Boolean).join(' · ') || 'Ticket info not announced yet';
+    let tb = null;
+    if (safeLink(f.ticket_link) || safeLink(f.link)) { tb = el('a', 'fd-tix', 'Tickets'); tb.href = 'go.html?f=' + encodeURIComponent(f.id); tb.target = '_blank'; tb.rel = 'noopener'; }
+    info.appendChild(line('tix', sale, tb));
+    d.append(tags, info);
+    if (matches.length) d.appendChild(el('div', 'sf-tag', 'Crew favs playing: ' + matches.map(m => m.name + ' ♥' + m.count).join(', ')));
+    const lw = el('div', 'fd-lu'); lw.append(el('div', 'fd-h', 'Lineup'), lu.cloneNode(true)); d.appendChild(lw);
+    const seg = el('div', 'fd-pick'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', 'Your pick for ' + f.festival);
+    ['going', 'maybe', 'pass'].forEach(k => {
+      const b = el('button', null, LABEL[k]); b.type = 'button'; b.dataset.v = k;
+      b.setAttribute('aria-pressed', String(pick === k)); b.disabled = !!state.me && !state.canWrite;
+      b.addEventListener('click', () => {
+        if (!state.me) { if (window.FRPending) FRPending.set(f.id, k); if (window.FR && FR.openSignIn) FR.openSignIn(); return; }
+        setPick(f.id, pick === k ? null : k);
+      });
+      seg.appendChild(b);
+    });
+    d.appendChild(seg);
+    const foot = el('div', 'fd-foot'), who = el('div', 'crew fd-who');
+    if (!v.going.length && !v.maybe.length) who.appendChild(el('span', 'none', 'Nobody yet'));
+    v.going.forEach(id => who.appendChild(chip(id, 'g', nameOf(id))));
+    v.maybe.forEach(id => who.appendChild(chip(id, 'm', nameOf(id) + '?')));
+    const acts = el('div', 'fd-acts'); acts.append(shareBtn(f), chatBtn(f), heartBtn(f));
+    foot.append(who, acts); d.appendChild(foot);
+    return d;
   }
 
   // ---- Header radar blips ----
