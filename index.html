@@ -674,6 +674,7 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .card.flash { animation: cardflash 2.4s ease-out; }
 /* Phones: festival cards collapse to slim rows (date badge, name, dates and city, pick chip, details arrow). Desktop keeps full cards. */
 .card.fest .frow { display: none; }
+.mdiv { display: none; }
 @media (max-width: 700px) {
   .cards, .col { gap: 6px; }
   .card.fest .frow { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; }
@@ -684,6 +685,7 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
   .card.fest.open .card-top h3 { display: none; }
   .card.fest.open .card-top { justify-content: flex-end; }
   .card.fest.mine-pass:not(.open) { opacity: .6; }
+  .mdiv { display: block; height: 1px; margin: 4px 6px; background: color-mix(in srgb, var(--muted) 35%, transparent); }
 }
 .fr-badge { position: relative; flex: none; }
 .fr-badge .ch-date { width: 40px; height: 40px; border-radius: 9px; }
@@ -5223,7 +5225,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       cards.className = 'cols';
       SECTIONS.forEach(sec => {
         const col = el('div', 'col'); col.appendChild(el('div', 'col-h', sec === 'Local' ? 'Local · SoCal' : sec === 'USA' ? 'Rest of USA' : sec));
-        withFavShows().filter(f => f.section === sec).sort(byStart).forEach(f => col.appendChild(makeCard(f)));
+        addCards(col, withFavShows().filter(f => f.section === sec).sort(byStart));
         cards.appendChild(col);
       });
       return;
@@ -5231,7 +5233,16 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     cards.className = 'cards';
     const list = withFavShows().filter(f => f.section === state.section || (state.section === 'USA' && f.section === 'Local')).sort(byStart);
     if (!list.length) { cards.appendChild(el('div', 'empty', 'No festivals in this section yet.')); return; }
-    list.forEach(f => cards.appendChild(makeCard(f)));
+    addCards(cards, list);
+  }
+  // Cards in date order, with a thin line where the month changes (shown on phones only).
+  function addCards(box, list) {
+    let prev = null;
+    list.forEach(f => {
+      const k = /^\d{4}-\d{2}/.test(f.start || '') ? f.start.slice(0, 7) : 'tba';
+      if (prev !== null && k !== prev) { const d = el('div', 'mdiv'); d.setAttribute('aria-hidden', 'true'); box.appendChild(d); }
+      prev = k; box.appendChild(makeCard(f));
+    });
   }
 
   // ---- Spotifavs ----
