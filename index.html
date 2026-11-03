@@ -469,6 +469,44 @@ dialog.pcard .pc-inv select { width: auto; flex: 1; min-width: 0; margin: 0; }
   html.chat-full, html.chat-full body { overflow: hidden; }
 }
 .ch-head h2 { flex: 1; }
+.ch-hbtn { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: transparent; color: var(--fg); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex: none; }
+.ch-hbtn:hover { color: var(--pink); border-color: var(--pink); }
+.ch-search { display: flex; align-items: center; gap: 8px; height: 42px; border-radius: 21px; background: var(--panel-2); border: 1px solid var(--line); padding: 0 14px; color: var(--muted); margin: 6px 0 10px; }
+.ch-search[hidden], .ch-filters[hidden], .ch-hbtn[hidden], .ch-fab[hidden] { display: none; }
+.ch-search input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--fg); font: inherit; font-size: 16px; outline: none; }
+.ch-search:focus-within { border-color: var(--violet); }
+.ch-filters { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 8px; margin-bottom: 4px; }
+.ch-filters::-webkit-scrollbar { display: none; }
+.ch-filters .chip { flex: none; height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--fg); font: inherit; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.ch-filters .chip[aria-pressed="true"] { border-color: var(--pink); color: var(--pink); background: color-mix(in srgb, var(--pink) 14%, transparent); }
+.ch-filters .chip-n { font-weight: 800; }
+.ch-filters .chip-plus { padding: 0 9px; color: var(--cyan); }
+.ch-crewav { width: 48px; height: 48px; border-radius: 15px; background: var(--avc, var(--pink)); color: #120a24; font: 16px var(--display); display: flex; align-items: center; justify-content: center; }
+.ch-fab { display: none; }
+@media (max-width: 700px) {
+  .ch-new-d { display: none !important; }
+  .ch-fab { display: flex; position: fixed; right: 16px; bottom: calc(80px + env(safe-area-inset-bottom, 0px)); z-index: 50; width: 58px; height: 58px; border-radius: 18px; border: 0; background: var(--grad); color: #fff; align-items: center; justify-content: center; box-shadow: 0 8px 22px -8px var(--pink); cursor: pointer; }
+  html.chat-full .ch-fab { display: none; }
+}
+#chat .chat-hd { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; background: none; border: 0; padding: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+#chat .chat-hd .chat-htx { min-width: 0; }
+#chat .chat-hav { flex: none; display: flex; }
+#chat .chat-hav .ch-crewav, #chat .chat-hav .ch-date, #chat .chat-hav .ch-pav { width: 40px; height: 40px; }
+#chat .chat-hav .ch-crewav { border-radius: 13px; font-size: 14px; }
+.chat-going { display: flex; align-items: center; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 8px 16px; border-bottom: 1px solid var(--line); font-size: 13px; }
+.chat-going[hidden] { display: none; }
+.chat-going .cg-l { color: var(--muted); flex: none; }
+.chat-going .cg-chip { flex: none; font: inherit; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--going); color: var(--going); background: transparent; cursor: pointer; }
+.crew-back { display: inline-flex; align-items: center; gap: 2px; font: inherit; font-size: 14px; font-weight: 700; color: var(--cyan); background: none; border: 0; padding: 4px 0; margin-bottom: 4px; cursor: pointer; }
+.crew-mems .fl-row .lnk { margin-left: auto; font: inherit; font-size: 13px; font-weight: 700; color: var(--cyan); background: none; border: none; cursor: pointer; padding: 4px 0; }
+.crew-mems .fl-tag.own { color: var(--muted); margin-left: auto; }
+.crew-mems .fl-tag.own + .lnk { margin-left: 8px; }
+#newchat .nc-acts { display: flex; flex-direction: column; gap: 4px; }
+#newchat .nc-act, #newchat .nc-friend { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 6px; border: 0; border-radius: 12px; background: transparent; color: var(--fg); font: inherit; font-size: 16px; font-weight: 700; text-align: left; cursor: pointer; }
+#newchat .nc-act:hover, #newchat .nc-friend:hover { background: var(--panel-2); }
+#newchat .nc-ic { width: 44px; height: 44px; border-radius: 50%; background: var(--grad); color: #fff; display: flex; align-items: center; justify-content: center; flex: none; }
+#newchat .nc-h { font-size: 13px; color: var(--muted); margin: 14px 0 4px; }
+#newchat .ch-pav { width: 44px; height: 44px; }
 .ch-view { display: flex; padding: 3px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); }
 .ch-view button { width: 40px; height: 36px; border-radius: 9px; border: 0; background: transparent; color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .ch-view button[aria-pressed="true"] { background: var(--pink); color: var(--on-accent); }
@@ -820,7 +858,7 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .show-tag { display: inline-block; font-size: 12px; font-weight: 700; color: var(--cyan); background: color-mix(in srgb, var(--cyan) 14%, transparent); padding: 2px 8px; border-radius: 8px; }
 .btabs { display: none; }
 @media (max-width: 700px) {
-  .btabs { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 55;
+  .btabs { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 55;
     padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px));
     background: color-mix(in srgb, var(--bg) 96%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-top: 1px solid var(--line); }
   .btabs button { font: inherit; font-size: 11px; font-weight: 600; letter-spacing: .02em; color: var(--muted); background: transparent; border: none; border-radius: 10px;
@@ -901,7 +939,7 @@ dialog.signin .fine { font-size: 12px; color: var(--muted); margin-top: 12px; }
 #admin .q .lk { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; }
 #admin .q .lk a { color: var(--cyan); }
 @media (max-width: 560px) { #admin .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.btabs.six { grid-template-columns: repeat(6, 1fr); }
+.btabs.six { grid-template-columns: repeat(5, 1fr); }
 .help-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--fg); font: inherit; font-weight: 800; font-size: 17px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0; flex: none; }
 .help-btn:hover { border-color: var(--cyan); color: var(--cyan); }
 .help-btn.wide { width: auto; height: 36px; border-radius: 999px; padding: 0 14px; font-size: 13px; font-weight: 700; white-space: nowrap; }
@@ -984,7 +1022,6 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <button type="button" data-go="festivals">Festivals</button>
       <button type="button" data-go="calendar">Calendar</button>
       <button type="button" data-go="radar">My Radar</button>
-      <button type="button" data-go="crew">Crew</button>
       <button type="button" data-go="chats">Chats<span class="tab-n" id="dn-chats-n" hidden></span></button>
       <button type="button" data-go="admin" id="dn-admin" hidden>Admin</button>
       <a href="research.html" id="dn-research" hidden>Research</a>
@@ -1123,7 +1160,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 
   <div class="dash one" data-tab="crew" id="crew-dash">
     <section class="panel" id="leaderboard">
-      <h2>Crew</h2>
+      <button type="button" class="crew-back" id="crew-back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>Chats</button>
+      <h2>Crew Info</h2>
       <div class="crewpick" id="crewpick"></div>
       <div class="nocrew" id="nocrew" hidden></div>
       <div class="crew-only" id="crew-main">
@@ -1135,6 +1173,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <div class="flist" id="crew-fests"><div class="empty">Nothing yet.</div></div>
       <h3 class="sub-title">Crew favorite artists</h3>
       <div class="crew-chips" id="sf-crew"><div class="empty">No fav artists yet.</div></div>
+      <h3 class="sub-title">Members <small id="crew-mem-n"></small></h3>
+      <div class="flist crew-mems" id="crew-mems"></div>
       </div>
     </section>
     <section class="panel" id="crew-activity" hidden>
@@ -1147,18 +1187,18 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   <div class="chatsdash" data-tab="chats" id="chats-tab">
     <section class="panel chats-side" id="chats-side">
       <div class="ch-head"><h2>Chats</h2>
-        <div class="ch-view" id="ch-view" role="group" aria-label="Chat layout" hidden>
-          <button type="button" data-v="list" aria-label="List view" aria-pressed="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button>
-          <button type="button" data-v="tiles" aria-label="Tile view" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>
-        </div>
+        <button type="button" class="ch-hbtn" id="ch-code" aria-label="My friend code" title="My friend code" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg></button>
+        <button type="button" class="ch-hbtn ch-new-d" id="ch-new-d" aria-label="New chat or crew" title="New chat or crew" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
       </div>
-      <p class="sub-h" id="chats-sub">Your crew chats and the festival chats you follow.</p>
-      <div class="ch-friends" id="ch-friends" hidden></div>
+      <div class="ch-search" id="ch-search" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input type="search" id="ch-q" placeholder="Search chats, crews, friends" aria-label="Search chats" autocomplete="off"></div>
+      <div class="ch-filters" id="ch-filters" role="group" aria-label="Show" hidden></div>
       <div class="ch-box ch-list" id="crew-chats"><div class="empty">Sign in to chat with your crew and friends. <button type="button" class="abtn" id="chats-signin">Sign in</button></div></div>
+      <button type="button" class="ch-fab" id="ch-fab" aria-label="New chat or crew" hidden><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.5a8 8 0 0 1-11.7 7.1L3.5 20l1.4-4.9a8 8 0 1 1 15.6-3.6Z"/><path d="M12 8.5v6M9 11.5h6"/></svg></button>
     </section>
     <section class="panel chat" id="chat" aria-labelledby="chat-title" hidden>
       <div class="chat-empty" id="chat-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/></svg><b>Pick a chat</b><span>Your crew chat, festival chats and friends are on the left.</span></div>
-      <div class="chat-head"><button type="button" class="chat-x" id="chat-x" aria-label="Back to chats"><span class="cx-x" aria-hidden="true">×</span><svg class="cx-back" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><div class="chat-hd"><h2 id="chat-title">Chat</h2><small id="chat-where"></small></div></div>
+      <div class="chat-head"><button type="button" class="chat-x" id="chat-x" aria-label="Back to chats"><span class="cx-x" aria-hidden="true">×</span><svg class="cx-back" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><button type="button" class="chat-hd" id="chat-hd"><span class="chat-hav" id="chat-hav" aria-hidden="true"></span><span class="chat-htx"><h2 id="chat-title">Chat</h2><small id="chat-where"></small></span></button></div>
+      <div class="chat-going" id="chat-going" hidden></div>
       <div class="chat-top">
         <div class="chat-tabs" id="chat-tabs" role="tablist"><button type="button" role="tab" data-k="crew" aria-selected="true">Crew</button><button type="button" role="tab" data-k="public" aria-selected="false">Everyone</button></div>
         <div class="chat-bar"><select id="chat-crew" aria-label="Which crew" hidden></select><span class="chat-sw"><span id="chat-follow-l">Following</span><button type="button" class="sw sm" id="chat-follow" role="switch" aria-checked="false" aria-labelledby="chat-follow-l"><span class="knob"></span></button></span></div>
@@ -1359,18 +1399,18 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <li>My Artists: pick your favorite artists. Festivals with your crew's favorites on the lineup get highlighted. Can't find one? Type it in and send it to Bill.</li>
     </ul></details>
     <details><summary>Your Crew</summary><ul>
-      <li>The Crew tab shows what your crew is going to, festivals with two or more of you Going, and everyone's favorite artists.</li>
+      <li>Every crew has its own chat, pinned at the top of Chats. Tap the crew's name at the top of its chat to open Crew Info: what your crew is going to, festivals with two or more of you Going, everyone's favorite artists, and the members.</li>
       <li>Crews are optional. Planning solo? Everything else works without one.</li>
-      <li>Start a crew from the Crew tab (you can start up to 5). It works right away and shows "Waiting for your first member" until a friend joins.</li>
-      <li>Invite friends from the Crew tab, the menu or Settings. Share invite link opens your phone's share sheet, so you can send it by text to people in your contacts. Anyone with the link can join after signing in.</li>
-      <li>In several crews? Pick one at the top of the Crew tab, or view all of them together.</li>
+      <li>Start a crew with the + in Chats (you can start up to 5). It works right away and shows "Waiting for your first member" until a friend joins.</li>
+      <li>Invite friends from Crew Info, the menu or Settings. Share invite link opens your phone's share sheet, so you can send it by text to people in your contacts. Anyone with the link can join after signing in.</li>
     </ul></details>
     <details><summary>Chats</summary><ul>
-      <li>Every crew has a group chat, and every festival has a crew chat and a public chat. Everything lives in the Chats tab. Tapping the chat bubble on a festival card, Message on a profile, or Open crew chat in the Crew tab takes you straight to that chat.</li>
-      <li>In Chats, each chat shows its newest message, and a pink number shows how many you haven't read. Use the two buttons next to the Chats title to switch between a list and tiles; your phone remembers your pick. Your crew chat stays pinned at the top; everything else is sorted by the newest message.</li>
+      <li>Everything lives in the Chats tab: your crews (pinned on top), festival chats, and messages with friends, newest first. A pink number shows how many you haven't read.</li>
+      <li>Search at the top, or tap a chip to show only Unread, Crews, Festivals or Friends. The + chip starts a crew.</li>
+      <li>Tap the new chat button (bottom right on a phone, + next to the Chats title on a computer) to start a crew, add a friend, or message one.</li>
+      <li>Every festival has a crew chat and a public chat. The chat bubble on a festival card takes you straight there. Marking Going adds you to that festival's crew chat (you can turn this off in Settings).</li>
+      <li>In a crew chat, Going together shows the festivals two or more of you are going to. Tap the top of any chat for Crew Info, a friend's profile, or the festival.</li>
       <li>In a crew chat or a message with a friend, you'll see when someone is typing, a "New" line above messages you haven't read yet, and "Seen by" under the newest message. Don't want others to see when you've read something? Turn off "Show when I've read messages" in Settings (you won't see theirs either).</li>
-      <li>Your friends sit in a row of circles at the top of Chats. A pink ring means they sent you something new. Tap a circle to message them. To add friends, use My code or Share link in My Radar.</li>
-      <li>Marking Going adds you to that festival's crew chat (you can turn this off in Settings).</li>
       <li>Public chats are seen by everyone on Festival Radar. Don't share where you're staying or other private details.</li>
       <li>Use the ⋯ next to a message to edit or delete your own, report one, or mute someone in public chats. You can edit a message for 15 minutes after sending it, and it shows "edited".</li>
     </ul></details>
@@ -1378,7 +1418,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <li>Met someone at a show? Open My code in My Radar and let them scan it with their phone camera. You're friends right away.</li>
       <li>Not together? Use Share link instead. It works for 7 days.</li>
       <li>Friends can message you and see your name, main photo and artists you both love. Only your crew sees which festivals you're going to.</li>
-      <li>From a friend's profile you can message them or invite them to your crew.</li>
+      <li>Message a friend from the new chat button in Chats or from their profile, where you can also invite them to your crew.</li>
     </ul></details>
     <details><summary>Privacy and Safety</summary><ul>
       <li>Make your profile private in Edit profile: people outside your crews then see only your name.</li>
@@ -1433,6 +1473,17 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <div class="line crop-acts"><button type="button" class="abtn" id="crop-use">Use photo</button><button type="button" class="abtn alt" id="crop-cancel">Cancel</button></div>
   </div>
 </dialog>
+<dialog class="sheet" id="newchat" aria-labelledby="newchat-h">
+  <div class="sh-head"><h2 id="newchat-h">New Chat</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
+  <div class="sh-body">
+    <div class="nc-acts">
+      <button type="button" class="nc-act" id="nc-crew"><span class="nc-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5M18 8v6M21 11h-6"/></svg></span>Start a crew</button>
+      <button type="button" class="nc-act" id="nc-add"><span class="nc-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg></span>Add a friend</button>
+    </div>
+    <h3 class="nc-h">Message a friend</h3>
+    <div class="flist nc-friends" id="nc-friends"></div>
+  </div>
+</dialog>
 <dialog class="sheet pcard" id="pcard" aria-labelledby="pc-name">
   <div class="sh-head"><h2 id="pc-name">Profile</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
   <div class="sh-body">
@@ -1461,7 +1512,6 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   <button type="button" data-go="festivals"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8a2 2 0 0 0 0 4v4h16v-4a2 2 0 0 1 0-4V4H4z"/><path d="M10 4v12" stroke-dasharray="2 2"/></svg>Festivals</button>
   <button type="button" data-go="calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendar</button>
   <button type="button" data-go="radar"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><path d="M12 12l5.5-5.5"/></svg>My Radar</button>
-  <button type="button" data-go="crew"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="16.5" cy="9.5" r="2.6"/><path d="M15.5 14.2c2.4-.2 4.4 1.3 5 4.3"/></svg>Crew</button>
   <button type="button" data-go="chats"><span class="bt-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.5a8 8 0 0 1-11.7 7.1L3.5 20l1.4-4.9a8 8 0 1 1 15.6-3.6Z"/></svg><span class="tab-n" id="bt-chats-n" hidden></span></span>Chats</button>
   <button type="button" data-go="admin" id="btab-admin" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Admin</button>
 </nav>
@@ -1481,7 +1531,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const adm = document.getElementById('admin'); if (t === 'admin' && (!adm || adm.hidden)) t = 'festivals';
     const changed = t !== cur; cur = t;
     document.querySelectorAll('[data-tab]').forEach(x => x.classList.toggle('tab-off', x.dataset.tab !== t));
-    btns.forEach(b => b.setAttribute('aria-current', String(b.dataset.go === t)));
+    btns.forEach(b => b.setAttribute('aria-current', String(b.dataset.go === (t === 'crew' ? 'chats' : t)))); // Crew info lives under Chats
     document.documentElement.dataset.curTab = t;
     if (opts.push !== false && location.hash !== '#' + t) { try { history.pushState(null, '', '#' + t); } catch (e) { location.hash = t; } }
     if (opts.scroll !== false && changed) window.scrollTo({ top: 0, behavior: 'auto' });
@@ -2364,14 +2414,14 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   }
   function chIcon(r) {
     const ic = mk('span', 'ch-ic');
-    if (r.kind === 'crew') {
-      ic.classList.add('ch-stack');
-      const c = crews.find(x => x.id === r.crew_id), ms = ((c && c.members) || []).filter(m => m.id !== uid).slice(0, 3);
-      (ms.length ? ms : [{ id: r.crew_id, name: r.crew_name }]).forEach(m => ic.appendChild(personAv(m.id, (FRProf.get(m.id) || {}).name || m.name, 'ch-mini')));
-    } else if (r.kind === 'dm') ic.appendChild(personAv(r.other_id, (FRProf.get(r.other_id) || {}).name || r.other_name, 'ch-pav'));
+    if (r.kind === 'crew') ic.appendChild(crewAv(r.crew_id, r.crew_name));
+    else if (r.kind === 'dm') ic.appendChild(personAv(r.other_id, (FRProf.get(r.other_id) || {}).name || r.other_name, 'ch-pav'));
     else ic.appendChild(festDate(r.festival_id));
     return ic;
   }
+  // Crews get a rounded square with their initials, in a color picked from the crew id.
+  const crewInitials = n => { const w = String(n || 'Crew').trim().split(/\s+/).filter(Boolean); return ((w[0] || 'C').charAt(0) + (w[1] ? w[1].charAt(0) : (w[0] || '').charAt(1) || '')).toUpperCase(); };
+  function crewAv(id, name, cls) { const a = mk('span', cls || 'ch-crewav', crewInitials(name)); a.style.setProperty('--avc', hashCol(id)); a.setAttribute('aria-hidden', 'true'); return a; }
   // Festival chats show the festival's start date as a little calendar badge (month on top, day below).
   function festDate(fid) {
     const f = festOf(fid), el = mk('span', 'ch-date'); el.style.setProperty('--avc', hashCol(fid));
@@ -2380,7 +2430,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     else { el.classList.add('tba'); el.append(mk('span', 'cd-m', 'Date'), mk('span', 'cd-d', 'TBA')); el.setAttribute('aria-hidden', 'true'); }
     return el;
   }
-  const chTitle = r => r.kind === 'dm' ? (r.other_name || 'Someone') : r.kind === 'crew' ? r.crew_name + ' chat' : festName(r.festival_id);
+  const chTitle = r => r.kind === 'dm' ? ((FRProf.get(r.other_id) || {}).name || r.other_name || 'Someone') : r.kind === 'crew' ? r.crew_name : festName(r.festival_id);
   function chPreview(r) {
     if (r.last_body) {
       const body = String(r.last_body).replace(/\s*\[fr:[^\]]+\]\s*/g, ' ').replace(/\s+/g, ' ').trim();
@@ -2422,25 +2472,6 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     b.addEventListener('click', () => openThreadKey(r.thread));
     return b;
   }
-  function renderChatFriends() {
-    const box = document.getElementById('ch-friends'); if (!box) return;
-    box.hidden = !uid; if (!uid) return;
-    box.replaceChildren();
-    const last = id => { const r = rowFor(dmThread(id)); return (r && r.last_at) || ''; };
-    friends.filter(f => !f.blocked)
-      .map(f => ({ f, n: FRChat.dmUnread(f.id), t: last(f.id) }))
-      .sort((a, b) => (b.n > 0) - (a.n > 0) || b.t.localeCompare(a.t) || String(a.f.name || '').localeCompare(String(b.f.name || '')))
-      .forEach(({ f, n }) => {
-        const b = mk('button', 'chf' + (n ? ' unread' : '')); b.type = 'button';
-        b.setAttribute('aria-label', 'Message ' + (f.name || 'friend') + (n ? ', ' + n + ' new' : ''));
-        const rg = mk('span', 'chf-ring'); rg.appendChild(personAv(f.id, f.name, 'chf-av'));
-        if (n) rg.appendChild(mk('span', 'ch-n', n > 99 ? '99+' : String(n)));
-        b.append(rg, mk('span', 'chf-n', firstName(f.name)));
-        b.addEventListener('click', () => FRChat.openDm(f.id));
-        box.appendChild(b);
-      });
-    box.hidden = !box.children.length;
-  }
   function renderChatBadges() {
     const tot = uid ? chatList.reduce((t, r) => t + (r.unread || 0), 0) : 0, txt = tot > 99 ? '99+' : String(tot);
     ['dn-chats-n', 'bt-chats-n'].forEach(id => { const e = document.getElementById(id); if (e) { e.hidden = !tot; e.textContent = txt; } });
@@ -2448,27 +2479,69 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     const cb = document.getElementById('crew-chat-n'); if (cb) { cb.hidden = !n; cb.textContent = n > 99 ? '99+' : String(n); }
     const go = document.getElementById('crew-chat-go'); if (go) { go.hidden = !c; go.setAttribute('aria-label', 'Open crew chat' + (n ? ', ' + n + ' new' : '')); }
   }
+  // WhatsApp-style list: search, filter chips (All, Unread, Crews, Festivals, Friends, + new crew), one list with crews pinned.
+  let chFilter = 'all', chQuery = '';
+  const CH_FILTERS = [['all', 'All'], ['unread', 'Unread'], ['crew', 'Crews'], ['fest', 'Festivals'], ['dm', 'Friends']];
+  const chKind = r => r.kind === 'crew' ? 'crew' : r.kind === 'dm' ? 'dm' : 'fest';
+  function renderChatFilters(all) {
+    const box = document.getElementById('ch-filters'); if (!box) return;
+    box.replaceChildren();
+    CH_FILTERS.forEach(([k, label]) => {
+      const n = k === 'unread' ? all.filter(r => r.unread).length : 0;
+      if (k !== 'all' && k !== 'unread' && !all.some(r => chKind(r) === k)) return;
+      const b = mk('button', 'chip', label); b.type = 'button'; b.setAttribute('aria-pressed', String(chFilter === k));
+      if (n) b.appendChild(mk('span', 'chip-n', String(n)));
+      b.addEventListener('click', () => { chFilter = k; renderChatList(); });
+      box.appendChild(b);
+    });
+    const plus = mk('button', 'chip chip-plus'); plus.type = 'button'; plus.setAttribute('aria-label', 'Start a crew'); plus.title = 'Start a crew';
+    plus.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+    plus.addEventListener('click', () => FR.openNewCrew());
+    box.appendChild(plus);
+  }
   function renderChatList() {
     renderChatBadges();
     const pn = document.getElementById('chat'); if (pn) pn.hidden = !uid;
     const box = document.getElementById('crew-chats'); if (!box) return;
-    box.replaceChildren(); box.className = 'ch-box ' + (chView === 'tiles' ? 'ch-tiles' : 'ch-list');
-    document.getElementById('ch-view').hidden = !uid;
-    document.querySelectorAll('#ch-view button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === chView)));
-    renderChatFriends();
-    const vis = new Set((window.FRVisibleCrews ? FRVisibleCrews() : crews).map(c => c.id));
-    const friendIds = new Set(friends.filter(f => !f.blocked).map(f => f.id));
-    const all = chatList.filter(r => r.kind === 'public' || (r.kind === 'dm' && !friendIds.has(r.other_id)) || vis.has(r.crew_id))
-      // One list, newest message first, with crew chats pinned on top. Chats with no messages yet go last.
+    box.replaceChildren(); box.className = 'ch-box ch-list';
+    ['ch-search', 'ch-filters', 'ch-code', 'ch-new-d', 'ch-fab'].forEach(id => { const e = document.getElementById(id); if (e) e.hidden = !uid; });
+    if (!uid) { const e = mk('div', 'empty', 'Sign in to chat with your crew and friends. '); const b = mk('button', 'abtn', 'Sign in'); b.type = 'button'; b.addEventListener('click', () => FR.openSignIn()); e.appendChild(b); box.appendChild(e); return; }
+    const mine = new Set(crews.map(c => c.id));
+    const all = chatList.filter(r => r.kind === 'public' || r.kind === 'dm' || mine.has(r.crew_id))
       .sort((a, b) => (a.kind === 'crew' ? 0 : 1) - (b.kind === 'crew' ? 0 : 1) || (b.last_at || '').localeCompare(a.last_at || '') || chTitle(a).localeCompare(chTitle(b)));
-    document.getElementById('chats-sub').textContent = chatPrefs.follow_going ? 'Your crew chats, plus festival chats you follow. Marking Going follows that festival\'s chat in your crews.' : 'Your crew chats and the festival chats you follow.';
-    if (!all.length) { box.appendChild(mk('div', 'empty', crews.length ? 'No chats yet.' : 'Join or start a crew to chat.')); return; }
-    const make = chView === 'tiles' ? chTile : chRow;
-    all.forEach(r => box.appendChild(make(r)));
-    const need = [...new Set(all.flatMap(r => r.kind === 'crew' ? (((crews.find(x => x.id === r.crew_id) || {}).members) || []).map(m => m.id) : r.kind === 'dm' ? [r.other_id] : []).concat([...friendIds]))].filter(id => id && !FRProf.get(id) && !chTried.has(id));
+    renderChatFilters(all);
+    const q = chQuery.trim().toLowerCase();
+    const shown = all.filter(r => (chFilter === 'all' || (chFilter === 'unread' ? r.unread : chKind(r) === chFilter))
+      && (!q || (chTitle(r) + ' ' + (r.crew_name || '') + ' ' + chPreview(r)).toLowerCase().includes(q)));
+    if (!all.length) {
+      const e = mk('div', 'empty', crews.length ? 'No chats yet. Tap + to message a friend.' : 'Start a crew to get a group chat, or message a friend. ');
+      if (!crews.length) { const b = mk('button', 'abtn', 'Start a crew'); b.type = 'button'; b.addEventListener('click', () => FR.openNewCrew()); e.appendChild(b); }
+      box.appendChild(e);
+    } else if (!shown.length) box.appendChild(mk('div', 'empty', q ? 'No chats match "' + chQuery.trim() + '".' : 'Nothing here right now.'));
+    shown.forEach(r => box.appendChild(chRow(r)));
+    const friendIds = friends.filter(f => !f.blocked).map(f => f.id);
+    const need = [...new Set(all.flatMap(r => r.kind === 'crew' ? (((crews.find(x => x.id === r.crew_id) || {}).members) || []).map(m => m.id) : r.kind === 'dm' ? [r.other_id] : []).concat(friendIds))].filter(id => id && !FRProf.get(id) && !chTried.has(id));
     if (need.length) { need.forEach(id => chTried.add(id)); FRProf.load(need).then(() => renderChatList()); }
   }
-  document.querySelectorAll('#ch-view button').forEach(b => b.addEventListener('click', () => { chView = b.dataset.v; chLs('fr-chats-view', chView); renderChatList(); }));
+  document.getElementById('ch-q').addEventListener('input', e => { chQuery = e.target.value; renderChatList(); });
+  // New chat sheet: start a crew, add a friend (friend code), or message a friend.
+  function openNewChat() {
+    const d = document.getElementById('newchat'), box = document.getElementById('nc-friends'); box.replaceChildren();
+    const fs = friends.filter(f => !f.blocked).sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+    if (!fs.length) box.appendChild(mk('div', 'empty', 'No friends yet. Add one with your friend code, or invite people to your crew.'));
+    fs.forEach(f => {
+      const b = mk('button', 'nc-friend'); b.type = 'button';
+      b.append(personAv(f.id, f.name, 'ch-pav'), mk('span', null, f.name || 'Friend'));
+      b.addEventListener('click', () => { d.close(); FRChat.openDm(f.id); });
+      box.appendChild(b);
+    });
+    d.showModal();
+  }
+  ['ch-fab', 'ch-new-d'].forEach(id => document.getElementById(id).addEventListener('click', openNewChat));
+  document.getElementById('nc-crew').addEventListener('click', () => { document.getElementById('newchat').close(); FR.openNewCrew(); });
+  const openMyCode = () => { const b = document.getElementById('fr-mycode'); if (b) b.click(); };
+  document.getElementById('nc-add').addEventListener('click', () => { document.getElementById('newchat').close(); openMyCode(); });
+  document.getElementById('ch-code').addEventListener('click', openMyCode);
   document.getElementById('chats-signin').addEventListener('click', () => { if (window.FR && FR.openSignIn) FR.openSignIn(); });
   document.getElementById('crew-chat-go').addEventListener('click', () => { const c = defaultCrew(); if (c) openThreadKey('c:' + c); });
   const ago2 = t => { const s = (Date.now() - Date.parse(t)) / 1000; return s < 60 ? 'now' : s < 3600 ? Math.floor(s / 60) + 'm' : s < 86400 ? Math.floor(s / 3600) + 'h' : Math.floor(s / 86400) + 'd'; };
@@ -2496,13 +2569,14 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     o.thread = threadOf(o.kind, o.crew, o.fest, o.other);
     cur = o; curMsgs = [];
     const otherName = o.kind === 'dm' ? ((FRProf.get(o.other) || {}).name || 'Someone') : '';
-    document.getElementById('chat-title').textContent = o.kind === 'dm' ? otherName : o.kind === 'crew' ? crewName(o.crew) + ' Chat' : festName(o.fest);
-    document.getElementById('chat-where').textContent = o.kind === 'dm' ? 'Direct message' : o.kind === 'crew' ? 'Everyone in the crew' : o.kind === 'crewfest' ? 'Crew chat for this festival' : 'Public chat for this festival';
+    document.getElementById('chat-title').textContent = o.kind === 'dm' ? otherName : o.kind === 'crew' ? crewName(o.crew) : festName(o.fest);
+    document.getElementById('chat-where').textContent = chatSubtitle(o);
+    renderChatHead(o);
     const tabs = document.getElementById('chat-tabs'); tabs.hidden = o.kind === 'crew' || o.kind === 'dm';
     tabs.querySelectorAll('button').forEach(b => { const on = (b.dataset.k === 'public') === (o.kind === 'public'); b.setAttribute('aria-selected', String(on)); b.disabled = b.dataset.k === 'crew' && !crews.length; });
     const sel = document.getElementById('chat-crew'); sel.replaceChildren();
     crews.forEach(c => { const op = mk('option', null, c.name); op.value = c.id; sel.appendChild(op); });
-    sel.value = o.crew || ''; sel.hidden = o.kind === 'public' || o.kind === 'dm' || crews.length < 2;
+    sel.value = o.crew || ''; sel.hidden = o.kind !== 'crewfest' || crews.length < 2; // a crew chat names its crew in the header
     const r = rowFor(o.thread);
     o.readAt = r ? (r.last_read_id || 0) : 0; o.whereText = document.getElementById('chat-where').textContent;
     curReads = []; typers.clear(); showTyping(); curEdit = null;
@@ -2522,6 +2596,49 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     subscribe(o.thread);
     await loadMessages(true);
   }
+  // Chat header (WhatsApp style): avatar plus subtitle; tapping it opens Crew Info, the friend's profile, or the festival.
+  function chatSubtitle(o) {
+    if (o.kind === 'dm') return 'Tap for profile';
+    if (o.kind === 'public') return 'Public chat · everyone on Festival Radar';
+    const c = crews.find(x => x.id === o.crew), ms = (c && c.members) || [];
+    if (o.kind === 'crewfest') return (c ? c.name : 'Your crew') + ' · tap for crew info';
+    const names = ms.filter(m => m.id !== uid).map(m => firstName((FRProf.get(m.id) || {}).name || m.name));
+    return (names.length ? names.slice(0, 5).join(', ') + (names.length > 5 ? ' +' + (names.length - 5) : '') + ', You' : 'Just you so far') + ' · tap for crew info';
+  }
+  function renderChatHead(o) {
+    const av = document.getElementById('chat-hav'); av.replaceChildren();
+    av.appendChild(o.kind === 'dm' ? personAv(o.other, (FRProf.get(o.other) || {}).name, 'ch-pav') : o.kind === 'crew' ? crewAv(o.crew, crewName(o.crew)) : festDate(o.fest));
+    document.getElementById('chat-hd').setAttribute('aria-label', o.kind === 'dm' ? 'Open profile' : o.kind === 'public' ? 'Open festival' : 'Open crew info');
+    // Crew chats: festivals two or more of this crew are Going to, soonest first.
+    const strip = document.getElementById('chat-going'); strip.replaceChildren(); strip.hidden = true;
+    if (o.kind !== 'crew' || !window.FRMainData) return;
+    const c = crews.find(x => x.id === o.crew); if (!c) return;
+    const cnt = new Map(), today = new Date().toISOString().slice(0, 10);
+    (c.members || []).forEach(m => FRMainData.forUser(m.id).going.forEach(f => { if (!f.end || f.end >= today) { const e = cnt.get(f.id) || { f, n: 0 }; e.n++; cnt.set(f.id, e); } }));
+    const list = [...cnt.values()].filter(e => e.n >= 2).sort((a, b) => (a.f.start || '9').localeCompare(b.f.start || '9')).slice(0, 4);
+    if (!list.length) return;
+    strip.appendChild(mk('span', 'cg-l', 'Going together'));
+    list.forEach(({ f, n }) => {
+      const b = mk('button', 'cg-chip'); b.type = 'button';
+      const nm = f.festival.replace(/ 20\d\d$/, ''), m = /^\d{4}-(\d{2})-(\d{2})$/.exec(f.start || '');
+      b.textContent = nm + (m ? ' · ' + MON[+m[1] - 1] + ' ' + (+m[2]) : '');
+      b.title = n + ' going'; b.addEventListener('click', () => FRMainData.goToCard(f.id));
+      strip.appendChild(b);
+    });
+    strip.hidden = false;
+  }
+  function showCrewInfo(id) {
+    if (id && crews.find(c => c.id === id)) { allCrews = false; activeCrew = id; lsSet('fr-crew', id); lsSet('fr-all-crews', '0'); recomputeVisible(); emitAll(); renderCrewPick(); }
+    if (window.FRTab) FRTab('crew');
+  }
+  window.FRShowCrew = showCrewInfo;
+  document.getElementById('chat-hd').addEventListener('click', () => {
+    if (!cur) return;
+    if (cur.kind === 'dm') { if (window.FRProf && FRProf.open) FRProf.open(cur.other); }
+    else if (cur.kind === 'public') { if (window.FRMainData) FRMainData.goToCard(cur.fest); }
+    else showCrewInfo(cur.crew);
+  });
+  document.getElementById('crew-back').addEventListener('click', () => { if (window.FRTab) FRTab('chats'); });
   const isPhone = () => window.matchMedia('(max-width: 700px)').matches;
   function showPane() {
     document.getElementById('chat').classList.add('open');
@@ -2916,6 +3033,24 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     else box.appendChild(mk('span', 'muted', n + ' members'));
     const inv = mk('button', 'abtn alt', 'Invite friends'); inv.type = 'button'; inv.addEventListener('click', () => FR.openInvite()); box.appendChild(inv);
     if (sub) sub.textContent = 'What ' + (allCrews ? 'your crews are' : 'this crew is') + ' going to, thinking about, and loving. Tap a festival to see its card.';
+    renderCrewMembers();
+  }
+  // Crew Info: the members of the crew in view (all crews: everyone once), owner tagged; names open profiles.
+  function renderCrewMembers() {
+    const box = document.getElementById('crew-mems'), n = document.getElementById('crew-mem-n'); if (!box) return;
+    box.replaceChildren();
+    const seen = new Map();
+    (allCrews ? crews : crews.filter(c => c.id === activeCrew)).forEach(c => (c.members || []).forEach(m => { if (!seen.has(m.id)) seen.set(m.id, { ...m, owner: m.role === 'owner' && !allCrews }); }));
+    const ms = [...seen.values()].sort((a, b) => (b.id === uid) - (a.id === uid) || String(a.name || '').localeCompare(String(b.name || '')));
+    if (n) n.textContent = ms.length ? String(ms.length) : '';
+    ms.forEach(m => {
+      const row = mk('div', 'fl-row');
+      const b = mk('button', 'fl-go', m.id === uid ? 'You' : ((profCache[m.id] || {}).name || m.name || 'Member')); b.type = 'button';
+      b.addEventListener('click', () => openCard(m.id)); row.appendChild(b);
+      if (m.owner) row.appendChild(mk('span', 'fl-tag own', 'Owner'));
+      if (m.id !== uid) { const d = mk('button', 'lnk', 'Message'); d.type = 'button'; d.addEventListener('click', () => FRChat.openDm(m.id)); row.appendChild(d); }
+      box.appendChild(row);
+    });
   }
   async function loadCrews() {
     const { data } = await sb.rpc('my_crews');
@@ -3050,7 +3185,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     document.getElementById('sh-member').hidden = !uid; document.getElementById('sh-signin').hidden = !!uid;
     if (uid) {
       const cb = document.getElementById('sh-crews'); cb.replaceChildren();
-      if (!crews.length) cb.appendChild(mk('div', 'empty', 'You\'re not in a crew yet. Start one from the Crew tab.'));
+      if (!crews.length) cb.appendChild(mk('div', 'empty', 'You\'re not in a crew yet. Start one with the + in Chats.'));
       crews.forEach(c => {
         const row = mk('div', 'sh-row'); const nm = mk('span', 'nm', c.name); nm.appendChild(mk('small', null, 'Crew chat'));
         const b = mk('button', 'abtn', 'Send'); b.type = 'button'; b.setAttribute('aria-label', 'Send to ' + c.name);
@@ -3165,7 +3300,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       d.close(); FR.openInvite(r.id);
     };
     go.addEventListener('click', run); inp.addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
-    document.getElementById('nc-solo').addEventListener('click', () => { d.close(); if (d.dataset.ask) toast('No problem. You can start a crew any time from the Crew tab.'); });
+    document.getElementById('nc-solo').addEventListener('click', () => { d.close(); if (d.dataset.ask) toast('No problem. You can start a crew any time with the + in Chats.'); });
   }
   function renderSettingsCrews() {
     const box = document.getElementById('set-crews'); if (!box) return; box.replaceChildren();
@@ -3297,7 +3432,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     crews.forEach(c => { const o = mk('option', null, c.name); o.value = c.id; if (c.id === (crewId || activeCrew)) o.selected = true; sel.appendChild(o); });
     const has = crews.length > 0; on.checked = has; on.disabled = !has; sel.disabled = !has; sel.hidden = !has;
     document.getElementById('inv-new').hidden = !has;
-    document.getElementById('inv-link').hidden = true; document.getElementById('inv-note').textContent = has ? '' : 'Start a crew from the Crew tab to invite friends into it. This link invites them to the site.';
+    document.getElementById('inv-link').hidden = true; document.getElementById('inv-note').textContent = has ? '' : 'Start a crew with the + in Chats to invite friends into it. This link invites them to the site.';
     d.showModal(); makeLink(false);
   };
 
@@ -4793,7 +4928,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
   (function () {
     const btn = document.getElementById('mn-btn'), panel = document.getElementById('mn-panel');
     if (!btn || !panel) return;
-    const SECTIONS_NAV = [['festivals', 'Festivals'], ['calendar', 'Festival Calendar'], ['radar', 'My Radar'], ['crew', 'Crew'], ['chats', 'Chats'], ['admin', 'Admin']];
+    const SECTIONS_NAV = [['festivals', 'Festivals'], ['calendar', 'Festival Calendar'], ['radar', 'My Radar'], ['chats', 'Chats'], ['admin', 'Admin']];
     const close = () => { panel.hidden = true; btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-label', 'Open menu'); };
     const open = () => { panel.hidden = false; btn.setAttribute('aria-expanded', 'true'); btn.setAttribute('aria-label', 'Close menu'); const f = panel.querySelector('button, a'); if (f) f.focus(); };
     const go = id => { close(); if (window.FRTab) FRTab(id); };
