@@ -837,6 +837,7 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .showbar label { font-weight: 700; cursor: pointer; }
 .showbar-sub { font-size: 12px; color: var(--muted); }
 .showbar.in-panel { margin: 0; padding: 6px 12px; background: var(--panel-2); flex-wrap: nowrap; }
+.showbar[hidden] { display: none; }
 .showbar-txt { display: flex; flex-direction: column; line-height: 1.25; }
 .fsearch { position: relative; margin: 12px 0 4px; max-width: 420px; }
 .fsearch svg { position: absolute; left: 12px; top: 50%; width: 18px; height: 18px; transform: translateY(-50%); fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; pointer-events: none; }
@@ -1046,7 +1047,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   <section class="tiles" id="tiles" aria-label="Festivals by section" data-tab="festivals">
     <button type="button" class="tile" data-goto="Local" aria-label="Show Local festivals"><span class="lbl">Local · SoCal</span><span class="big" data-sec="Local">–</span><span class="sub" data-sub="Local">&nbsp;</span></button>
     <button type="button" class="tile" data-goto="USA" aria-label="Show all USA festivals"><span class="lbl">USA · incl. SoCal</span><span class="big" data-sec="USA">–</span><span class="sub" data-sub="USA">&nbsp;</span></button>
-    <button type="button" class="tile" data-goto="Worldwide" aria-label="Show World festivals"><span class="lbl">World</span><span class="big" data-sec="Worldwide">–</span><span class="sub" data-sub="Worldwide">&nbsp;</span></button>
+    <button type="button" class="tile" data-goto="Worldwide" aria-label="Show all festivals worldwide"><span class="lbl">World · incl. USA</span><span class="big" data-sec="Worldwide">–</span><span class="sub" data-sub="Worldwide">&nbsp;</span></button>
   </section>
 
   <section class="panel" id="calendar" data-tab="calendar">
@@ -1069,10 +1070,14 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       </div>
       <div class="list-ctrls">
         <div class="tabs" id="tabs">
-          <button type="button" data-sec="All" aria-pressed="false">All</button>
           <button type="button" data-sec="Local" aria-pressed="true">Local</button>
           <button type="button" data-sec="USA" aria-pressed="false">USA</button>
           <button type="button" data-sec="Worldwide" aria-pressed="false">World</button>
+        </div>
+        <div class="showbar in-panel" id="localbar" hidden>
+          <button type="button" class="sw" id="local-toggle" role="switch" aria-checked="true"><span class="knob"></span></button>
+          <span class="showbar-txt"><label for="local-toggle">Include Local festivals</label>
+          <span class="showbar-sub" id="local-sub">Near the crew's home base (SoCal for now)</span></span>
         </div>
         <div class="showbar in-panel" id="showbar">
           <button type="button" class="sw" id="show-toggle" role="switch" aria-checked="false"><span class="knob"></span></button>
@@ -1380,7 +1385,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <li>Add a photo and a short bio from Edit profile in My Radar, so your crew can put a face to a name.</li>
     </ul></details>
     <details><summary>Festivals and Picks</summary><ul>
-      <li>The Festivals tab lists events near you, around the USA and worldwide. Tap a festival name for its site and an artist for Spotify.</li>
+      <li>Local, USA and World widen out from your crew's home base: USA includes Local, and World includes everything. Turn off Include Local festivals to see only the ones farther away. Tap a festival name for its site and an artist for Spotify.</li>
       <li>Know the name? Type it in the search box above the list. It searches every section, plus club shows and concerts.</li>
       <li>Mark Going, Maybe or Pass on each card. Your crew sees your picks, and you see theirs.</li>
       <li>On a phone, festivals show as slim rows to fit more on screen. Tap the pick button to switch between Going, Maybe, Pass and no pick, or tap the row or its arrow to see the lineup, tickets and who's going.</li>
@@ -4950,6 +4955,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
   const SEC_COLOR = ['var(--pink)', 'var(--violet)', 'var(--cyan)'];
   const LABEL = { going: 'Going', maybe: 'Maybe', pass: 'Pass' };
   const state = { festivals: [], picks: {}, favs: {}, hearts: {}, me: null, section: 'Local', canWrite: true, names: {}, sfGenre: 'SoCal scene', sfQuery: '', sfOpen: false };
+  let INCL_LOCAL = true; try { INCL_LOCAL = localStorage.getItem('fr-incl-local') !== '0'; } catch (e) {}
   let SHOWS = false; try { SHOWS = localStorage.getItem('fr-show-shows') === '1'; } catch (e) {}
   state._all = [];
   Object.defineProperty(state, 'festivals', { configurable: true, get() { return SHOWS ? state._all : state._all.filter(f => f.kind !== 'show'); }, set(v) { state._all = Array.isArray(v) ? v : []; } });
@@ -5079,10 +5085,10 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
 
   function renderTiles() {
     SECTIONS.forEach(sec => {
-      const list = state.festivals.filter(f => f.section === sec || (sec === 'USA' && f.section === 'Local'));
+      const list = state.festivals.filter(f => f.section === sec || (sec === 'USA' && f.section === 'Local') || sec === 'Worldwide');
       document.querySelector(`.big[data-sec="${sec}"]`).textContent = list.length;
       const onSale = list.filter(f => f.status === 'On sale').length;
-      document.querySelector(`.sub[data-sub="${sec}"]`).textContent = onSale + ' on sale now' + (sec === 'USA' ? ' · ' + list.filter(f => f.section === 'Local').length + ' in SoCal' : '');
+      document.querySelector(`.sub[data-sub="${sec}"]`).textContent = onSale + ' on sale now' + (sec === 'USA' ? ' · ' + list.filter(f => f.section === 'Local').length + ' in SoCal' : sec === 'Worldwide' ? ' · ' + list.filter(f => f.section === 'Worldwide').length + ' outside the USA' : '');
     });
   }
 
@@ -5295,7 +5301,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     top.append(h, acts);
     const meta = el('div', 'meta', f.dates + ' · ' + f.city + (dist(f) ? ' · ' + dist(f) + ' from Hermosa' : ''));
     const gw = el('div'); gw.appendChild(el('span', 'genre', f.genre)); if (f.kind === 'show') { gw.append(' '); gw.appendChild(el('span', 'show-tag', 'Show')); }
-    if (state.section === 'USA' && f.section === 'Local') { gw.append(' '); gw.appendChild(el('span', 'socal-tag', 'SoCal')); }
+    if (state.section !== 'Local' && f.section === 'Local') { gw.append(' '); gw.appendChild(el('span', 'socal-tag', 'SoCal')); }
     const tix = el('div', 'tix', f.next_sale_label || '');
     if (f.price_from) { tix.append(' · from '); tix.appendChild(el('span', 'price', f.price_from)); }
     const lu = el('div', 'lineup');
@@ -5392,7 +5398,11 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     const f = state._all.find(x => x.id === id);
     if (f && f.kind === 'show' && !SHOWS && !document.getElementById('card-' + id)) { SHOWS = true; try { localStorage.setItem('fr-show-shows', '1'); } catch (e) {} renderAll(); }
     let card = document.getElementById('card-' + id);
-    if (!card || !card.offsetParent) { const all = document.querySelector('#tabs button[data-sec="All"]'); if (all) all.click(); card = document.getElementById('card-' + id); }
+    if (!card || !card.offsetParent) {
+      if (f && f.section === 'Local' && !INCL_LOCAL) setInclLocal(true);
+      const w = document.querySelector('#tabs button[data-sec="Worldwide"]'); if (w) w.click();
+      card = document.getElementById('card-' + id);
+    }
     if (!card) return;
     if (card.classList.contains('fest')) setCardOpen(card, id, true);
     card.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
@@ -5422,17 +5432,11 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     const qn = $('fest-q-note'); if (qn && !festQ) qn.hidden = true;
     if (festQ && state._all.length) { renderSearchResults(cards); return; }
     if (!state.festivals.length) { cards.className = 'cards'; cards.appendChild(el('div', 'empty', 'The festival list is empty. Ask Bill to add festivals.')); return; }
-    if (state.section === 'All') {
-      cards.className = 'cols';
-      SECTIONS.forEach(sec => {
-        const col = el('div', 'col'); col.appendChild(el('div', 'col-h', sec === 'Local' ? 'Local · SoCal' : sec === 'USA' ? 'Rest of USA' : sec));
-        addCards(col, withFavShows().filter(f => f.section === sec).sort(byStart));
-        cards.appendChild(col);
-      });
-      return;
-    }
     cards.className = 'cards';
-    const list = withFavShows().filter(f => f.section === state.section || (state.section === 'USA' && f.section === 'Local')).sort(byStart);
+    // Nested rings around the crew's home base: Local, then USA (incl. Local), then World (everything). The toggle drops Local from USA and World.
+    const sec = state.section, lb = $('localbar'); if (lb) lb.hidden = sec === 'Local';
+    const list = withFavShows().filter(f => sec === 'Local' ? f.section === 'Local'
+      : f.section === 'Local' ? INCL_LOCAL : sec === 'Worldwide' || f.section === sec).sort(byStart);
     if (!list.length) { cards.appendChild(el('div', 'empty', 'No festivals in this section yet.')); return; }
     addCards(cards, list);
   }
@@ -5907,6 +5911,12 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     inp.addEventListener('keydown', e => { if (e.key === 'Escape') { setFestQ(''); } else if (e.key === 'Enter') { clearTimeout(qt); setFestQ(inp.value, true); inp.blur(); } });
     x.addEventListener('click', () => { setFestQ(''); inp.focus(); });
   })();
+  function setInclLocal(on) {
+    INCL_LOCAL = !!on; try { localStorage.setItem('fr-incl-local', INCL_LOCAL ? '1' : '0'); } catch (e) {}
+    const t = $('local-toggle'); if (t) t.setAttribute('aria-checked', String(INCL_LOCAL));
+    renderCards();
+  }
+  { const t = $('local-toggle'); if (t) { t.setAttribute('aria-checked', String(INCL_LOCAL)); t.addEventListener('click', () => setInclLocal(!INCL_LOCAL)); } }
   document.querySelectorAll('#tabs button').forEach(btn => btn.addEventListener('click', () => {
     if (festQ) setFestQ('');
     state.section = btn.dataset.sec;
