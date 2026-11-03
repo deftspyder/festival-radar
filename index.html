@@ -275,6 +275,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 .crew-chips .cchip { font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2); }
 .crew-chips .cchip b { color: var(--pink); font-weight: 700; margin-left: 4px; }
 .dash.one { grid-template-columns: minmax(0, 1fr); }
+#crew-activity[hidden] { display: none; }
 .dash h2 small { font-family: var(--body); font-size: 12px; font-weight: 600; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
 .radar-alerts { margin: 22px 0 0; padding: 8px 10px; border: 1px solid color-mix(in srgb, var(--line) 70%, transparent); border-radius: 10px; background: transparent; font-size: 13px; }
 .radar-alerts .ra-h { margin: 0 0 6px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
@@ -1120,7 +1121,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     </section>
   </div>
 
-  <div class="dash" data-tab="crew">
+  <div class="dash one" data-tab="crew" id="crew-dash">
     <section class="panel" id="leaderboard">
       <h2>Crew</h2>
       <div class="crewpick" id="crewpick"></div>
@@ -1136,7 +1137,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <div class="crew-chips" id="sf-crew"><div class="empty">No fav artists yet.</div></div>
       </div>
     </section>
-    <section class="panel" id="crew-activity">
+    <section class="panel" id="crew-activity" hidden>
       <h2>Activity</h2>
       <p class="sub-h">What your crew has been up to in the last 30 days.</p>
       <div class="feed" id="crew-feed"></div>
@@ -1358,7 +1359,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <li>My Artists: pick your favorite artists. Festivals with your crew's favorites on the lineup get highlighted. Can't find one? Type it in and send it to Bill.</li>
     </ul></details>
     <details><summary>Your Crew</summary><ul>
-      <li>The Crew tab shows what your crew is going to, festivals with two or more of you Going, everyone's favorite artists, and recent activity.</li>
+      <li>The Crew tab shows what your crew is going to, festivals with two or more of you Going, and everyone's favorite artists.</li>
       <li>Crews are optional. Planning solo? Everything else works without one.</li>
       <li>Start a crew from the Crew tab (you can start up to 5). It works right away and shows "Waiting for your first member" until a friend joins.</li>
       <li>Invite friends from the Crew tab, the menu or Settings. Share invite link opens your phone's share sheet, so you can send it by text to people in your contacts. Anyone with the link can join after signing in.</li>
@@ -2857,6 +2858,8 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     sb.rpc('tc_allowed').then(({ data }) => { if (data === true) ['dn-research', 'mn-research'].forEach(id => { const x = document.getElementById(id); if (x) x.hidden = false; }); }).catch(() => {});
     if (isAdmin === true) {
       document.getElementById('admin').hidden = false;
+      // Crew activity feed: admin only (Bill, Nov 3, 2026: it could feel creepy to members).
+      const ca = document.getElementById('crew-activity'); if (ca) { ca.hidden = false; const cd = document.getElementById('crew-dash'); if (cd) cd.classList.remove('one'); }
       const t = document.getElementById('btab-admin'); if (t) { t.hidden = false; t.parentElement.classList.add('six'); } const da = document.getElementById('dn-admin'); if (da) da.hidden = false; const ma = document.getElementById('mn-admin'); if (ma) ma.hidden = false;
       if (window.FRTabFromHash && FRTabFromHash() === 'admin' && window.FRTab) FRTab('admin', { push: false, scroll: false });
       loadAdmin().catch(() => {}); loadReports().catch(() => {}); loadFeedbackAdmin().catch(() => {});
