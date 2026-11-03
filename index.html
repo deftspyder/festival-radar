@@ -846,6 +846,20 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .msw { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .msw[hidden] { display: none; }
 .sw.mini { width: 34px; height: 20px; }
+.msw-row { display: flex; align-items: center; gap: 8px; }
+.sugg-plus { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--cyan); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; flex: none; }
+.sugg-plus:hover { border-color: var(--cyan); }
+#suggest .sg-urlrow { gap: 8px; flex-wrap: nowrap; }
+#suggest .sg-urlrow input { flex: 1 1 auto; }
+#suggest input[type=text], #suggest input[type=date], #suggest select { width: 100%; box-sizing: border-box; font: inherit; font-size: 16px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); min-height: 42px; }
+#suggest .sg-urlrow input[type=text] { width: auto; }
+#suggest .sg-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+#suggest .sg-kind { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; font-size: 14px; font-weight: 600; }
+#suggest .sg-kind label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+#suggest .sg-prev { display: flex; gap: 10px; align-items: center; margin-top: 10px; padding: 8px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+#suggest .sg-prev img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; flex: none; }
+#suggest .sg-admin { margin-top: 14px; padding-top: 4px; border-top: 1px dashed var(--line); }
+#suggest .sg-admin h3 { font-size: 14px; margin: 10px 0 0; }
 .sw.mini .knob { top: 2px; left: 2px; width: 14px; height: 14px; }
 .sw.mini[aria-checked="true"] .knob { left: 16px; }
 .showbar-txt { display: flex; flex-direction: column; line-height: 1.25; }
@@ -1085,7 +1099,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
           <button type="button" data-sec="Worldwide" aria-pressed="false">World</button>
         </div>
         <div class="minisw">
-          <label class="msw" title="Include club shows and concerts (SoCal, next 60 days)"><span id="show-sub-l">Shows</span><button type="button" class="sw mini" id="show-toggle" role="switch" aria-checked="false" aria-label="Include club shows and concerts"><span class="knob"></span></button></label>
+          <div class="msw-row"><label class="msw" title="Include club shows and concerts (SoCal, next 60 days)"><span id="show-sub-l">Shows</span><button type="button" class="sw mini" id="show-toggle" role="switch" aria-checked="false" aria-label="Include club shows and concerts"><span class="knob"></span></button></label><button type="button" class="sugg-plus" id="sugg-plus" aria-label="Suggest an event" title="Suggest an event"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
           <label class="msw" id="localbar" hidden title="Include Local festivals (near the crew's home base)"><span>Local</span><button type="button" class="sw mini" id="local-toggle" role="switch" aria-checked="true" aria-label="Include Local festivals"><span class="knob"></span></button></label>
         </div>
       </div>
@@ -1232,8 +1246,11 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <h3>Reports</h3>
     <p class="sub-h">Profiles and photos members reported. Dismiss, or remove what breaks the rules.</p>
     <div id="ad-reports"><div class="empty">Loading…</div></div>
-    <h3>Festival suggestions</h3>
+    <h3>Event suggestions</h3>
+    <p class="sub-h">Nothing goes live until you add it. Review and add opens the details to check; Pass turns it down. Use the + next to Shows to add one yourself.</p>
     <div id="ad-queue"><div class="empty">Loading…</div></div>
+    <h3>Events you added</h3>
+    <div id="ad-added"><div class="empty">None yet.</div></div>
     <h3>New artists</h3>
     <p class="sub-h">Artists the crew added that aren't in the artist list yet. Claude searches each name once a day and scores how likely it is a real, active artist (0 to 100) from shows, a website and social profiles.</p>
     <div id="ad-artists"><div class="empty">Loading…</div></div>
@@ -1391,6 +1408,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <details><summary>Festivals and Picks</summary><ul>
       <li>Local, USA and World widen out from your crew's home base: USA includes Local, and World includes everything. Turn off Include Local festivals to see only the ones farther away. Tap a festival name for its site and an artist for Spotify.</li>
       <li>Know the name? Type it in the search box above the list. It searches every section, plus club shows and concerts.</li>
+      <li>Missing something? Tap the + next to Shows and paste a link to the event page. We fill in the details from the page, and Bill reviews every suggestion before it goes on the list.</li>
       <li>Mark Going, Maybe or Pass on each card. Your crew sees your picks, and you see theirs.</li>
       <li>On a phone, festivals show as slim rows to fit more on screen. Tap the pick button to switch between Going, Maybe, Pass and no pick, or tap the row or its arrow to see the lineup, tickets and who's going.</li>
       <li>Tap the heart to save a festival to My Radar without deciding yet.</li>
@@ -1481,6 +1499,52 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <div class="line crop-acts"><button type="button" class="abtn" id="crop-use">Use photo</button><button type="button" class="abtn alt" id="crop-cancel">Cancel</button></div>
   </div>
 </dialog>
+<dialog class="sheet" id="suggest" aria-labelledby="sugg-h">
+  <div class="sh-head"><h2 id="sugg-h">Suggest an Event</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
+  <div class="sh-body">
+    <p class="muted" id="sugg-intro">Paste a link to the event page. We'll fill in what we can, then Bill reviews it before it goes on Festival Radar.</p>
+    <label class="pe-l" for="sg-url">Event link</label>
+    <div class="line sg-urlrow"><input type="text" id="sg-url" inputmode="url" placeholder="https://dice.fm/event/..." autocomplete="off"><button type="button" class="abtn alt" id="sg-scan">Scan</button></div>
+    <p class="muted sg-scanmsg" id="sg-scanmsg" aria-live="polite" hidden></p>
+    <div class="sg-prev" id="sg-prev" hidden></div>
+    <div class="sg-kind" role="radiogroup" aria-label="Type">
+      <label><input type="radio" name="sg-kind" value="festival" checked> Festival</label>
+      <label><input type="radio" name="sg-kind" value="show"> Club show or concert</label>
+    </div>
+    <label class="pe-l" for="sg-name">Name</label>
+    <input type="text" id="sg-name" maxlength="120" placeholder="Event name">
+    <div class="sg-two">
+      <div><label class="pe-l" for="sg-start">Starts</label><input type="date" id="sg-start"></div>
+      <div><label class="pe-l" for="sg-end">Ends</label><input type="date" id="sg-end"></div>
+    </div>
+    <label class="pe-l" for="sg-city">City</label>
+    <input type="text" id="sg-city" maxlength="80" placeholder="Los Angeles, CA">
+    <label class="pe-l" for="sg-venue">Venue (optional)</label>
+    <input type="text" id="sg-venue" maxlength="120">
+    <label class="pe-l" for="sg-lineup">Lineup (optional)</label>
+    <input type="text" id="sg-lineup" maxlength="1500" placeholder="Artist, Artist, Artist">
+    <label class="pe-l" for="sg-note">Why go? (optional)</label>
+    <input type="text" id="sg-note" maxlength="300">
+    <div class="sg-admin" id="sg-admin" hidden>
+      <h3>Admin: how it shows on the list</h3>
+      <div class="sg-two">
+        <div><label class="pe-l" for="sg-sec">Section</label><select id="sg-sec"><option value="Local">Local</option><option value="USA">USA</option><option value="Worldwide">World</option></select></div>
+        <div><label class="pe-l" for="sg-status">Status</label><select id="sg-status"><option>On sale</option><option>Presale soon</option><option>Waitlist</option><option selected>Watch</option></select></div>
+      </div>
+      <div class="sg-two">
+        <div><label class="pe-l" for="sg-genre">Genre</label><input type="text" id="sg-genre" maxlength="60" placeholder="House / techno"></div>
+        <div><label class="pe-l" for="sg-miles">Miles from home base</label><input type="text" id="sg-miles" inputmode="numeric" maxlength="5" placeholder="14"></div>
+      </div>
+      <label class="pe-l" for="sg-tix">Ticket link</label>
+      <input type="text" id="sg-tix" inputmode="url" maxlength="300" placeholder="https://...">
+    </div>
+    <div class="line pe-save">
+      <button type="button" class="abtn" id="sg-send">Send for review</button>
+      <button type="button" class="abtn" id="sg-add" hidden>Add to the list now</button>
+      <span class="muted" id="sg-msg" aria-live="polite"></span>
+    </div>
+  </div>
+</dialog>
 <dialog class="sheet" id="newchat" aria-labelledby="newchat-h">
   <div class="sh-head"><h2 id="newchat-h">New Chat</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
   <div class="sh-body">
@@ -1566,9 +1630,18 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   const loadFest = fetch('festivals.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).catch(() => null).then(d => {
     const tag = document.getElementById('festival-data');
     let out = null;
-    if (d && Array.isArray(d.festivals)) { out = d; if (tag) tag.textContent = JSON.stringify(d); }
+    if (d && Array.isArray(d.festivals)) out = d;
     else { try { out = JSON.parse(tag.textContent); } catch (e) { out = { festivals: [] }; } }
     const u = document.getElementById('updated'); if (u && out.updated) u.textContent = out.updated;
+    return out;
+  }).then(async out => {
+    // Events an admin added (approved suggestions or entered by hand) live in extra_events; festivals.json wins on the same id.
+    if (sb) try {
+      const { data } = await sb.from('extra_events').select('id,data').eq('removed', false).limit(500);
+      const have = new Set((out.festivals || []).map(f => f && f.id));
+      (data || []).forEach(r => { if (r && r.data && r.id && !have.has(r.id)) out.festivals.push({ ...r.data, id: r.id }); });
+    } catch (e) {}
+    const tag = document.getElementById('festival-data'); if (tag && out.festivals && out.festivals.length) tag.textContent = JSON.stringify(out);
     return out;
   });
   const sessionP = sb ? sb.auth.getSession().then(r => (r && r.data && r.data.session) || null).catch(() => null) : Promise.resolve(null);
@@ -1722,13 +1795,24 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     q.forEach(r => {
       const row = mk('div', 'q'); const n = mk('div', 'n', r.festival); n.appendChild(mk('span', 'st-tag st-' + r.status, STATUS[r.status] || r.status));
       const acts = mk('div', 'acts');
-      if (r.status === 'new' || r.status === 'passed') { const ok = mk('button', 'ok', 'Approve'); ok.type = 'button'; ok.addEventListener('click', () => review(r.id, 'approved')); acts.appendChild(ok); }
+      if (r.status !== 'added') { const ok = mk('button', 'ok', 'Review and add'); ok.type = 'button'; ok.addEventListener('click', () => openSuggest({ link: r.link, name: r.festival, start: r.event_date, end: r.end_date, city: r.city, venue: r.venue, lineup: r.lineup, note: r.note, kind: r.kind, ticket_link: r.ticket_link, image: r.image }, r.id)); acts.appendChild(ok); }
       if (r.status === 'new' || r.status === 'approved') { const no = mk('button', null, 'Pass'); no.type = 'button'; no.addEventListener('click', () => review(r.id, 'passed')); acts.appendChild(no); }
-      const when = [r.event_date ? fmtDate(r.event_date + 'T12:00:00') + ', ' + String(r.event_date).slice(0, 4) : '', r.city || ''].filter(Boolean).join(' · ');
+      const when = [r.event_date ? sgDates(r.event_date, r.end_date) : '', r.venue || '', r.city || '', r.kind === 'show' ? 'Club show' : ''].filter(Boolean).join(' · ');
       const w = mk('div', 'w', (when ? when + ' · ' : '') + 'From ' + r.by + ' · ' + fmtDate(r.created_at) + (r.note ? ' · ' + r.note : ''));
       if (safeUrl(r.link)) { w.append(' · '); const a = mk('a', null, platLabel(r.link) + ' link'); a.href = r.link; a.target = '_blank'; a.rel = 'noopener nofollow'; w.appendChild(a); }
       else w.append(' · no link');
-      row.append(n, acts, w); qb.appendChild(row);
+      row.append(n, acts, w);
+      if (r.lineup) row.appendChild(mk('div', 'bl', 'Lineup: ' + r.lineup));
+      qb.appendChild(row);
+    });
+    const added = data.added_events || [], ae = document.getElementById('ad-added'); ae.replaceChildren();
+    if (!added.length) ae.appendChild(mk('div', 'empty', 'None yet.'));
+    added.forEach(e => {
+      const row = mk('div', 'q'); row.appendChild(mk('div', 'n', e.name || e.id));
+      const acts = mk('div', 'acts'), rm = mk('button', null, 'Remove'); rm.type = 'button';
+      rm.addEventListener('click', async () => { if (!confirm('Take ' + (e.name || 'this event') + ' off Festival Radar?')) return; const { error } = await sb.rpc('admin_remove_event', { p_id: e.id }); if (!error) loadAdmin(); });
+      acts.appendChild(rm); row.append(acts, mk('div', 'w', [e.dates, e.city, 'added ' + fmtDate(e.created_at)].filter(Boolean).join(' · ')));
+      ae.appendChild(row);
     });
     const ab = document.getElementById('ad-artists'); ab.replaceChildren();
     const ar = data.artists || [];
@@ -1762,6 +1846,103 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const { error } = await sb.from('artist_requests').update({ status, reviewed_at: new Date().toISOString() }).eq('id', id);
     if (!error) loadAdmin();
   }
+  // ---------- Suggest an event (the + next to Shows) ----------
+  // Members paste a link; scan-event fills the fields; it goes to the admin queue. Admins can add it to the list right away.
+  let sgSuggestion = null;
+  const sgE = id => document.getElementById(id);
+  const SG_MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function sgDates(a, b) {
+    const p = d => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d || ''); return m ? { y: m[1], m: SG_MON[+m[2] - 1], d: +m[3] } : null; };
+    const x = p(a), y = p(b) || x; if (!x) return 'Dates TBA';
+    if (y.y === x.y && y.m === x.m && y.d === x.d) return x.m + ' ' + x.d + ', ' + x.y;
+    if (y.y === x.y && y.m === x.m) return x.m + ' ' + x.d + '–' + y.d + ', ' + x.y;
+    if (y.y === x.y) return x.m + ' ' + x.d + ' – ' + y.m + ' ' + y.d + ', ' + x.y;
+    return x.m + ' ' + x.d + ', ' + x.y + ' – ' + y.m + ' ' + y.d + ', ' + y.y;
+  }
+  const sgScanMsg = t => { const m = sgE('sg-scanmsg'); m.hidden = !t; m.textContent = t || ''; };
+  const sgMsg = t => { sgE('sg-msg').textContent = t || ''; };
+  const sgKind = () => (document.querySelector('input[name="sg-kind"]:checked') || {}).value || 'festival';
+  const sgSetKind = k => { const r = document.querySelector('input[name="sg-kind"][value="' + (k === 'show' ? 'show' : 'festival') + '"]'); if (r) r.checked = true; };
+  function sgPreview(img, text) {
+    const pv = sgE('sg-prev'); pv.replaceChildren(); pv.hidden = !(img || text); if (pv.hidden) return;
+    if (img && /^https:\/\//i.test(img)) { const i = mk('img'); i.src = img; i.alt = ''; i.loading = 'lazy'; i.referrerPolicy = 'no-referrer'; i.onerror = () => i.remove(); pv.appendChild(i); }
+    pv.appendChild(mk('span', null, text || ''));
+  }
+  function openSuggest(pre, sid) {
+    if (!uid) { FR.openSignIn(); return; }
+    pre = pre || {}; sgSuggestion = sid || null;
+    const admin = !!window.FRIsAdmin;
+    sgE('sg-url').value = pre.link || '';
+    sgE('sg-name').value = pre.name || ''; sgE('sg-start').value = pre.start || ''; sgE('sg-end').value = pre.end || '';
+    sgE('sg-city').value = pre.city || ''; sgE('sg-venue').value = pre.venue || ''; sgE('sg-lineup').value = pre.lineup || ''; sgE('sg-note').value = pre.note || '';
+    sgSetKind(pre.kind);
+    sgE('sg-tix').value = pre.ticket_link || pre.link || ''; sgE('sg-genre').value = ''; sgE('sg-miles').value = '';
+    sgE('sg-sec').value = /,\s*CA$/i.test(pre.city || '') ? 'Local' : 'USA'; sgE('sg-status').value = 'Watch';
+    sgE('sg-admin').hidden = !admin; sgE('sg-add').hidden = !admin; sgE('sg-send').hidden = !!sid;
+    sgE('sugg-h').textContent = sid ? 'Review Suggestion' : admin ? 'Add an Event' : 'Suggest an Event';
+    sgE('sugg-intro').textContent = sid ? 'Check the details, set how it shows, then add it. Pass on it in the Admin tab if it doesn\'t belong.'
+      : admin ? 'Paste a link to scan it, check the details, then add it to the list. Or send it to the review queue.'
+      : 'Paste a link to the event page. We\'ll fill in what we can, and Bill reviews every suggestion before it goes on Festival Radar.';
+    sgScanMsg(''); sgMsg(''); sgPreview(pre.image, pre.image ? 'Picture from the page' : '');
+    sgE('suggest').showModal();
+  }
+  async function sgScan() {
+    const url = sgE('sg-url').value.trim();
+    if (!/^https:\/\/\S+\.\S+/i.test(url)) { sgScanMsg('Paste a full link that starts with https://'); return; }
+    const b = sgE('sg-scan'); b.disabled = true; sgScanMsg('Scanning the page…');
+    try {
+      const { data, error } = await sb.functions.invoke('scan-event', { body: { url } });
+      if (error || !data || !data.ok) { sgScanMsg((data && data.error) || 'Couldn\'t read that page. You can fill in the details yourself.'); return; }
+      const e = data.event || {}, set = (id, v) => { if (v) sgE(id).value = v; };
+      set('sg-name', e.name); set('sg-start', e.start); set('sg-end', e.end || e.start); set('sg-city', e.city); set('sg-venue', e.venue); set('sg-lineup', e.lineup);
+      set('sg-tix', e.ticket_link || url);
+      const multi = e.start && e.end && e.end !== e.start;
+      sgSetKind(multi || /fest|festival/i.test(e.name || '') ? 'festival' : e.venue ? 'show' : 'festival');
+      if (/,\s*CA$/i.test(e.city || '')) sgE('sg-sec').value = 'Local';
+      sgPreview(e.image, e.name ? 'Found: ' + e.name : '');
+      sgScanMsg(e.source === 'event data' ? 'Filled in from the page. Check the details before sending.' : 'Got the basics from the page. Add the dates and city if they\'re missing.');
+    } catch (err) { sgScanMsg('Couldn\'t read that page. You can fill in the details yourself.'); }
+    finally { b.disabled = false; }
+  }
+  function sgFields() {
+    const v = id => sgE(id).value.trim();
+    return { link: v('sg-url'), name: v('sg-name'), start: v('sg-start'), end: v('sg-end'), city: v('sg-city'), venue: v('sg-venue'), lineup: v('sg-lineup'), note: v('sg-note'), kind: sgKind() };
+  }
+  async function sgSend() {
+    const f = sgFields();
+    if (f.name.length < 2) { sgMsg('Add the event name.'); return; }
+    if (f.link && !/^https?:\/\//i.test(f.link)) { sgMsg('The link should start with https://'); return; }
+    sgMsg('Sending…');
+    const tix = sgE('sg-tix').value.trim();
+    const { error } = await sb.from('suggestions').insert({
+      user_id: uid, festival: f.name.slice(0, 120), link: f.link || null, note: f.note || null, event_date: f.start || null, end_date: f.end || f.start || null,
+      city: f.city || null, venue: f.venue || null, lineup: f.lineup || null, kind: f.kind,
+      ticket_link: /^https:\/\//i.test(tix) ? tix : null, image: (sgE('sg-prev').querySelector('img') || {}).src || null
+    });
+    if (error) { sgMsg('That didn\'t send. Try again.'); return; }
+    sgMsg('Thanks! Bill will take a look.'); loadMine().catch(() => {}); if (window.FRIsAdmin) loadAdmin().catch(() => {});
+    setTimeout(() => { if (sgE('suggest').open) sgE('suggest').close(); }, 1400);
+  }
+  async function sgAdd() {
+    const f = sgFields();
+    if (f.name.length < 2) { sgMsg('Add the event name.'); return; }
+    if (f.kind === 'show' && !f.start) { sgMsg('Shows need a date.'); return; }
+    sgMsg('Adding…');
+    const p = { festival: f.name, kind: f.kind === 'show' ? 'show' : null, section: sgE('sg-sec').value, city: f.city, start: f.start, end: f.end || f.start,
+      dates: sgDates(f.start, f.end), genre: sgE('sg-genre').value.trim(), status: sgE('sg-status').value, artists: f.lineup,
+      link: /^https:\/\//i.test(f.link) ? f.link : '', ticket_link: sgE('sg-tix').value.trim(), note: f.venue ? 'At ' + f.venue + (f.note ? '. ' + f.note : '') : f.note, miles: sgE('sg-miles').value.trim() };
+    const { data, error } = await sb.rpc('admin_add_event', { p, p_suggestion: sgSuggestion });
+    if (error) { sgMsg('Couldn\'t add it: ' + (error.message || 'error')); return; }
+    sgMsg('Added. Reloading the list…');
+    setTimeout(() => location.reload(), 900);
+  }
+  sgE('sugg-plus').addEventListener('click', () => openSuggest());
+  sgE('sg-scan').addEventListener('click', sgScan);
+  sgE('sg-url').addEventListener('paste', () => setTimeout(sgScan, 30));
+  sgE('sg-url').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sgScan(); } });
+  sgE('sg-send').addEventListener('click', sgSend);
+  sgE('sg-add').addEventListener('click', sgAdd);
+  window.FRSuggest = openSuggest;
   // A member added an artist that isn't in the artist list: queue it for Bill's review.
   window.requestArtist = name => {
     if (!uid) return;
@@ -2982,7 +3163,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     // Tower Control Research (research.html): only for people Bill gave access to
     sb.rpc('tc_allowed').then(({ data }) => { if (data === true) ['dn-research', 'mn-research'].forEach(id => { const x = document.getElementById(id); if (x) x.hidden = false; }); }).catch(() => {});
     if (isAdmin === true) {
-      document.getElementById('admin').hidden = false;
+      document.getElementById('admin').hidden = false; window.FRIsAdmin = true;
       // Crew activity feed: admin only (Bill, Nov 3, 2026: it could feel creepy to members).
       const ca = document.getElementById('crew-activity'); if (ca) { ca.hidden = false; const cd = document.getElementById('crew-dash'); if (cd) cd.classList.remove('one'); }
       const t = document.getElementById('btab-admin'); if (t) { t.hidden = false; t.parentElement.classList.add('six'); } const da = document.getElementById('dn-admin'); if (da) da.hidden = false; const ma = document.getElementById('mn-admin'); if (ma) ma.hidden = false;

@@ -187,6 +187,12 @@ Deno.serve(async (req) => {
     const dry = url.searchParams.get("dry") === "1";
     const res = await fetch(SITE + "festivals.json?t=" + Date.now(), { headers: { "Cache-Control": "no-cache" } });
     const fests: Fest[] = res.ok ? ((await res.json()).festivals || []) : [];
+    // Events an admin added in the app (extra_events) count too; festivals.json wins on the same id.
+    if (res.ok) {
+      const { data: extra } = await sb.from("extra_events").select("id,data").eq("removed", false).limit(500);
+      const have = new Set(fests.map(f => f && f.id));
+      (extra || []).forEach((r: { id: string; data: Fest }) => { if (r && r.id && r.data && !have.has(r.id)) fests.push({ ...r.data, id: r.id } as Fest); });
+    }
     const presale = res.ok ? await presaleAlerts(fests, dry) : { error: "festivals.json " + res.status };
     const crew = await crewPings(fests, dry);
     if (res.ok && !dry && fests.length) await sb.rpc("sync_fest_dates", { p: fests.filter(f => f && f.id).map(f => ({ id: f.id, festival: f.festival || "", end: f.end || "" })) });
