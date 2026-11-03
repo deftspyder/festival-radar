@@ -892,7 +892,9 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .msw[hidden] { display: none; }
 .sw.mini { width: 34px; height: 20px; }
 .msw-row { display: flex; align-items: center; gap: 8px; }
-.sugg-plus { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--cyan); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; flex: none; }
+.list-head > .lh-title { flex: 1 1 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.list-head > .lh-title h2 { margin-bottom: 0; }
+.sugg-plus { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--cyan); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; flex: none; }
 .sugg-plus:hover { border-color: var(--cyan); }
 #suggest .sg-urlrow { gap: 8px; flex-wrap: nowrap; }
 #suggest .sg-urlrow input { flex: 1 1 auto; }
@@ -1134,8 +1136,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 
   <section class="panel" id="festivals" data-tab="festivals">
     <div class="list-head">
-      <div>
+      <div class="lh-title">
         <h2>Festivals and Picks</h2>
+        <button type="button" class="sugg-plus" id="sugg-plus" aria-label="Suggest an event" title="Suggest an event"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
       </div>
       <div class="list-ctrls">
         <div class="tabs" id="tabs">
@@ -1144,7 +1147,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
           <button type="button" data-sec="Worldwide" aria-pressed="false">World</button>
         </div>
         <div class="minisw">
-          <div class="msw-row"><label class="msw" title="Include club shows and concerts (SoCal, next 60 days)"><span id="show-sub-l">Shows</span><button type="button" class="sw mini" id="show-toggle" role="switch" aria-checked="false" aria-label="Include club shows and concerts"><span class="knob"></span></button></label><button type="button" class="sugg-plus" id="sugg-plus" aria-label="Suggest an event" title="Suggest an event"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
+          <div class="msw-row"><label class="msw" title="Include club shows and concerts (SoCal, next 60 days)"><span id="show-sub-l">Shows</span><button type="button" class="sw mini" id="show-toggle" role="switch" aria-checked="false" aria-label="Include club shows and concerts"><span class="knob"></span></button></label></div>
           <label class="msw" id="localbar" hidden title="Include Local festivals (near the crew's home base)"><span>Local</span><button type="button" class="sw mini" id="local-toggle" role="switch" aria-checked="true" aria-label="Include Local festivals"><span class="knob"></span></button></label>
         </div>
       </div>
