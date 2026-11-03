@@ -5488,6 +5488,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     if (on) OPEN_CARDS.add(id); else OPEN_CARDS.delete(id);
     const b = card.querySelector('.fr-chev'); if (b) { b.setAttribute('aria-expanded', String(on)); b.setAttribute('aria-label', (on ? 'Hide' : 'Show') + ' details'); }
   }
+  const CITY_SHORT = { 'Los Angeles': 'LA', 'San Diego': 'SD', 'San Francisco': 'SF', 'Las Vegas': 'Vegas', 'New York': 'NYC', 'New York City': 'NYC', 'Washington': 'DC', 'Mexico City': 'CDMX', 'Rio de Janeiro': 'Rio' };
   function slimRow(f, pick, card) {
     const row = el('div', 'frow');
     const badge = el('span', 'fr-badge'), d = el('span', 'ch-date');
@@ -5507,7 +5508,9 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     const main = el('div', 'fr-main');
     const nm = el('div', 'fr-name', f.festival.replace(/ 20\d\d$/, '')); nm.title = f.festival; // the year is in the date badge and details
     // Line 2 is where it is (the badge already has the dates); line 3 shows crew going as tiny avatars and a count.
-    main.append(nm, el('div', 'fr-sub', [String(f.city || '').split(',')[0], dist(f)].filter(Boolean).join(' · ')));
+    // Miles first so they never get cut off; well-known cities use their short names.
+    const city = String(f.city || '').split(',')[0].trim();
+    main.append(nm, el('div', 'fr-sub', [dist(f), CITY_SHORT[city] || city].filter(Boolean).join(' · ')));
     const goers = votesFor(f.id).going;
     if (goers.length) {
       const cg = el('div', 'fr-crew'), avs = el('span', 'fr-avs');
