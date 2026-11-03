@@ -257,6 +257,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 .flist { display: flex; flex-direction: column; }
 .flist .fl-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); min-width: 0; }
 .flist .fl-row:last-child { border-bottom: none; }
+.flist .fl-past-tgw { padding: 8px 0 4px; }
+.flist .fl-past-tg { font: inherit; font-size: 13px; font-weight: 700; color: var(--cyan); background: none; border: none; padding: 6px 0; cursor: pointer; }
+.flist .fl-row.past .fl-go { font-weight: 600; }
+.flist .fl-row.past .fl-when { margin-left: 0; }
+.flist .fl-row.past .fl-go + .fl-when { margin-left: auto; }
+.flist .fl-row.past > .fheart { margin-left: 0; }
+.flist .fl-row.past .fl-go + .fheart { margin-left: auto; }
 .flist .fl-go { font: inherit; font-size: 15px; font-weight: 700; text-align: left; color: var(--fg); background: none; border: none; padding: 4px 0; cursor: pointer; min-width: 0; overflow-wrap: anywhere; }
 .flist .fl-go:hover { color: var(--pink); text-decoration: underline; }
 .flist .fl-go:disabled { cursor: default; color: var(--muted); text-decoration: none; }
@@ -1344,6 +1351,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     </ul></details>
     <details><summary>My Radar and Alerts</summary><ul>
       <li>My Radar collects the festivals you've hearted or marked Going or Maybe, plus upcoming presales for them.</li>
+      <li>Festivals that are over drop out of the list. Tap Show past events under My festivals to see them again, with the date each one ended.</li>
       <li>Turn on alerts at the bottom of My Radar to get a heads-up 24 hours and 15 minutes before tickets go on sale. Tapping the alert takes you to tickets.</li>
       <li>Next year: when a festival you went to ends, its next edition is added to your festivals automatically once it's announced, so you get its presale alerts. Undo it any time under Watching for next year. For festivals you only hearted or marked Maybe, My Radar asks "Watch for next year?" instead.</li>
       <li>On iPhone, alerts need the site on your Home Screen: in Safari tap Share, then Add to Home Screen, and open it from there.</li>
@@ -1561,6 +1569,12 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     caches.favs[uid] = { artists: [...artists] };
   }
   window.FRReloadHearts = () => uid ? loadHearts() : Promise.resolve();
+  // Names and end dates of festivals that have left festivals.json (kept in fest_dates), for My Radar's past events.
+  window.FRPastFests = async ids => {
+    if (!sb || !uid || !ids.length) return [];
+    const { data, error } = await sb.from('fest_dates').select('id,festival,end_date').in('id', ids.slice(0, 500));
+    if (error) throw error; return data || [];
+  };
   setInterval(() => { if (uid && document.visibilityState === 'visible') { loadPicks().catch(() => {}); loadFavs().catch(() => {}); loadHearts().catch(() => {}); } }, 45000);
 
   const db = {
@@ -5542,6 +5556,40 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     return d.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
   }
   function renderFavDash() { renderMyRadar(); renderCrewDash(); }
+  // Past events: festivals I hearted or marked Going or Maybe that are over (no longer in the list). Hidden until asked for.
+  const PAST = new Map(); let pastLoading = false, pastErr = false;
+  let SHOW_PAST = false; try { SHOW_PAST = localStorage.getItem('fr-show-past') === '1'; } catch (e) {}
+  function renderPast(my, past) {
+    const tg = el('button', 'lnk fl-past-tg', (SHOW_PAST ? 'Hide past events' : 'Show past events') + ' (' + past.length + ')'); tg.type = 'button';
+    tg.setAttribute('aria-expanded', String(SHOW_PAST));
+    tg.addEventListener('click', () => { SHOW_PAST = !SHOW_PAST; try { localStorage.setItem('fr-show-past', SHOW_PAST ? '1' : '0'); } catch (e) {} renderMyRadar(); });
+    const wrap = el('div', 'fl-past-tgw'); wrap.appendChild(tg); my.appendChild(wrap);
+    if (!SHOW_PAST) return;
+    const need = past.filter(id => !PAST.has(id));
+    if (need.length && !pastLoading && !pastErr && window.FRPastFests) {
+      pastLoading = true;
+      FRPastFests(need).then(list => { list.forEach(r => PAST.set(r.id, r)); need.forEach(id => { if (!PAST.has(id)) PAST.set(id, null); }); })
+        .catch(() => { pastErr = true; }).finally(() => { pastLoading = false; renderMyRadar(); });
+    }
+    if (pastLoading) { my.appendChild(el('div', 'fl-more', 'Loading past events…')); return; }
+    const when = d => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d || ''); return m ? MON3[+m[2] - 1] + ' ' + (+m[3]) + ', ' + m[1] : ''; };
+    past.map(id => ({ id, p: PAST.get(id) })).sort((a, b) => ((b.p && b.p.end_date) || '').localeCompare((a.p && a.p.end_date) || ''))
+      .forEach(({ id, p }) => {
+        const name = (p && p.festival) || prettyId(id);
+        const row = el('div', 'fl-row past'); row.dataset.id = id;
+        const go = el('button', 'fl-go', name); go.type = 'button'; go.disabled = true; go.title = 'This one is over';
+        row.appendChild(go);
+        const pk = myPick(id);
+        if (pk === 'going' || pk === 'maybe') row.appendChild(el('span', 'fl-tag ' + pk, pk === 'going' ? 'Went' : 'Maybe'));
+        if (p && p.end_date) row.appendChild(el('span', 'fl-when', when(p.end_date)));
+        if (myHearts().includes(id)) {
+          const x = el('button', 'fheart sm'); x.type = 'button'; x.setAttribute('aria-pressed', 'true'); x.setAttribute('aria-label', 'Remove ' + name + ' from favorites');
+          x.innerHTML = HEART_SVG; x.addEventListener('click', () => setHeart(id, false)); row.appendChild(x);
+        }
+        my.appendChild(row);
+      });
+    if (pastErr) my.appendChild(el('div', 'fl-more', 'Couldn\'t load dates for past events.'));
+  }
   function renderMyRadar() {
     const my = $('my-fests'), sales = $('my-sales'); if (!my || !sales) return;
     my.replaceChildren(); sales.replaceChildren();
@@ -5551,10 +5599,12 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       sales.appendChild(el('div', 'empty', 'Sign in to see presales for your festivals.'));
       $('my-fests-n').textContent = ''; $('my-sales-n').textContent = ''; return;
     }
-    const ids = myFestIds();
+    const all = myFestIds();
+    const ids = all.filter(id => state._all.some(f => f.id === id)), past = all.filter(id => !ids.includes(id));
     const rows = ids.map(id => fRow(id)).sort(rowByStart);
     $('my-fests-n').textContent = rows.length ? rows.length + ' saved' : '';
-    if (!rows.length) {
+    if (!rows.length && past.length) my.appendChild(el('div', 'empty', 'No upcoming festivals saved.'));
+    else if (!rows.length) {
       const e = el('div', 'empty', 'Nothing here yet. Tap the heart on a festival, or mark it Going or Maybe.');
       const b = el('button', 'abtn alt', 'Browse festivals'); b.type = 'button'; b.addEventListener('click', () => window.FRTab && FRTab('festivals'));
       e.appendChild(b); my.appendChild(e);
@@ -5569,6 +5619,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       }
       my.appendChild(r.row);
     });
+    if (past.length) renderPast(my, past);
     // Upcoming presales for my festivals, soonest first.
     const up = ids.map(id => state._all.find(f => f.id === id)).filter(Boolean).map(f => ({ f, s: saleInfo(f) })).filter(x => x.s).sort((a, b) => a.s.t - b.s.t);
     $('my-sales-n').textContent = up.length ? up.length + ' coming up' : '';
