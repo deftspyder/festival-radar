@@ -5086,14 +5086,28 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
         if (x + estW > W - 10) x = Math.max(W * .45, W - 10 - estW);
         if (y < 95 && x + estW > W - 260) y = 100;
       } else if (x + estW > W - 6) x = Math.max(4, W - 6 - estW);
-      const ang = (Math.atan2(x - cx, -(y - cy)) * 180 / Math.PI + 360) % 360;
+      const ang = (Math.atan2(x + 3.5 - cx, -(y - cy)) * 180 / Math.PI + 360) % 360;
       const delay = (((ang - 50) + 360) % 360) / 360 * 6;
       const b = el('div', 'blip'); b.style.left = x + 'px'; b.style.top = (y - 6) + 'px'; b.style.animationDelay = delay.toFixed(2) + 's';
       b.style.color = BLIP_COLORS[i % BLIP_COLORS.length];
       b.append(el('i'), el('span', null, label));
       box.appendChild(b);
     });
+    syncRadar();
   }
+  // One clock for the sweep, the blips and the Candy unicorn: every 6s radar animation starts at the
+  // page timeline's zero, so blips redrawn mid-sweep, or a sweep restarted after the tab was hidden, stay in step.
+  function syncRadar() {
+    const radar = document.querySelector('.hero > .radar'); if (!radar || !radar.getAnimations) return;
+    try {
+      radar.getAnimations({ subtree: true }).forEach(a => {
+        const t = a.effect && a.effect.getTiming && a.effect.getTiming();
+        if (t && t.duration === 6000 && a.startTime !== 0) a.startTime = 0;
+      });
+    } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) requestAnimationFrame(syncRadar); });
+  try { new MutationObserver(() => requestAnimationFrame(syncRadar)).observe(document.documentElement, { attributes: true, attributeFilter: ['data-skin'] }); } catch (e) {}
   let rrT; window.addEventListener('resize', () => { clearTimeout(rrT); rrT = setTimeout(renderRadar, 150); });
 
   function goToCard(id) {
