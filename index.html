@@ -235,12 +235,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
   .mnav .mn-btn[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
   .mnav .mn-btn[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
   .mnav .mn-panel { position: absolute; top: calc(100% + 6px); right: max(12px, env(safe-area-inset-right, 0px)); width: min(280px, calc(100vw - 24px)); max-height: calc(100vh - 90px); overflow-y: auto;
-    background: var(--menu); border: 1px solid var(--line); border-radius: 14px; padding: 8px; box-shadow: 0 18px 40px rgba(0,0,0,.55), 0 0 24px -12px var(--pink); display: flex; flex-direction: column; gap: 2px; }
-  .mnav .mn-panel button, .mnav .mn-panel a { font: inherit; font-size: 15px; font-weight: 600; text-align: left; padding: 12px; border-radius: 10px; border: none; background: transparent; color: var(--fg); cursor: pointer; text-decoration: none; display: block; }
+    background: var(--menu); border: 1px solid var(--line); border-radius: 14px; padding: 8px; box-shadow: 0 18px 40px rgba(0,0,0,.55), 0 0 24px -12px var(--pink); display: flex; flex-direction: column; gap: 0; }
+  .mnav .mn-panel button, .mnav .mn-panel a { font: inherit; font-size: 15px; font-weight: 600; text-align: left; padding: 8px 12px; border-radius: 10px; border: none; background: transparent; color: var(--fg); cursor: pointer; text-decoration: none; display: block; }
   .mnav .mn-panel button:hover, .mnav .mn-panel a:hover, .mnav .mn-panel button:focus-visible { background: color-mix(in srgb, var(--pink) 12%, transparent); }
   .mnav .mn-sub { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 12px 10px; }
   .mnav .mn-sub button { font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); }
-  .mnav .mn-sep { height: 1px; background: var(--line); margin: 6px 4px; }
+  .mnav .mn-sep { height: 1px; background: var(--line); margin: 4px 4px; }
   .mnav .mn-panel .mn-cta { color: var(--cyan); }
   .wrap > section, .wrap > header, .wrap > div { scroll-margin-top: 72px; }
 }
@@ -295,10 +295,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 .series-ask .sa p { margin: 0 0 8px; font-size: 14px; line-height: 1.4; }
 .series-ask .sa .line { display: flex; gap: 8px; flex-wrap: wrap; }
 .series-ask .sa .abtn { font-size: 13px; padding: 6px 14px; }
-#series-watch .fl-row .sw-name { font-size: 15px; font-weight: 700; }
-#series-watch .fl-row .sw-sub { display: block; font-size: 12px; color: var(--muted); font-weight: 500; }
-#series-watch .fl-row .sw-sub button { font: inherit; color: var(--cyan); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
-#series-watch .fl-row .lnk { margin-left: auto; flex: none; font: inherit; font-size: 13px; font-weight: 700; color: var(--cyan); background: none; border: none; padding: 4px 0; cursor: pointer; }
+#series-watch .fl-row .lnk { margin-left: auto; align-self: center; flex: none; font: inherit; font-size: 13px; font-weight: 700; color: var(--cyan); background: none; border: none; padding: 4px 0; cursor: pointer; }
 .flist .fl-row > .fl-tag + .fheart, .flist .fl-row > .fl-tag:last-child { margin-left: 0; }
 .flist .fl-row .fl-go + .fl-tag { margin-left: auto; }
 .flist .fl-who b { color: var(--going); font-weight: 700; } .flist .fl-who i { color: var(--maybe); font-style: normal; font-weight: 700; }
@@ -320,6 +317,24 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 .feed .fd-more { margin-top: 8px; align-self: flex-start; }
 .feed .empty { font-size: 13px; color: var(--muted); padding: 6px 0; }
 /* Profiles */
+/* My Radar: two collapsible sections, closed on arrival */
+.rs-h { margin: 0; }
+.rs-tg { font: inherit; color: inherit; background: none; border: 0; padding: 2px 0; width: 100%; display: flex; align-items: baseline; gap: 6px; cursor: pointer; text-align: left; }
+.rs-tg small { font-family: var(--body); font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0; }
+.rs-tg small b { color: var(--pink); font-weight: 700; }
+.rs-tg .rs-chev { margin-left: auto; align-self: center; width: 22px; height: 22px; flex: none; fill: none; stroke: var(--cyan); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s; }
+.rs-tg[aria-expanded="true"] .rs-chev { transform: rotate(180deg); }
+.rs-body { margin-top: 10px; }
+.rs-body[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) { .rs-tg .rs-chev { transition: none; } }
+.flist .fl-main { display: flex; flex-direction: column; min-width: 0; align-items: flex-start; }
+.flist .fl-sub { font-size: 12px; color: var(--muted); }
+.flist .fl-sub.sale { color: var(--orange); font-weight: 700; }
+.flist .fl-sub button { font: inherit; color: var(--cyan); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+.flist .fl-row .fl-main + .fl-tag, .flist .fl-row .fl-main + .fheart, .flist .fl-row .fl-main + .lnk { margin-left: auto; }
+.flist .wdiv { display: flex; align-items: center; gap: 8px; margin: 12px 0 2px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; line-height: 1; }
+.flist .wdiv::before, .flist .wdiv::after { content: ""; flex: 1; height: 1px; background: color-mix(in srgb, var(--muted) 35%, transparent); }
+.flist .fl-name { font-size: 15px; font-weight: 700; overflow-wrap: anywhere; padding: 4px 0 0; }
 .radar-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .radar-head h2 { margin: 0; }
 .av { padding: 0; cursor: pointer; background-size: cover; background-position: center; }
@@ -829,8 +844,8 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .sf-box { background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .sf-box h3 { margin: 0; font-size: 15px; display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
 .sf-box h3 small { font-weight: 500; color: var(--muted); font-size: 12px; }
-.sf-selected { display: flex; flex-wrap: wrap; gap: 6px; min-height: 30px; }
-.sf-selected .empty { padding: 4px 0; font-size: 13px; }
+.sf-mine { margin-bottom: 10px; }
+.sf-mine .empty { padding: 4px 0; font-size: 13px; }
 .sf-chip { font: inherit; font-size: 13px; font-weight: 600; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; display: inline-flex; gap: 6px; align-items: center; max-width: 100%; }
 .sf-chip:hover:not(:disabled) { border-color: var(--pink); }
 .sf-chip[aria-pressed="true"] { background: var(--grad); border-color: transparent; color: var(--on-accent); }
@@ -1170,25 +1185,22 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 
   <div class="dash" data-tab="radar">
     <section class="panel" id="my-radar">
-      <div class="radar-head"><h2>My Radar</h2><button type="button" class="abtn alt" id="radar-edit-profile" hidden>Edit profile</button></div>
-      <p class="sub-h">Festivals you've hearted or marked Going or Maybe. Tap a name to jump to its card.</p>
-      <div class="series-ask" id="series-ask" hidden></div>
-      <h3 class="sub-title">Upcoming presales <small id="my-sales-n"></small></h3>
-      <div class="flist" id="my-sales"></div>
-      <h3 class="sub-title">My festivals <small id="my-fests-n"></small></h3>
-      <div class="flist" id="my-fests"></div>
-      <div id="series-sec" hidden>
-        <h3 class="sub-title">Watching for next year <small id="series-n"></small></h3>
-        <p class="sub-h">When the next one is announced, it's added to your festivals so presale alerts just work.</p>
+      <h2 class="rs-h"><button type="button" class="rs-tg" aria-expanded="false" aria-controls="rs-fests"><span>My Festivals</span><small id="my-fests-n"></small><svg class="rs-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></h2>
+      <div class="rs-body" id="rs-fests" hidden>
+        <p class="sub-h">Festivals you've hearted or marked Going or Maybe. Ones with a presale coming up are on top. Tap a name to jump to its card.</p>
+        <div class="series-ask" id="series-ask" hidden></div>
+        <div class="flist" id="my-fests"></div>
         <div class="flist" id="series-watch"></div>
+        <div class="flist" id="my-past"></div>
       </div>
     </section>
     <section class="panel" id="spotifavs">
-      <h2>My Artists <small id="sf-count"></small></h2>
+      <h2 class="rs-h"><button type="button" class="rs-tg" aria-expanded="false" aria-controls="rs-artists"><span>My Artists</span><small id="sf-count"></small><svg class="rs-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></h2>
+      <div class="rs-body" id="rs-artists" hidden>
       <p class="sub-h">Festivals with your crew's favorite artists on the lineup get marked, so you can see which events to prioritize. Can't find an artist or event? Type it in and send it to Bill.</p>
       <div class="sf-grid one">
         <div class="sf-box">
-          <div class="sf-selected" id="sf-selected"></div>
+          <div class="flist sf-mine" id="sf-selected"></div>
           <input class="sf-q" id="sf-q" type="search" placeholder="Search 1,100+ artists, or type an artist or event to add" aria-label="Search artists, or add an artist or event" autocomplete="off">
           <div class="sf-add" id="sf-add" hidden>
             <div class="sf-add-h"><b id="sf-add-name"></b> isn't on Festival Radar yet. Add it as:</div>
@@ -1215,6 +1227,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
           </div>
           <div class="mine-sugg" id="sg-mine"></div>
         </div>
+      </div>
       </div>
     </section>
   </div>
@@ -1414,7 +1427,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <ul class="gate-list">
       <li>Your crews see your full profile, picks and favorite artists.</li>
       <li>People outside your crews see your name and main photo in public festival chats, unless you make your profile private.</li>
-      <li>New: add photos, a short bio and your city any time from My Radar.</li>
+      <li>New: add photos, a short bio and your city any time from Settings.</li>
     </ul>
     <div class="line"><button type="button" class="abtn" id="gate-go">Continue</button><button type="button" class="lnk" id="gate-out">Sign out</button></div>
     <p class="gate-msg" id="gate-msg" aria-live="polite" hidden></p>
@@ -1448,7 +1461,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <details open><summary>Getting Started</summary><ul>
       <li>Sign in with Google or an email link. You'll confirm you're 18 or older once.</li>
       <li>Join a crew from a friend's invite link, or start your own in Settings and invite people.</li>
-      <li>Add a photo and a short bio from Edit profile in My Radar, so your crew can put a face to a name.</li>
+      <li>Add a photo and a short bio from Edit profile in Settings, so your crew can put a face to a name.</li>
     </ul></details>
     <details><summary>Festivals and Picks</summary><ul>
       <li>Local, USA and World widen out from your crew's home base: USA includes Local, and World includes everything. Turn off Include Local festivals to see only the ones farther away. Tap a festival name for its site and an artist for Spotify.</li>
@@ -1462,12 +1475,13 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <li>Calendar shows everything on a timeline. Tap a bar to open that festival.</li>
     </ul></details>
     <details><summary>My Radar and Alerts</summary><ul>
-      <li>My Radar collects the festivals you've hearted or marked Going or Maybe, plus upcoming presales for them.</li>
-      <li>Festivals that are over drop out of the list. Tap Show past events under My festivals to see them again, with the date each one ended.</li>
+      <li>My Radar has two sections, My Festivals and My Artists. Tap a heading to open it.</li>
+      <li>My Festivals lists the festivals you've hearted or marked Going or Maybe. Ones with a presale coming up jump to the top with the sale date and a light.</li>
+      <li>Festivals that are over drop out of the list. Tap Show past events under My Festivals to see them again, with the date each one ended.</li>
       <li>Turn on alerts in Settings > Notifications to get a heads-up 24 hours and 15 minutes before tickets go on sale. Tapping the alert takes you to tickets.</li>
-      <li>Next year: when a festival you went to ends, its next edition is added to your festivals automatically once it's announced, so you get its presale alerts. Undo it any time under Watching for next year. For festivals you only hearted or marked Maybe, My Radar asks "Watch for next year?" instead.</li>
+      <li>Next year: when a festival you went to ends, its next edition is added to your festivals automatically once it's announced, so you get its presale alerts. Undo it any time under Watch list at the bottom of My Festivals. For festivals you only hearted or marked Maybe, My Radar asks "Watch for next year?" instead.</li>
       <li>On iPhone, alerts need the site on your Home Screen: in Safari tap Share, then Add to Home Screen, and open it from there.</li>
-      <li>My Artists: pick your favorite artists. Festivals with your crew's favorites on the lineup get highlighted. Can't find one? Type it in and send it to Bill.</li>
+      <li>My Artists: pick your favorite artists. Each one shows the festivals it's playing; tap one to jump there, or the heart to remove the artist. Festivals with your crew's favorites on the lineup get highlighted. Can't find one? Type it in and send it to Bill.</li>
     </ul></details>
     <details><summary>Your Crew</summary><ul>
       <li>Every crew has its own chat, pinned at the top of Chats. Tap the crew's name at the top of its chat to open Crew Info: what your crew is going to, festivals with two or more of you Going, everyone's favorite artists, and the members.</li>
@@ -2155,7 +2169,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       const { data, error } = await sb.rpc('confirm_age', { p_birthday: v });
       if (error) { say('That didn\'t save. Check the date and try again.'); return; }
       if (data && data.ok === false) { say('Sorry, Festival Radar is for ages 18 and up.'); document.getElementById('gate-go').hidden = true; return; }
-      gateDone = true; document.getElementById('gate').close(); toast('Welcome! Add a photo any time from My Radar.');
+      gateDone = true; document.getElementById('gate').close(); toast('Welcome! Add a photo any time from Settings.');
       await loadProfiles([uid], true);
       maybeAskCrew();
     });
@@ -3332,8 +3346,8 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     return true;
   }
   function renderSeries() {
-    const ask = document.getElementById('series-ask'), sec = document.getElementById('series-sec'), list = document.getElementById('series-watch');
-    if (!ask || !sec || !list) return;
+    const ask = document.getElementById('series-ask'), list = document.getElementById('series-watch');
+    if (!ask || !list) return;
     ask.replaceChildren(); list.replaceChildren();
     seriesData.prompts.slice(0, 3).forEach(p => {
       const box = mk('div', 'sa'); const t = mk('p'); t.append(mk('b', null, p.festival), ' is over. Watch for next year?');
@@ -3345,12 +3359,12 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       line.append(yes, no); box.append(t, line); ask.appendChild(box);
     });
     ask.hidden = !seriesData.prompts.length;
-    const w = seriesData.watching; sec.hidden = !w.length;
-    document.getElementById('series-n').textContent = w.length ? w.length + ' watching' : '';
+    const w = seriesData.watching;
+    if (w.length) { const dv = mk('div', 'wdiv'); dv.appendChild(mk('span', null, 'Watch list')); dv.title = 'When the next one is announced, it\'s added to your festivals so presale alerts just work.'; list.appendChild(dv); }
     w.forEach(x => {
-      const row = mk('div', 'fl-row'); const main = mk('div');
-      main.appendChild(mk('span', 'sw-name', x.name));
-      const sub = mk('span', 'sw-sub');
+      const row = mk('div', 'fl-row'); const main = mk('div', 'fl-main');
+      main.appendChild(mk('span', 'fl-name', x.name));
+      const sub = mk('span', 'fl-sub');
       const nx = (x.next || [])[0];
       if (nx) {
         sub.append(x.auto ? 'You went. ' : '', 'Next: ');
@@ -3369,6 +3383,11 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     });
   }
   window.addEventListener('fr-tab', e => { if (e && e.detail === 'radar' && uid) loadSeries().catch(() => {}); });
+  // My Radar sections open and close from their headings; both start closed on each visit to the site.
+  document.querySelectorAll('.rs-tg').forEach(t => t.addEventListener('click', () => {
+    const open = t.getAttribute('aria-expanded') !== 'true'; t.setAttribute('aria-expanded', String(open));
+    const body = document.getElementById(t.getAttribute('aria-controls')); if (body) body.hidden = !open;
+  }));
 
   // Share a festival: text it (phone share sheet, link to its preview page), or send it to a crew chat or a friend.
   let shareFid = null, siteCode = null;
@@ -5795,6 +5814,25 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     b.addEventListener('click', () => toggleFav(name));
     return b;
   }
+  // My Artists as rows: name, genre, and the festivals they're playing (tap to jump there); the heart removes them.
+  function favRow(name) {
+    const k = norm(name), d = DJS.find(x => norm(x.name) === k);
+    const row = el('div', 'fl-row'), main = el('div', 'fl-main');
+    main.appendChild(el('span', 'fl-name', name));
+    const plays = state._all.filter(f => f.artists && f.artists !== 'Lineup TBA' && f.artists.split(', ').some(a => artistNames(a).some(n => norm(n) === k)))
+      .sort((a, b) => (a.start || '9999').localeCompare(b.start || '9999'));
+    const sub = el('span', 'fl-sub');
+    if (plays.length) {
+      sub.append('Playing ');
+      plays.slice(0, 3).forEach((f, i) => { if (i) sub.append(', '); const b = el('button', null, f.festival.replace(/ 20\d\d$/, '')); b.type = 'button'; b.title = 'Show ' + f.festival; b.addEventListener('click', () => goToCard(f.id)); sub.appendChild(b); });
+      if (plays.length > 3) sub.append(' +' + (plays.length - 3) + ' more');
+    } else sub.textContent = (d && d.genre) || 'Not on a lineup yet';
+    if (plays.length && d && d.genre) main.appendChild(el('span', 'fl-sub', d.genre));
+    main.appendChild(sub); row.appendChild(main);
+    const x = el('button', 'fheart sm'); x.type = 'button'; x.setAttribute('aria-pressed', 'true'); x.setAttribute('aria-label', 'Remove ' + name + ' from my artists'); x.title = 'Remove from my artists';
+    x.innerHTML = HEART_SVG; x.disabled = !state.canWrite || !state.me; x.addEventListener('click', () => toggleFav(name)); row.appendChild(x);
+    return row;
+  }
   function renderSpotifavs() {
     const idx = lineupIndex();
     // mine
@@ -5802,7 +5840,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     const mine = myFavs();
     $('sf-count').textContent = mine.length ? mine.length + ' picked' : '';
     if (!mine.length) sel.appendChild(el('div', 'empty', state.me ? 'Search or tap See all artists to add some.' : 'Log in to pick your favs, see the updated festivals, and choose shows to consider.'));
-    mine.forEach(n => sel.appendChild(favChip(n, { sel: true })));
+    mine.forEach(n => sel.appendChild(favRow(n)));
     // results
     const res = $('sf-results'); res.replaceChildren();
     const q = state.sfQuery.trim(); const nq = norm(q);
@@ -6017,17 +6055,20 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     if (pastErr) my.appendChild(el('div', 'fl-more', 'Couldn\'t load dates for past events.'));
   }
   function renderMyRadar() {
-    const my = $('my-fests'), sales = $('my-sales'); if (!my || !sales) return;
-    my.replaceChildren(); sales.replaceChildren();
+    const my = $('my-fests'), pastBox = $('my-past'); if (!my || !pastBox) return;
+    my.replaceChildren(); pastBox.replaceChildren();
     if (!state.me) {
       my.appendChild(el('div', 'empty', 'Sign in to save festivals you love.'));
-      sales.appendChild(el('div', 'empty', 'Sign in to see presales for your festivals.'));
-      $('my-fests-n').textContent = ''; $('my-sales-n').textContent = ''; return;
+      $('my-fests-n').textContent = ''; return;
     }
     const all = myFestIds();
     const ids = all.filter(id => state._all.some(f => f.id === id)), past = all.filter(id => !ids.includes(id));
-    const rows = ids.map(id => fRow(id)).sort(rowByStart);
-    $('my-fests-n').textContent = rows.length ? rows.length + ' saved' : '';
+    // Festivals with a sale coming up (confirmed or expected) go on top, soonest sale first; the rest by date.
+    const rows = ids.map(id => { const r = fRow(id); r.s = r.f ? saleInfo(r.f) : null; return r; })
+      .sort((a, b) => (a.s ? 0 : 1) - (b.s ? 0 : 1) || (a.s && b.s ? a.s.t - b.s.t : 0) || rowByStart(a, b));
+    const nSale = rows.filter(r => r.s).length;
+    const cnt = $('my-fests-n'); cnt.replaceChildren();
+    if (rows.length) { cnt.append(rows.length + ' saved'); if (nSale) { cnt.append(' · '); cnt.appendChild(el('b', null, nSale + (nSale === 1 ? ' presale' : ' presales'))); } }
     if (!rows.length && past.length) my.appendChild(el('div', 'empty', 'No upcoming festivals saved.'));
     else if (!rows.length) {
       const e = el('div', 'empty', 'Nothing here yet. Tap the heart on a festival, or mark it Going or Maybe.');
@@ -6036,6 +6077,13 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     }
     rows.forEach(r => {
       const id = r.row.dataset.id, pk = myPick(id);
+      if (r.s) {
+        const sl = saleLight(r.f); if (sl) r.row.insertBefore(sl, r.row.firstChild);
+        const main = el('div', 'fl-main'); main.appendChild(r.row.querySelector('.fl-go'));
+        const note = el('span', 'fl-sub sale', r.s.kind === 'expected' ? 'Presale expected ~' + saleWhen(r.s).replace(/^Expected ~/, '') : 'Presale ' + saleWhen(r.s));
+        note.title = saleSoon(r.s); main.appendChild(note);
+        r.row.appendChild(main);
+      }
       if (pk === 'going' || pk === 'maybe') r.row.appendChild(el('span', 'fl-tag ' + pk, pk === 'going' ? 'Going' : 'Maybe'));
       if (r.f) r.row.appendChild(heartBtn(r.f, true));
       else { // no longer listed: still removable
@@ -6044,17 +6092,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       }
       my.appendChild(r.row);
     });
-    if (past.length) renderPast(my, past);
-    // Upcoming presales for my festivals, soonest first.
-    const up = ids.map(id => state._all.find(f => f.id === id)).filter(Boolean).map(f => ({ f, s: saleInfo(f) })).filter(x => x.s).sort((a, b) => a.s.t - b.s.t);
-    $('my-sales-n').textContent = up.length ? up.length + ' coming up' : '';
-    if (!up.length) sales.appendChild(el('div', 'empty', 'No ticket sales announced for your festivals yet. They show up here as soon as they are.'));
-    up.forEach(({ f, s }) => {
-      const r = fRow(f.id); const sl = saleLight(f);
-      if (sl) r.row.insertBefore(sl, r.row.firstChild);
-      const w = el('span', 'fl-when', saleWhen(s)); w.title = saleSoon(s); r.row.appendChild(w);
-      sales.appendChild(r.row);
-    });
+    if (past.length) renderPast(pastBox, past);
   }
   // Avatars (initials) until profile photos arrive.
   const AV_COLORS = ['var(--pink)', 'var(--cyan)', 'var(--warn)', 'var(--violet)', 'var(--ok)', 'var(--orange)'];
