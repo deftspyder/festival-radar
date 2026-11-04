@@ -1064,6 +1064,7 @@ dialog.sheet .lnk { font: inherit; font-size: 13px; font-weight: 600; background
 dialog.sheet .lnk.danger { color: var(--orange); }
 dialog.sheet .setrow { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
 dialog.sheet .setrow:first-of-type { border-top: none; }
+#set-alerts .setrow:first-of-type { border-top: 1px solid var(--line); }
 dialog.sheet .soon { font-size: 11px; font-weight: 700; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; }
 dialog.sheet .chk { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; margin: 12px 0; }
 dialog.sheet .chk input { width: 20px; height: 20px; accent-color: var(--pink); margin-top: 1px; flex: none; }
@@ -1180,21 +1181,6 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
         <h3 class="sub-title">Watching for next year <small id="series-n"></small></h3>
         <p class="sub-h">When the next one is announced, it's added to your festivals so presale alerts just work.</p>
         <div class="flist" id="series-watch"></div>
-      </div>
-      <div id="friends-sec" hidden>
-        <h3 class="sub-title">Friends</h3>
-        <p class="sub-h">Met someone at a show? Show them your code. Friends can message you and see your name, main photo and the artists you both love. Only your crews see which festivals you're going to.</p>
-        <div class="line"><button type="button" class="abtn" id="fr-mycode">My code</button><button type="button" class="abtn alt" id="fr-share">Share link</button></div>
-        <p class="muted" id="fr-share-msg" aria-live="polite" hidden></p>
-        <div class="flist friends" id="fr-friends"></div>
-      </div>
-      <div class="radar-alerts">
-        <h3 class="ra-h">Alerts on this device</h3>
-        <div class="setrow"><span>Presale alerts<br><span class="muted">24 hours and 15 minutes before tickets go on sale for your festivals.</span></span><button type="button" class="sw" id="set-notify" role="switch" aria-checked="false" aria-label="Presale alerts on this device"><span class="knob"></span></button></div>
-        <div class="setrow"><span>Crew pings and chats<br><span class="muted">When a crewmate marks Going on your festivals, and new messages in your chats. Bundled.</span></span><button type="button" class="sw" id="set-crew" role="switch" aria-checked="false" aria-label="Crew pings on this device"><span class="knob"></span></button></div>
-        <p class="muted set-note" id="set-notify-note" hidden></p>
-        <div class="line" id="set-notify-allow-wrap" hidden><button type="button" class="abtn" id="set-notify-allow">Allow alerts</button></div>
-        <div class="line" id="set-notify-test-wrap" hidden><button type="button" class="lnk" id="set-notify-test">Send a test alert</button><span class="muted" id="set-notify-test-msg" aria-live="polite"></span></div>
       </div>
     </section>
     <section class="panel" id="spotifavs">
@@ -1342,7 +1328,13 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <h3>Notifications</h3>
     <div class="setrow"><span>Add me to event crew chats when I select Going<br><span class="muted">Follows that festival's chat in each of your crews, so it shows in your Chats and can notify you.</span></span><button type="button" class="sw" id="set-chat-going" role="switch" aria-checked="true" aria-label="Add me to event crew chats when I select Going"><span class="knob"></span></button></div>
     <div class="setrow"><span>Show when I've read messages<br><span class="muted">Your crew and friends see "Seen by" under messages you've read. Turn it off and you won't see theirs either.</span></span><button type="button" class="sw" id="set-show-read" role="switch" aria-checked="true" aria-label="Show when I've read messages"><span class="knob"></span></button></div>
-    <div class="setrow"><span>Presale alerts are in My Radar<br><span class="muted">Turn them on or off for this device there.</span></span><button type="button" class="abtn alt" id="set-open-radar">Open My Radar</button></div>
+    <div id="set-alerts">
+      <div class="setrow"><span>Presale alerts on this device<br><span class="muted">24 hours and 15 minutes before tickets go on sale for your festivals.</span></span><button type="button" class="sw" id="set-notify" role="switch" aria-checked="false" aria-label="Presale alerts on this device"><span class="knob"></span></button></div>
+      <div class="setrow"><span>Crew pings and chats on this device<br><span class="muted">When a crewmate marks Going on your festivals, and new messages in your chats. Bundled.</span></span><button type="button" class="sw" id="set-crew" role="switch" aria-checked="false" aria-label="Crew pings on this device"><span class="knob"></span></button></div>
+      <p class="muted set-note" id="set-notify-note" hidden></p>
+      <div class="line" id="set-notify-allow-wrap" hidden><button type="button" class="abtn" id="set-notify-allow">Allow alerts</button></div>
+      <div class="line" id="set-notify-test-wrap" hidden><button type="button" class="lnk" id="set-notify-test">Send a test alert</button><span class="muted" id="set-notify-test-msg" aria-live="polite"></span></div>
+    </div>
     <h3>Account</h3>
     <div class="line"><button type="button" class="abtn alt" id="set-invite">Invite friends</button><button type="button" class="abtn alt" id="set-feedback">Send feedback</button><button type="button" class="abtn alt" id="set-signout">Sign out</button></div>
   </div>
@@ -1472,7 +1464,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <details><summary>My Radar and Alerts</summary><ul>
       <li>My Radar collects the festivals you've hearted or marked Going or Maybe, plus upcoming presales for them.</li>
       <li>Festivals that are over drop out of the list. Tap Show past events under My festivals to see them again, with the date each one ended.</li>
-      <li>Turn on alerts at the bottom of My Radar to get a heads-up 24 hours and 15 minutes before tickets go on sale. Tapping the alert takes you to tickets.</li>
+      <li>Turn on alerts in Settings > Notifications to get a heads-up 24 hours and 15 minutes before tickets go on sale. Tapping the alert takes you to tickets.</li>
       <li>Next year: when a festival you went to ends, its next edition is added to your festivals automatically once it's announced, so you get its presale alerts. Undo it any time under Watching for next year. For festivals you only hearted or marked Maybe, My Radar asks "Watch for next year?" instead.</li>
       <li>On iPhone, alerts need the site on your Home Screen: in Safari tap Share, then Add to Home Screen, and open it from there.</li>
       <li>My Artists: pick your favorite artists. Festivals with your crew's favorites on the lineup get highlighted. Can't find one? Type it in and send it to Bill.</li>
@@ -1494,8 +1486,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <li>Use the ⋯ next to a message to edit or delete your own, report one, or mute someone in public chats. You can edit a message for 15 minutes after sending it, and it shows "edited".</li>
     </ul></details>
     <details><summary>Friends and Messages</summary><ul>
-      <li>Met someone at a show? Open My code in My Radar and let them scan it with their phone camera. You're friends right away.</li>
-      <li>Not together? Use Share link instead. It works for 7 days.</li>
+      <li>Met someone at a show? Tap the code button at the top of Chats and let them scan it with their phone camera. You're friends right away.</li>
+      <li>Not together? Use Share link on the code screen instead. It works for 7 days.</li>
       <li>Friends can message you and see your name, main photo and artists you both love. Only your crew sees which festivals you're going to.</li>
       <li>Message a friend from the new chat button in Chats or from their profile, where you can also invite them to your crew.</li>
     </ul></details>
@@ -2052,7 +2044,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     const bar = document.getElementById('ask-bar'); if (!bar || !uid) return;
     let text = null;
     if (pushOK()) { if (Notification.permission !== 'default') return; text = 'Want a heads-up before tickets drop? We\'ll alert you 24 hours and 15 minutes before presales for your festivals.'; }
-    else if (isIOS && !isStandalone()) text = 'Want presale alerts on your iPhone? Add Festival Radar to your Home Screen (tap Share, then Add to Home Screen), open it from there, and turn alerts on in My Radar.';
+    else if (isIOS && !isStandalone()) text = 'Want presale alerts on your iPhone? Add Festival Radar to your Home Screen (tap Share, then Add to Home Screen), open it from there, and turn alerts on in Settings.';
     else return;
     try { localStorage.setItem('fr-alerts-asked', '1'); } catch (e) {}
     document.getElementById('ask-text').textContent = text;
@@ -2078,7 +2070,6 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     document.getElementById('set-notify-allow').addEventListener('click', turnOn);
     document.getElementById('ask-yes').addEventListener('click', async () => { document.getElementById('ask-bar').hidden = true; if (pushOK()) await turnOn(); });
     document.getElementById('ask-no').addEventListener('click', () => { document.getElementById('ask-bar').hidden = true; });
-    document.getElementById('set-open-radar').addEventListener('click', () => { document.getElementById('settings').close(); if (window.FRTab) FRTab('radar'); });
     document.getElementById('set-notify-test').addEventListener('click', async () => {
       const m = document.getElementById('set-notify-test-msg'); m.textContent = 'Sending…';
       try {
@@ -2491,17 +2482,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     renderFriends();
   }
   function renderFriends() {
-    const sec = document.getElementById('friends-sec'); if (!sec) return;
-    sec.hidden = !uid; const box = document.getElementById('fr-friends'); box.replaceChildren();
-    const list = friends.filter(f => !f.blocked);
-    if (!list.length) { box.appendChild(mk('div', 'empty', 'No friends added yet. Your crewmates are already friends.')); if (window.FRChat) renderChatList(); return; }
-    list.forEach(f => {
-      const row = mk('div', 'fl-row'); const b = mk('button', 'fr-go', f.name); b.type = 'button'; b.addEventListener('click', () => openCard(f.id));
-      row.appendChild(b); if (f.crew) row.appendChild(mk('span', 'fr-crew', 'Crew'));
-      const n = window.FRChat ? FRChat.dmUnread(f.id) : 0; if (n) row.appendChild(mk('span', 'ch-n', String(n)));
-      const m = mk('button', 'lnk', 'Message'); m.type = 'button'; m.addEventListener('click', () => FRChat.openDm(f.id)); row.appendChild(m);
-      box.appendChild(row);
-    });
+    // Friends live in Chats now (list, new chat sheet, code button); nothing to draw in My Radar.
     if (window.FRChat) renderChatList();
   }
   function loadQrLib() {
@@ -2573,12 +2554,10 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   }
   window.addEventListener('online', () => retryPending());
   function wireFriends() {
-    document.getElementById('fr-mycode').addEventListener('click', () => { fcMsg(''); document.getElementById('fcode').showModal(); showCode(); });
+    window.FROpenMyCode = () => { if (!uid) return; fcMsg(''); document.getElementById('fcode').showModal(); showCode(); };
     document.getElementById('fcode-x').addEventListener('click', () => { clearInterval(codeTimer); document.getElementById('fcode').close(); });
     document.getElementById('fcode').addEventListener('close', () => clearInterval(codeTimer));
     document.getElementById('fcode-share').addEventListener('click', () => shareLink(fcMsg));
-    const sm = t => { const m = document.getElementById('fr-share-msg'); m.hidden = !t; m.textContent = t || ''; };
-    document.getElementById('fr-share').addEventListener('click', () => shareLink(sm));
     const closeAdd = () => { clearTimeout(faddRetry); document.getElementById('fadd').close(); };
     document.getElementById('fadd-x').addEventListener('click', closeAdd);
     document.getElementById('fadd-no').addEventListener('click', () => { clearPendingFriend(); closeAdd(); });
@@ -2781,7 +2760,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
   }
   ['ch-fab', 'ch-new-d'].forEach(id => document.getElementById(id).addEventListener('click', openNewChat));
   document.getElementById('nc-crew').addEventListener('click', () => { document.getElementById('newchat').close(); FR.openNewCrew(); });
-  const openMyCode = () => { const b = document.getElementById('fr-mycode'); if (b) b.click(); };
+  const openMyCode = () => { if (window.FROpenMyCode) FROpenMyCode(); };
   document.getElementById('nc-add').addEventListener('click', () => { document.getElementById('newchat').close(); openMyCode(); });
   document.getElementById('ch-code').addEventListener('click', openMyCode);
   document.getElementById('chats-signin').addEventListener('click', () => { if (window.FR && FR.openSignIn) FR.openSignIn(); });
@@ -3439,7 +3418,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       if (shareFid !== fid) return;
       fb.replaceChildren();
       const list = friends.filter(x => !x.blocked);
-      if (!list.length) fb.appendChild(mk('div', 'empty', 'No friends yet. Add friends with your code in My Radar.'));
+      if (!list.length) fb.appendChild(mk('div', 'empty', 'No friends yet. Add friends with the code button in Chats.'));
       list.forEach(fr => {
         const row = mk('div', 'sh-row'); const nm = mk('span', 'nm', fr.name); if (fr.crew) nm.appendChild(mk('small', null, 'Crew'));
         const b = mk('button', 'abtn', 'Send'); b.type = 'button'; b.setAttribute('aria-label', 'Send to ' + fr.name);
@@ -3665,7 +3644,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     const t = document.getElementById('show-toggle'); document.getElementById('set-shows').setAttribute('aria-checked', t ? t.getAttribute('aria-checked') : 'false');
     renderSettingsCrews(); renderSkins();
     d.querySelectorAll('details.set-sec').forEach(x => { x.open = false; }); // long sections start collapsed
-    d.showModal();
+    d.showModal(); if (window.FRNotify) FRNotify.refresh();
     if (focus === 'crews') setTimeout(() => document.getElementById('set-newcrew').focus(), 50);
   };
   const openInvite = (crewId) => {
@@ -6040,7 +6019,6 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
   function renderMyRadar() {
     const my = $('my-fests'), sales = $('my-sales'); if (!my || !sales) return;
     my.replaceChildren(); sales.replaceChildren();
-    const ra = document.querySelector('#my-radar .radar-alerts'); if (ra) ra.hidden = !state.me;
     if (!state.me) {
       my.appendChild(el('div', 'empty', 'Sign in to save festivals you love.'));
       sales.appendChild(el('div', 'empty', 'Sign in to see presales for your festivals.'));
