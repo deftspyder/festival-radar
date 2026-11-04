@@ -495,7 +495,6 @@ dialog.pcard .pc-inv select { width: auto; flex: 1; min-width: 0; margin: 0; }
 .ch-filters .chip { flex: none; height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--fg); font: inherit; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
 .ch-filters .chip[aria-pressed="true"] { border-color: var(--pink); color: var(--pink); background: color-mix(in srgb, var(--pink) 14%, transparent); }
 .ch-filters .chip-n { font-weight: 800; }
-.ch-filters .chip-plus { padding: 0 9px; color: var(--cyan); }
 .ch-crewav { width: 48px; height: 48px; border-radius: 15px; background: var(--avc, var(--pink)); color: #120a24; font: 16px var(--display); display: flex; align-items: center; justify-content: center; }
 .ch-fab { display: none; }
 @media (max-width: 700px) {
@@ -521,8 +520,8 @@ dialog.pcard .pc-inv select { width: auto; flex: 1; min-width: 0; margin: 0; }
 .crew-acts { display: flex; gap: 16px; padding: 12px 0 2px; }
 .crew-acts .lnk { font: inherit; font-size: 13px; font-weight: 700; color: var(--cyan); background: none; border: none; cursor: pointer; padding: 4px 0; }
 #newchat .nc-acts { display: flex; flex-direction: column; gap: 4px; }
-#newchat .nc-act, #newchat .nc-friend { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 6px; border: 0; border-radius: 12px; background: transparent; color: var(--fg); font: inherit; font-size: 16px; font-weight: 700; text-align: left; cursor: pointer; }
-#newchat .nc-act:hover, #newchat .nc-friend:hover { background: var(--panel-2); }
+#newchat .nc-act, #newchat .nc-friend, #pinsheet .nc-act { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 6px; border: 0; border-radius: 12px; background: transparent; color: var(--fg); font: inherit; font-size: 16px; font-weight: 700; text-align: left; cursor: pointer; }
+#newchat .nc-act:hover, #newchat .nc-friend:hover, #pinsheet .nc-act:hover { background: var(--panel-2); }
 #newchat .nc-ic { width: 44px; height: 44px; border-radius: 50%; background: var(--grad); color: #fff; display: flex; align-items: center; justify-content: center; flex: none; }
 #newchat .nc-h { font-size: 13px; color: var(--muted); margin: 14px 0 4px; }
 #newchat .ch-pav { width: 44px; height: 44px; }
@@ -546,6 +545,9 @@ dialog.pcard .pc-inv select { width: auto; flex: 1; min-width: 0; margin: 0; }
 .ch-top, .ch-bot { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .ch-t { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; font-weight: 600; }
 .ch-pin { flex: none; color: var(--muted); display: flex; }
+#newchat .nc-friend small { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--muted); }
+.ch-row, .ch-tile { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+#pinsheet .nc-ic { background: var(--grad); }
 .ch-tag { flex: none; font-size: 11px; font-weight: 700; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; padding: 0 6px; line-height: 16px; }
 .ch-time { margin-left: auto; flex: none; font-size: 12px; color: var(--muted); }
 .ch-p { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; color: var(--muted); }
@@ -1495,14 +1497,15 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <li>My Artists: pick your favorite artists. Each one shows the festivals it's playing; tap one to jump there, or the heart to remove the artist. Festivals with your crew's favorites on the lineup get highlighted. Can't find one? Type it in and send it to Bill.</li>
     </ul></details>
     <details><summary>Your Crew</summary><ul>
-      <li>Every crew has its own chat, pinned at the top of Chats. Tap the crew's name at the top of its chat to open Crew Info: what your crew is going to, festivals with two or more of you Going, everyone's favorite artists, and the members.</li>
+      <li>Every crew has its own chat in Chats. Tap the crew's name at the top of its chat to open Crew Info: what your crew is going to, festivals with two or more of you Going, everyone's favorite artists, and the members.</li>
       <li>Crews are optional. Planning solo? Everything else works without one.</li>
       <li>Start a crew with the + in Chats (you can start up to 5). It works right away and shows "Waiting for your first member" until a friend joins.</li>
       <li>Invite friends from Crew Info or the menu. Crew Info is also where you rename a crew you started, remove members, or leave a crew. Share invite link opens your phone's share sheet, so you can send it by text to people in your contacts. Anyone with the link can join after signing in.</li>
     </ul></details>
     <details><summary>Chats</summary><ul>
-      <li>Everything lives in the Chats tab: your crews (pinned on top), festival chats, and messages with friends, newest first. A pink number shows how many you haven't read.</li>
-      <li>Search at the top, or tap a chip to show only Unread, Crews, Festivals or Friends. The + chip starts a crew.</li>
+      <li>Everything lives in the Chats tab: your crews, festival chats, and messages with friends, newest first. A new crew starts near the top. A pink number shows how many you haven't read.</li>
+      <li>Search at the top, or tap Unread to see only chats with new messages.</li>
+      <li>Press and hold a chat (right-click on a computer) to pin it to the top. You can pin up to 3.</li>
       <li>Tap the new chat button (bottom right on a phone, + next to the Chats title on a computer) to start a crew, add a friend, or message one.</li>
       <li>Every festival has a crew chat and a public chat. The chat bubble on a festival card takes you straight there. Marking Going adds you to that festival's crew chat. Don't want it? Turn off Notifications in that chat.</li>
       <li>In a crew chat, Going together shows the festivals two or more of you are going to. Tap the top of any chat for Crew Info, a friend's profile, or the festival.</li>
@@ -1624,6 +1627,13 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     </div>
     <h3 class="nc-h">Message a friend</h3>
     <div class="flist nc-friends" id="nc-friends"></div>
+  </div>
+</dialog>
+<dialog class="sheet" id="pinsheet" aria-labelledby="pin-h">
+  <div class="sh-head"><h2 id="pin-h">Chat</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
+  <div class="sh-body">
+    <div class="nc-acts"><button type="button" class="nc-act" id="pin-go"><span class="nc-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.8V4h6v6.8l3 3.2H6z"/></svg></span><span id="pin-go-t">Pin chat</span></button></div>
+    <p class="muted" id="pin-note">Pinned chats stay at the top. You can pin up to 3.</p>
   </div>
 </dialog>
 <dialog class="sheet pcard" id="pcard" aria-labelledby="pc-name">
@@ -2628,8 +2638,10 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   const rowFor = t => chatList.find(r => r.thread === t) || null;
   async function loadChats() {
     if (!uid) return;
+    const pins = loadPins();
     let { data, error } = await sb.rpc('my_chats_v2');
     if (error) ({ data } = await sb.rpc('my_chats'));
+    await pins;
     chatList = Array.isArray(data) ? data : [];
     window.dispatchEvent(new Event('fr-chats')); renderChatList(); renderFriends();
   }
@@ -2693,11 +2705,12 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     top.appendChild(mk('span', 'ch-t', chTitle(r)));
     const tg = chTag(r); if (tg) top.appendChild(mk('span', 'ch-tag', tg));
     top.appendChild(mk('span', 'ch-time', chTime(r.last_at)));
-    if (r.kind === 'crew') top.appendChild(pinSvg());
+    if (chPins.has(r.thread)) top.appendChild(pinSvg());
     bot.appendChild(mk('span', 'ch-p', chPreview(r)));
     if (r.notify === false) bot.appendChild(muteSvg());
     if (r.unread) bot.appendChild(mk('span', 'ch-n', r.unread > 99 ? '99+' : String(r.unread)));
     mid.append(top, bot); b.append(chIcon(r), mid);
+    holdForMenu(b, r);
     b.addEventListener('click', () => openThreadKey(r.thread));
     return b;
   }
@@ -2708,11 +2721,12 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     const foot = mk('span', 'ch-foot');
     const c = crews.find(x => x.id === r.crew_id);
     foot.appendChild(mk('span', 'ch-meta', r.kind === 'crewfest' ? (r.going ? r.going + ' going' : r.crew_name || '') : r.kind === 'crew' ? (((c && c.members) || []).length + ' members') : r.kind === 'dm' ? 'Message' : 'Public'));
-    if (r.kind === 'crew') foot.appendChild(pinSvg());
+    if (chPins.has(r.thread)) foot.appendChild(pinSvg());
     if (r.notify === false) foot.appendChild(muteSvg());
     foot.appendChild(r.unread ? mk('span', 'ch-n ch-end', r.unread > 99 ? '99+' : String(r.unread)) : mk('span', 'ch-time ch-end', chTime(r.last_at)));
     // The footer already says how many are going, so an empty chat just says so.
     b.append(head, mk('span', 'ch-p', r.last_body ? chPreview(r) : 'No messages yet'), foot);
+    holdForMenu(b, r);
     b.addEventListener('click', () => openThreadKey(r.thread));
     return b;
   }
@@ -2723,25 +2737,55 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     const cb = document.getElementById('crew-chat-n'); if (cb) { cb.hidden = !n; cb.textContent = n > 99 ? '99+' : String(n); }
     const go = document.getElementById('crew-chat-go'); if (go) { go.hidden = !c; go.setAttribute('aria-label', 'Open crew chat' + (n ? ', ' + n + ' new' : '')); }
   }
-  // WhatsApp-style list: search, filter chips (All, Unread, Crews, Festivals, Friends, + new crew), one list with crews pinned.
-  let chFilter = 'all', chQuery = '';
-  const CH_FILTERS = [['all', 'All'], ['unread', 'Unread'], ['crew', 'Crews'], ['fest', 'Festivals'], ['dm', 'Friends']];
+  // WhatsApp-style list: search, All / Unread chips, one list. Members pin up to 3 chats (press and hold, or right-click);
+  // the rest sort newest first, and a crew with no messages yet counts from when you joined it.
+  let chFilter = 'all', chQuery = '', chPins = new Set();
+  const CH_FILTERS = [['all', 'All'], ['unread', 'Unread']];
   const chKind = r => r.kind === 'crew' ? 'crew' : r.kind === 'dm' ? 'dm' : 'fest';
+  // Newest activity: last message, or for a quiet crew chat the day I joined the crew.
+  function chWhen(r) {
+    if (r.last_at) return r.last_at;
+    if (r.kind === 'crew') { const c = crews.find(x => x.id === r.crew_id), m = c && (c.members || []).find(x => x.id === uid); if (m && m.joined) return String(m.joined); }
+    return '';
+  }
+  async function loadPins() {
+    try { const { data, error } = await sb.from('chat_pins').select('thread'); if (!error && Array.isArray(data)) chPins = new Set(data.map(x => x.thread)); } catch (e) {}
+  }
+  let pinFor = null;
+  function openPinMenu(r) {
+    pinFor = r; const on = chPins.has(r.thread);
+    document.getElementById('pin-h').textContent = chTitle(r);
+    document.getElementById('pin-go-t').textContent = on ? 'Unpin chat' : 'Pin chat';
+    document.getElementById('pin-note').textContent = on ? 'It goes back to its place by newest message.' : chPins.size >= 3 ? 'You can pin up to 3 chats. Unpin one first.' : 'Pinned chats stay at the top. You can pin up to 3.';
+    document.getElementById('pin-go').disabled = !on && chPins.size >= 3;
+    document.getElementById('pinsheet').showModal();
+  }
+  document.getElementById('pin-go').addEventListener('click', async () => {
+    const r = pinFor; if (!r) return; const on = chPins.has(r.thread); document.getElementById('pinsheet').close();
+    const { error } = on ? await sb.from('chat_pins').delete().eq('user_id', uid).eq('thread', r.thread) : await sb.from('chat_pins').insert({ user_id: uid, thread: r.thread });
+    if (error) { toast(/limit/.test(error.message || '') ? 'You can pin up to 3 chats.' : 'That didn\'t save. Try again.'); await loadPins(); renderChatList(); return; }
+    if (on) chPins.delete(r.thread); else chPins.add(r.thread);
+    toast(on ? 'Unpinned' : 'Pinned to the top'); renderChatList();
+  });
+  // Press and hold (phones) or right-click (computers) a chat for Pin / Unpin.
+  function holdForMenu(b, r) {
+    let t = null, held = false;
+    const clear = () => { clearTimeout(t); t = null; };
+    b.addEventListener('pointerdown', e => { if (e.button) return; held = false; clear(); t = setTimeout(() => { held = true; if (navigator.vibrate) try { navigator.vibrate(15); } catch (x) {} openPinMenu(r); }, 500); });
+    ['pointerup', 'pointerleave', 'pointercancel', 'pointermove'].forEach(ev => b.addEventListener(ev, e => { if (ev === 'pointermove' && Math.abs(e.movementX) + Math.abs(e.movementY) < 4) return; clear(); }));
+    b.addEventListener('contextmenu', e => { e.preventDefault(); clear(); if (!held) openPinMenu(r); held = true; setTimeout(() => { held = false; }, 400); });
+    b.addEventListener('click', e => { if (held) { e.preventDefault(); e.stopImmediatePropagation(); held = false; } }, true);
+  }
   function renderChatFilters(all) {
     const box = document.getElementById('ch-filters'); if (!box) return;
     box.replaceChildren();
     CH_FILTERS.forEach(([k, label]) => {
       const n = k === 'unread' ? all.filter(r => r.unread).length : 0;
-      if (k !== 'all' && k !== 'unread' && !all.some(r => chKind(r) === k)) return;
       const b = mk('button', 'chip', label); b.type = 'button'; b.setAttribute('aria-pressed', String(chFilter === k));
       if (n) b.appendChild(mk('span', 'chip-n', String(n)));
       b.addEventListener('click', () => { chFilter = k; renderChatList(); });
       box.appendChild(b);
     });
-    const plus = mk('button', 'chip chip-plus'); plus.type = 'button'; plus.setAttribute('aria-label', 'Start a crew'); plus.title = 'Start a crew';
-    plus.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
-    plus.addEventListener('click', () => FR.openNewCrew());
-    box.appendChild(plus);
   }
   function renderChatList() {
     renderChatBadges();
@@ -2752,7 +2796,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     if (!uid) { const e = mk('div', 'empty', 'Sign in to chat with your crew and friends. '); const b = mk('button', 'abtn', 'Sign in'); b.type = 'button'; b.addEventListener('click', () => FR.openSignIn()); e.appendChild(b); box.appendChild(e); return; }
     const mine = new Set(crews.map(c => c.id));
     const all = chatList.filter(r => r.kind === 'public' || r.kind === 'dm' || mine.has(r.crew_id))
-      .sort((a, b) => (a.kind === 'crew' ? 0 : 1) - (b.kind === 'crew' ? 0 : 1) || (b.last_at || '').localeCompare(a.last_at || '') || chTitle(a).localeCompare(chTitle(b)));
+      .sort((a, b) => (chPins.has(a.thread) ? 0 : 1) - (chPins.has(b.thread) ? 0 : 1) || chWhen(b).localeCompare(chWhen(a)) || chTitle(a).localeCompare(chTitle(b)));
     renderChatFilters(all);
     const q = chQuery.trim().toLowerCase();
     const shown = all.filter(r => (chFilter === 'all' || (chFilter === 'unread' ? r.unread : chKind(r) === chFilter))
@@ -2771,11 +2815,16 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
   // New chat sheet: start a crew, add a friend (friend code), or message a friend.
   function openNewChat() {
     const d = document.getElementById('newchat'), box = document.getElementById('nc-friends'); box.replaceChildren();
-    const fs = friends.filter(f => !f.blocked).sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
-    if (!fs.length) box.appendChild(mk('div', 'empty', 'No friends yet. Add one with your friend code, or invite people to your crew.'));
+    // Friends from a code plus everyone in my crews (crewmates can always message each other).
+    const byId = new Map();
+    friends.filter(f => !f.blocked).forEach(f => byId.set(f.id, { id: f.id, name: f.name, crew: !!f.crew }));
+    crews.forEach(c => (c.members || []).forEach(m => { if (m.id === uid) return; const p = FRProf.get(m.id); if (p && (p.blocked || p.blocked_me || p.i_blocked)) return; const x = byId.get(m.id); if (x) x.crew = true; else byId.set(m.id, { id: m.id, name: (p && p.name) || m.name, crew: true }); }));
+    const fs = [...byId.values()].sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+    if (!fs.length) box.appendChild(mk('div', 'empty', 'Nobody to message yet. Add a friend with your code, or invite people to a crew.'));
     fs.forEach(f => {
       const b = mk('button', 'nc-friend'); b.type = 'button';
       b.append(personAv(f.id, f.name, 'ch-pav'), mk('span', null, f.name || 'Friend'));
+      if (f.crew) b.appendChild(mk('small', null, 'Crew'));
       b.addEventListener('click', () => { d.close(); FRChat.openDm(f.id); });
       box.appendChild(b);
     });
