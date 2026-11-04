@@ -516,6 +516,10 @@ dialog.pcard .pc-inv select { width: auto; flex: 1; min-width: 0; margin: 0; }
 .crew-mems .fl-row .lnk { margin-left: auto; font: inherit; font-size: 13px; font-weight: 700; color: var(--cyan); background: none; border: none; cursor: pointer; padding: 4px 0; }
 .crew-mems .fl-tag.own { color: var(--muted); margin-left: auto; }
 .crew-mems .fl-tag.own + .lnk { margin-left: 8px; }
+.crew-mems .fl-row .lnk + .lnk { margin-left: 12px; }
+.crew-mems .lnk.danger, .crew-acts .lnk.danger { color: var(--pink); }
+.crew-acts { display: flex; gap: 16px; padding: 12px 0 2px; }
+.crew-acts .lnk { font: inherit; font-size: 13px; font-weight: 700; color: var(--cyan); background: none; border: none; cursor: pointer; padding: 4px 0; }
 #newchat .nc-acts { display: flex; flex-direction: column; gap: 4px; }
 #newchat .nc-act, #newchat .nc-friend { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 6px; border: 0; border-radius: 12px; background: transparent; color: var(--fg); font: inherit; font-size: 16px; font-weight: 700; text-align: left; cursor: pointer; }
 #newchat .nc-act:hover, #newchat .nc-friend:hover { background: var(--panel-2); }
@@ -1044,6 +1048,7 @@ dialog.help ul { margin: 0 0 14px; padding-left: 18px; font-size: 14px; }
 dialog.help li + li { margin-top: 5px; }
 dialog.help .help-intro { margin: 10px 0 12px; }
 .acct { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--grad); color: var(--on-accent); font: inherit; font-weight: 800; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0; flex: none; }
+.acct.ph { background-size: cover; background-position: center; background-color: var(--panel); }
 .acct svg { width: 22px; height: 22px; fill: none; stroke: var(--on-accent); stroke-width: 1.8; }
 .mnav .mn-right { display: flex; gap: 8px; align-items: center; }
 dialog.sheet { background: var(--panel); color: var(--fg); border: 1px solid var(--line); border-radius: 16px; padding: 0; width: min(520px, calc(100vw - 24px)); max-height: calc(100vh - 32px); box-shadow: 0 20px 60px rgba(0,0,0,.6), 0 0 30px -12px var(--pink); }
@@ -1052,6 +1057,12 @@ dialog.sheet .sh-head { position: sticky; top: 0; display: flex; justify-content
 dialog.sheet .sh-head h2 { margin: 0; }
 dialog.sheet .sh-x { font: inherit; font-size: 22px; line-height: 1; width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; }
 dialog.sheet .sh-body { padding: 4px 18px 20px; }
+dialog.sheet .set-me { display: flex; align-items: center; gap: 12px; padding: 4px 0 6px; }
+dialog.sheet .set-me .set-av { width: 52px; height: 52px; font-size: 20px; cursor: default; }
+dialog.sheet .set-me-t { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+dialog.sheet .set-me-t b { font-size: 17px; overflow-wrap: anywhere; }
+dialog.sheet .set-me-t .muted { font-size: 13px; overflow-wrap: anywhere; }
+dialog.sheet .set-sub { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 16px 0 8px; }
 dialog.sheet h3 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--cyan); margin: 20px 0 8px; }
 dialog.sheet .line { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 dialog.sheet input[type=text] { font: inherit; font-size: 16px; flex: 1 1 180px; min-width: 0; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
@@ -1106,7 +1117,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 <div class="wrap">
   <nav class="mnav" aria-label="Sections">
     <a class="mn-title" href="#top" id="mn-home">Festival Radar</a>
-    <div class="mn-right"><button type="button" class="abtn" id="mn-signin" hidden>Sign in</button><button type="button" class="help-btn" id="help-m" aria-label="How to use" title="How to use">?</button><button type="button" class="acct" id="acct-m" hidden aria-label="Settings"></button><button type="button" class="mn-btn" id="mn-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mn-panel"><span></span><span></span><span></span></button></div>
+    <div class="mn-right"><button type="button" class="abtn" id="mn-signin" hidden>Sign in</button><button type="button" class="acct" id="acct-m" hidden aria-label="Settings"></button><button type="button" class="mn-btn" id="mn-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mn-panel"><span></span><span></span><span></span></button></div>
     <div class="mn-panel" id="mn-panel" hidden></div>
   </nav>
   <nav class="dnav" id="dnav" aria-label="Sections">
@@ -1114,7 +1125,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <div class="dn-links">
       <button type="button" data-go="festivals">Festivals</button>
       <button type="button" data-go="calendar">Calendar</button>
-      <button type="button" data-go="radar">My Radar</button>
+      <button type="button" data-go="radar">My Radar<span class="tab-n" id="dn-radar-n" hidden></span></button>
       <button type="button" data-go="chats">Chats<span class="tab-n" id="dn-chats-n" hidden></span></button>
       <button type="button" data-go="admin" id="dn-admin" hidden>Admin</button>
       <a href="research.html" id="dn-research" hidden>Research</a>
@@ -1321,35 +1332,31 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 <dialog class="sheet" id="settings" aria-labelledby="set-h">
   <div class="sh-head"><h2 id="set-h">Settings</h2><button type="button" class="sh-x" data-close aria-label="Close">×</button></div>
   <div class="sh-body">
-    <h3>Profile</h3>
-    <div class="line"><input type="text" id="set-name" maxlength="60" aria-label="Your name"><button type="button" class="abtn" id="set-name-save">Save name</button><button type="button" class="abtn alt" id="set-edit-profile">Edit profile</button></div>
-    <p class="muted" id="set-email"></p>
-    <h3>Your crews</h3>
-    <div id="set-crews"></div>
-    <div class="line"><input type="text" id="set-newcrew" maxlength="40" placeholder="New crew name" aria-label="New crew name"><button type="button" class="abtn alt" id="set-newcrew-go">Create crew</button></div>
-    <details class="set-sec" id="set-view-sec">
-      <summary><span>View</span><small>3 options</small></summary>
+    <div class="set-me">
+      <span class="acct set-av" id="set-av" aria-hidden="true"></span>
+      <div class="set-me-t"><b id="set-me-name"></b><span class="muted" id="set-email"></span></div>
+      <button type="button" class="abtn alt" id="set-edit-profile">Edit profile</button>
+    </div>
+    <details class="set-sec" id="set-look-sec">
+      <summary><span>Appearance</span><small id="set-skin-cur"></small></summary>
       <div class="setrow"><span>See all my crews together<br><span class="muted">Crew favorites count every crew you're in.</span></span><button type="button" class="sw" id="set-allcrews" role="switch" aria-checked="false" aria-label="See all my crews together"><span class="knob"></span></button></div>
       <div class="setrow"><span>Always show my favorite artists<br><span class="muted">Shows with an artist you love stay on the calendar and in Festivals even when club shows and concerts are off. Pass on one and it goes back to normal.</span></span><button type="button" class="sw" id="set-favalways" role="switch" aria-checked="true" aria-label="Always show my favorite artists"><span class="knob"></span></button></div>
       <div class="setrow"><span>Include club shows and concerts</span><button type="button" class="sw" id="set-shows" role="switch" aria-checked="false" aria-label="Include club shows and concerts"><span class="knob"></span></button></div>
-    </details>
-    <details class="set-sec" id="set-skin-sec">
-      <summary><span>Skin</span><small id="set-skin-cur"></small></summary>
+      <h4 class="set-sub">Skin</h4>
       <div class="skins" id="set-skins" role="radiogroup" aria-label="Skin"></div>
       <p class="muted">Saved on this device.</p>
     </details>
     <h3>Notifications</h3>
-    <div class="setrow"><span>Add me to event crew chats when I select Going<br><span class="muted">Follows that festival's chat in each of your crews, so it shows in your Chats and can notify you.</span></span><button type="button" class="sw" id="set-chat-going" role="switch" aria-checked="true" aria-label="Add me to event crew chats when I select Going"><span class="knob"></span></button></div>
-    <div class="setrow"><span>Show when I've read messages<br><span class="muted">Your crew and friends see "Seen by" under messages you've read. Turn it off and you won't see theirs either.</span></span><button type="button" class="sw" id="set-show-read" role="switch" aria-checked="true" aria-label="Show when I've read messages"><span class="knob"></span></button></div>
     <div id="set-alerts">
-      <div class="setrow"><span>Presale alerts on this device<br><span class="muted">24 hours and 15 minutes before tickets go on sale for your festivals.</span></span><button type="button" class="sw" id="set-notify" role="switch" aria-checked="false" aria-label="Presale alerts on this device"><span class="knob"></span></button></div>
-      <div class="setrow"><span>Crew pings and chats on this device<br><span class="muted">When a crewmate marks Going on your festivals, and new messages in your chats. Bundled.</span></span><button type="button" class="sw" id="set-crew" role="switch" aria-checked="false" aria-label="Crew pings on this device"><span class="knob"></span></button></div>
+      <div class="setrow"><span>Alerts on this device<br><span class="muted">Presales 24 hours and 15 minutes before tickets drop for your festivals, crewmates going, and new messages. Mute a single chat from its Notifications switch.</span></span><button type="button" class="sw" id="set-notify" role="switch" aria-checked="false" aria-label="Alerts on this device"><span class="knob"></span></button></div>
       <p class="muted set-note" id="set-notify-note" hidden></p>
       <div class="line" id="set-notify-allow-wrap" hidden><button type="button" class="abtn" id="set-notify-allow">Allow alerts</button></div>
       <div class="line" id="set-notify-test-wrap" hidden><button type="button" class="lnk" id="set-notify-test">Send a test alert</button><span class="muted" id="set-notify-test-msg" aria-live="polite"></span></div>
     </div>
+    <h3>Privacy</h3>
+    <div class="setrow"><span>Show when I've read messages<br><span class="muted">Your crew and friends see "Seen by" under messages you've read. Turn it off and you won't see theirs either.</span></span><button type="button" class="sw" id="set-show-read" role="switch" aria-checked="true" aria-label="Show when I've read messages"><span class="knob"></span></button></div>
     <h3>Account</h3>
-    <div class="line"><button type="button" class="abtn alt" id="set-invite">Invite friends</button><button type="button" class="abtn alt" id="set-feedback">Send feedback</button><button type="button" class="abtn alt" id="set-signout">Sign out</button></div>
+    <div class="line"><button type="button" class="abtn alt" id="set-signout">Sign out</button></div>
   </div>
 </dialog>
 <dialog class="sheet" id="invite" aria-labelledby="inv-h">
@@ -1442,6 +1449,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <p class="muted">Up to 3. The first is your main photo. Photos are resized on your device and location info is removed before upload. Keep it you, and keep it clean.</p>
     <p class="muted pe-photo-msg" id="pe-photo-msg" aria-live="polite" hidden></p>
     <h3>About</h3>
+    <label class="pe-l" for="set-name">Name</label>
+    <div class="line"><input type="text" id="set-name" maxlength="60"><button type="button" class="abtn alt" id="set-name-save">Save name</button></div>
     <label class="pe-l" for="pe-bio">Short bio</label>
     <input type="text" id="pe-bio" maxlength="160" placeholder="Bass head, always at the rail">
     <label class="pe-l" for="pe-city">City (optional)</label>
@@ -1460,8 +1469,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <p class="help-intro">Festival Radar tracks electronic festivals and shows, warns you before tickets drop, and keeps your crew on the same page.</p>
     <details open><summary>Getting Started</summary><ul>
       <li>Sign in with Google or an email link. You'll confirm you're 18 or older once.</li>
-      <li>Join a crew from a friend's invite link, or start your own in Settings and invite people.</li>
+      <li>Join a crew from a friend's invite link, or start your own with the + in Chats and invite people.</li>
       <li>Add a photo and a short bio from Edit profile in Settings, so your crew can put a face to a name.</li>
+      <li>Tap your photo (or initial) at the top for Settings. On a phone, the menu next to it has How to use, Send feedback and Invite friends.</li>
     </ul></details>
     <details><summary>Festivals and Picks</summary><ul>
       <li>Local, USA and World widen out from your crew's home base: USA includes Local, and World includes everything. Turn off Include Local festivals to see only the ones farther away. Tap a festival name for its site and an artist for Spotify.</li>
@@ -1478,7 +1488,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <li>My Radar has two sections, My Festivals and My Artists. Tap a heading to open it.</li>
       <li>My Festivals lists the festivals you've hearted or marked Going or Maybe. Ones with a presale coming up jump to the top with the sale date and a light.</li>
       <li>Festivals that are over drop out of the list. Tap Show past events under My Festivals to see them again, with the date each one ended.</li>
-      <li>Turn on alerts in Settings > Notifications to get a heads-up 24 hours and 15 minutes before tickets go on sale. Tapping the alert takes you to tickets.</li>
+      <li>Turn on Alerts on this device in Settings (tap your photo at the top) to get a heads-up 24 hours and 15 minutes before tickets go on sale, plus crew pings and new messages. Tapping a presale alert takes you to tickets. To quiet one chat, turn off Notifications inside it.</li>
+      <li>The My Radar tab shows a pink number when your festivals have confirmed ticket sales in the next 7 days.</li>
       <li>Next year: when a festival you went to ends, its next edition is added to your festivals automatically once it's announced, so you get its presale alerts. Undo it any time under Watch list at the bottom of My Festivals. For festivals you only hearted or marked Maybe, My Radar asks "Watch for next year?" instead.</li>
       <li>On iPhone, alerts need the site on your Home Screen: in Safari tap Share, then Add to Home Screen, and open it from there.</li>
       <li>My Artists: pick your favorite artists. Each one shows the festivals it's playing; tap one to jump there, or the heart to remove the artist. Festivals with your crew's favorites on the lineup get highlighted. Can't find one? Type it in and send it to Bill.</li>
@@ -1487,15 +1498,15 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <li>Every crew has its own chat, pinned at the top of Chats. Tap the crew's name at the top of its chat to open Crew Info: what your crew is going to, festivals with two or more of you Going, everyone's favorite artists, and the members.</li>
       <li>Crews are optional. Planning solo? Everything else works without one.</li>
       <li>Start a crew with the + in Chats (you can start up to 5). It works right away and shows "Waiting for your first member" until a friend joins.</li>
-      <li>Invite friends from Crew Info, the menu or Settings. Share invite link opens your phone's share sheet, so you can send it by text to people in your contacts. Anyone with the link can join after signing in.</li>
+      <li>Invite friends from Crew Info or the menu. Crew Info is also where you rename a crew you started, remove members, or leave a crew. Share invite link opens your phone's share sheet, so you can send it by text to people in your contacts. Anyone with the link can join after signing in.</li>
     </ul></details>
     <details><summary>Chats</summary><ul>
       <li>Everything lives in the Chats tab: your crews (pinned on top), festival chats, and messages with friends, newest first. A pink number shows how many you haven't read.</li>
       <li>Search at the top, or tap a chip to show only Unread, Crews, Festivals or Friends. The + chip starts a crew.</li>
       <li>Tap the new chat button (bottom right on a phone, + next to the Chats title on a computer) to start a crew, add a friend, or message one.</li>
-      <li>Every festival has a crew chat and a public chat. The chat bubble on a festival card takes you straight there. Marking Going adds you to that festival's crew chat (you can turn this off in Settings).</li>
+      <li>Every festival has a crew chat and a public chat. The chat bubble on a festival card takes you straight there. Marking Going adds you to that festival's crew chat. Don't want it? Turn off Notifications in that chat.</li>
       <li>In a crew chat, Going together shows the festivals two or more of you are going to. Tap the top of any chat for Crew Info, a friend's profile, or the festival.</li>
-      <li>In a crew chat or a message with a friend, you'll see when someone is typing, a "New" line above messages you haven't read yet, and "Seen by" under the newest message. Don't want others to see when you've read something? Turn off "Show when I've read messages" in Settings (you won't see theirs either).</li>
+      <li>In a crew chat or a message with a friend, you'll see when someone is typing, a "New" line above messages you haven't read yet, and "Seen by" under the newest message. Don't want others to see when you've read something? Turn off "Show when I've read messages" in Settings > Privacy (you won't see theirs either).</li>
       <li>Public chats are seen by everyone on Festival Radar. Don't share where you're staying or other private details.</li>
       <li>Use the ⋯ next to a message to edit or delete your own, report one, or mute someone in public chats. You can edit a message for 15 minutes after sending it, and it shows "edited".</li>
     </ul></details>
@@ -1642,9 +1653,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
 <nav class="btabs" id="btabs" aria-label="Jump to section">
   <button type="button" data-go="festivals"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8a2 2 0 0 0 0 4v4h16v-4a2 2 0 0 1 0-4V4H4z"/><path d="M10 4v12" stroke-dasharray="2 2"/></svg>Festivals</button>
   <button type="button" data-go="calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendar</button>
-  <button type="button" data-go="radar"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><path d="M12 12l5.5-5.5"/></svg>My Radar</button>
+  <button type="button" data-go="radar"><span class="bt-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><path d="M12 12l5.5-5.5"/></svg><span class="tab-n" id="bt-radar-n" hidden></span></span>My Radar</button>
   <button type="button" data-go="chats"><span class="bt-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.5a8 8 0 0 1-11.7 7.1L3.5 20l1.4-4.9a8 8 0 1 1 15.6-3.6Z"/></svg><span class="tab-n" id="bt-chats-n" hidden></span></span>Chats</button>
-  <button type="button" data-go="admin" id="btab-admin" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Admin</button>
 </nav>
 <script>
 (() => {
@@ -2033,7 +2043,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   const setCrew = v => { try { localStorage.setItem('fr-crew-want', v ? '1' : '0'); } catch (e) {} };
   const anyWant = () => lsWant() || lsCrew();
   async function refreshNotify(msg) {
-    const sw = document.getElementById('set-notify'), cs = document.getElementById('set-crew'), note = document.getElementById('set-notify-note'), tw = document.getElementById('set-notify-test-wrap'), aw = document.getElementById('set-notify-allow-wrap'); if (!sw) return;
+    const sw = document.getElementById('set-notify'), note = document.getElementById('set-notify-note'), tw = document.getElementById('set-notify-test-wrap'), aw = document.getElementById('set-notify-allow-wrap'); if (!sw) return;
     const say = t => { note.hidden = !t; note.textContent = t || ''; };
     let subbed = false, usable = false; aw.hidden = true;
     if (!pushOK()) say(isIOS && !isStandalone() ? 'On iPhone and iPad, alerts work once Festival Radar is on your Home Screen: tap Share, then Add to Home Screen, open it from there, and turn these on.' : 'This browser can\'t show alerts. Try Chrome, Edge, Firefox or Safari.');
@@ -2045,9 +2055,8 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       if (anyWant() && !subbed) { aw.hidden = false; say(msg || 'Almost there: allow notifications so alerts can reach this device.'); }
       else say(msg || '');
     }
-    sw.disabled = cs.disabled = !usable;
-    sw.setAttribute('aria-checked', String(usable && lsWant()));
-    cs.setAttribute('aria-checked', String(usable && lsCrew()));
+    sw.disabled = !usable;
+    sw.setAttribute('aria-checked', String(usable && anyWant()));
     tw.hidden = !subbed;
   }
   window.FRNotify = { refresh: () => refreshNotify() };
@@ -2068,7 +2077,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   };
   function wireNotify() {
     const sw = document.getElementById('set-notify'); if (!sw || sw.dataset.wired) return; sw.dataset.wired = '1';
-    // Either switch: if neither is wanted, the device is removed; otherwise it's subscribed with both choices saved.
+    // Off: the device is removed. On: it's subscribed with presales and crew pings both on.
     const apply = async () => {
       let msg = '';
       try {
@@ -2077,10 +2086,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       } catch (e) { msg = 'Couldn\'t change alerts. Check your connection and try again.'; }
       await refreshNotify(msg);
     };
-    const turnOn = async () => { if (!anyWant()) setWant(true); await apply(); };
-    const flip = (btn, get, set) => btn.addEventListener('click', async () => { if (btn.disabled) return; sw.disabled = cs.disabled = true; set(!(btn.getAttribute('aria-checked') === 'true')); await apply(); });
-    const cs = document.getElementById('set-crew');
-    flip(sw, lsWant, setWant); flip(cs, lsCrew, setCrew);
+    // One switch per device covers presales, crew pings and chat messages; single chats are muted from the chat itself.
+    const turnOn = async () => { setWant(true); setCrew(true); await apply(); };
+    sw.addEventListener('click', async () => { if (sw.disabled) return; sw.disabled = true; const on = sw.getAttribute('aria-checked') !== 'true'; setWant(on); setCrew(on); await apply(); });
     document.getElementById('set-notify-allow').addEventListener('click', turnOn);
     document.getElementById('ask-yes').addEventListener('click', async () => { document.getElementById('ask-bar').hidden = true; if (pushOK()) await turnOn(); });
     document.getElementById('ask-no').addEventListener('click', () => { document.getElementById('ask-bar').hidden = true; });
@@ -2302,6 +2310,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     await loadProfiles([uid], true);
     const me = profCache[uid] || {};
     pe = { photos: (me.photos || []).slice() };
+    { const ni = document.getElementById('set-name'); if (ni && me.name) ni.value = me.name; }
     document.getElementById('pe-bio').value = me.bio || ''; document.getElementById('pe-city').value = me.city || '';
     setSw('pe-showage', me.show_age); setSw('pe-private', me.private);
     document.getElementById('pe-msg').textContent = ''; photoMsg('');
@@ -3147,13 +3156,6 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     });
     document.getElementById('chat-bcool-no').addEventListener('click', () => { document.getElementById('chat-bcool').hidden = true; pendingSend = null; });
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { if (cur) loadMessages(false).catch(() => {}); loadChats().catch(() => {}); } });
-    // Settings: follow festival crew chats when marking Going
-    const sg = document.getElementById('set-chat-going');
-    sg.addEventListener('click', async () => {
-      const on = sg.getAttribute('aria-checked') !== 'true'; sg.setAttribute('aria-checked', String(on));
-      const { error } = await sb.rpc('set_chat_follow_going', { p_on: on });
-      if (error) sg.setAttribute('aria-checked', String(!on)); else { chatPrefs.follow_going = on; renderChatList(); }
-    });
     const sr = document.getElementById('set-show-read');
     sr.addEventListener('click', async () => {
       const on = sr.getAttribute('aria-checked') !== 'true'; sr.setAttribute('aria-checked', String(on));
@@ -3167,7 +3169,8 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     const [{ data: pr }, { data: mu }] = await Promise.all([sb.rpc('my_chat_prefs'), sb.from('chat_mutes').select('muted')]);
     if (pr) chatPrefs = { follow_going: pr.follow_going !== false, banned: !!pr.banned, show_read: pr.show_read !== false };
     document.getElementById('set-show-read').setAttribute('aria-checked', String(chatPrefs.show_read !== false));
-    document.getElementById('set-chat-going').setAttribute('aria-checked', String(chatPrefs.follow_going));
+    // Marking Going always adds you to that festival's crew chat now (Bill, Nov 4, 2026); turn it back on for anyone who had switched it off.
+    if (!chatPrefs.follow_going) sb.rpc('set_chat_follow_going', { p_on: true }).then(({ error }) => { if (!error) chatPrefs.follow_going = true; }).catch(() => {});
     chatMutes = new Set((mu || []).map(r => r.muted));
     await loadChats();
     // A tapped chat notification opens ?chat=<thread>
@@ -3212,7 +3215,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       document.getElementById('admin').hidden = false; window.FRIsAdmin = true;
       // Crew activity feed: admin only (Bill, Nov 3, 2026: it could feel creepy to members).
       const ca = document.getElementById('crew-activity'); if (ca) { ca.hidden = false; const cd = document.getElementById('crew-dash'); if (cd) cd.classList.remove('one'); }
-      const t = document.getElementById('btab-admin'); if (t) { t.hidden = false; t.parentElement.classList.add('six'); } const da = document.getElementById('dn-admin'); if (da) da.hidden = false; const ma = document.getElementById('mn-admin'); if (ma) ma.hidden = false;
+      const da = document.getElementById('dn-admin'); if (da) da.hidden = false; const ma = document.getElementById('mn-admin'); if (ma) ma.hidden = false;
       if (window.FRTabFromHash && FRTabFromHash() === 'admin' && window.FRTab) FRTab('admin', { push: false, scroll: false });
       loadAdmin().catch(() => {}); loadReports().catch(() => {}); loadFeedbackAdmin().catch(() => {});
     }
@@ -3277,6 +3280,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     const seen = new Map();
     (allCrews ? crews : crews.filter(c => c.id === activeCrew)).forEach(c => (c.members || []).forEach(m => { if (!seen.has(m.id)) seen.set(m.id, { ...m, owner: m.role === 'owner' && !allCrews }); }));
     const ms = [...seen.values()].sort((a, b) => (b.id === uid) - (a.id === uid) || String(a.name || '').localeCompare(String(b.name || '')));
+    const ownCrew = !allCrews && crews.find(x => x.id === activeCrew && x.owner === uid);
     if (n) n.textContent = ms.length ? String(ms.length) : '';
     ms.forEach(m => {
       const row = mk('div', 'fl-row');
@@ -3284,8 +3288,17 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       b.addEventListener('click', () => openCard(m.id)); row.appendChild(b);
       if (m.owner) row.appendChild(mk('span', 'fl-tag own', 'Owner'));
       if (m.id !== uid) { const d = mk('button', 'lnk', 'Message'); d.type = 'button'; d.addEventListener('click', () => FRChat.openDm(m.id)); row.appendChild(d); }
+      if (ownCrew && m.id !== uid) { const rm = mk('button', 'lnk danger', 'Remove'); rm.type = 'button'; rm.addEventListener('click', async () => { if (!confirm('Remove ' + (m.name || 'this member') + ' from ' + ownCrew.name + '?')) return; const { error } = await sb.rpc('leave_or_remove', { c: ownCrew.id, who: m.id }); if (!error) loadCrews(); }); row.appendChild(rm); }
       box.appendChild(row);
     });
+    // Crew settings (moved here from Settings): rename (owner) and leave, for the crew in view.
+    const c = !allCrews && crews.find(x => x.id === activeCrew);
+    if (c) {
+      const own = c.owner === uid, acts = mk('div', 'crew-acts');
+      if (own) { const r = mk('button', 'lnk', 'Rename crew'); r.type = 'button'; r.addEventListener('click', async () => { const nn = prompt('Crew name:', c.name); if (!nn || !nn.trim()) return; const { error } = await sb.from('crews').update({ name: nn.trim().slice(0, 40) }).eq('id', c.id); if (!error) { toast('Renamed to ' + nn.trim().slice(0, 40)); loadCrews(); } }); acts.appendChild(r); }
+      const lv = mk('button', 'lnk danger', 'Leave crew'); lv.type = 'button'; lv.addEventListener('click', async () => { if (!confirm('Leave ' + c.name + '?' + (own ? ' Ownership passes to the next member.' : ''))) return; const { error } = await sb.rpc('leave_or_remove', { c: c.id, who: uid }); if (!error) { toast('You left ' + c.name); loadCrews(); } }); acts.appendChild(lv);
+      box.appendChild(acts);
+    } else if (allCrews && crews.length) box.appendChild(mk('div', 'fl-more', 'Pick one crew above to rename or leave it.'));
   }
   async function loadCrews() {
     const { data } = await sb.rpc('my_crews');
@@ -3478,7 +3491,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     if (!document.querySelector('dialog[open]')) d.showModal();
   };
 
-  // Start a crew: Crew tab card, the one-time pop-up and Settings all come through here.
+  // Start a crew: Crew tab card, the one-time pop-up and the + in Chats all come through here.
   async function startCrew(name) {
     const n = String(name || '').trim().slice(0, 40); if (!n) return { error: 'Give your crew a name.' };
     const { data, error } = await sb.rpc('create_crew', { crew_name: n });
@@ -3580,18 +3593,12 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     document.querySelectorAll('dialog.sheet [data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
     document.querySelectorAll('dialog.sheet').forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));
     document.getElementById('set-name-save').addEventListener('click', async () => { const ok = await FR.setName(document.getElementById('set-name').value); if (ok) { toast('Name saved'); setTimeout(() => location.reload(), 700); } });
-    document.getElementById('set-newcrew-go').addEventListener('click', async () => {
-      const inp = document.getElementById('set-newcrew'); const n = inp.value.trim(); if (!n) { inp.focus(); return; }
-      const r = await startCrew(n); if (r.error) { toast(r.error); return; }
-      inp.value = ''; document.getElementById('settings').close(); FR.openInvite(r.id);
-    });
     const sa = document.getElementById('set-allcrews');
     sa.addEventListener('click', () => { allCrews = !allCrews; lsSet('fr-all-crews', allCrews ? '1' : '0'); sa.setAttribute('aria-checked', String(allCrews)); recomputeVisible(); emitAll(); renderCrewPick(); });
     const fa = document.getElementById('set-favalways');
     fa.addEventListener('click', () => { const on = fa.getAttribute('aria-checked') !== 'true'; lsSet('fr-fav-always', on ? '1' : '0'); fa.setAttribute('aria-checked', String(on)); window.dispatchEvent(new Event('fr-settings')); });
     const ss = document.getElementById('set-shows');
     ss.addEventListener('click', () => { const t = document.getElementById('show-toggle'); if (t) t.click(); ss.setAttribute('aria-checked', t ? t.getAttribute('aria-checked') : 'false'); });
-    document.getElementById('set-invite').addEventListener('click', () => { document.getElementById('settings').close(); FR.openInvite(); });
     document.getElementById('set-signout').addEventListener('click', () => FR.signOut());
     const onC = document.getElementById('inv-crew-on'), selC = document.getElementById('inv-crew');
     onC.addEventListener('change', () => { selC.disabled = !onC.checked; document.getElementById('inv-new').hidden = !onC.checked; makeLink(false); });
@@ -3608,14 +3615,21 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     const fs = document.getElementById('foot-settings'); if (fs) { document.getElementById('foot-settings-wrap').hidden = false; fs.addEventListener('click', e => { e.preventDefault(); FR.openSettings(); }); document.getElementById('foot-invite').addEventListener('click', e => { e.preventDefault(); FR.openInvite(); }); }
     const am = document.getElementById('acct-m'); if (am) { am.hidden = false; am.textContent = (myName || '?').trim().charAt(0).toUpperCase() || '?'; am.addEventListener('click', () => FR.openSettings()); }
     const ad = document.getElementById('acct-d'); if (ad) { ad.hidden = false; ad.textContent = (myName || '?').trim().charAt(0).toUpperCase() || '?'; ad.addEventListener('click', () => FR.openSettings()); }
+    // Show my main photo in the avatar buttons (and the Settings header) once profiles load; the initial stays as the fallback.
+    const paintMe = () => {
+      const ph = window.FRProf && FRProf.photo(uid), nm = (window.FRProf && FRProf.get(uid) && FRProf.get(uid).name) || myName || '?', ini = nm.trim().charAt(0).toUpperCase() || '?';
+      ['acct-m', 'acct-d', 'set-av'].forEach(id => { const e = document.getElementById(id); if (!e) return;
+        if (ph) { e.classList.add('ph'); e.style.backgroundImage = 'url("' + ph + '")'; e.textContent = ''; }
+        else { e.classList.remove('ph'); e.style.backgroundImage = ''; e.textContent = ini; } });
+    };
+    window.addEventListener('fr-profiles', paintMe); paintMe(); window.FRPaintMe = paintMe;
     const di = document.getElementById('dn-invite'); if (di) { di.hidden = false; di.addEventListener('click', () => FR.openInvite()); }
-    // hamburger: Settings and Invite friends
+    // hamburger: Invite friends (Settings is the avatar)
     const panel = document.getElementById('mn-panel');
     if (panel) {
-      const sep = mk('div', 'mn-sep'); const a = mk('button', 'mn-cta', 'Settings'); a.type = 'button'; const b = mk('button', 'mn-cta', 'Invite friends'); b.type = 'button';
-      a.addEventListener('click', () => { document.getElementById('mn-btn').click(); FR.openSettings(); });
+      const b = mk('button', 'mn-cta', 'Invite friends'); b.type = 'button'; b.id = 'mn-invite';
       b.addEventListener('click', () => { document.getElementById('mn-btn').click(); FR.openInvite(); });
-      panel.append(sep, a, b);
+      panel.append(b);
     }
   }
 
@@ -3657,14 +3671,15 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
   const openSettings = (focus) => {
     const d = document.getElementById('settings'); if (!d || !uid) return;
     document.getElementById('set-name').value = myName || '';
-    document.getElementById('set-email').textContent = userEmail ? 'Signed in as ' + userEmail : '';
+    document.getElementById('set-me-name').textContent = (window.FRProf && FRProf.get(uid) && FRProf.get(uid).name) || myName || 'You';
+    document.getElementById('set-email').textContent = userEmail || '';
+    if (window.FRPaintMe) FRPaintMe();
     document.getElementById('set-allcrews').setAttribute('aria-checked', String(allCrews));
     document.getElementById('set-favalways').setAttribute('aria-checked', String(lsGet('fr-fav-always') !== '0'));
     const t = document.getElementById('show-toggle'); document.getElementById('set-shows').setAttribute('aria-checked', t ? t.getAttribute('aria-checked') : 'false');
     renderSettingsCrews(); renderSkins();
-    d.querySelectorAll('details.set-sec').forEach(x => { x.open = false; }); // long sections start collapsed
+    d.querySelectorAll('details.set-sec').forEach(x => { x.open = false; }); // Appearance starts collapsed
     d.showModal(); if (window.FRNotify) FRNotify.refresh();
-    if (focus === 'crews') setTimeout(() => document.getElementById('set-newcrew').focus(), 50);
   };
   const openInvite = (crewId) => {
     const d = document.getElementById('invite'); if (!d || !uid) return;
@@ -5168,17 +5183,13 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
   (function () {
     const btn = document.getElementById('mn-btn'), panel = document.getElementById('mn-panel');
     if (!btn || !panel) return;
-    const SECTIONS_NAV = [['festivals', 'Festivals'], ['calendar', 'Festival Calendar'], ['radar', 'My Radar'], ['chats', 'Chats'], ['admin', 'Admin']];
     const close = () => { panel.hidden = true; btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-label', 'Open menu'); };
     const open = () => { panel.hidden = false; btn.setAttribute('aria-expanded', 'true'); btn.setAttribute('aria-label', 'Close menu'); const f = panel.querySelector('button, a'); if (f) f.focus(); };
     const go = id => { close(); if (window.FRTab) FRTab(id); };
-    SECTIONS_NAV.forEach(([id, label]) => {
-      const b = document.createElement('button'); b.type = 'button'; b.textContent = label;
-      if (id === 'admin') { b.id = 'mn-admin'; b.hidden = true; }
-      b.addEventListener('click', () => go(id));
-      panel.appendChild(b);
-    });
-    const rs = document.createElement('a'); rs.href = 'research.html'; rs.id = 'mn-research'; rs.hidden = true; rs.textContent = 'Tower Control Research'; panel.appendChild(rs);
+    // The bottom tabs cover the main places; the menu holds the rest: How to use, Send feedback, Invite friends, and Admin for admins.
+    const ad = document.createElement('button'); ad.type = 'button'; ad.textContent = 'Admin'; ad.id = 'mn-admin'; ad.hidden = true; ad.style.order = 5;
+    ad.addEventListener('click', () => go('admin')); panel.appendChild(ad);
+    const rs = document.createElement('a'); rs.href = 'research.html'; rs.id = 'mn-research'; rs.hidden = true; rs.textContent = 'Tower Control Research'; rs.style.order = 6; panel.appendChild(rs);
     const extra = document.getElementById('mn-extra-link');
     if (extra) { const sep = document.createElement('div'); sep.className = 'mn-sep'; panel.appendChild(sep); const a = extra.cloneNode(true); a.removeAttribute('id'); a.hidden = false; a.className = 'mn-cta'; panel.appendChild(a); }
     btn.addEventListener('click', e => { e.stopPropagation(); panel.hidden ? open() : close(); });
@@ -5268,7 +5279,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     return null;
   };
   const nameOf = id => id === state.me ? 'You' : (realName(id) || 'Someone');
-  // How to Use guide: "?" by Settings on desktop and phone, and in the menu.
+  // How to Use guide: the How to use button on desktop, and the menu on phones.
   function openHelp() { const d = document.getElementById('help'); if (d && !d.open) d.showModal(); }
   window.FRHelp = openHelp;
   { const x = document.getElementById('help-x'); if (x) x.addEventListener('click', () => document.getElementById('help').close()); }
@@ -6054,7 +6065,16 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       });
     if (pastErr) my.appendChild(el('div', 'fl-more', 'Couldn\'t load dates for past events.'));
   }
+  // My Radar tab badge: my festivals with a confirmed sale time in the next 7 days (expected dates don't count).
+  function radarBadge() {
+    const now = Date.now();
+    const n = state.me ? myFestIds().map(id => state._all.find(f => f.id === id)).filter(f => { const s = f && saleInfo(f); return s && s.kind === 'confirmed' && s.t - now <= 7 * 864e5; }).length : 0;
+    ['dn-radar-n', 'bt-radar-n'].forEach(id => { const e = $(id); if (e) { e.hidden = !n; e.textContent = n > 9 ? '9+' : String(n); } });
+    const b = document.querySelector('#btabs [data-go="radar"]'); if (b) b.setAttribute('aria-label', 'My Radar' + (n ? ', ' + n + (n === 1 ? ' presale' : ' presales') + ' this week' : ''));
+  }
+  setInterval(radarBadge, 600000);
   function renderMyRadar() {
+    radarBadge();
     const my = $('my-fests'), pastBox = $('my-past'); if (!my || !pastBox) return;
     my.replaceChildren(); pastBox.replaceChildren();
     if (!state.me) {
