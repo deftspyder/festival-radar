@@ -19,7 +19,9 @@
 "start": "2027-06-11",
 "status": "Watch",
 "id": "a-state-of-trance-los-angeles-2027",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Lineup TBA",
@@ -39,7 +41,9 @@
 "start": "2027-04-30",
 "status": "Watch",
 "id": "beachlife-2027",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 33.8492,
+"lng": -118.3884
 },
 {
 "artists": "Lineup TBA",
@@ -59,7 +63,9 @@
 "start": "2027-06-26",
 "status": "On sale",
 "id": "beyond-wonderland-at-the-gorge-2027",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 47.079,
+"lng": -119.8556
 },
 {
 "artists": "Lineup TBA",
@@ -79,7 +85,9 @@
 "start": "2027-06-10",
 "status": "On sale",
 "id": "beyond-wonderland-midwest-2027",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 41.5252,
+"lng": -88.0834
 },
 {
 "artists": "Lineup TBA",
@@ -99,7 +107,9 @@
 "start": "2027-03-26",
 "status": "On sale",
 "id": "beyond-wonderland-socal-2027",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 34.1083,
+"lng": -117.2898
 },
 {
 "artists": "Lineup TBA",
@@ -119,7 +129,9 @@
 "start": "2027-05-28",
 "status": "On sale",
 "id": "bottlerock-napa-2027",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 38.2971,
+"lng": -122.2855
 },
 {
 "artists": "Lineup TBA",
@@ -139,7 +151,9 @@
 "start": "2027-04-16",
 "status": "On sale",
 "id": "breakaway-tampa-2027",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 27.9475,
+"lng": -82.4584
 },
 {
 "artists": "Lineup TBA",
@@ -159,7 +173,9 @@
 "start": "2027-04-09",
 "status": "Waitlist",
 "id": "coachella-2027",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 33.7207,
+"lng": -116.2168
 },
 {
 "artists": "DJ Snake, Marshmello, Alesso, Subtronics, Seven Lions, James Hype, Tchami, Oliver Heldens, NGHTMRE, TroyBoi, Matroda, LYNY b2b PEEKABOO, Space Laces, DJ Diesel, Walker & Royce, Wax Motif, TOKiMONSTA, Acraze",
@@ -179,7 +195,9 @@
 "start": "2026-12-31",
 "status": "On sale",
 "id": "countdown-nye-2026",
-"ticket_link": "https://countdownnye.frontgatetickets.com"
+"ticket_link": "https://countdownnye.frontgatetickets.com",
+"lat": 34.1083,
+"lng": -117.2898
 },
 {
 "artists": "The Prodigy, Josh Baker b4b KETTAMA b4b Prospa, Franky Rizardo, Hannah Laing, Jamie Jones (more TBA)",
@@ -199,7 +217,9 @@
 "start": "2027-08-26",
 "status": "On sale",
 "id": "creamfields-2027",
-"ticket_link": "https://creamfields.com/tickets/"
+"ticket_link": "https://creamfields.com/tickets/",
+"lat": 53.34,
+"lng": -2.633
 },
 {
 "artists": "Lineup TBA",
@@ -220,7 +240,9 @@
 "status": "Watch",
 "id": "crssd-spring-2027",
 "expected_sale": "2026-12-08",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 32.7157,
+"lng": -117.1647
 },
 {
 "artists": "&ME, Vintage Culture, Tiga, Victor Calderone, LP Giobbi, Chloe Caillet, RPR Soundsystem",
@@ -240,7 +262,9 @@
 "start": "2027-01-09",
 "status": "On sale",
 "id": "day-zero-tulum-2027",
-"ticket_link": "https://day-zero-tulum.ingresse.com/en/"
+"ticket_link": "https://day-zero-tulum.ingresse.com/en/",
+"lat": 20.2117,
+"lng": -87.4633
 },
 {
 "artists": "Disclosure, Patrick Topping, Zomboy, SLANDER, ISOxo, KETTAMA",
@@ -260,7 +284,9 @@
 "start": "2026-12-30",
 "status": "On sale",
 "id": "decadence-arizona-2026",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 33.4484,
+"lng": -112.074
 },
 {
 "artists": "Above & Beyond (Anjunabeats Classics), ARTBAT, Enrico Sangiuliano, Paul van Dyk, Ferry Corsten b2b Marsh, Vini Vici, Infected Mushroom, Dash Berlin, Reinier Zonneveld (live), Aly & Fila",
@@ -280,7 +306,9 @@
 "start": "2026-11-20",
 "status": "On sale",
 "id": "dreamstate-socal-2026",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 33.767,
+"lng": -118.1892
 },
 {
 "artists": "Lineup TBA",
@@ -300,7 +328,9 @@
 "start": "2027-05-14",
 "status": "On sale",
 "id": "edc-las-vegas-2027",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 36.175,
+"lng": -115.1372
 },
 {
 "artists": "Hardwell, Mau P b2b The Martinez Brothers, Beltran b2b Maetrik, Michael Mayer b2b Rebolledo, Ahmed Spins b2b LP Giobbi",
@@ -320,7 +350,9 @@
 "start": "2027-02-19",
 "status": "On sale",
 "id": "edc-mexico-2027",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 19.4285,
+"lng": -99.1277
 },
 {
 "artists": "Kaskade, Martin Garrix, David Guetta, Hardwell, Alesso, Afrojack, Alok, Alison Wonderland, Alan Walker, Adventure Club",
@@ -340,7 +372,9 @@
 "start": "2026-11-06",
 "status": "On sale",
 "id": "edc-orlando-2026",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 28.5383,
+"lng": -81.3792
 },
 {
 "artists": "Lineup TBA",
@@ -361,7 +395,9 @@
 "status": "Watch",
 "id": "electric-forest-2027",
 "expected_sale": "2026-12-09",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 43.5089,
+"lng": -86.3445
 },
 {
 "artists": "Lineup TBA",
@@ -381,7 +417,9 @@
 "start": "2027-06-23",
 "status": "Waitlist",
 "id": "glastonbury-2027",
-"ticket_link": "https://glastonbury.seetickets.com"
+"ticket_link": "https://glastonbury.seetickets.com",
+"lat": 51.15,
+"lng": -2.59
 },
 {
 "artists": "Lineup TBA",
@@ -401,7 +439,9 @@
 "start": "2027-05-13",
 "status": "On sale",
 "id": "infrasound-2027",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 43.7633,
+"lng": -93.3291
 },
 {
 "artists": "Lineup TBA",
@@ -421,7 +461,9 @@
 "start": "2027-05-26",
 "status": "Waitlist",
 "id": "lightning-in-a-bottle-2027",
-"ticket_link": "https://www.tixr.com/groups/dolab/events/lightning-in-a-bottle-2027-190857"
+"ticket_link": "https://www.tixr.com/groups/dolab/events/lightning-in-a-bottle-2027-190857",
+"lat": 35.3733,
+"lng": -119.0187
 },
 {
 "artists": "Lineup TBA",
@@ -441,7 +483,9 @@
 "start": "2027-05-29",
 "status": "On sale",
 "id": "movement-detroit-2027",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 42.3314,
+"lng": -83.0457
 },
 {
 "artists": "Kaskade, Marshmello, Subtronics, Fat Joe, The Fray, Big Boi, Three 6 Mafia, Freddie Gibbs, Cobra Starship, Joyce Manor",
@@ -461,7 +505,9 @@
 "start": "2026-11-20",
 "status": "On sale",
 "id": "neon-city-festival-2026",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 36.175,
+"lng": -115.1372
 },
 {
 "artists": "Kaskade, FISHER, Four Tet b2b Tiga, Cloonee b3b KETTAMA b3b Josh Baker, Lane 8, Sara Landry, I Hate Models, Klangkuenstler, Green Velvet, Chris Lorenzo, Eli Brown, Odd Mob, Ben Sterling, SIDEPIECE, Ship Wrek, Dombresky",
@@ -481,7 +527,9 @@
 "start": "2026-12-31",
 "status": "On sale",
 "id": "proper-nye-2026",
-"ticket_link": "https://events.leapevents.com/event/fngrs-crssd-presents-proper-nye-nyd-2027/tag/website"
+"ticket_link": "https://events.leapevents.com/event/fngrs-crssd-presents-proper-nye-nyd-2027/tag/website",
+"lat": 32.7157,
+"lng": -117.1647
 },
 {
 "artists": "Lineup TBA",
@@ -501,7 +549,9 @@
 "start": "2027-09-24",
 "status": "Watch",
 "id": "same-same-but-different-2027",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 33.858,
+"lng": -117.181
 },
 {
 "artists": "Adriatique, Obskür",
@@ -522,7 +572,9 @@
 "start": "2026-11-07",
 "status": "On sale",
 "id": "show-adriatique-at-reframe-studios-2026-11-07",
-"ticket_link": "https://link.dice.fm/S554a42abe77"
+"ticket_link": "https://link.dice.fm/S554a42abe77",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Afrojack, Murphy's Law, Joezi",
@@ -543,7 +595,9 @@
 "start": "2026-11-27",
 "status": "On sale",
 "id": "show-afrojack-at-shrine-expo-hall-2026-11-27",
-"ticket_link": "https://www.axs.com/events/1468576/afrojack-presents-control-tickets"
+"ticket_link": "https://www.axs.com/events/1468576/afrojack-presents-control-tickets",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Andy C",
@@ -564,7 +618,9 @@
 "start": "2026-11-26",
 "status": "On sale",
 "id": "show-andy-c-at-avalon-hollywood-2026-11-26",
-"ticket_link": "https://www.ticketweb.com/event/andy-c-avalon-hollywood-tickets/14335714"
+"ticket_link": "https://www.ticketweb.com/event/andy-c-avalon-hollywood-tickets/14335714",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Bedouin",
@@ -585,7 +641,9 @@
 "start": "2026-12-12",
 "status": "On sale",
 "id": "show-bedouin-presents-saga-at-reframe-studios-2026-12-12",
-"ticket_link": "https://dice.fm/event/v3lm7d-bedouin-presents-saga-12th-dec-reframe-studios-indoors-los-angeles-tickets"
+"ticket_link": "https://dice.fm/event/v3lm7d-bedouin-presents-saga-12th-dec-reframe-studios-indoors-los-angeles-tickets",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Lineup TBA",
@@ -606,7 +664,9 @@
 "start": "2026-12-10",
 "status": "On sale",
 "id": "show-black-book-records-presents-untitled-2026-12-10",
-"ticket_link": "https://link.dice.fm/Y8dcdfff0c14"
+"ticket_link": "https://link.dice.fm/Y8dcdfff0c14",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Bonobo",
@@ -627,7 +687,9 @@
 "start": "2026-11-11",
 "status": "On sale",
 "id": "show-bonobo-at-the-wiltern-2026-11-11",
-"ticket_link": "https://www.ticketmaster.com/kcrw-presents-bonobo-distance-in-static-los-angeles-california-11-11-2026/event/090064C3CC0645B7"
+"ticket_link": "https://www.ticketmaster.com/kcrw-presents-bonobo-distance-in-static-los-angeles-california-11-11-2026/event/090064C3CC0645B7",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Carl Cox, OMRI., Kidoo, Athena",
@@ -648,7 +710,9 @@
 "start": "2026-11-06",
 "status": "On sale",
 "id": "show-carl-cox-at-hollywood-palladium-2026-11-06",
-"ticket_link": "https://www.ticketmaster.com/event/09006503777A2802"
+"ticket_link": "https://www.ticketmaster.com/event/09006503777A2802",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Channel Tres",
@@ -669,7 +733,9 @@
 "start": "2026-11-28",
 "status": "On sale",
 "id": "show-channel-tres-at-the-novo-2026-11-28",
-"ticket_link": "https://www.axs.com/events/1428029/channel-tres-tickets"
+"ticket_link": "https://www.axs.com/events/1428029/channel-tres-tickets",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Deathpact, Jiqui",
@@ -690,7 +756,9 @@
 "start": "2026-11-07",
 "status": "On sale",
 "id": "show-deathpact-at-avalon-hollywood-2026-11-07",
-"ticket_link": "https://www.ticketweb.com/event/deathpact-w-jiqui-avalon-hollywood-tickets/14307674"
+"ticket_link": "https://www.ticketweb.com/event/deathpact-w-jiqui-avalon-hollywood-tickets/14307674",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Drumcode",
@@ -711,7 +779,9 @@
 "start": "2026-12-11",
 "status": "On sale",
 "id": "show-drumcode-la-at-reframe-studios-2026-12-11",
-"ticket_link": "https://dice.fm/event/mxyk5l-drumcode-la-11th-dec-reframe-studios-indoors-los-angeles-tickets"
+"ticket_link": "https://dice.fm/event/mxyk5l-drumcode-la-11th-dec-reframe-studios-indoors-los-angeles-tickets",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Eli Brown, HNTR, Linska, LEISAN",
@@ -732,7 +802,9 @@
 "start": "2026-11-14",
 "status": "On sale",
 "id": "show-eli-brown-at-city-market-2026-11-14",
-"ticket_link": "https://factory93.frontgatetickets.com/event/4hg42owm8sdgpwey"
+"ticket_link": "https://factory93.frontgatetickets.com/event/4hg42owm8sdgpwey",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "I Hate Models",
@@ -753,7 +825,9 @@
 "start": "2026-11-07",
 "status": "On sale",
 "id": "show-i-hate-models-disco-inferno-2026-11-07",
-"ticket_link": "https://insomniac.frontgatetickets.com/event/81ujdi2ddr0docom"
+"ticket_link": "https://insomniac.frontgatetickets.com/event/81ujdi2ddr0docom",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Innellea, Rafael Cerato",
@@ -774,7 +848,9 @@
 "start": "2026-11-06",
 "status": "On sale",
 "id": "show-innellea-at-avalon-hollywood-2026-11-06",
-"ticket_link": "https://www.ticketweb.com/event/innellea-w-rafael-cerato-avalon-hollywood-tickets/14297224"
+"ticket_link": "https://www.ticketweb.com/event/innellea-w-rafael-cerato-avalon-hollywood-tickets/14297224",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "John Summit",
@@ -795,7 +871,9 @@
 "start": "2026-12-12",
 "status": "On sale",
 "id": "show-john-summit-at-la-memorial-coliseum-2026-12-12",
-"ticket_link": "https://www.ticketmaster.com/john-summit-ctrl-escape-tour-los-angeles-california-12-12-2026/event/0A0064FFC2CDF6B7"
+"ticket_link": "https://www.ticketmaster.com/john-summit-ctrl-escape-tour-los-angeles-california-12-12-2026/event/0A0064FFC2CDF6B7",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Josh Baker, Marsolo, Sebs",
@@ -816,7 +894,9 @@
 "start": "2026-11-21",
 "status": "On sale",
 "id": "show-josh-baker-at-the-dock-2026-11-21",
-"ticket_link": "https://link.dice.fm/I88d0545d986"
+"ticket_link": "https://link.dice.fm/I88d0545d986",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "nimino",
@@ -837,7 +917,9 @@
 "start": "2026-12-18",
 "status": "On sale",
 "id": "show-nimino-at-reframe-studios-2026-12-18",
-"ticket_link": "https://link.dice.fm/ze23b73a8b47"
+"ticket_link": "https://link.dice.fm/ze23b73a8b47",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Nora En Pure",
@@ -858,7 +940,9 @@
 "start": "2026-12-19",
 "status": "On sale",
 "id": "show-nora-en-pure-at-reframe-studios-2026-12-19",
-"ticket_link": "https://dice.fm/event/xegxka-nora-en-pure-19th-dec-reframe-studios-indoors-los-angeles-tickets"
+"ticket_link": "https://dice.fm/event/xegxka-nora-en-pure-19th-dec-reframe-studios-indoors-los-angeles-tickets",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Riot Ten, Codd Dubz, Joust b2b Mongrel",
@@ -879,7 +963,9 @@
 "start": "2026-11-14",
 "status": "On sale",
 "id": "show-riot-ten-at-avalon-hollywood-2026-11-14",
-"ticket_link": "https://www.ticketweb.com/event/riot-ten-w-special-guest-avalon-hollywood-tickets/14352674"
+"ticket_link": "https://www.ticketweb.com/event/riot-ten-w-special-guest-avalon-hollywood-tickets/14352674",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Solomun",
@@ -900,7 +986,9 @@
 "start": "2026-11-28",
 "status": "On sale",
 "id": "show-solomun-on-hollywood-blvd-2026-11-28",
-"ticket_link": "https://dice.fm/event/7dbax7-solomun-28th-nov-hollywood-blvd-los-angeles-tickets"
+"ticket_link": "https://dice.fm/event/7dbax7-solomun-28th-nov-hollywood-blvd-los-angeles-tickets",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Whethan",
@@ -921,7 +1009,9 @@
 "start": "2026-12-04",
 "status": "On sale",
 "id": "show-whethan-at-shrine-expo-hall-2026-12-04",
-"ticket_link": "https://www.axs.com/events/1463339/whethan-tickets"
+"ticket_link": "https://www.axs.com/events/1463339/whethan-tickets",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "ZHU, Broken Hill",
@@ -942,7 +1032,9 @@
 "start": "2026-12-04",
 "status": "On sale",
 "id": "show-zhu-at-reframe-studios-2026-12-04",
-"ticket_link": "https://link.dice.fm/r5ea6c7d88c3"
+"ticket_link": "https://link.dice.fm/r5ea6c7d88c3",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "ZHU",
@@ -963,7 +1055,9 @@
 "start": "2026-12-05",
 "status": "On sale",
 "id": "show-zhu-at-reframe-studios-2026-12-05",
-"ticket_link": "https://dice.fm/event/92ngx6-zhu-second-date-5th-dec-reframe-studios-indoors-los-angeles-tickets"
+"ticket_link": "https://dice.fm/event/92ngx6-zhu-second-date-5th-dec-reframe-studios-indoors-los-angeles-tickets",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Lineup TBA",
@@ -983,7 +1077,9 @@
 "start": "2027-02-27",
 "status": "On sale",
 "id": "skyline-2027",
-"ticket_link": "https://skylinela.frontgatetickets.com/"
+"ticket_link": "https://skylinela.frontgatetickets.com/",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Lineup TBA",
@@ -1003,7 +1099,9 @@
 "start": "2027-08-06",
 "status": "Watch",
 "id": "splash-house-2027",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 33.8303,
+"lng": -116.5453
 },
 {
 "artists": "Lineup TBA",
@@ -1023,7 +1121,9 @@
 "start": "2027-04-03",
 "status": "On sale",
 "id": "time-warp-germany-2027",
-"ticket_link": "https://www.time-warp.de/germany/mannheim/tickets/"
+"ticket_link": "https://www.time-warp.de/germany/mannheim/tickets/",
+"lat": 49.4891,
+"lng": 8.4669
 },
 {
 "artists": "Richie Hawtin, Ben Klock, Loco Dice, The Martinez Brothers, Gerd Janson b2b Julya Karma, Blawan b2b Elli Acula, Dennis Ferrer b2b Skream",
@@ -1043,7 +1143,9 @@
 "start": "2026-11-27",
 "status": "On sale",
 "id": "time-warp-los-angeles-2026",
-"ticket_link": "https://timewarpla.frontgatetickets.com"
+"ticket_link": "https://timewarpla.frontgatetickets.com",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Lineup TBA",
@@ -1063,7 +1165,9 @@
 "start": "2027-07-16",
 "status": "Watch",
 "id": "tomorrowland-belgium-2027",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 51.087,
+"lng": 4.366
 },
 {
 "artists": "Lineup TBA",
@@ -1083,7 +1187,9 @@
 "start": "2027-04-30",
 "status": "On sale",
 "id": "tomorrowland-brasil-2027",
-"ticket_link": "https://brasil.tomorrowland.com/pt/ingressos-pacotes/"
+"ticket_link": "https://brasil.tomorrowland.com/pt/ingressos-pacotes/",
+"lat": -23.2642,
+"lng": -47.2992
 },
 {
 "artists": "Lineup TBA",
@@ -1103,7 +1209,9 @@
 "start": "2027-03-20",
 "status": "On sale",
 "id": "tomorrowland-winter-2027",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 45.092,
+"lng": 6.069
 },
 {
 "artists": "Calvin Harris, Martin Garrix, Armin van Buuren, Dom Dolla, Marshmello b2b Subtronics, Boris Brejcha b2b Eric Prydz (Cirez D), Steve Aoki, Michael Bibi, Afrojack, Adam Beyer, Alison Wonderland b2b Tiffany Day, Sara Landry, Mau P, Miss Monique",
@@ -1123,7 +1231,9 @@
 "start": "2027-03-26",
 "status": "On sale",
 "id": "ultra-miami-2027",
-"ticket_link": "https://ultramusicfestival.com/tickets/miami-2027"
+"ticket_link": "https://ultramusicfestival.com/tickets/miami-2027",
+"lat": 25.7743,
+"lng": -80.1937
 },
 {
 "artists": "Lineup TBA",
@@ -1143,7 +1253,9 @@
 "start": "2027-09-03",
 "status": "On sale",
 "id": "wasteland-socal-2027",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 34.1083,
+"lng": -117.2898
 },
 {
 "artists": "Angerfist, Kayzo, Da Tweekaz, Lil Texas, 999999999, DJ Isaac, Rooler, Sihk, Dual Damage, Vieze Asbak, Clawz, Dr Donk, Hixxy, Fatima Hajji, Triptykh, The Purge, Dead X, Alignment, Water Spirit, Rob Gee",
@@ -1163,7 +1275,9 @@
 "start": "2027-02-05",
 "status": "On sale",
 "id": "wasteland-orlando-2027",
-"ticket_link": "https://wastelandorlando.frontgatetickets.com/event/jv9b29cl2k0tn4be"
+"ticket_link": "https://wastelandorlando.frontgatetickets.com/event/jv9b29cl2k0tn4be",
+"lat": 28.5383,
+"lng": -81.3792
 },
 {
 "artists": "deadmau5, Disclosure, ILLENIUM, Nora En Pure, Mat Zo",
@@ -1183,7 +1297,9 @@
 "start": "2026-12-11",
 "status": "On sale",
 "id": "we-belong-here-tampa-bay-2026",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 27.9475,
+"lng": -82.4584
 },
 {
 "artists": "Deorro",
@@ -1204,7 +1320,9 @@
 "start": "2026-12-05",
 "status": "On sale",
 "id": "show-deorro-botas-y-rave-at-grand-park-2026-12-05",
-"ticket_link": "https://insomniac.frontgatetickets.com/event/zue8vpc11kfkfz5n"
+"ticket_link": "https://insomniac.frontgatetickets.com/event/zue8vpc11kfkfz5n",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Deorro",
@@ -1225,7 +1343,9 @@
 "start": "2026-12-06",
 "status": "On sale",
 "id": "show-deorro-botas-y-rave-at-grand-park-2026-12-06",
-"ticket_link": "https://insomniac.frontgatetickets.com/event/frrkqbio7rs8xcit"
+"ticket_link": "https://insomniac.frontgatetickets.com/event/frrkqbio7rs8xcit",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Valentino Khan",
@@ -1246,7 +1366,9 @@
 "start": "2026-11-14",
 "status": "On sale",
 "id": "show-valentino-khan-at-hollywood-palladium-2026-11-14",
-"ticket_link": ""
+"ticket_link": "",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Ray Volpe",
@@ -1267,7 +1389,9 @@
 "start": "2026-11-28",
 "status": "On sale",
 "id": "show-ray-volpe-at-the-torch-la-memorial-coliseum-2026-11-28",
-"ticket_link": "https://www.ticketmaster.com/event/0A0064B521F3F84B"
+"ticket_link": "https://www.ticketmaster.com/event/0A0064B521F3F84B",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Virtual Riot, Blanke",
@@ -1288,7 +1412,9 @@
 "start": "2026-12-11",
 "status": "On sale",
 "id": "show-virtual-riot-and-blanke-at-hollywood-palladium-2026-12-11",
-"ticket_link": "https://www.ticketmaster.com/event/090064D6B46E7E1D"
+"ticket_link": "https://www.ticketmaster.com/event/090064D6B46E7E1D",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "DEVAULT",
@@ -1309,7 +1435,9 @@
 "start": "2026-11-27",
 "status": "On sale",
 "id": "show-devault-at-hollywood-palladium-2026-11-27",
-"ticket_link": "https://www.ticketmaster.com/event/090064CD1DD77F50"
+"ticket_link": "https://www.ticketmaster.com/event/090064CD1DD77F50",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Wooli",
@@ -1330,7 +1458,9 @@
 "start": "2026-12-05",
 "status": "On sale",
 "id": "show-wooli-presents-mammoth-park-2026-12-05",
-"ticket_link": "https://bassrush.frontgatetickets.com/event/02k8t9vheg6bwgha"
+"ticket_link": "https://bassrush.frontgatetickets.com/event/02k8t9vheg6bwgha",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Narciss, Masha Mar, Marc Homer",
@@ -1351,7 +1481,9 @@
 "start": "2026-11-06",
 "status": "On sale",
 "id": "show-work-presents-narciss-2026-11-06",
-"ticket_link": "https://dice.fm/event/6a97b98e49639e0001ec0f49"
+"ticket_link": "https://dice.fm/event/6a97b98e49639e0001ec0f49",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Fadi Mohem, Fizch, Lindsey Herbert",
@@ -1372,7 +1504,9 @@
 "start": "2026-11-20",
 "status": "On sale",
 "id": "show-work-weekender-night-one-2026-11-20",
-"ticket_link": "https://dice.fm/event/xe89ba-work-weekender-day-1-fadi-mohem-fizch-lindsey-herbert-20th-nov-location-tba-los-angeles-los-angeles-tickets"
+"ticket_link": "https://dice.fm/event/xe89ba-work-weekender-day-1-fadi-mohem-fizch-lindsey-herbert-20th-nov-location-tba-los-angeles-los-angeles-tickets",
+"lat": 34.0522,
+"lng": -118.2437
 },
 {
 "artists": "Adrian Reyes, Luigi Tozzi (live), The Lady Machine",
@@ -1393,7 +1527,9 @@
 "start": "2026-11-21",
 "status": "On sale",
 "id": "show-work-weekender-night-two-2026-11-21",
-"ticket_link": "https://dice.fm/event/dkylwo-work-weekender-day-2-adrian-reyes-luigi-tozzi-live-the-lady-machine-21st-nov-location-tba-los-angeles-los-angeles-tickets"
+"ticket_link": "https://dice.fm/event/dkylwo-work-weekender-day-2-adrian-reyes-luigi-tozzi-live-the-lady-machine-21st-nov-location-tba-los-angeles-los-angeles-tickets",
+"lat": 34.0522,
+"lng": -118.2437
 }
 ]
 }
