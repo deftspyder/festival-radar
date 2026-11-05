@@ -457,6 +457,8 @@ dialog.pcard .pc-inv select { width: auto; flex: 1; min-width: 0; margin: 0; }
 .chats-side { position: sticky; top: 72px; max-height: calc(100dvh - 96px); overflow-y: auto; }
 #chat { display: flex; flex-direction: column; padding: 0; overflow: hidden; position: sticky; top: 72px; height: calc(100dvh - 96px); min-height: 460px; }
 #chat .chat-head { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line); flex: none; }
+#chat .chat-info { flex: none; margin-left: auto; font-size: 13px; padding: 6px 12px; }
+#chat .chat-info[hidden] { display: none; }
 #chat .chat-head .chat-hd { flex: 1; }
 #chat .chat-head h2 { margin: 0; }
 #chat .chat-x { order: 2; flex: none; font: inherit; font-size: 22px; line-height: 1; width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -1341,7 +1343,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     </section>
     <section class="panel chat" id="chat" aria-labelledby="chat-title" hidden>
       <div class="chat-empty" id="chat-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/></svg><b>Pick a chat</b><span>Your crew chat, festival chats and friends are on the left.</span></div>
-      <div class="chat-head"><button type="button" class="chat-x" id="chat-x" aria-label="Back to chats"><span class="cx-x" aria-hidden="true">×</span><svg class="cx-back" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><button type="button" class="chat-hd" id="chat-hd"><span class="chat-hav" id="chat-hav" aria-hidden="true"></span><span class="chat-htx"><h2 id="chat-title">Chat</h2><small id="chat-where"></small></span></button></div>
+      <div class="chat-head"><button type="button" class="chat-x" id="chat-x" aria-label="Back to chats"><span class="cx-x" aria-hidden="true">×</span><svg class="cx-back" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><button type="button" class="chat-hd" id="chat-hd"><span class="chat-hav" id="chat-hav" aria-hidden="true"></span><span class="chat-htx"><h2 id="chat-title">Chat</h2><small id="chat-where"></small></span></button><button type="button" class="abtn alt chat-info" id="chat-info" hidden>Crew info</button></div>
       <div class="chat-going" id="chat-going" hidden></div>
       <div class="chat-top">
         <div class="chat-tabs" id="chat-tabs" role="tablist"><button type="button" role="tab" data-k="crew" aria-selected="true">Crew</button><button type="button" role="tab" data-k="public" aria-selected="false">Everyone</button></div>
@@ -1400,9 +1402,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <div class="setrow"><span>Home city<br><span class="muted" id="set-home-t">Not set</span></span><button type="button" class="abtn alt" id="set-home">Change</button></div>
     <details class="set-sec" id="set-look-sec">
       <summary><span>Appearance</span><small id="set-skin-cur"></small></summary>
-      <div class="setrow"><span>See all my crews together<br><span class="muted">Crew favorites count every crew you're in.</span></span><button type="button" class="sw" id="set-allcrews" role="switch" aria-checked="false" aria-label="See all my crews together"><span class="knob"></span></button></div>
       <div class="setrow"><span>Always show my favorite artists<br><span class="muted">Shows with an artist you love stay on the calendar and in Festivals even when club shows and concerts are off. Pass on one and it goes back to normal.</span></span><button type="button" class="sw" id="set-favalways" role="switch" aria-checked="true" aria-label="Always show my favorite artists"><span class="knob"></span></button></div>
-      <div class="setrow"><span>Include club shows and concerts</span><button type="button" class="sw" id="set-shows" role="switch" aria-checked="false" aria-label="Include club shows and concerts"><span class="knob"></span></button></div>
       <h4 class="set-sub">Skin</h4>
       <div class="skins" id="set-skins" role="radiogroup" aria-label="Skin"></div>
       <p class="muted">Saved on this device.</p>
@@ -1535,7 +1535,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <li>Tap your photo (or initial) at the top for Settings. On a phone, the menu next to it has How to use, Send feedback and Invite friends.</li>
     </ul></details>
     <details><summary>Festivals</summary><ul>
-      <li>Slide between Near, USA and World to see festivals farther out. Each stop includes the ones before it. Near is measured from your home city (set it the first time you visit, or any time in Settings), and you choose how far it reaches: 50 to 500 miles. Tap Near again to change your home or the distance. Tap a festival name for its site and an artist for Spotify.</li>
+      <li>Slide between Near, USA and World to see festivals farther out. Each stop includes the ones before it. Near is measured from your home city (set it the first time you visit, or any time in Settings), and you choose how far it reaches: 50 to 500 miles. Tap Near again to change your home or the distance. Club shows and concerts (the Shows switch) only include ones near your home. Tap a festival name for its site and an artist for Spotify.</li>
       <li>Know the name? Type it in the search box above the list. It searches every section, plus club shows and concerts.</li>
       <li>Missing something? Tap the + next to Shows and paste a link to the event page. We fill in the details from the page, and Bill reviews every suggestion before it goes on the list.</li>
       <li>Mark Going, Maybe or Pass on each card. Your crew sees your picks, and you see theirs.</li>
@@ -2976,6 +2976,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     const av = document.getElementById('chat-hav'); av.replaceChildren();
     av.appendChild(o.kind === 'dm' ? personAv(o.other, (FRProf.get(o.other) || {}).name, 'ch-pav') : o.kind === 'crew' ? crewAv(o.crew, crewName(o.crew)) : festDate(o.fest));
     document.getElementById('chat-hd').setAttribute('aria-label', o.kind === 'dm' ? 'Open profile' : o.kind === 'public' ? 'Open festival' : 'Open crew info');
+    { const ci = document.getElementById('chat-info'); if (ci) ci.hidden = !(o.kind === 'crew' || o.kind === 'crewfest') || !o.crew; }
     // Crew chats: festivals two or more of this crew are Going to, soonest first.
     const strip = document.getElementById('chat-going'); strip.replaceChildren(); strip.hidden = true;
     if (o.kind !== 'crew' || !window.FRMainData) return;
@@ -3005,6 +3006,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     else if (cur.kind === 'public') { if (window.FRMainData) FRMainData.goToCard(cur.fest); }
     else showCrewInfo(cur.crew);
   });
+  document.getElementById('chat-info').addEventListener('click', () => { if (cur && cur.crew) showCrewInfo(cur.crew); });
   document.getElementById('crew-back').addEventListener('click', () => { if (window.FRTab) FRTab('chats'); });
   const isPhone = () => window.matchMedia('(max-width: 700px)').matches;
   function showPane() {
@@ -3717,12 +3719,8 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     document.querySelectorAll('dialog.sheet [data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
     document.querySelectorAll('dialog.sheet').forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));
     document.getElementById('set-name-save').addEventListener('click', async () => { const ok = await FR.setName(document.getElementById('set-name').value); if (ok) { toast('Name saved'); setTimeout(() => location.reload(), 700); } });
-    const sa = document.getElementById('set-allcrews');
-    sa.addEventListener('click', () => { allCrews = !allCrews; lsSet('fr-all-crews', allCrews ? '1' : '0'); sa.setAttribute('aria-checked', String(allCrews)); recomputeVisible(); emitAll(); renderCrewPick(); });
     const fa = document.getElementById('set-favalways');
     fa.addEventListener('click', () => { const on = fa.getAttribute('aria-checked') !== 'true'; lsSet('fr-fav-always', on ? '1' : '0'); fa.setAttribute('aria-checked', String(on)); window.dispatchEvent(new Event('fr-settings')); });
-    const ss = document.getElementById('set-shows');
-    ss.addEventListener('click', () => { const t = document.getElementById('show-toggle'); if (t) t.click(); ss.setAttribute('aria-checked', t ? t.getAttribute('aria-checked') : 'false'); });
     document.getElementById('set-signout').addEventListener('click', () => FR.signOut());
     document.getElementById('set-home').addEventListener('click', () => { document.getElementById('settings').close(); if (window.FRHome) FRHome.open(); });
     const onC = document.getElementById('inv-crew-on'), selC = document.getElementById('inv-crew');
@@ -3800,9 +3798,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     document.getElementById('set-email').textContent = userEmail || '';
     if (window.FRPaintMe) FRPaintMe();
     { const h = window.FRHome && FRHome.get(); document.getElementById('set-home-t').textContent = h ? h.city + ' · Near is within ' + h.radius + ' mi' : 'Not set'; document.getElementById('set-home').textContent = h ? 'Change' : 'Set home'; }
-    document.getElementById('set-allcrews').setAttribute('aria-checked', String(allCrews));
     document.getElementById('set-favalways').setAttribute('aria-checked', String(lsGet('fr-fav-always') !== '0'));
-    const t = document.getElementById('show-toggle'); document.getElementById('set-shows').setAttribute('aria-checked', t ? t.getAttribute('aria-checked') : 'false');
     renderSettingsCrews(); renderSkins();
     d.querySelectorAll('details.set-sec').forEach(x => { x.open = false; }); // Appearance starts collapsed
     d.showModal(); if (window.FRNotify) FRNotify.refresh();
@@ -5464,7 +5460,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
   const SEC_COLOR = ['var(--pink)', 'var(--violet)', 'var(--cyan)'];
   const SEC_NAME = { Local: 'Near', USA: 'USA', Worldwide: 'World' }; // calendar lanes: near home, rest of USA, rest of world
   const LABEL = { going: 'Going', maybe: 'Maybe', pass: 'Pass' };
-  const state = { festivals: [], picks: {}, favs: {}, hearts: {}, me: null, section: 'Local', canWrite: true, names: {}, sfGenre: 'SoCal scene', sfQuery: '', sfOpen: false };
+  const state = { festivals: [], picks: {}, favs: {}, hearts: {}, me: null, section: 'Local', canWrite: true, names: {}, sfGenre: 'On a lineup', sfQuery: '', sfOpen: false };
   let SHOWS = false; try { SHOWS = localStorage.getItem('fr-show-shows') === '1'; } catch (e) {}
   state._all = [];
   Object.defineProperty(state, 'festivals', { configurable: true, get() { return SHOWS ? state._all : state._all.filter(f => f.kind !== 'show'); }, set(v) { state._all = Array.isArray(v) ? v : []; } });
@@ -5512,7 +5508,8 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
   const homeMiles = f => HOME && f && typeof f.lat === 'number' && typeof f.lng === 'number' ? Math.round(milesBetween(HOME, f)) : null;
   const isNear = f => { const m = homeMiles(f); return m !== null && m <= homeRadius(); };
   const inUSA = f => f.section !== 'Worldwide';
-  const inRange = (f, r) => { r = r || RANGE; return r === 'near' ? isNear(f) : r === 'usa' ? inUSA(f) || isNear(f) : true; };
+  // Club shows are local nights out, so with a home set they only count when they're near it, whatever the slider says.
+  const inRange = (f, r) => { r = r || RANGE; if (f.kind === 'show' && HOME) return isNear(f); return r === 'near' ? isNear(f) : r === 'usa' ? inUSA(f) || isNear(f) : true; };
   const ringSec = f => isNear(f) ? 'Local' : inUSA(f) ? 'USA' : 'Worldwide';
   const homeShort = () => HOME ? String(HOME.city).split(',')[0] : '';
   const fromHome = f => dist(f) ? ' · ' + dist(f) + ' from ' + homeShort() : '';
@@ -5583,11 +5580,15 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
   // ---- Splash House countdown ----
   let cdTarget = null, cdTimer = null;
   function renderCountdown() {
-    const f = state.festivals.find(x => /^splash house/i.test(x.festival || '') && x.start);
+    // Count down to my next Going festival; otherwise the next festival near home; otherwise the next one anywhere.
+    const today = new Date().toISOString().slice(0, 10);
+    const upcoming = state._all.filter(x => x.kind !== 'show' && x.start && x.start >= today).sort(byStart);
+    const goingIds = state.me ? Object.entries((state.picks[state.me] && state.picks[state.me].choices) || {}).filter(([, c]) => c === 'going').map(([id]) => id) : [];
+    const f = upcoming.find(x => goingIds.includes(x.id)) || upcoming.find(x => isNear(x)) || upcoming[0];
     const box = $('cd');
     if (!f) { box.hidden = true; cdTarget = null; return; }
     cdTarget = Date.parse(f.start + 'T12:00:00-07:00');
-    const lbl = $('cd-l'); lbl.textContent = 'Countdown to ' + f.festival.replace(/ 20\d\d$/, '');
+    const lbl = $('cd-l'); lbl.textContent = (goingIds.includes(f.id) ? 'You\'re going: ' : 'Countdown to ') + f.festival.replace(/ 20\d\d$/, '');
     const unconfirmed = /unconfirmed|expected|tba/i.test(f.dates || '');
     lbl.appendChild(el('small', null, unconfirmed ? 'Expected ' + new Date(cdTarget).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/Los_Angeles' }) + ', dates not confirmed yet' : f.dates));
     box.hidden = false; tick();
@@ -6317,7 +6318,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     if (s.kind === 'expected') return 'Expected ~' + MON3[d.getMonth()] + ' ' + d.getDate();
     return d.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
   }
-  function renderFavDash() { renderMyRadar(); renderCrewDash(); }
+  function renderFavDash() { renderMyRadar(); renderCrewDash(); renderCountdown(); }
   // Past events: festivals I hearted or marked Going or Maybe that are over (no longer in the list). Hidden until asked for.
   const PAST = new Map(); let pastLoading = false, pastErr = false;
   let SHOW_PAST = false; try { SHOW_PAST = localStorage.getItem('fr-show-past') === '1'; } catch (e) {}
@@ -6358,10 +6359,13 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     const n = state.me ? myFestIds().map(id => state._all.find(f => f.id === id)).filter(f => { const s = f && saleInfo(f); return s && s.kind === 'confirmed' && s.t - now <= 7 * 864e5; }).length : 0;
     ['dn-radar-n', 'bt-radar-n'].forEach(id => { const e = $(id); if (e) { e.hidden = !n; e.textContent = n > 9 ? '9+' : String(n); } });
     const b = document.querySelector('#btabs [data-go="radar"]'); if (b) b.setAttribute('aria-label', 'My Radar' + (n ? ', ' + n + (n === 1 ? ' presale' : ' presales') + ' this week' : ''));
+    return n;
   }
   setInterval(radarBadge, 600000);
+  let autoOpened = false;
   function renderMyRadar() {
-    radarBadge();
+    // Open My Festivals by itself (once per visit) when one of my festivals has a confirmed presale this week.
+    if (radarBadge() && !autoOpened) { autoOpened = true; const t = document.querySelector('.rs-tg[aria-controls="rs-fests"]'); if (t && t.getAttribute('aria-expanded') !== 'true') t.click(); }
     const my = $('my-fests'), pastBox = $('my-past'); if (!my || !pastBox) return;
     my.replaceChildren(); pastBox.replaceChildren();
     if (!state.me) {
