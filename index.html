@@ -953,7 +953,9 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .fsearch-note { margin: 4px 0 8px; font-size: 13px; color: var(--muted); }
 .list-ctrls { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; }
 /* Near me / USA / World: one slider, each stop includes the ones before it. */
-.dring { flex: 1 1 220px; min-width: 0; max-width: 420px; }
+.dring { flex: 1 1 auto; min-width: 0; max-width: 420px; }
+.list-head > .list-ctrls { flex-wrap: nowrap; }
+@media (max-width: 700px) { .list-head > .list-ctrls > .dring { flex: 0 1 66%; } }
 .dring input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 26px; margin: 0; background: transparent; cursor: pointer; display: block; }
 .dring input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--pink), var(--violet), var(--cyan)); }
 .dring input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--pink), var(--violet), var(--cyan)); }
@@ -961,7 +963,9 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .dring input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--fg); border: 3px solid var(--pink); box-shadow: 0 0 12px -2px var(--pink); }
 .dring input[type=range]:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; border-radius: 8px; }
 .dring-ticks { display: flex; justify-content: space-between; margin: 2px -4px 0; }
-.dring-ticks button { font: inherit; font-size: 13px; font-weight: 700; color: var(--muted); background: none; border: 0; padding: 4px; cursor: pointer; }
+.dring-ticks button { font: inherit; font-size: 13px; font-weight: 700; color: var(--muted); background: none; border: 0; padding: 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; line-height: 1.15; }
+.dring-ticks button:first-child { align-items: flex-start; } .dring-ticks button:last-child { align-items: flex-end; }
+.dring-ticks small { font-size: 11px; font-weight: 600; color: var(--cyan); }
 .dring-ticks button[aria-pressed="true"] { color: var(--fg); }
 .range-note { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
 .range-note button { font: inherit; font-weight: 700; color: var(--cyan); background: none; border: 0; padding: 0; cursor: pointer; }
@@ -970,6 +974,10 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .home-ask h3 { margin: 0 0 4px; font-size: 16px; }
 .home-ask p { margin: 0 0 10px; font-size: 13px; }
 .home-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+.home-field { position: relative; flex: 1 1 200px; min-width: 0; display: flex; }
+.home-field input[type=text] { padding-right: 44px !important; }
+.home-loc { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border: 0; border-radius: 8px; background: none; color: var(--cyan); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.home-loc:hover { background: var(--panel-2); }
 .home-row input[type=text] { flex: 1 1 160px; min-width: 0; font: inherit; font-size: 16px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
 .home-row select { font: inherit; font-size: 15px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
 .home-hits { display: flex; flex-direction: column; margin-top: 6px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
@@ -1184,7 +1192,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   <div class="invite-banner" id="invite-banner" hidden></div>
 
   <section class="tiles" id="tiles" aria-label="Festivals by section" data-tab="festivals">
-    <button type="button" class="tile" data-goto="near" aria-label="Show festivals near me"><span class="lbl">Near me</span><span class="big" data-sec="near">–</span></button>
+    <button type="button" class="tile" data-goto="near" aria-label="Show festivals near me"><span class="lbl">Near</span><span class="big" data-sec="near">–</span></button>
     <button type="button" class="tile" data-goto="usa" aria-label="Show USA festivals"><span class="lbl">USA</span><span class="big" data-sec="usa">–</span></button>
     <button type="button" class="tile" data-goto="world" aria-label="Show all festivals worldwide"><span class="lbl">World</span><span class="big" data-sec="world">–</span></button>
   </section>
@@ -1211,7 +1219,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <div class="list-ctrls">
         <div class="dring" id="range">
           <input type="range" id="range-in" min="0" max="2" step="1" value="2" aria-label="How far to look" aria-valuetext="World">
-          <div class="dring-ticks" role="group" aria-label="How far to look"><button type="button" data-r="near">Near me</button><button type="button" data-r="usa">USA</button><button type="button" data-r="world">World</button></div>
+          <div class="dring-ticks" role="group" aria-label="How far to look"><button type="button" data-r="near"><span>Near</span><small id="range-near-mi"></small></button><button type="button" data-r="usa">USA</button><button type="button" data-r="world">World</button></div>
         </div>
         <div class="minisw">
           <div class="msw-row"><label class="msw" title="Include club shows and concerts (SoCal, next 60 days)"><span id="show-sub-l">Shows</span><button type="button" class="sw mini" id="show-toggle" role="switch" aria-checked="false" aria-label="Include club shows and concerts"><span class="knob"></span></button></label></div>
@@ -1222,9 +1230,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
     <div class="home-ask" id="home-ask" hidden>
       <h3 id="home-h">Where's home?</h3>
       <p class="muted" id="home-sub">We'll show festivals near you first. Just your city: we never save your exact location.</p>
-      <div class="home-row"><input type="text" id="home-q" placeholder="Your city" aria-label="Your city" autocomplete="off" enterkeyhint="search" maxlength="80"><button type="button" class="abtn alt" id="home-loc">Use my location</button></div>
+      <div class="home-row"><div class="home-field"><input type="text" id="home-q" placeholder="Your city" aria-label="Your city" autocomplete="off" enterkeyhint="search" maxlength="80"><button type="button" class="home-loc" id="home-loc" aria-label="Use my location" title="Use my location"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button></div></div>
       <div class="home-hits" id="home-hits" role="listbox" aria-label="Matching cities" hidden></div>
-      <div class="home-row"><label class="muted" for="home-r">Near me means within</label><select id="home-r"><option value="50">50 mi</option><option value="100">100 mi</option><option value="150" selected>150 mi</option><option value="250">250 mi</option><option value="500">500 mi</option></select></div>
+      <div class="home-row"><label class="muted" for="home-r">Near means within</label><select id="home-r"><option value="50">50 mi</option><option value="100">100 mi</option><option value="150" selected>150 mi</option><option value="250">250 mi</option><option value="500">500 mi</option></select></div>
       <p class="muted home-msg" id="home-msg" aria-live="polite" hidden></p>
       <div class="home-row"><button type="button" class="abtn" id="home-save" disabled>Save home</button><button type="button" class="abtn alt" id="home-skip">Skip for now</button></div>
     </div>
@@ -1520,7 +1528,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <li>Tap your photo (or initial) at the top for Settings. On a phone, the menu next to it has How to use, Send feedback and Invite friends.</li>
     </ul></details>
     <details><summary>Festivals and Picks</summary><ul>
-      <li>Slide between Near me, USA and World to see festivals farther out. Each stop includes the ones before it. Near me is measured from your home city (set it the first time you visit, or any time in Settings), and you choose how far it reaches: 50 to 500 miles. Tap a festival name for its site and an artist for Spotify.</li>
+      <li>Slide between Near, USA and World to see festivals farther out. Each stop includes the ones before it. Near is measured from your home city (set it the first time you visit, or any time in Settings), and you choose how far it reaches: 50 to 500 miles. Tap Near again to change your home or the distance. Tap a festival name for its site and an artist for Spotify.</li>
       <li>Know the name? Type it in the search box above the list. It searches every section, plus club shows and concerts.</li>
       <li>Missing something? Tap the + next to Shows and paste a link to the event page. We fill in the details from the page, and Bill reviews every suggestion before it goes on the list.</li>
       <li>Mark Going, Maybe or Pass on each card. Your crew sees your picks, and you see theirs.</li>
@@ -3784,7 +3792,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     document.getElementById('set-me-name').textContent = (window.FRProf && FRProf.get(uid) && FRProf.get(uid).name) || myName || 'You';
     document.getElementById('set-email').textContent = userEmail || '';
     if (window.FRPaintMe) FRPaintMe();
-    { const h = window.FRHome && FRHome.get(); document.getElementById('set-home-t').textContent = h ? h.city + ' · Near me is within ' + h.radius + ' mi' : 'Not set'; document.getElementById('set-home').textContent = h ? 'Change' : 'Set home'; }
+    { const h = window.FRHome && FRHome.get(); document.getElementById('set-home-t').textContent = h ? h.city + ' · Near is within ' + h.radius + ' mi' : 'Not set'; document.getElementById('set-home').textContent = h ? 'Change' : 'Set home'; }
     document.getElementById('set-allcrews').setAttribute('aria-checked', String(allCrews));
     document.getElementById('set-favalways').setAttribute('aria-checked', String(lsGet('fr-fav-always') !== '0'));
     const t = document.getElementById('show-toggle'); document.getElementById('set-shows').setAttribute('aria-checked', t ? t.getAttribute('aria-checked') : 'false');
@@ -5447,7 +5455,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
 
   const SECTIONS = ['Local', 'USA', 'Worldwide'];
   const SEC_COLOR = ['var(--pink)', 'var(--violet)', 'var(--cyan)'];
-  const SEC_NAME = { Local: 'Near me', USA: 'USA', Worldwide: 'World' }; // calendar lanes: near home, rest of USA, rest of world
+  const SEC_NAME = { Local: 'Near', USA: 'USA', Worldwide: 'World' }; // calendar lanes: near home, rest of USA, rest of world
   const LABEL = { going: 'Going', maybe: 'Maybe', pass: 'Pass' };
   const state = { festivals: [], picks: {}, favs: {}, hearts: {}, me: null, section: 'Local', canWrite: true, names: {}, sfGenre: 'SoCal scene', sfQuery: '', sfOpen: false };
   let SHOWS = false; try { SHOWS = localStorage.getItem('fr-show-shows') === '1'; } catch (e) {}
@@ -6521,7 +6529,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     inp.addEventListener('keydown', e => { if (e.key === 'Escape') { setFestQ(''); } else if (e.key === 'Enter') { clearTimeout(qt); setFestQ(inp.value, true); inp.blur(); } });
     x.addEventListener('click', () => { setFestQ(''); inp.focus(); });
   })();
-  const RANGES = ['near', 'usa', 'world'], RANGE_NAME = { near: 'Near me', usa: 'USA', world: 'World' };
+  const RANGES = ['near', 'usa', 'world'], RANGE_NAME = { near: 'Near', usa: 'USA', world: 'World' };
   function setRange(r) {
     if (r === 'near' && !HOME) { openHome(); return; }
     if (festQ) setFestQ('');
@@ -6532,7 +6540,9 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     const inp = $('range-in'); if (!inp) return;
     inp.value = String(RANGES.indexOf(RANGE)); inp.setAttribute('aria-valuetext', RANGE_NAME[RANGE]);
     document.querySelectorAll('.dring-ticks button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.r === RANGE)));
-    const note = $('range-note'); if (!note) return; note.replaceChildren();
+    const nm = $('range-near-mi'); if (nm) nm.textContent = HOME ? homeRadius() + ' mi' : 'Set home';
+    const nb = document.querySelector('.dring-ticks button[data-r="near"]'); if (nb) nb.title = HOME ? 'Within ' + homeRadius() + ' mi of ' + homeShort() + '. Tap again to change home or range.' : 'Set your home city';
+    const note = $('range-note'); if (!note) return; note.replaceChildren(); note.hidden = true; return; // the range shows under Near instead (Bill, Nov 4)
     if (HOME) {
       note.append(RANGE === 'near' ? 'Within ' + homeRadius() + ' mi of ' + homeShort() + '. ' : RANGE === 'usa' ? 'Festivals in the USA, plus anything within ' + homeRadius() + ' mi of ' + homeShort() + '. ' : 'Everything, everywhere. ');
       const c = el('button', null, 'Change home'); c.type = 'button'; c.addEventListener('click', () => openHome(true)); note.appendChild(c);
@@ -6543,7 +6553,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     note.hidden = !$('home-ask').hidden;
   }
   { const inp = $('range-in'); if (inp) inp.addEventListener('input', () => { const r = RANGES[+inp.value] || 'world'; if (r === 'near' && !HOME) { inp.value = String(RANGES.indexOf(RANGE)); openHome(true); return; } setRange(r); }); }
-  document.querySelectorAll('.dring-ticks button').forEach(b => b.addEventListener('click', () => setRange(b.dataset.r)));
+  document.querySelectorAll('.dring-ticks button').forEach(b => b.addEventListener('click', () => { if (b.dataset.r === 'near' && (RANGE === 'near' || !HOME)) { openHome(true); return; } setRange(b.dataset.r); }));
 
   // "Where's home?": asked once on arrival (Skip shows World); changeable from the note under the slider or Settings.
   const US_ABBR = { Alabama: 'AL', Alaska: 'AK', Arizona: 'AZ', Arkansas: 'AR', California: 'CA', Colorado: 'CO', Connecticut: 'CT', Delaware: 'DE', Florida: 'FL', Georgia: 'GA', Hawaii: 'HI', Idaho: 'ID', Illinois: 'IL', Indiana: 'IN', Iowa: 'IA', Kansas: 'KS', Kentucky: 'KY', Louisiana: 'LA', Maine: 'ME', Maryland: 'MD', Massachusetts: 'MA', Michigan: 'MI', Minnesota: 'MN', Mississippi: 'MS', Missouri: 'MO', Montana: 'MT', Nebraska: 'NE', Nevada: 'NV', 'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM', 'New York': 'NY', 'North Carolina': 'NC', 'North Dakota': 'ND', Ohio: 'OH', Oklahoma: 'OK', Oregon: 'OR', Pennsylvania: 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC', 'South Dakota': 'SD', Tennessee: 'TN', Texas: 'TX', Utah: 'UT', Vermont: 'VT', Virginia: 'VA', Washington: 'WA', 'West Virginia': 'WV', Wisconsin: 'WI', Wyoming: 'WY', 'District of Columbia': 'DC' };
@@ -6567,19 +6577,23 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
   function maybeAskHome() { if (!HOME && !homeSkipped() && $('home-ask').hidden && (state.signedOut || window.FRHomeLoaded)) openHome(false); }
   function showHits(list) {
     homeHits = list; const box = $('home-hits'); box.replaceChildren(); box.hidden = !list.length;
-    list.forEach(h => { const b = el('button'); b.type = 'button'; b.setAttribute('role', 'option'); b.append(h.label); if (h.note) b.appendChild(el('small', null, h.note));
+    list.forEach((h, i) => { const b = el('button'); b.type = 'button'; b.setAttribute('role', 'option'); b.setAttribute('aria-selected', String(i === 0)); b.append(h.label); if (h.note) b.appendChild(el('small', null, h.note));
       b.addEventListener('click', () => { homePick = { city: h.label, lat: h.lat, lng: h.lng }; $('home-q').value = h.label; box.hidden = true; $('home-save').disabled = false; homeMsg(''); }); box.appendChild(b); });
   }
   async function searchCity(q) {
     try {
-      const r = await fetch('https://geocoding-api.open-meteo.com/v1/search?count=6&language=en&format=json&name=' + encodeURIComponent(q));
+      // "Phoenix, AZ": search the city name, then put matches in that state or country first.
+      const parts = q.split(',').map(x => x.trim()), want = (parts[1] || '').toLowerCase();
+      const r = await fetch('https://geocoding-api.open-meteo.com/v1/search?count=8&language=en&format=json&name=' + encodeURIComponent(parts[0]));
       const j = await r.json();
-      return (j.results || []).filter(x => typeof x.latitude === 'number').map(x => ({ label: placeLabel(x.name, x.admin1, x.country_code, x.country), note: x.country_code === 'US' ? '' : '', lat: Math.round(x.latitude * 100) / 100, lng: Math.round(x.longitude * 100) / 100 }))
+      const res = (j.results || []).slice();
+      if (want) res.sort((a, b) => { const m = x => [x.admin1, US_ABBR[x.admin1], x.country, x.country_code].some(v => v && String(v).toLowerCase() === want) ? 0 : 1; return m(a) - m(b); });
+      return res.filter(x => typeof x.latitude === 'number').map(x => ({ label: placeLabel(x.name, x.admin1, x.country_code, x.country), note: x.country_code === 'US' ? '' : '', lat: Math.round(x.latitude * 100) / 100, lng: Math.round(x.longitude * 100) / 100 }))
         .filter((h, i, a) => a.findIndex(o => o.label === h.label) === i);
     } catch (e) { return null; }
   }
   $('home-q').addEventListener('input', () => {
-    homePick = null; $('home-save').disabled = true; clearTimeout(homeT);
+    homePick = null; $('home-save').disabled = $('home-q').value.trim().length < 2; clearTimeout(homeT);
     const q = $('home-q').value.trim(); if (q.length < 2) { showHits([]); return; }
     homeT = setTimeout(async () => { const hits = await searchCity(q); if ($('home-q').value.trim() !== q) return; if (hits === null) { homeMsg('Couldn\'t look up cities. Check your connection.'); return; } showHits(hits); if (!hits.length) homeMsg('No city by that name. Try "Phoenix, AZ" or just the city.'); else homeMsg(''); }, 250);
   });
@@ -6607,7 +6621,17 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
   }
   $('home-r').addEventListener('change', () => { if (homePick || HOME) $('home-save').disabled = false; });
   $('home-save').addEventListener('click', async () => {
-    const p = homePick || HOME; if (!p) return;
+    let p = homePick;
+    const typed = $('home-q').value.trim();
+    if (!p && typed && (!HOME || typed !== HOME.city)) {
+      // Nothing tapped: use the top suggestion, looking it up now if needed.
+      let hits = homeHits.length ? homeHits : null;
+      if (!hits) { homeMsg('Looking up ' + typed + '…'); hits = await searchCity(typed); }
+      if (hits === null) { homeMsg('Couldn\'t look up cities. Check your connection.'); return; }
+      if (!hits.length) { homeMsg('No city by that name. Try "Phoenix, AZ" or just the city.'); return; }
+      p = { city: hits[0].label, lat: hits[0].lat, lng: hits[0].lng };
+    }
+    p = p || HOME; if (!p) { homeMsg('Type your city first.'); return; }
     closeHome(); await setHome({ ...p, radius: +$('home-r').value }, { focus: true });
     homeToast('Home set to ' + homeShort() + '. Showing what\'s within ' + homeRadius() + ' mi.');
   });
