@@ -1150,9 +1150,9 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   <div class="invite-banner" id="invite-banner" hidden></div>
 
   <section class="tiles" id="tiles" aria-label="Festivals by section" data-tab="festivals">
-    <button type="button" class="tile" data-goto="Local" aria-label="Show Local festivals"><span class="lbl">Local · SoCal</span><span class="big" data-sec="Local">–</span><span class="sub" data-sub="Local">&nbsp;</span></button>
-    <button type="button" class="tile" data-goto="USA" aria-label="Show all USA festivals"><span class="lbl">USA · incl. SoCal</span><span class="big" data-sec="USA">–</span><span class="sub" data-sub="USA">&nbsp;</span></button>
-    <button type="button" class="tile" data-goto="Worldwide" aria-label="Show all festivals worldwide"><span class="lbl">World · incl. USA</span><span class="big" data-sec="Worldwide">–</span><span class="sub" data-sub="Worldwide">&nbsp;</span></button>
+    <button type="button" class="tile" data-goto="Local" aria-label="Show SoCal festivals"><span class="lbl">SoCal</span><span class="big" data-sec="Local">–</span></button>
+    <button type="button" class="tile" data-goto="USA" aria-label="Show all USA festivals"><span class="lbl">USA</span><span class="big" data-sec="USA">–</span></button>
+    <button type="button" class="tile" data-goto="Worldwide" aria-label="Show all festivals worldwide"><span class="lbl">World</span><span class="big" data-sec="Worldwide">–</span></button>
   </section>
 
   <section class="panel" id="calendar" data-tab="calendar">
@@ -5383,8 +5383,6 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     SECTIONS.forEach(sec => {
       const list = state.festivals.filter(f => f.section === sec || (sec === 'USA' && f.section === 'Local') || sec === 'Worldwide');
       document.querySelector(`.big[data-sec="${sec}"]`).textContent = list.length;
-      const onSale = list.filter(f => f.status === 'On sale').length;
-      document.querySelector(`.sub[data-sub="${sec}"]`).textContent = onSale + ' on sale now' + (sec === 'USA' ? ' · ' + list.filter(f => f.section === 'Local').length + ' in SoCal' : sec === 'Worldwide' ? ' · ' + list.filter(f => f.section === 'Worldwide').length + ' outside the USA' : '');
     });
   }
 
