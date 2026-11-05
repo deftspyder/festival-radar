@@ -167,6 +167,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 .radar .scrim { position: absolute; inset: 0; background: linear-gradient(90deg, color-mix(in srgb, var(--void) 92%, transparent) 0%, color-mix(in srgb, var(--void) 70%, transparent) 28%, transparent 44%); }
 .radar .blips { position: absolute; inset: 0; }
 .radar .blip { position: absolute; display: flex; gap: 6px; align-items: center; opacity: .22; white-space: nowrap; }
+.radar .blip.rside { flex-direction: row-reverse; transform: translateX(-100%); }
 .radar .blip i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: block; flex: none; }
 .radar .blip span { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 @keyframes r-spin { to { transform: rotate(360deg); } }
@@ -774,7 +775,8 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .fr-badge .ch-date { width: 46px; height: 42px; border-radius: 9px; }
 .fr-badge .ch-date .cd-m { white-space: nowrap; overflow: hidden; }
 .fr-badge .ch-date.two .cd-m { font-size: 8px; letter-spacing: 0; }
-.fr-badge .ch-date.rng .cd-d { font-size: 12px; }
+.fr-badge .ch-date.rng .cd-d { font-size: 12px; letter-spacing: -.02em; }
+.fr-badge .ch-date .cd-d { white-space: nowrap; }
 .fr-crew { display: flex; align-items: center; gap: 5px; margin-top: 3px; font-size: 12px; font-weight: 700; color: var(--going); }
 .fr-avs { display: inline-flex; }
 .fr-av { width: 16px; height: 16px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font: 800 9px var(--body); color: #120a24; border: 1.5px solid var(--panel-2); }
@@ -923,6 +925,7 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .minisw { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
 .msw { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .msw[hidden] { display: none; }
+.msw.msw-stack { flex-direction: column; align-items: flex-end; gap: 4px; }
 .sw.mini { width: 34px; height: 20px; }
 .msw-row { display: flex; align-items: center; gap: 8px; }
 .list-head > .lh-title { flex: 1 1 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
@@ -966,7 +969,10 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .dring-ticks button { font: inherit; font-size: 13px; font-weight: 700; color: var(--muted); background: none; border: 0; padding: 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; line-height: 1.15; }
 .dring-ticks button:first-child { align-items: flex-start; } .dring-ticks button:last-child { align-items: flex-end; }
 .dring-ticks small { font-size: 11px; font-weight: 600; color: var(--cyan); }
+.dring-ticks button { opacity: .45; transition: opacity .2s, color .2s; }
+.dring-ticks button.inc { opacity: 1; color: var(--fg); }
 .dring-ticks button[aria-pressed="true"] { color: var(--fg); }
+@media (prefers-reduced-motion: reduce) { .dring-ticks button { transition: none; } }
 .range-note { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
 .range-note button { font: inherit; font-weight: 700; color: var(--cyan); background: none; border: 0; padding: 0; cursor: pointer; }
 .home-ask { margin: 12px 0 4px; padding: 14px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--pink) 55%, transparent); background: color-mix(in srgb, var(--pink) 8%, var(--panel)); }
@@ -1213,7 +1219,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
   <section class="panel" id="festivals" data-tab="festivals">
     <div class="list-head">
       <div class="lh-title">
-        <h2>Festivals and Picks</h2>
+        <h2>Festivals</h2>
         <button type="button" class="sugg-plus" id="sugg-plus" aria-label="Suggest an event" title="Suggest an event"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
       </div>
       <div class="list-ctrls">
@@ -1222,7 +1228,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
           <div class="dring-ticks" role="group" aria-label="How far to look"><button type="button" data-r="near"><span>Near</span><small id="range-near-mi"></small></button><button type="button" data-r="usa">USA</button><button type="button" data-r="world">World</button></div>
         </div>
         <div class="minisw">
-          <div class="msw-row"><label class="msw" title="Include club shows and concerts (SoCal, next 60 days)"><span id="show-sub-l">Shows</span><button type="button" class="sw mini" id="show-toggle" role="switch" aria-checked="false" aria-label="Include club shows and concerts"><span class="knob"></span></button></label></div>
+          <div class="msw-row"><label class="msw msw-stack" title="Include club shows and concerts (SoCal, next 60 days)"><span id="show-sub-l">Shows</span><button type="button" class="sw mini" id="show-toggle" role="switch" aria-checked="false" aria-label="Include club shows and concerts"><span class="knob"></span></button></label></div>
         </div>
       </div>
     </div>
@@ -1527,7 +1533,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <li>Add a photo and a short bio from Edit profile in Settings, so your crew can put a face to a name.</li>
       <li>Tap your photo (or initial) at the top for Settings. On a phone, the menu next to it has How to use, Send feedback and Invite friends.</li>
     </ul></details>
-    <details><summary>Festivals and Picks</summary><ul>
+    <details><summary>Festivals</summary><ul>
       <li>Slide between Near, USA and World to see festivals farther out. Each stop includes the ones before it. Near is measured from your home city (set it the first time you visit, or any time in Settings), and you choose how far it reaches: 50 to 500 miles. Tap Near again to change your home or the distance. Tap a festival name for its site and an artist for Spotify.</li>
       <li>Know the name? Type it in the search box above the list. It searches every section, plus club shows and concerts.</li>
       <li>Missing something? Tap the + next to Shows and paste a link to the event page. We fill in the details from the page, and Bill reviews every suggestion before it goes on the list.</li>
@@ -5939,7 +5945,8 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     box.replaceChildren();
     if (!W || !H) return;
     const mobile = W < 700;
-    const MOBILE_SLOTS = [[.04, 196], [.52, 180], [.08, 140], [.54, 122], [.04, 84], [.52, 66]];
+    // Phones: alternate left and right of the hub; right-side blips put their label to the left of the dot.
+    const MOBILE_SLOTS = [[.04, 196], [.96, 172, 1], [.06, 140], [.96, 116, 1], [.04, 86], [.94, 62, 1]];
     const slots = mobile ? MOBILE_SLOTS : (W < 900 ? RADAR_SLOTS.slice(0, 5) : RADAR_SLOTS);
     const cx = mobile ? .5 * W : .68 * W, cy = mobile ? H - 110 : .5 * H;
     const near = f => { const m = homeMiles(f); return m === null ? (typeof f.miles === 'number' ? f.miles : 1e6) : m; };
@@ -5956,10 +5963,13 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       if (!mobile) {
         if (x + estW > W - 10) x = Math.max(W * .45, W - 10 - estW);
         if (y < 95 && x + estW > W - 260) y = 100;
-      } else if (x + estW > W - 6) x = Math.max(4, W - 6 - estW);
-      const ang = (Math.atan2(x + 3.5 - cx, -(y - cy)) * 180 / Math.PI + 360) % 360;
+      } else if (!slots[i][2] && x + estW > W - 6) x = Math.max(4, W - 6 - estW);
+      const rightSide = mobile && slots[i][2];
+      if (rightSide && x - estW < 4) x = Math.min(W - 6, 4 + estW);
+      const dotX = rightSide ? x - 3.5 : x + 3.5;
+      const ang = (Math.atan2(dotX - cx, -(y - cy)) * 180 / Math.PI + 360) % 360;
       const delay = (((ang - 50) + 360) % 360) / 360 * 6;
-      const b = el('div', 'blip'); b.style.left = x + 'px'; b.style.top = (y - 6) + 'px'; b.style.animationDelay = delay.toFixed(2) + 's';
+      const b = el('div', 'blip' + (rightSide ? ' rside' : '')); b.style.left = x + 'px'; b.style.top = (y - 6) + 'px'; b.style.animationDelay = delay.toFixed(2) + 's';
       b.style.color = BLIP_COLORS[i % BLIP_COLORS.length];
       b.append(el('i'), el('span', null, label));
       box.appendChild(b);
@@ -6539,7 +6549,8 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
   function renderRangeUI() {
     const inp = $('range-in'); if (!inp) return;
     inp.value = String(RANGES.indexOf(RANGE)); inp.setAttribute('aria-valuetext', RANGE_NAME[RANGE]);
-    document.querySelectorAll('.dring-ticks button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.r === RANGE)));
+    // Stops the slider covers are lit; ones past it are dimmed (each stop includes the ones before it).
+    document.querySelectorAll('.dring-ticks button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.r === RANGE)); b.classList.toggle('inc', RANGES.indexOf(b.dataset.r) <= RANGES.indexOf(RANGE)); });
     const nm = $('range-near-mi'); if (nm) nm.textContent = HOME ? homeRadius() + ' mi' : 'Set home';
     const nb = document.querySelector('.dring-ticks button[data-r="near"]'); if (nb) nb.title = HOME ? 'Within ' + homeRadius() + ' mi of ' + homeShort() + '. Tap again to change home or range.' : 'Set your home city';
     const note = $('range-note'); if (!note) return; note.replaceChildren(); note.hidden = true; return; // the range shows under Near instead (Bill, Nov 4)
