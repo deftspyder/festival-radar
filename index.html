@@ -5945,8 +5945,10 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     box.replaceChildren();
     if (!W || !H) return;
     const mobile = W < 700;
-    // Phones: alternate left and right of the hub; right-side blips put their label to the left of the dot.
-    const MOBILE_SLOTS = [[.04, 196], [.96, 172, 1], [.06, 140], [.96, 116, 1], [.04, 86], [.94, 62, 1]];
+    // Phones: blips scattered around the hub at different angles and distances (x as a share of half the width
+    // from the hub, y in px from the hub). Labels always run to the right and may trail off the edge; it's a picture.
+    const MOBILE_SCATTER = [[-.85, -88], [.3, -62], [-.55, -34], [.45, -8], [-.95, 22], [.2, 48]]; // kept below the slogan
+    const MOBILE_SLOTS = MOBILE_SCATTER.map(([dx, dy]) => [.5 + dx / 2, 110 - dy]);
     const slots = mobile ? MOBILE_SLOTS : (W < 900 ? RADAR_SLOTS.slice(0, 5) : RADAR_SLOTS);
     const cx = mobile ? .5 * W : .68 * W, cy = mobile ? H - 110 : .5 * H;
     const near = f => { const m = homeMiles(f); return m === null ? (typeof f.miles === 'number' ? f.miles : 1e6) : m; };
@@ -5963,10 +5965,8 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       if (!mobile) {
         if (x + estW > W - 10) x = Math.max(W * .45, W - 10 - estW);
         if (y < 95 && x + estW > W - 260) y = 100;
-      } else if (!slots[i][2] && x + estW > W - 6) x = Math.max(4, W - 6 - estW);
-      const rightSide = mobile && slots[i][2];
-      if (rightSide && x - estW < 4) x = Math.min(W - 6, 4 + estW);
-      const dotX = rightSide ? x - 3.5 : x + 3.5;
+      }
+      const rightSide = false, dotX = x + 3.5;
       const ang = (Math.atan2(dotX - cx, -(y - cy)) * 180 / Math.PI + 360) % 360;
       const delay = (((ang - 50) + 360) % 360) / 360 * 6;
       const b = el('div', 'blip' + (rightSide ? ' rside' : '')); b.style.left = x + 'px'; b.style.top = (y - 6) + 'px'; b.style.animationDelay = delay.toFixed(2) + 's';
