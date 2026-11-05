@@ -893,6 +893,13 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .lineup a.fav { color: var(--fg); background: color-mix(in srgb, var(--pink) 25%, transparent); border-radius: 4px; padding: 0 3px; }
 @media (max-width: 900px) { .two, .cols, .sf-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 560px) { .hero p { padding-right: 0; } .next { max-width: 100%; } .tile .big { font-size: 24px; } .tiles { gap: 8px; } .tile { padding: 10px; } }
+/* Phones: slim one-row tiles (label left, number right) tucked up over the bottom of the radar, so festivals show sooner. */
+@media (max-width: 700px) {
+  .tiles { position: relative; z-index: 3; margin-top: -40px; padding: 0 12px; }
+  .tile { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 8px 10px; box-shadow: 0 10px 24px -10px rgba(0,0,0,.8), 0 8px 22px -14px var(--tc); }
+  .tile .lbl { font-size: 13px; }
+  .tile .big { font-size: 20px; line-height: 1; }
+}
 @media (prefers-reduced-motion: no-preference) { .choice button { transition: background .15s, color .15s, border-color .15s; } }
 .showbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
 .showbar label { font-weight: 700; cursor: pointer; }
