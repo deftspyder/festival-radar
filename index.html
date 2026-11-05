@@ -925,7 +925,10 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .minisw { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
 .msw { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .msw[hidden] { display: none; }
-.msw.msw-stack { flex-direction: column; align-items: flex-end; gap: 4px; }
+.msw.msw-stack { flex-direction: column-reverse; align-items: flex-end; gap: 8px; }
+.list-head > .list-ctrls:has(.dring) { align-items: flex-start; }
+.list-ctrls .minisw:has(.msw-stack) { padding-top: 2px; }
+.msw.msw-stack > span { font-size: 13px; line-height: 1.15; padding-top: 3px; }
 .sw.mini { width: 34px; height: 20px; }
 .msw-row { display: flex; align-items: center; gap: 8px; }
 .list-head > .lh-title { flex: 1 1 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
@@ -960,8 +963,9 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .list-head > .list-ctrls { flex-wrap: nowrap; }
 @media (max-width: 700px) { .list-head > .list-ctrls > .dring { flex: 0 1 66%; } }
 .dring input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 26px; margin: 0; background: transparent; cursor: pointer; display: block; }
-.dring input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--pink), var(--violet), var(--cyan)); }
-.dring input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--pink), var(--violet), var(--cyan)); }
+.dring input[type=range] { --fill: 100%; }
+.dring input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, transparent 0 var(--fill), color-mix(in srgb, var(--muted) 35%, var(--panel-2)) var(--fill) 100%), linear-gradient(90deg, var(--pink), var(--violet), var(--cyan)); }
+.dring input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, transparent 0 var(--fill), color-mix(in srgb, var(--muted) 35%, var(--panel-2)) var(--fill) 100%), linear-gradient(90deg, var(--pink), var(--violet), var(--cyan)); }
 .dring input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; margin-top: -8px; border-radius: 50%; background: var(--fg); border: 3px solid var(--pink); box-shadow: 0 0 12px -2px var(--pink); }
 .dring input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--fg); border: 3px solid var(--pink); box-shadow: 0 0 12px -2px var(--pink); }
 .dring input[type=range]:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; border-radius: 8px; }
@@ -969,10 +973,7 @@ h2 { font-family: var(--display); font-weight: 400; font-size: 17px; letter-spac
 .dring-ticks button { font: inherit; font-size: 13px; font-weight: 700; color: var(--muted); background: none; border: 0; padding: 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; line-height: 1.15; }
 .dring-ticks button:first-child { align-items: flex-start; } .dring-ticks button:last-child { align-items: flex-end; }
 .dring-ticks small { font-size: 11px; font-weight: 600; color: var(--cyan); }
-.dring-ticks button { opacity: .45; transition: opacity .2s, color .2s; }
-.dring-ticks button.inc { opacity: 1; color: var(--fg); }
 .dring-ticks button[aria-pressed="true"] { color: var(--fg); }
-@media (prefers-reduced-motion: reduce) { .dring-ticks button { transition: none; } }
 .range-note { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
 .range-note button { font: inherit; font-weight: 700; color: var(--cyan); background: none; border: 0; padding: 0; cursor: pointer; }
 .home-ask { margin: 12px 0 4px; padding: 14px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--pink) 55%, transparent); background: color-mix(in srgb, var(--pink) 8%, var(--panel)); }
@@ -6549,6 +6550,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
   function renderRangeUI() {
     const inp = $('range-in'); if (!inp) return;
     inp.value = String(RANGES.indexOf(RANGE)); inp.setAttribute('aria-valuetext', RANGE_NAME[RANGE]);
+    inp.style.setProperty('--fill', (RANGES.indexOf(RANGE) * 50) + '%'); // track lit up to the handle, grey past it
     // Stops the slider covers are lit; ones past it are dimmed (each stop includes the ones before it).
     document.querySelectorAll('.dring-ticks button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.r === RANGE)); b.classList.toggle('inc', RANGES.indexOf(b.dataset.r) <= RANGES.indexOf(RANGE)); });
     const nm = $('range-near-mi'); if (nm) nm.textContent = HOME ? homeRadius() + ' mi' : 'Set home';
