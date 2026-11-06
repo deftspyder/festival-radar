@@ -202,6 +202,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-
 .next .k { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pink); }
 .next b { font-weight: 700; }
 .next span { color: var(--muted); }
+.next .next-x { align-self: center; margin: -4px -6px -4px 2px; width: 26px; height: 26px; border: 0; border-radius: 50%; background: none; color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; }
+.next .next-x:hover, .next .next-x:focus-visible { color: var(--fg); background: color-mix(in srgb, var(--fg) 12%, transparent); }
 .cd.cd-foot { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 12px; flex-wrap: wrap; margin: 18px 0 0; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--panel); box-shadow: 0 0 24px -12px var(--pink); }
 .cd.cd-foot[hidden] { display: none; }
 .cd.cd-foot .cd-l { text-align: center !important; font-size: 11px; }
@@ -6170,7 +6172,13 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     const box = $('next');
     const next = state.festivals.filter(f => f.next_sale).sort((a, b) => a.next_sale.localeCompare(b.next_sale))[0];
     if (!next) { box.hidden = true; return; }
-    box.replaceChildren(el('span', 'k', 'Next presale'), el('b', null, next.festival), el('span', null, next.next_sale_label));
+    // Dismissed per device; a different festival or sale time brings it back.
+    const key = next.id + '|' + next.next_sale;
+    let hid = ''; try { hid = localStorage.getItem('fr-next-hide') || ''; } catch (e) {}
+    if (hid === key) { box.hidden = true; return; }
+    const x = el('button', 'next-x', '×'); x.type = 'button'; x.setAttribute('aria-label', 'Dismiss next presale'); x.title = 'Dismiss';
+    x.onclick = () => { try { localStorage.setItem('fr-next-hide', key); } catch (e) {} box.hidden = true; };
+    box.replaceChildren(el('span', 'k', 'Next presale'), el('b', null, next.festival), el('span', null, next.next_sale_label), x);
     box.hidden = false;
   }
 
