@@ -754,8 +754,8 @@ function waveGet(tid) {
   sb.storage.from(BUCKET).download(s.wave_path).then(({ data, error }) => { if (error) throw error; return data.text(); }).then(txt => {
     const j = JSON.parse(txt), bin = atob(j.data), a = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
-    WV[tid] = { state: "ok", n: j.n, rate: j.rate, bar1: j.bar1_s, barLen: j.bar_len, data: a }; drawLanes(true);
-  }).catch(() => { WV[tid] = { state: "none" }; });
+    WV[tid] = { state: "ok", n: j.n, rate: j.rate, bar1: j.bar1_s, barLen: j.bar_len, data: a }; drawLanes(true); oDraw();
+  }).catch(() => { WV[tid] = { state: "none" }; oDraw(); });
   return WV[tid];
 }
 function mixWave(o) {
