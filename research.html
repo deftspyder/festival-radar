@@ -1130,7 +1130,8 @@ function waveBody(c, w, h, o, gm, wa, wb) {
       if (fb <= fa) fb = fa + 1; if (fb <= 0 || fa >= wv.n) continue;
       const m = [0, 0, 0];
       for (let f = Math.max(0, fa); f < Math.min(wv.n, fb); f++) for (let b = 0; b < 3; b++) { const v = wv.data[f * 3 + b]; if (v > m[b]) m[b] = v; }
-      const hl = m[0] / 255 * amp, hm = Math.min(m[1] / 255 * amp * .72, hl), hh = Math.min(m[2] / 255 * amp * .48, hm);
+      // each band on its own, as Syndicate draws it (and the PC's Research lanes): low widest, mid and high inside it
+      const hl = m[0] / 255 * amp * .92, hm = m[1] / 255 * amp * .68, hh = m[2] / 255 * amp * .44;
       const bar = (hgt, col) => { if (hgt < .4) return; c.fillStyle = col; c.fillRect(x, dir < 0 ? mid - hgt : mid, 1, hgt); };
       if (S.blend) { const tot = m[0] + m[1] + m[2] || 1; bar(Math.max(hl, m[1] / 255 * amp * .8), `rgb(${Math.min(255, m[0] / tot * 330) | 0},${Math.min(255, m[1] / tot * 276) | 0},${Math.min(255, m[2] / tot * 357) | 0})`); }
       else { bar(hl, S.c[0]); bar(hm, S.c[1]); bar(hh, S.c[2]); }
