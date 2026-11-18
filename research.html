@@ -988,7 +988,7 @@ function renderOne() {
   // the line under the row: what this way does
   if (o) {
     const r = rating(o.id), why = (o.data.why || {}).short || "";
-    $("oLine").innerHTML = `<b>${esc(who(o.data.name))}</b>${why ? " · " + esc(why) : ""}${r ? ` · <span style="color:${OR[r - 1][0]}">rated ${RATE[r - 1].l}</span>` : ""}${o.data.beats_off ? ` · <span style="color:#ffb0a8">kicks don't line up in this preview</span>` : ""}`;
+    $("oLine").innerHTML = `${mixWords(o)}${why ? " · " + esc(why) : ""}${r ? ` · <span style="color:${OR[r - 1][0]}">rated ${RATE[r - 1].l}</span>` : ""}${o.data.beats_off ? ` · <span style="color:#ffb0a8">kicks don't line up in this preview</span>` : ""}`;
     const A = song(o.a), B = song(o.b);
     $("oScore").textContent = `Score ${Math.round(o.score)}`;
     $("oA").innerHTML = `<b>A</b>${esc(shortT(A))} · ${esc(A.cam || "")} · ${Math.round(A.bpm)}`;
@@ -1102,7 +1102,7 @@ function oDraw(full) {
   const o = OPTS[ui.sel], gm = o && geom(o);
   const { g, w, h } = canvasOf(cv);
   const wa = gm && waveGet(o.a), wb = gm && waveGet(o.b);
-  const key = [o && o.id, w, h, SET.skin, wa && wa.state, wb && wb.state].join("|");
+  const key = [o && o.id, w, h, SET.skin, SET.pal, wa && wa.state, wb && wb.state].join("|");
   if (full || !oCache || oCache.key !== key) {
     const off = document.createElement("canvas"), r = window.devicePixelRatio || 1;
     off.width = Math.round(w * r); off.height = Math.round(h * r);
@@ -1118,12 +1118,37 @@ function oDraw(full) {
     $("oTime").textContent = fmt(t);
   } else if (gm) $("oTime").textContent = fmt(gm.bIn);
 }
+// The mix as your PC renders it (analysis/render_clip.py): blend = B fades in up to the Swap, the bass swaps there over
+// one beat, A fades out by A out (to about half if an exit effect catches it); cut = A plays to A out, then B.
+const EXIT_FX = ["echo", "reverb", "brake", "loop_roll"];
+const FXN = { echo: "echo out", reverb: "reverb wash", brake: "brake", loop_roll: "loop roll", flanger: "flanger on A", filter_sweep: "filter sweep on A" };
+const PALS = { neon: { name: "Neon City", v: "#39FF14", e: "#FF00FF", f: "#00F0FF" }, synth: { name: "Synthwave", v: "#FF2E97", e: "#00E5FF", f: "#FFE14D" }, outrun: { name: "Outrun", v: "#FF6EC7", e: "#B967FF", f: "#FF9E2C" } };
+SET.pal = PALS[lsGet("tcr-pal")] ? lsGet("tcr-pal") : "neon";
+function mixOf(o, gm) {
+  const pv = o.data.pv || {}, cut = pv.style === "cut", fx = pv.fx || [], ex = fx.some(f => EXIT_FX.includes(f));
+  const s0 = gm.bIn, half = cut ? gm.aOut : gm.swap, end = gm.aOut, beat = 60 / (song(o.a).bpm || 120);
+  const cl = v => Math.max(0, Math.min(1, v));
+  return { cut, fx,
+    gA: t => cut ? (t < end ? 1 : 0) : t < half ? 1 : t < end ? 1 - (1 - (ex ? .55 : 0)) * cl((t - half) / (end - half)) : 0,
+    gB: t => cut ? (t < end ? 0 : 1) : t < s0 ? 0 : t < half ? cl((t - s0) / (half - s0)) : 1,
+    bA: t => cut ? 1 : 1 - cl((t - half) / beat),
+    bB: t => cut ? 1 : cl((t - half) / beat),
+    fA: fx.includes("filter_sweep") ? t => t < (cut ? s0 : half) ? 0 : t < end ? cl((t - (cut ? s0 : half)) / (end - (cut ? s0 : half))) : null : null };
+}
+function mixWords(o) {
+  const pv = o.data.pv || {}, P = PALS[SET.pal], fx = pv.fx || [];
+  const v = pv.style === "cut" ? "Quick cut at A out" : "B fades in, A fades out", e = pv.style === "cut" ? "" : "bass swap at Swap";
+  const f = fx.filter(x => !["filter_sweep"].includes(x)).map(x => FXN[x] || x);
+  return `<span style="color:${P.v}">${v}</span>${e ? ` · <span style="color:${P.e}">${e}</span>` : ""}${fx.includes("filter_sweep") ? ` · <span style="color:${P.f}">filter sweep on A</span>` : ""}${f.length ? " · " + esc(f.join(", ")) : ""}`;
+}
 function waveBody(c, w, h, o, gm, wa, wb) {
   const top = 16, mid = top + (h - top) / 2, amp = (h - top) / 2 - 2, S = SKINS[SET.skin] || SKINS.syn, x0 = gm.bIn / gm.secs * w, x1 = gm.aOut / gm.secs * w;
+  const MX = mixOf(o, gm), P = PALS[SET.pal];
   c.fillStyle = "rgba(93,202,165,0.08)"; c.fillRect(x0, top, x1 - x0, h - top);
-  const half = (wv, map, dir, from) => {
+  // gain(t) and bass(t) reshape the waveform the way the mix does: you see A thin out and B fill in
+  const half = (wv, map, dir, from, gain, bass) => {
     if (!wv || wv.state !== "ok") return false;
-    // first the band levels for every pixel column, then scale this half so its loudest column fills it:
+    // band levels for every pixel column, then scale this half so its loudest column (before the fades) fills it:
     // a quiet part (a bass-out section, say) still reads clearly on a phone
     const cols = [];
     for (let x = 0; x < w; x++) {
@@ -1134,22 +1159,36 @@ function waveBody(c, w, h, o, gm, wa, wb) {
       const m = [0, 0, 0];
       for (let f = Math.max(0, fa); f < Math.min(wv.n, fb); f++) for (let b = 0; b < 3; b++) { const v = wv.data[f * 3 + b]; if (v > m[b]) m[b] = v; }
       // each band on its own, as Syndicate draws it (and the PC's Research lanes): low widest, mid and high inside it
-      cols.push([x, m, m[0] / 255, m[1] / 255 * .74, m[2] / 255 * .5]);
+      cols.push([x, m, m[0] / 255, m[1] / 255 * .74, m[2] / 255 * .5, t0]);
     }
-    let top = 0; for (const q of cols) top = Math.max(top, q[2], q[3], q[4]);
-    const k = amp * .96 / Math.max(top, .4);
-    for (const [x, m, l, md, hi] of cols) {
+    let mx = 0; for (const q of cols) mx = Math.max(mx, q[2], q[3], q[4]);
+    const k = amp * .96 / Math.max(mx, .4);
+    for (const [x, m, l, md, hi, t] of cols) {
+      const g = gain(t), bl = bass(t);
       const bar = (hgt, col) => { if (hgt < .4) return; c.fillStyle = col; c.fillRect(x, dir < 0 ? mid - hgt : mid, 1, hgt); };
-      if (S.blend) { const tot = m[0] + m[1] + m[2] || 1; bar(Math.max(l, md, hi) * k, `rgb(${Math.min(255, m[0] / tot * 330) | 0},${Math.min(255, m[1] / tot * 276) | 0},${Math.min(255, m[2] / tot * 357) | 0})`); }
-      else { bar(l * k, S.c[0]); bar(md * k, S.c[1]); bar(hi * k, S.c[2]); }
+      if (S.blend) { const tot = m[0] * bl + m[1] + m[2] || 1; bar(Math.max(l * bl, md, hi) * k * g, `rgb(${Math.min(255, m[0] * bl / tot * 330) | 0},${Math.min(255, m[1] / tot * 276) | 0},${Math.min(255, m[2] / tot * 357) | 0})`); }
+      else { bar(l * bl * k * g, S.c[0]); bar(md * k * g, S.c[1]); bar(hi * k * g, S.c[2]); }
     }
     return true;
   };
-  c.globalAlpha = .9;
-  const okA = half(wa, gm.mapA, -1, null), okB = half(wb, gm.mapB, 1, gm.bHeard);
+  c.globalAlpha = .55;
+  const okA = half(wa, gm.mapA, -1, null, MX.gA, MX.bA), okB = half(wb, gm.mapB, 1, gm.bHeard, MX.gB, MX.bB);
   c.globalAlpha = 1;
   if (!okA || !okB) { c.fillStyle = "#8A8A96"; c.font = "12px system-ui"; c.textAlign = "center"; c.fillText(wa.state === "loading" || wb.state === "loading" ? "Loading the waveform…" : "No waveform for this song yet", w / 2, okA ? mid + amp / 2 : mid - amp / 2); }
   c.strokeStyle = "#34343E"; c.lineWidth = .5; c.beginPath(); c.moveTo(0, mid + .5); c.lineTo(w, mid + .5); c.stroke();
+  // the mix lines: volume, bass (EQ) and filter, A above the middle line, B below; glowing like the mockup
+  const line = (fn, dir, col, inset) => {
+    const pts = []; for (let x = 0; x <= w; x += 2) { const v = fn(x / w * gm.secs); pts.push(v == null ? null : [x, dir < 0 ? mid - inset - v * (amp - inset - 4) : mid + inset + v * (amp - inset - 4)]); }
+    const path = () => { c.beginPath(); let on = false; for (const p of pts) { if (!p) { on = false; continue; } on ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1]); on = true; } };
+    c.save(); c.lineJoin = "round";
+    c.shadowColor = col; c.shadowBlur = 6; c.strokeStyle = col; c.globalAlpha = .55; c.lineWidth = 4; path(); c.stroke();
+    c.shadowBlur = 0; c.globalAlpha = 1; c.lineWidth = 2; path(); c.stroke();
+    c.strokeStyle = "rgba(255,255,255,.55)"; c.lineWidth = .75; path(); c.stroke(); c.restore();
+  };
+  const onA = fn => t => t > gm.aOut + .05 ? null : fn(t), onB = fn => t => t < gm.bHeard - .05 ? null : fn(t);   // each line only while its song plays
+  if (!MX.cut) { line(onA(MX.bA), -1, P.e, 6); line(onB(MX.bB), 1, P.e, 6); }
+  if (MX.fA) line(onA(MX.fA), -1, P.f, 10);
+  line(onA(MX.gA), -1, P.v, 2); line(onB(MX.gB), 1, P.v, 2);
   c.setLineDash([3, 3]); c.strokeStyle = "#8A8A96"; c.lineWidth = .75; c.fillStyle = "#C9C9D2"; c.font = "11px system-ui"; c.textAlign = "center";
   for (const [t, l] of [[gm.bIn, "B in"], [gm.swap, "Swap"], [gm.aOut, "A out"]]) {
     if (t == null) continue; const x = Math.round(t / gm.secs * w) + .5;
@@ -1232,6 +1271,8 @@ function setSheet() {
       <div class="o-step"><button type="button" id="sDec" aria-label="Fewer">−</button><b id="sN">${SET.n}</b><button type="button" id="sInc" aria-label="More">+</button></div></div>
     <div class="o-set"><div class="t">Waveform style</div>
       <div class="o-skins">${Object.entries(SKINS).map(([k, S]) => `<button type="button" class="o-skin" data-skin="${k}" aria-pressed="${SET.skin === k}" aria-label="${S.label}" style="--sp:${S.p}">${S.c.map(c => `<i style="background:${c}"></i>`).join("")}${S.name}</button>`).join("")}</div></div>
+    <div class="o-set"><div class="t">Curve colours</div><div class="d">Volume, bass (EQ) and filter lines over the waveform.</div>
+      <div class="o-skins">${Object.entries(PALS).map(([k, P]) => `<button type="button" class="o-skin" data-pal="${k}" aria-pressed="${SET.pal === k}" style="--sp:${P.v};font-family:var(--body);letter-spacing:0;font-weight:600">${[P.v, P.e, P.f].map(c => `<i style="background:${c};height:16px;width:6px"></i>`).join("")}${P.name}</button>`).join("")}</div></div>
     <div class="o-set"><div class="t">Every pairing</div><div class="d">The full list: compare cards, ideas for the next try, and going back to ones you've rated.</div>
       <button type="button" class="btn" id="sList" style="justify-self:start">Open the list</button></div>
     <div class="o-set"><div class="d">Your PC ${when}${waiting ? ` · ${waiting} of your ratings waiting` : ""}. It applies ratings when the helper is running and no deck is playing.</div>
@@ -1242,6 +1283,7 @@ function setSheet() {
   const step = d => { SET.n = Math.max(2, Math.min(5, SET.n + d)); $("sN").textContent = SET.n; lsSet("tcr-n", SET.n); ui.bi = 0; renderOne(); };
   $("sDec").onclick = () => step(-1); $("sInc").onclick = () => step(1);
   root.querySelectorAll("[data-skin]").forEach(b => b.onclick = () => { SET.skin = b.dataset.skin; lsSet("tcr-skin", SET.skin); root.querySelectorAll("[data-skin]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); oDraw(true); });
+  root.querySelectorAll("[data-pal]").forEach(b => b.onclick = () => { SET.pal = b.dataset.pal; lsSet("tcr-pal", SET.pal); root.querySelectorAll("[data-pal]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); renderOne(); });
   $("sList").onclick = () => { closeSheet(); setView("list"); };
   if ($("sPeople")) $("sPeople").onclick = () => { closeSheet(); ui.sheetReturn = $("oGear"); people(); };
 }
