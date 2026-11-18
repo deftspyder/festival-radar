@@ -202,6 +202,11 @@ body.one .toast { top: calc(env(safe-area-inset-top, 0px) + 64px); bottom: auto 
 .o-line .s { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .o-line .s b { color: #F4F4F8; font-weight: 600 }
 .o-more { flex: none; background: none; border: none; color: #D3D1DC; font-size: 12px; padding: 4px 0 4px 6px; min-height: 30px; white-space: nowrap }
+.o-try { flex: none; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px }
+.o-try::-webkit-scrollbar { display: none }
+.o-try button { flex: none; height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid #3A3B46; background: #1A1B21; color: #F4F4F8; font-size: 12.5px; font-weight: 500; white-space: nowrap }
+.o-try button.sent { border-style: dashed; color: #8fe3ff; border-color: #2c4a52 }
+.o-try .lb { flex: none; align-self: center; font-size: 11.5px; color: #B8B8C2; white-space: nowrap }
 .o-tr { flex: none; display: flex; align-items: flex-start; justify-content: center; gap: 20px }
 .o-tr .c { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 10px; font-size: 11px; color: #B8B8C2; width: 58px; text-align: center }
 .o-tr .c button { width: 44px; height: 44px; border-radius: 999px; border: none; background: #24252D; color: #F4F4F8; display: grid; place-items: center }
@@ -931,6 +936,7 @@ function renderOne() {
         <div class="o-empty" id="oEmpty" hidden></div></div>
       <div class="o-row" id="oRow"></div>
       <div class="o-line"><span class="s" id="oLine"></span><button type="button" class="o-more" id="oMore"></button></div>
+      <div class="o-try" id="oTry" role="group" aria-label="Try another way"></div>
       <div class="o-tr">
         <div class="c"><button type="button" id="oBack" aria-label="Back to B in">${ICON.back}</button>B in</div>
         <button type="button" class="o-play" id="oPlay" aria-label="Play">${ICON.play}</button>
@@ -996,6 +1002,7 @@ function renderOne() {
     signAhead(OP.opts); waveGet(o.a); waveGet(o.b);
     const nx = OL.find(p => p !== OP && needs(p)); if (nx) { signAhead(nx.opts.filter(playable)); waveGet(nx.a); waveGet(nx.b); }
   } else { $("oLine").textContent = ""; $("oScore").textContent = ""; $("oA").innerHTML = ""; $("oB").innerHTML = ""; }
+  renderTry(o);
   for (const id of ["oScore", "oA", "oB", "oTime"]) $(id).hidden = !o;
   $("oRates").classList.toggle("off", !o);
   for (const id of ["oPlay", "oBack", "oLoop"]) $(id).disabled = !o;
@@ -1024,6 +1031,24 @@ function oPrompt() {
   }
   const c = ui.cmp, n = Math.max(2, Math.min(5, SET.n)), more = W.slice(((ui.bi || 0) + 1) * n).length;
   el.textContent = c && !c.run ? (more ? "Tap the winner and rate it, or try more" : "Tap the winner and rate it") : c && c.run ? `Comparing: ${nm}` : `How did it land with ${nm}?`;
+}
+
+// "Try another way": your PC makes a new version of this mix (a re-proposal), which joins the row when it's ready
+function renderTry(o) {
+  const el = $("oTry"), sug = (META.feedback && META.feedback.suggest) || [];
+  if (!o || !sug.length) { el.hidden = true; el.innerHTML = ""; return; }
+  el.hidden = false;
+  const asked = id => { const r = mine().filter(x => x.option_id === o.id && x.kind === "suggest" && (x.suggest || []).includes(id)).pop(); return r ? (r.synced_at ? "making" : "sent") : null; };
+  el.innerHTML = `<span class="lb">${ADMIN ? "Try" : "Suggest"}</span>` + sug.map(x => { const a = asked(x.id);
+    return `<button type="button" data-try="${esc(x.id)}" class="${a ? "sent" : ""}" title="${esc(x.what || "")}"${a ? ' aria-disabled="true"' : ""}>${a ? (a === "making" ? "Making: " : "Sent: ") : ""}${esc(x.label.replace(/^Try (an? )?/, "").replace(/^./, c => c.toUpperCase()))}</button>`; }).join("");
+  el.querySelectorAll("[data-try]").forEach(b => b.onclick = async () => {
+    if (b.getAttribute("aria-disabled") === "true") return toast(ADMIN ? "Already asked: it joins the row when your PC has made it." : "Already sent to Bill.");
+    const id = b.dataset.try, x = sug.find(q => q.id === id);
+    if (await send({ option_id: o.id, kind: "suggest", suggest: [id], note: null })) {
+      toast(ADMIN ? `${x.label}: your PC makes it on its next sync, then it joins the row to compare.` : "Sent to Bill.");
+      renderTry(o);
+    }
+  });
 }
 
 // audio
