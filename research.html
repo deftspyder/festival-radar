@@ -52,7 +52,7 @@ a { color: var(--plan-ink) }
 .syncl.old i { background: var(--warn) }
 .iconbtn { min-width: 44px; min-height: 40px; border-radius: 8px; border: 1px solid var(--line2); background: var(--raised2); font-weight: 600; padding: 0 10px; white-space: nowrap }
 .back { color: var(--muted); text-decoration: none; font-size: 13px; white-space: nowrap; flex: none }
-@media (max-width: 420px) { .brand { font-size: 18px; letter-spacing: .07em } .top .lab { font-size: 12px } }
+@media (max-width: 420px) { .brand { font-size: 18px; letter-spacing: .07em } .top .lab { font-size: 12px } .top .row > .lab { display: none } #oneBtn { font-size: 13px; padding: 0 8px } #peopleBtn { display: none } }
 
 .wrap { padding: 12px 16px; display: grid; gap: 12px; max-width: 1280px; margin: 0 auto }
 .controls { display: grid; gap: 8px }
@@ -167,6 +167,65 @@ textarea { min-height: 70px; resize: vertical }
 .gate { max-width: 520px; margin: 12vh auto 0; padding: 22px; display: grid; gap: 12px; text-align: center; border: 1px solid var(--line2); border-radius: 14px; background: var(--panel) }
 .loading { padding: 40px 16px; text-align: center; color: var(--muted) }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important } }
+
+/* one pair at a time (v2 phone Research): everything fits on one screen, no scrolling */
+body.one { background: #0E0F13; padding-bottom: 0 }
+body.one .top, body.one .player { display: none !important }
+body.one .wrap { display: block; padding: 0; max-width: none }
+body.one .toast { top: calc(env(safe-area-inset-top, 0px) + 64px); bottom: auto }
+.o { height: 100vh; height: 100dvh; max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px calc(env(safe-area-inset-bottom, 0px) + 12px); color: #E8E8EC; overflow: hidden; width: 100%; min-width: 0 }
+.o-top { display: flex; gap: 8px; flex: none }
+.o-pick { flex: 1; min-width: 0; height: 44px; border: none; border-radius: 8px; background: #3A3B46; color: #F4F4F8; padding: 0 10px 0 12px; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500 }
+.o-pick.done { background: #10302b; color: #8ff0df }
+.o-pick .nm { flex: 1; min-width: 0; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.o-pick .ct { flex: none; min-width: 84px; text-align: right; font: 700 15px var(--mono); color: #fff }
+.o-pick.done .ct { color: #8ff0df }
+.o-gear { flex: none; width: 44px; height: 44px; border-radius: 8px; border: none; background: #3A3B46; color: #F4F4F8; display: grid; place-items: center }
+.o-wave { position: relative; flex: 1 1 auto; min-height: 150px; max-height: 300px }
+.o-wave canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: manipulation }
+.o-tag { position: absolute; font-size: 12px; background: rgba(14,15,19,.78); padding: 2px 6px; border-radius: 4px; pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.o-time { right: 4px; top: 22px; min-width: 44px; text-align: center; font-family: var(--mono) }
+.o-names { position: absolute; left: 4px; right: 4px; bottom: 6px; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; pointer-events: none }
+.o-names .o-tag { position: static; max-width: 64% }
+.o-names b { font-weight: 600; color: #B8B8C2; margin-right: 4px }
+.o-empty { position: absolute; inset: 0; display: grid; place-content: center; gap: 12px; text-align: center; padding: 16px; color: #B8B8C2; font-size: 14px; border: 1px dashed #2E2F38; border-radius: 10px }
+.o-empty b { color: #F4F4F8; font-size: 16px }
+.o-row { display: grid; gap: 6px; flex: none }
+.o-way { position: relative; height: 52px; min-width: 0; border-radius: 10px; border: 1.5px solid transparent; background: #24252D; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0 6px }
+.o-way .wn { font-size: 13px; font-weight: 600; color: #F4F4F8; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.o-way .wh { font-size: 11px; color: #B8B8C2; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.o-way[aria-pressed="true"] { background: #F4F4F8; border-color: #F4F4F8 } .o-way[aria-pressed="true"] .wn { color: #0E0F13 } .o-way[aria-pressed="true"] .wh { color: #3A3B46 }
+.o-way .bdg { position: absolute; top: 4px; right: 5px; width: 16px; height: 16px; border-radius: 999px; background: #39FF14; color: #0E0F13; font: 700 10px/16px var(--mono); text-align: center }
+.o-way .rt { position: absolute; top: 5px; left: 6px; width: 8px; height: 8px; border-radius: 50% }
+.o-line { flex: none; display: flex; align-items: center; gap: 8px; min-height: 22px; font-size: 11.5px; color: #B8B8C2 }
+.o-line .s { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.o-line .s b { color: #F4F4F8; font-weight: 600 }
+.o-more { flex: none; background: none; border: none; color: #D3D1DC; font-size: 12px; padding: 4px 0 4px 6px; min-height: 30px; white-space: nowrap }
+.o-tr { flex: none; display: flex; align-items: flex-start; justify-content: center; gap: 20px }
+.o-tr .c { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 10px; font-size: 11px; color: #B8B8C2; width: 58px; text-align: center }
+.o-tr .c button { width: 44px; height: 44px; border-radius: 999px; border: none; background: #24252D; color: #F4F4F8; display: grid; place-items: center }
+.o-tr .c button.on { background: #3A3B46; color: #5DCAA5; box-shadow: inset 0 0 0 1.5px #5DCAA5 }
+.o-play { width: 64px; height: 64px; border-radius: 999px; border: none; background: #F4F4F8; display: grid; place-items: center }
+.o-prompt { flex: none; min-height: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 12.5px; color: #B8B8C2; white-space: nowrap; overflow: hidden }
+.o-prompt button { background: none; border: none; color: #8fe3ff; font-size: 12.5px; padding: 2px 0; text-decoration: underline; min-height: 24px }
+.o-rates { flex: none; display: flex; gap: 6px }
+.o-rates button { flex: 1; min-width: 0; height: 62px; border-radius: 10px; border: none; background: #24252D; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: #F4F4F8; font-size: 11.5px; font-weight: 600; line-height: 1.1 }
+.o-rates button i { width: 12px; height: 12px; border-radius: 999px; background: var(--rc) }
+.o-rates button[aria-pressed="true"] { background: var(--rc); color: var(--rt) } .o-rates button[aria-pressed="true"] i { background: var(--rt) }
+.o-rates.off { opacity: .35; pointer-events: none }
+.o-list { display: grid; gap: 0 }
+.o-li { width: 100%; min-height: 48px; border: none; border-top: 1px solid #23242C; background: none; color: #F4F4F8; display: flex; align-items: center; gap: 8px; padding: 4px 0; text-align: left; font-size: 14px }
+.o-li .nm { flex: 1; min-width: 0; display: grid; gap: 1px } .o-li .nm span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.o-li .nm small { color: #B8B8C2; font-size: 12px }
+.o-li .ct { flex: none; font: 700 14px var(--mono) }
+.o-set { border-top: 1px solid #2E2F38; padding: 12px 0; display: grid; gap: 6px }
+.o-set .t { font-size: 14px; font-weight: 600; color: #F4F4F8 } .o-set .d { font-size: 12.5px; color: #B8B8C2 }
+.o-set input[type=range] { width: 100%; accent-color: #5DCAA5; margin: 4px 0 0; min-height: 32px; padding: 0; border: 0; background: none }
+.o-step { display: flex; align-items: center; gap: 8px } .o-step button { width: 40px; height: 40px; border-radius: 8px; border: none; background: #24252D; font-size: 18px } .o-step b { width: 22px; text-align: center; font: 700 16px var(--mono) }
+.o-skins { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px }
+.o-skin { height: 46px; border-radius: 999px; border: 2px solid #3A3B46; background: #16171C; display: flex; align-items: center; justify-content: center; gap: 6px; opacity: .55; font: 700 12px var(--mono); letter-spacing: .08em }
+.o-skin i { width: 8px; height: 22px; border-radius: 2px } .o-skin[aria-pressed="true"] { opacity: 1; border-color: var(--sp) }
 </style>
 </head>
 <body>
@@ -175,6 +234,7 @@ textarea { min-height: 70px; resize: vertical }
     <span class="brand">Tower <b>Control</b></span>
     <span class="lab" style="color:var(--plan-ink)">Research</span>
     <span class="grow"></span>
+    <button type="button" class="iconbtn" id="oneBtn" aria-label="Back to one pair at a time">One pair</button>
     <button type="button" class="iconbtn" id="peopleBtn" hidden>People</button>
   </div>
   <div class="row"><div class="syncl grow" id="syncLine" aria-live="polite"></div><a class="back" href="./">← Festival Radar</a></div>
@@ -358,8 +418,10 @@ function renderSync() {
 let pairsCache = null;
 function render() {
   if (!ME) return;
+  if (ui.view === "one") return renderOne();
   renderSync();
   const main = $("main");
+  if (main.dataset.built === "one") main.dataset.built = "";
   if (!main.dataset.built) {
     main.dataset.built = "1";
     main.innerHTML = `<div class="cols" id="cols">
@@ -406,7 +468,7 @@ function openPair(key, push) {
   if (!matchMedia("(min-width: 900px)").matches) window.scrollTo({ top: 0 });
 }
 function closePair() { ui.pair = null; ui.opt = null; render(); }
-window.addEventListener("popstate", () => { const k = location.hash.slice(1).toUpperCase(); if (k && pairsCache && pairsCache.some(p => p.key === k)) openPair(k, false); else closePair(); });
+window.addEventListener("popstate", () => { if (ui.view === "one") return; const k = location.hash.slice(1).toUpperCase(); if (k && pairsCache && pairsCache.some(p => p.key === k)) openPair(k, false); else closePair(); });
 
 function optOutcome(o, p) {
   const r = billRating(o.id), mr = rating(o.id);
@@ -592,7 +654,7 @@ function sheet(html) {
   root.querySelectorAll("[data-close]").forEach(b => b.onclick = closeSheet);
   const f = root.querySelector("[data-first]") || root.querySelector("button"); if (f) f.focus({ preventScroll: true });
 }
-function closeSheet() { $("sheetRoot").innerHTML = ""; ui.fv = null; if (ui.sheetReturn && ui.sheetReturn.focus) ui.sheetReturn.focus({ preventScroll: true }); ui.sheetReturn = null; }
+function closeSheet() { $("sheetRoot").innerHTML = ""; ui.fv = null; ui.afterRate = null; if (ui.sheetReturn && ui.sheetReturn.focus) ui.sheetReturn.focus({ preventScroll: true }); ui.sheetReturn = null; }
 document.addEventListener("keydown", e => { if (e.key === "Escape" && $("sheetRoot").innerHTML) closeSheet(); });
 function openRate(id, r, ctx) { ui.fv = { id, r, chips: new Set(), good: new Set(), sugg: new Set(), ctx: ctx || "" }; rateSheet(); }
 function rateSheet() {
@@ -634,7 +696,9 @@ async function sendRate(skip) {
     symptoms: skip || !low ? [] : [...fv.chips], good: skip || low ? [] : [...fv.good], suggest: skip || fv.r !== 4 ? [] : [...fv.sugg] };
   const ok = await send(row);
   if (!ok) { fv.sent = false; return; }
+  const after = ui.afterRate;
   closeSheet();
+  if (after) return after();
   toast(ADMIN ? `Rated ${fv.r} · ${RATE[fv.r - 1].l}. Your PC applies it on its next sync.` : `Rated ${fv.r} · ${RATE[fv.r - 1].l}. Bill sees it.`);
   render();
 }
@@ -662,7 +726,7 @@ async function play(id, keepQueue) {
   const cached = URLS[o.preview_path] && URLS[o.preview_path].exp > Date.now() ? URLS[o.preview_path].url : null;
   const url = cached || await urlFor(o.preview_path);
   if (!url || ui.playing !== id) { if (!url) toast("Couldn't get the preview. Try again in a moment."); return; }
-  audio.src = url;
+  audio.src = url; audio.dataset.id = "";
   audio.play().catch(() => toast("Tap Play again to start the preview"));
   $("pName").textContent = `${o.opt_code} · ${o.data.variant ? o.data.variant.what : who(o.data.name)}`;
   $("player").hidden = false; document.body.classList.add("playing");
@@ -670,7 +734,7 @@ async function play(id, keepQueue) {
 }
 function stop() { audio.pause(); ui.playing = null; ui.queue = []; $("player").hidden = true; document.body.classList.remove("playing"); render(); }
 $("pStop").onclick = stop;
-audio.addEventListener("ended", () => { const nx = (ui.queue || []).shift(); if (nx) { ui.playing = null; play(nx, true); } else stop(); });
+audio.addEventListener("ended", () => { if (ui.view === "one") return oEnded(); const nx = (ui.queue || []).shift(); if (nx) { ui.playing = null; play(nx, true); } else stop(); });
 const fmt = s => isFinite(s) ? `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}` : "0:00";
 function tick() {
   if (!ui.playing) return;
@@ -803,6 +867,385 @@ function drawLanes(redrawOnly) {
 }
 let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => drawLanes(true), 150); });
 
+/* ---------- one pair at a time: the v2 phone Research ----------
+   One pairing fills the screen. TCM's ways to mix it sit in a row (best first); Compare plays them in turn the
+   first time you hear a pair. A rating waits 3 s (tap another to change it), then the next pair loads and plays.
+   The list above stays as "Every pairing" in Settings, for compare cards, ideas and going back to old ones. */
+const SET = { thr: +(lsGet("tcr-thr") || 70), n: +(lsGet("tcr-n") || 3), skin: lsGet("tcr-skin") || "syn", loop: lsGet("tcr-loop") !== "0" };
+ui.view = lsGet("tcr-view") === "list" ? "list" : "one";
+const SKINS = {
+  syn: { name: "SYN", label: "Syndicate 3 band", c: ["#378ADD", "#EF9F27", "#E8E8EC"], p: "#EF9F27" },
+  ser: { name: "SER", label: "Serato", c: ["#E24B4A", "#639922", "#378ADD"], p: "#E24B4A", blend: true },
+  rek: { name: "REK", label: "rekordbox", c: ["#1F4FC8", "#5FB4F2", "#FFFFFF"], p: "#5FB4F2" },
+};
+const OR = [["#E24B4A", "#2A0808"], ["#EF9F27", "#412402"], ["#FAC775", "#412402"], ["#97C459", "#173404"], ["#5DCAA5", "#04342C"]];
+const ICON = {
+  play: `<svg width="26" height="28" viewBox="0 0 26 28" aria-hidden="true"><path d="M5 3.2c0-1.5 1.6-2.4 2.9-1.6l15.2 9.9c1.2.8 1.2 2.5 0 3.3L7.9 24.6C6.6 25.4 5 24.5 5 23V3.2z" fill="#0E0F13"/></svg>`,
+  pause: `<svg width="24" height="26" viewBox="0 0 24 26" aria-hidden="true"><rect x="3" y="2" width="6.5" height="22" rx="2" fill="#0E0F13"/><rect x="14.5" y="2" width="6.5" height="22" rx="2" fill="#0E0F13"/></svg>`,
+  back: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 20L9 12l10-8v16z"/><path d="M5 19V5"/></svg>`,
+  loop: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/></svg>`,
+  cmp: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 8h16M16 4l4 4-4 4"/><path d="M20 16H4M8 12l-4 4 4 4"/></svg>`,
+  gear: `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>`,
+  down: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`,
+};
+
+// which pairs and ways still need you
+const playable = o => hasPv(o) && !o.data.held && !fixingNow(o);
+const wanted = o => playable(o) && !pending(o.id) && (rating(o.id) == null || (ADMIN && o.status === "ready"));
+function needs(p) {
+  const rated = p.opts.some(o => rating(o.id) != null);
+  return p.opts.some(o => wanted(o) && (!rated || o.data.variant || o.status === "ready"));
+}
+function pairsIn(plKey, all) {
+  const k = String(plKey || "all"), pl = k === "all" ? null : PLS.find(x => String(x.id) === k), ps = pl ? new Set(pl.tracks) : null;
+  return all.filter(p => (!ps || (ps.has(p.a) && ps.has(p.b))) && p.best >= SET.thr);
+}
+function tally(list) {
+  const done = list.filter(p => !needs(p) && p.opts.some(o => rating(o.id) != null)).length;
+  return { done, total: list.length, noPv: list.filter(p => !needs(p) && !p.opts.some(o => rating(o.id) != null)).length };
+}
+function ways(p) {
+  const pl = p.opts.filter(playable), w = pl.filter(wanted);
+  return [...w, ...pl.filter(o => !w.includes(o))];
+}
+const KIND = { section: "Section", end: "End to start", layer: "Layer" };
+function wayName(o, first) {
+  const v = o.data.variant;
+  if (v) return [`v${v.n} · ${v.by === "you" ? "your idea" : "TCM's try"}`, v.what || ""];
+  const k = o.data.custom ? "Your pair" : KIND[o.data.kind] || "Way", sa = o.data.sa || {}, sbx = o.data.sb || {};
+  return first ? ["Tower pick", k] : [k, `${sa.label || "?"} → ${sbx.label || "?"}`];
+}
+
+let OL = [], OP = null;   // pairs in this playlist at or above the threshold; the pair on screen
+function renderOne() {
+  document.body.classList.add("one");
+  const main = $("main");
+  if (main.dataset.built !== "one") {
+    main.dataset.built = "one";
+    main.innerHTML = `<div class="o">
+      <div class="o-top"><button type="button" class="o-pick" id="oPick" aria-haspopup="dialog"><span class="nm" id="oPl"></span><span class="ct" id="oCt"></span>${ICON.down}</button>
+        <button type="button" class="o-gear" id="oGear" aria-label="Settings">${ICON.gear}</button></div>
+      <div class="o-wave" id="oWaveBox"><canvas id="oWave" aria-label="Track A on top fading out, track B underneath coming in. Tap to jump."></canvas>
+        <span class="o-tag o-time" id="oTime"></span>
+        <div class="o-names"><span class="o-tag" id="oScore" style="color:#5DCAA5;font-weight:600"></span><span class="o-tag" id="oA"></span><span class="o-tag" id="oB"></span></div>
+        <div class="o-empty" id="oEmpty" hidden></div></div>
+      <div class="o-row" id="oRow"></div>
+      <div class="o-line"><span class="s" id="oLine"></span><button type="button" class="o-more" id="oMore"></button></div>
+      <div class="o-tr">
+        <div class="c"><button type="button" id="oBack" aria-label="Back to B in">${ICON.back}</button>B in</div>
+        <button type="button" class="o-play" id="oPlay" aria-label="Play">${ICON.play}</button>
+        <div class="c"><button type="button" id="oLoop" aria-label="Loop the overlap">${ICON.loop}</button>Loop</div>
+        <div class="c"><button type="button" id="oCmp" aria-label="Compare the ways">${ICON.cmp}</button><span id="oCmpL">Compare</span></div>
+      </div>
+      <div class="o-prompt" id="oPrompt" aria-live="polite"></div>
+      <div class="o-rates" id="oRates">${RATE.map((x, i) => `<button type="button" data-or="${x.n}" style="--rc:${OR[i][0]};--rt:${OR[i][1]}" aria-label="${x.n} ${x.l}: ${x.m}"><i></i>${x.l === "Go-around" ? "Go around" : x.l}</button>`).join("")}</div>
+    </div>`;
+    $("oPick").onclick = plSheet;
+    $("oGear").onclick = setSheet;
+    $("oPlay").onclick = () => audio.paused ? oHear() : audio.pause();
+    $("oBack").onclick = () => { const o = OPTS[ui.sel], gm = o && geom(o); if (gm) oSeek(gm.bIn); };
+    $("oLoop").onclick = () => { SET.loop = !SET.loop; lsSet("tcr-loop", SET.loop ? "1" : "0"); oControls(); };
+    $("oCmp").onclick = oCompareBtn;
+    $("oMore").onclick = waysSheet;
+    $("oRates").querySelectorAll("[data-or]").forEach(b => b.onclick = () => oRate(+b.dataset.or));
+    const cv = $("oWave");
+    cv.onclick = e => { const o = OPTS[ui.sel], gm = o && geom(o); if (!gm) return; const r = cv.getBoundingClientRect(); oSeek((e.clientX - r.left) / r.width * gm.secs, true); };
+    audio.addEventListener("play", oControls); audio.addEventListener("pause", oControls);
+  }
+  const all = pairings(); pairsCache = all;
+  OL = pairsIn(ui.pl, all);
+  const t = tally(OL), plName = String(ui.pl || "all") === "all" ? "All playlists" : (PLS.find(x => String(x.id) === String(ui.pl)) || {}).name || "All playlists";
+  const finished = t.total > 0 && t.done === t.total;
+  $("oPick").classList.toggle("done", finished);
+  $("oPl").textContent = plName; $("oCt").textContent = (finished ? "✓ " : "") + `${t.done}/${t.total}`;
+  $("oPick").setAttribute("aria-label", `Playlist ${plName}, ${t.done} of ${t.total} reviewed. Change playlist`);
+  // the pair on screen stays put until you rate it or pick another
+  OP = OL.find(p => p.key === ui.cp) || null;
+  if (!OP && !ui.pend) { OP = OL.find(needs) || null; ui.cp = OP ? OP.key : null; ui.sel = null; ui.bi = 0; ui.cmp = null; }
+  const W = OP ? ways(OP) : [];
+  if (OP && !W.some(o => o.id === ui.sel)) ui.sel = W.length ? W[0].id : null;
+  const o = OPTS[ui.sel];
+  // empty states
+  const em = $("oEmpty");
+  if (!OP || !o) {
+    em.hidden = false;
+    em.innerHTML = !Object.keys(OPTS).length ? `<b>Nothing synced from the PC yet</b>`
+      : !t.total ? `<b>No pairs score ${SET.thr} or higher here</b><span>Lower the threshold in Settings, or pick another playlist.</span>`
+      : `<b>${t.done === t.total ? "✓ All " + t.total + " reviewed" : "Nothing left you can play here"}</b>${t.noPv ? `<span>${t.noPv} pair${t.noPv > 1 ? "s don't" : " doesn't"} have a preview on your phone yet.</span><button type="button" class="btn primary" id="oAsk">Ask for the next ${Math.min(10, t.noPv)}</button>` : ""}<button type="button" class="btn" id="oList">See every pairing</button>`;
+    if ($("oAsk")) $("oAsk").onclick = askNext;
+    if ($("oList")) $("oList").onclick = () => setView("list");
+  } else em.hidden = true;
+  // the row of ways
+  const n = Math.max(2, Math.min(5, SET.n)), bi = ui.bi || 0, row = W.slice(bi * n, bi * n + n);
+  $("oRow").style.gridTemplateColumns = `repeat(${Math.max(1, row.length)}, minmax(0, 1fr))`;
+  const tried = ui.cmp ? ui.cmp.tried : [];
+  $("oRow").innerHTML = row.map(w => { const [nm, h] = wayName(w, bi === 0 && w === W[0] && !w.data.variant), r = rating(w.id), ti = tried.indexOf(w.id);
+    return `<button type="button" class="o-way" data-way="${esc(w.id)}" aria-pressed="${w.id === ui.sel}">${r ? `<span class="rt" style="background:${OR[r - 1][0]}" title="Rated ${RATE[r - 1].l}"></span>` : ""}<span class="wn">${esc(nm)}</span><span class="wh">${esc(h)}</span>${ti >= 0 ? `<span class="bdg">${ti + 1}</span>` : ""}</button>`; }).join("");
+  $("oRow").querySelectorAll("[data-way]").forEach(b => b.onclick = () => { if (ui.cmp) ui.cmp.run = false; oSelect(b.dataset.way, true); });
+  const rest = W.length + (OP ? OP.opts.filter(x => !playable(x)).length : 0);
+  $("oMore").textContent = OP && rest > row.length ? `All ways (${rest}) ▾` : "";
+  $("oMore").hidden = !(OP && rest > row.length);
+  // the line under the row: what this way does
+  if (o) {
+    const r = rating(o.id), why = (o.data.why || {}).short || "";
+    $("oLine").innerHTML = `<b>${esc(who(o.data.name))}</b>${why ? " · " + esc(why) : ""}${r ? ` · <span style="color:${OR[r - 1][0]}">rated ${RATE[r - 1].l}</span>` : ""}${o.data.beats_off ? ` · <span style="color:#ffb0a8">kicks don't line up in this preview</span>` : ""}`;
+    const A = song(o.a), B = song(o.b);
+    $("oScore").textContent = `Score ${Math.round(o.score)}`;
+    $("oA").innerHTML = `<b>A</b>${esc(shortT(A))} · ${esc(A.cam || "")} · ${Math.round(A.bpm)}`;
+    $("oB").innerHTML = `<b>B</b>${esc(shortT(B))} · ${esc(B.cam || "")} · ${Math.round(B.bpm)}`;
+    signAhead(OP.opts); waveGet(o.a); waveGet(o.b);
+    const nx = OL.find(p => p !== OP && needs(p)); if (nx) { signAhead(nx.opts.filter(playable)); waveGet(nx.a); waveGet(nx.b); }
+  } else { $("oLine").textContent = ""; $("oScore").textContent = ""; $("oA").innerHTML = ""; $("oB").innerHTML = ""; }
+  for (const id of ["oScore", "oA", "oB", "oTime"]) $(id).hidden = !o;
+  $("oRates").classList.toggle("off", !o);
+  for (const id of ["oPlay", "oBack", "oLoop"]) $(id).disabled = !o;
+  oControls(); oPrompt(); oDraw(true);
+}
+function oControls() {
+  if (ui.view !== "one" || !$("oPlay")) return;
+  const playing = !audio.paused && audio.dataset.id === ui.sel;
+  $("oPlay").innerHTML = playing ? ICON.pause : ICON.play; $("oPlay").setAttribute("aria-label", playing ? "Pause" : "Play");
+  $("oLoop").classList.toggle("on", SET.loop); $("oLoop").setAttribute("aria-pressed", String(SET.loop));
+  const W = OP ? ways(OP) : [], n = Math.max(2, Math.min(5, SET.n)), c = ui.cmp, bi = ui.bi || 0, nextLen = W.slice((bi + 1) * n, (bi + 2) * n).length;
+  $("oCmpL").textContent = !c ? "Compare" : c.run ? "Comparing" : nextLen ? `${nextLen} more` : "All tried";
+  $("oCmp").disabled = !OPTS[ui.sel] || W.length < 2 || !!(c && !c.run && !nextLen);
+  if (playing) oLoop();
+}
+function oPrompt() {
+  const el = $("oPrompt"), o = OPTS[ui.sel];
+  $("oRates").querySelectorAll("[data-or]").forEach(b => b.setAttribute("aria-pressed", String(!!(ui.pend && ui.pend.r === +b.dataset.or))));
+  if (!o) { el.textContent = ""; return; }
+  const W = OP ? ways(OP) : [], nm = wayName(o, W[0] === o && !o.data.variant)[0];
+  if (ui.pend) {
+    const left = Math.max(1, 3 - Math.floor((Date.now() - ui.pend.t0) / 1000)), R = RATE[ui.pend.r - 1];
+    el.innerHTML = `<span><b style="color:${OR[ui.pend.r - 1][0]}">${R.l === "Go-around" ? "Go around" : R.l}</b> with ${esc(nm)} · next in ${left}s</span><button type="button" id="oDet">Details</button><button type="button" id="oUndo">Undo</button>`;
+    $("oDet").onclick = oDetails; $("oUndo").onclick = oUndo;
+    return;
+  }
+  const c = ui.cmp, n = Math.max(2, Math.min(5, SET.n)), more = W.slice(((ui.bi || 0) + 1) * n).length;
+  el.textContent = c && !c.run ? (more ? "Tap the winner and rate it, or try more" : "Tap the winner and rate it") : c && c.run ? `Comparing: ${nm}` : `How did it land with ${nm}?`;
+}
+
+// audio
+function oSelect(id, play) {
+  ui.sel = id; renderOne();
+  if (play) oLoadPlay(OPTS[id]);
+}
+async function oLoadPlay(o, from) {
+  if (!o) return;
+  const gm = geom(o), t0 = from != null ? from : gm ? gm.bIn : 0;
+  if (audio.dataset.id !== o.id) {
+    const url = await urlFor(o.preview_path);
+    if (!url) return toast("Couldn't get the preview. Try again in a moment.");
+    if (ui.sel !== o.id) return;
+    audio.preload = "auto"; audio.src = url; audio.dataset.id = o.id;
+  }
+  const seek = () => { try { audio.currentTime = t0; } catch (e) {} };
+  if (audio.readyState >= 1) seek(); else audio.addEventListener("loadedmetadata", seek, { once: true });
+  audio.play().catch(() => toast("Tap play to start"));   // straight away, so a phone still counts it as your tap
+  ui.heard = ui.heard || new Set(); ui.heard.add(ui.cp);
+}
+function oHear() {
+  // the first time you hear a pair, Compare plays its ways in turn
+  const W = OP ? ways(OP) : [];
+  ui.heard = ui.heard || new Set();
+  if (OP && !ui.heard.has(OP.key) && !ui.cmp && W.length > 1) return oCompare(0);
+  if (audio.dataset.id === ui.sel && audio.readyState >= 1) { audio.play().catch(() => toast("Tap play to start")); return; }
+  oLoadPlay(OPTS[ui.sel]);
+}
+function oSeek(t, play) {
+  const o = OPTS[ui.sel]; if (!o) return;
+  if (audio.dataset.id !== o.id) return oLoadPlay(o, t);
+  try { audio.currentTime = Math.max(0, t); } catch (e) {}
+  if (play && audio.paused) audio.play().catch(() => {});
+  oDraw();
+}
+function oCompare(bi) {
+  const W = ways(OP), n = Math.max(2, Math.min(5, SET.n)), seq = W.slice(bi * n, bi * n + n).map(o => o.id);
+  if (!seq.length) return;
+  ui.bi = bi; ui.cmp = { run: true, seq, i: 0, tried: ui.cmp ? ui.cmp.tried : [] };
+  ui.cmp.tried.push(seq[0]);
+  oSelect(seq[0], true);
+}
+function oCompareBtn() {
+  const c = ui.cmp;
+  if (!c) return oCompare(0);
+  if (c.run) { c.run = false; renderOne(); return; }
+  oCompare((ui.bi || 0) + 1);
+}
+function oNextInCompare() {
+  const c = ui.cmp; c.i++;
+  if (c.i >= c.seq.length) { c.run = false; audio.pause(); renderOne(); return; }
+  c.tried.push(c.seq[c.i]); oSelect(c.seq[c.i], true);
+}
+function oEnded() { if (ui.cmp && ui.cmp.run) return oNextInCompare(); const o = OPTS[ui.sel], gm = o && geom(o); if (SET.loop && gm) oSeek(gm.bIn, true); else oControls(); }
+let oRaf = 0;
+function oLoop() {
+  if (oRaf) return;
+  const step = () => {
+    oRaf = 0;
+    if (ui.view !== "one" || audio.paused) { oDraw(); return; }
+    const o = OPTS[ui.sel], gm = o && audio.dataset.id === o.id && geom(o), t = audio.currentTime;
+    if (gm) {
+      if (ui.cmp && ui.cmp.run) { if (t >= gm.aOut + 0.4) return oNextInCompare(); }
+      else if (SET.loop && t >= gm.aOut + 0.6) { try { audio.currentTime = gm.bIn; } catch (e) {} }
+    }
+    oDraw(); oRaf = requestAnimationFrame(step);
+  };
+  oRaf = requestAnimationFrame(step);
+}
+
+// the mirrored waveform: A on top going out, B underneath coming in, on the preview's own timeline
+let oCache = null;
+function oDraw(full) {
+  const cv = $("oWave"); if (!cv || ui.view !== "one") return;
+  const o = OPTS[ui.sel], gm = o && geom(o);
+  const { g, w, h } = canvasOf(cv);
+  const wa = gm && waveGet(o.a), wb = gm && waveGet(o.b);
+  const key = [o && o.id, w, h, SET.skin, wa && wa.state, wb && wb.state].join("|");
+  if (full || !oCache || oCache.key !== key) {
+    const off = document.createElement("canvas"), r = window.devicePixelRatio || 1;
+    off.width = Math.round(w * r); off.height = Math.round(h * r);
+    const c = off.getContext("2d"); c.setTransform(r, 0, 0, r, 0, 0);
+    c.fillStyle = "#0E0F13"; c.fillRect(0, 0, w, h);
+    if (gm) waveBody(c, w, h, o, gm, wa, wb);
+    oCache = { key, off };
+  }
+  g.clearRect(0, 0, w, h); g.drawImage(oCache.off, 0, 0, w, h);
+  if (gm && audio.dataset.id === o.id) {
+    const t = audio.currentTime || 0, x = Math.round(t / gm.secs * w) + .5;
+    g.strokeStyle = "#FFFFFF"; g.lineWidth = 1.5; g.beginPath(); g.moveTo(x, 16); g.lineTo(x, h); g.stroke();
+    $("oTime").textContent = fmt(t);
+  } else if (gm) $("oTime").textContent = fmt(gm.bIn);
+}
+function waveBody(c, w, h, o, gm, wa, wb) {
+  const top = 16, mid = top + (h - top) / 2, amp = (h - top) / 2 - 2, S = SKINS[SET.skin] || SKINS.syn, x0 = gm.bIn / gm.secs * w, x1 = gm.aOut / gm.secs * w;
+  c.fillStyle = "rgba(93,202,165,0.08)"; c.fillRect(x0, top, x1 - x0, h - top);
+  const half = (wv, map, dir, from) => {
+    if (!wv || wv.state !== "ok") return false;
+    for (let x = 0; x < w; x++) {
+      const t0 = x / w * gm.secs, t1 = (x + 1) / w * gm.secs; if (from != null && t0 < from) continue;
+      const s0 = map(t0), s1 = map(t1); if (s0 == null) continue;
+      let fa = Math.floor(s0 * wv.rate), fb = Math.floor((s1 != null && s1 > s0 ? s1 : s0 + gm.secs / w) * wv.rate);
+      if (fb <= fa) fb = fa + 1; if (fb <= 0 || fa >= wv.n) continue;
+      const m = [0, 0, 0];
+      for (let f = Math.max(0, fa); f < Math.min(wv.n, fb); f++) for (let b = 0; b < 3; b++) { const v = wv.data[f * 3 + b]; if (v > m[b]) m[b] = v; }
+      const hl = m[0] / 255 * amp, hm = Math.min(m[1] / 255 * amp * .72, hl), hh = Math.min(m[2] / 255 * amp * .48, hm);
+      const bar = (hgt, col) => { if (hgt < .4) return; c.fillStyle = col; c.fillRect(x, dir < 0 ? mid - hgt : mid, 1, hgt); };
+      if (S.blend) { const tot = m[0] + m[1] + m[2] || 1; bar(Math.max(hl, m[1] / 255 * amp * .8), `rgb(${Math.min(255, m[0] / tot * 330) | 0},${Math.min(255, m[1] / tot * 276) | 0},${Math.min(255, m[2] / tot * 357) | 0})`); }
+      else { bar(hl, S.c[0]); bar(hm, S.c[1]); bar(hh, S.c[2]); }
+    }
+    return true;
+  };
+  c.globalAlpha = .9;
+  const okA = half(wa, gm.mapA, -1, null), okB = half(wb, gm.mapB, 1, gm.bHeard);
+  c.globalAlpha = 1;
+  if (!okA || !okB) { c.fillStyle = "#8A8A96"; c.font = "12px system-ui"; c.textAlign = "center"; c.fillText(wa.state === "loading" || wb.state === "loading" ? "Loading the waveform…" : "No waveform for this song yet", w / 2, okA ? mid + amp / 2 : mid - amp / 2); }
+  c.strokeStyle = "#34343E"; c.lineWidth = .5; c.beginPath(); c.moveTo(0, mid + .5); c.lineTo(w, mid + .5); c.stroke();
+  c.setLineDash([3, 3]); c.strokeStyle = "#8A8A96"; c.lineWidth = .75; c.fillStyle = "#C9C9D2"; c.font = "11px system-ui"; c.textAlign = "center";
+  for (const [t, l] of [[gm.bIn, "B in"], [gm.swap, "Swap"], [gm.aOut, "A out"]]) {
+    if (t == null) continue; const x = Math.round(t / gm.secs * w) + .5;
+    c.beginPath(); c.moveTo(x, top); c.lineTo(x, h); c.stroke(); c.fillText(l, Math.min(w - 16, Math.max(16, x)), 11);
+  }
+  c.setLineDash([]);
+}
+
+// rating: wait 3 s so a slip can be changed, then send it and move on
+function oRate(n) {
+  if (!ui.sel) return;
+  if (ui.cmp && ui.cmp.run) ui.cmp.run = false;
+  if (ui.pend) { ui.pend.r = n; oPrompt(); return; }
+  ui.pend = { id: ui.sel, r: n, t0: Date.now() };
+  ui.pend.timer = setInterval(() => { if (!ui.pend) return; if (Date.now() - ui.pend.t0 >= 3000) oCommit(); else oPrompt(); }, 200);
+  oPrompt(); oControls();
+}
+async function oCommit() {
+  const p = ui.pend; if (!p) return; clearInterval(p.timer); ui.pend = null;
+  const row = await send({ option_id: p.id, kind: "rate", rating: p.r, note: null, symptoms: [], good: [], suggest: [] });
+  if (!row) { renderOne(); return; }
+  oNextPair();
+}
+function oUndo() { if (ui.pend) clearInterval(ui.pend.timer); ui.pend = null; oPrompt(); }
+function oDetails() {
+  const p = ui.pend; if (!p) return; clearInterval(p.timer); ui.pend = null; oPrompt();
+  ui.sheetReturn = $("oRates"); openRate(p.id, p.r); ui.afterRate = oNextPair;
+}
+function oNextPair() {
+  const was = ui.cp; audio.pause();
+  const all = pairings(); OL = pairsIn(ui.pl, all);
+  const nx = OL.find(p => p.key !== was && needs(p));
+  ui.cp = nx ? nx.key : null; ui.sel = null; ui.bi = 0; ui.cmp = null;
+  renderOne();
+  if (nx) oHear();
+}
+async function askNext() {
+  const list = OL.filter(p => !needs(p) && !p.opts.some(o => rating(o.id) != null)).slice(0, 10);
+  let n = 0;
+  for (const p of list) { const o = p.opts.find(x => !hasPv(x) && !x.data.make && !x.data.fixing_now); if (o && !ui.asked.has(o.id)) { ui.asked.add(o.id); if (await send({ option_id: o.id, kind: "request" })) n++; } }
+  toast(n ? `Asked for ${n} preview${n > 1 ? "s" : ""}. They go up on the PC's next sync.` : "Already asked: they go up on the PC's next sync.");
+}
+
+// sheets: playlists, every way of this pair, settings
+function plSheet() {
+  const all = pairsCache || pairings();
+  const rows = [{ id: "all", name: "All playlists" }, ...PLS].map(p => { const t = tally(pairsIn(p.id, all)), done = t.total > 0 && t.done === t.total;
+    return `<button type="button" class="o-li" data-pl="${esc(p.id)}" aria-pressed="${String(ui.pl || "all") === String(p.id)}"><span class="nm"><span>${String(ui.pl || "all") === String(p.id) ? "● " : ""}${esc(p.name)}</span></span><span class="ct" style="color:${done ? "#5DCAA5" : "#fff"}">${done ? "✓ " : ""}${t.done}/${t.total}</span></button>`; }).join("");
+  ui.sheetReturn = $("oPick");
+  sheet(`<div style="display:flex;justify-content:space-between;align-items:center"><h2 class="h" id="shTitle">Playlist</h2><button type="button" class="btn" data-close>Close</button></div>
+    <div class="small muted">Reviewed / pairs scoring ${SET.thr} or higher</div><div class="o-list">${rows}</div>`);
+  $("sheetRoot").querySelectorAll("[data-pl]").forEach(b => b.onclick = () => {
+    ui.pl = b.dataset.pl; lsSet("tcr-pl", ui.pl); audio.pause(); ui.cp = null; ui.sel = null; ui.cmp = null; ui.bi = 0; closeSheet(); renderOne();
+  });
+}
+function waysSheet() {
+  if (!OP) return;
+  const W = ways(OP), other = OP.opts.filter(o => !playable(o));
+  const li = (o, i) => { const [nm, h] = wayName(o, i === 0 && !o.data.variant), r = rating(o.id);
+    return `<button type="button" class="o-li" data-w="${esc(o.id)}"><span class="nm"><span>${esc(nm)}${h ? " · " + esc(h) : ""}</span><small>${esc(who(o.data.name))} · score ${Math.round(o.score)}</small></span><span class="ct" style="font-size:12px;color:${r ? OR[r - 1][0] : "#B8B8C2"}">${r ? RATE[r - 1].l : o.id === ui.sel ? "playing" : ""}</span></button>`; };
+  ui.sheetReturn = $("oMore");
+  sheet(`<div style="display:flex;justify-content:space-between;align-items:center"><h2 class="h" id="shTitle">Every way to mix it</h2><button type="button" class="btn" data-close>Close</button></div>
+    <div class="pairnm">${esc(OP.key)} · ${esc(shortT(song(OP.a)))} → ${esc(shortT(song(OP.b)))}</div>
+    <div class="o-list">${W.map(li).join("")}${other.map(o => `<div class="o-li"><span class="nm"><span>${esc(who(o.data.name))}</span><small>${esc(o.data.out || "")}</small></span>${pvBtn(o)}</div>`).join("")}</div>`);
+  const root = $("sheetRoot");
+  root.querySelectorAll("[data-w]").forEach(b => b.onclick = () => { const id = b.dataset.w, i = W.findIndex(o => o.id === id), n = Math.max(2, Math.min(5, SET.n)); ui.bi = Math.floor(i / n); if (ui.cmp) ui.cmp.run = false; closeSheet(); oSelect(id, true); });
+  root.querySelectorAll("[data-ask]").forEach(b => b.onclick = () => { askPreview(b.dataset.ask); b.outerHTML = `<span class="pv ask">Asked</span>`; });
+}
+function setSheet() {
+  const s = META.sync, ago = s && s.at ? Date.now() / 1000 - s.at : null;
+  const when = ago == null ? "hasn't synced yet" : ago < 90 ? "synced just now" : ago < 3600 ? `synced ${Math.round(ago / 60)} min ago` : ago < 86400 ? `synced ${Math.round(ago / 3600)} h ago` : "synced " + new Date(s.at * 1000).toLocaleDateString();
+  const waiting = mine().filter(r => !r.synced_at && r.kind !== "request").length;
+  ui.sheetReturn = $("oGear");
+  sheet(`<div style="display:flex;justify-content:space-between;align-items:center"><h2 class="h" id="shTitle">Settings</h2><button type="button" class="btn" data-close>Done</button></div>
+    <div class="o-set"><label class="t" for="sThr">Transition threshold: <span id="sThrV" style="color:#5DCAA5">${SET.thr}</span></label>
+      <div class="d">Only pairs scoring this or higher count toward a playlist.</div>
+      <input type="range" id="sThr" min="40" max="95" step="1" value="${SET.thr}">
+      <div style="display:flex;justify-content:space-between;font:12px var(--mono);color:#8A8A96"><span>40</span><span>95</span></div></div>
+    <div class="o-set" style="grid-template-columns:1fr auto;align-items:center"><div><div class="t">Ways to compare</div><div class="d">Plays by itself the first time you hear a pair.</div></div>
+      <div class="o-step"><button type="button" id="sDec" aria-label="Fewer">−</button><b id="sN">${SET.n}</b><button type="button" id="sInc" aria-label="More">+</button></div></div>
+    <div class="o-set"><div class="t">Waveform style</div>
+      <div class="o-skins">${Object.entries(SKINS).map(([k, S]) => `<button type="button" class="o-skin" data-skin="${k}" aria-pressed="${SET.skin === k}" aria-label="${S.label}" style="--sp:${S.p}">${S.c.map(c => `<i style="background:${c}"></i>`).join("")}${S.name}</button>`).join("")}</div></div>
+    <div class="o-set"><div class="t">Every pairing</div><div class="d">The full list: compare cards, ideas for the next try, and going back to ones you've rated.</div>
+      <button type="button" class="btn" id="sList" style="justify-self:start">Open the list</button></div>
+    <div class="o-set"><div class="d">Your PC ${when}${waiting ? ` · ${waiting} of your ratings waiting` : ""}. It applies ratings when the helper is running and no deck is playing.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${ADMIN ? `<button type="button" class="btn" id="sPeople">People</button>` : ""}<a class="btn" href="./" style="display:inline-grid;place-items:center;text-decoration:none;color:var(--ink)">← Festival Radar</a></div></div>`);
+  const root = $("sheetRoot");
+  $("sThr").oninput = e => { SET.thr = +e.target.value; $("sThrV").textContent = SET.thr; lsSet("tcr-thr", SET.thr); };
+  $("sThr").onchange = () => { audio.pause(); ui.cp = null; ui.cmp = null; ui.bi = 0; renderOne(); };
+  const step = d => { SET.n = Math.max(2, Math.min(5, SET.n + d)); $("sN").textContent = SET.n; lsSet("tcr-n", SET.n); ui.bi = 0; renderOne(); };
+  $("sDec").onclick = () => step(-1); $("sInc").onclick = () => step(1);
+  root.querySelectorAll("[data-skin]").forEach(b => b.onclick = () => { SET.skin = b.dataset.skin; lsSet("tcr-skin", SET.skin); root.querySelectorAll("[data-skin]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); oDraw(true); });
+  $("sList").onclick = () => { closeSheet(); setView("list"); };
+  if ($("sPeople")) $("sPeople").onclick = () => { closeSheet(); ui.sheetReturn = $("oGear"); people(); };
+}
+function setView(v) {
+  ui.view = v; lsSet("tcr-view", v); audio.pause();
+  document.body.classList.toggle("one", v === "one");
+  $("main").dataset.built = ""; render();
+  window.scrollTo({ top: 0 });
+}
+$("oneBtn").onclick = () => { stop(); setView("one"); };
+window.addEventListener("resize", () => { if (ui.view === "one") oDraw(true); });
+
 /* ---------- people (admin): who can open Research ---------- */
 async function people() {
   const { data, error } = await sb.rpc("tc_members");
@@ -840,7 +1283,7 @@ async function boot() {
   if (ui.pl == null) ui.pl = ADMIN && META.sync && META.sync.research_playlist ? String(META.sync.research_playlist) : "all";
   const h = location.hash.slice(1).toUpperCase();
   render();
-  if (h && pairsCache.some(p => p.key === h)) { ui.pair = h; render(); }
+  if (h && pairsCache.some(p => p.key === h)) { ui.pair = h; ui.cp = h; render(); }
   for (const r of mine()) if (!r.synced_at && Date.now() - new Date(r.created_at).getTime() < 3600e3) watch(r.id);
   setInterval(refresh, 30000);
   setInterval(renderSync, 30000);
