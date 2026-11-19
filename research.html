@@ -977,7 +977,7 @@ function renderOne() {
       <div class="o-tr">
         <div class="c"><button type="button" id="oBack" aria-label="Back to B in">${ICON.back}</button>B in</div>
         <button type="button" class="o-play" id="oPlay" aria-label="Play">${ICON.play}</button>
-        <div class="c"><button type="button" id="oLoop" aria-label="Loop: play it again from B in">${ICON.loop}</button>Loop</div>
+        <div class="c"><button type="button" id="oLoop" aria-label="Loop: play it again from the top">${ICON.loop}</button>Loop</div>
         <div class="c"><button type="button" id="oCmp" aria-label="Compare the ways">${ICON.cmp}</button><span id="oCmpL">Compare</span></div>
       </div>
       <div class="o-prompt" id="oPrompt" aria-live="polite"></div>
@@ -1290,7 +1290,7 @@ function oStyle(s, play) {
   const o = OPTS[ui.sel], keep = PL.is(o) && !PL.paused ? PL.time : null;
   ui.style = s; lsSet("tcr-style", s);
   renderOne();
-  if (play && o) { ui.heard = ui.heard || new Set(); ui.heard.add(ui.cp); PL.start(o, keep != null ? keep : geom(heard(o)).bIn); }   // switch styles in place, to hear the difference
+  if (play && o) { ui.heard = ui.heard || new Set(); ui.heard.add(ui.cp); PL.start(o, keep != null ? keep : 0); }   // switch styles in place, to hear the difference
 }
 
 // audio
@@ -1302,7 +1302,7 @@ function oLoadPlay(o, from) {
   if (!o) return;
   const gm = geom(heard(o));
   ui.heard = ui.heard || new Set(); ui.heard.add(ui.cp);
-  PL.start(o, from != null ? from : gm ? gm.bIn : 0);
+  PL.start(o, from != null ? from : 0);   // from the top: A's lead-in, then B comes in
 }
 // what Compare steps through: the ways in the row, or, when there's one way that mixes live, the styles
 function cmpItems() {
@@ -1352,7 +1352,7 @@ function oNextInCompare() {
   if (c.i >= c.seq.length) { c.run = false; PL.pause(); renderOne(); return; }
   c.tried.push(c.key(c.seq[c.i]).replace(/\|$/, "")); cmpGo(c.seq[c.i]);
 }
-function oEnded() { if (ui.cmp && ui.cmp.run) return oNextInCompare(); const o = OPTS[ui.sel], gm = o && geom(heard(o)); if (SET.loop && gm) { PL.paused = true; PL.start(o, gm.bIn); } else { PL.paused = true; PL.pos = 0; oControls(); } }
+function oEnded() { if (ui.cmp && ui.cmp.run) return oNextInCompare(); const o = OPTS[ui.sel], gm = o && geom(heard(o)); if (SET.loop && gm) { PL.paused = true; PL.start(o, 0); } else { PL.paused = true; PL.pos = 0; oControls(); } }
 let oRaf = 0;
 function oLoop() {
   if (oRaf) return;
