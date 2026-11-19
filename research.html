@@ -221,8 +221,10 @@ body.one .toast { top: calc(env(safe-area-inset-top, 0px) + 64px); bottom: auto 
 .o-try .nb { position: absolute; top: -5px; right: -4px; width: 16px; height: 16px; border-radius: 999px; background: #39FF14; color: #0E0F13; font: 700 10px/16px var(--mono); text-align: center }
 .o-why { flex: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 8px }
 .o-why .col { display: grid; gap: 5px; align-content: start }
-.o-why .hd { font-size: 11px; color: #B8B8C2; display: flex; align-items: center; gap: 5px; height: 16px }
-.o-why .hd i { width: 7px; height: 7px; border-radius: 50% }
+.o-why .leg { grid-column: 1 / -1; display: flex; gap: 14px; font-size: 11px; color: #B8B8C2; height: 18px; align-items: center }
+.o-why .leg i, .o-why button i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; flex: none }
+.o-why button[aria-pressed="true"] i { outline: 1.5px solid #0E0F13 }
+@media (max-width: 360px) { .o-why button i { display: none } .o-why button { padding: 0 5px } }   /* narrow phones: room for the words */
 .o-why button { height: 30px; border-radius: 8px; border: 1px solid #2E2F38; background: #1A1B21; color: #F4F4F8; font-size: 12px; padding: 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left }
 .o-why button[aria-pressed="true"] { background: #F4F4F8; color: #0E0F13; border-color: #F4F4F8; font-weight: 600 }
 .o-why { margin-top: 4px }
@@ -1529,8 +1531,11 @@ const WHY_SHORT = { click: "Glitch", moment: "Weird moment", long: "Too long", f
 function renderWhy() {
   const el = $("oWhy"), p = ui.pend, sy = ((META.feedback || {}).symptoms || []);
   el.hidden = false; document.body.classList.add("picking");
-  el.innerHTML = WHY_GROUPS.map(([g, label]) => `<div class="col"><span class="hd"><i style="background:${WHY_C[g]}"></i>${label}</span>${sy.filter(x => x.group === g).map(x =>
-    `<button type="button" data-why="${esc(x.id)}" aria-pressed="${p.why.has(x.id)}" title="${esc(x.label)}">${esc(WHY_SHORT[x.id] || x.label)}</button>`).join("")}</div>`).join("");
+  // three even columns of three, in order (the preview, the mix, the songs); a dot on each says whose fault it is
+  const items = WHY_GROUPS.flatMap(([g]) => sy.filter(x => x.group === g)), per = Math.ceil(items.length / 3);
+  const btn = x => `<button type="button" data-why="${esc(x.id)}" aria-pressed="${p.why.has(x.id)}" title="${esc(x.label)}"><i style="background:${WHY_C[x.group]}"></i>${esc(WHY_SHORT[x.id] || x.label)}</button>`;
+  el.innerHTML = `<div class="leg">${WHY_GROUPS.map(([g, label]) => `<span><i style="background:${WHY_C[g]}"></i>${label}</span>`).join("")}</div>`
+    + [0, 1, 2].map(c => `<div class="col">${items.slice(c * per, c * per + per).map(btn).join("")}</div>`).join("");
   el.querySelectorAll("[data-why]").forEach(b => b.onclick = () => { const k = b.dataset.why; p.why.has(k) ? p.why.delete(k) : p.why.add(k); p.why.delete("unsure"); p.t0 = Date.now(); p.wait = 4000; renderWhy(); oPrompt(); });
 }
 function endWhy() { $("oWhy").hidden = true; $("oWhy").innerHTML = ""; document.body.classList.remove("picking"); }
