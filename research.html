@@ -1527,7 +1527,7 @@ const LOW = r => r <= 3;
 function whyWait() { const p = ui.pend; if (!p) return; if (!LOW(p.r)) p.why.clear(); p.wait = LOW(p.r) ? 7000 : 3000; p.t0 = Date.now(); }
 const WHY_C = { preview: "#ffb547", mix: "#3fe0c5", songs: "#c58cff", other: "#B8B8C2" };   // the preview, the mix, the songs themselves
 const WHY_GROUPS = [["preview", "The preview"], ["mix", "The mix"], ["songs", "The songs"]];
-const WHY_SHORT = { click: "Glitch", moment: "Weird moment", long: "Too long", fit: "Don't fit" };
+const WHY_SHORT = { click: "Glitch", moment: "Bad entry", long: "Too long", fit: "Don't fit" };
 function renderWhy() {
   const el = $("oWhy"), p = ui.pend, sy = ((META.feedback || {}).symptoms || []);
   el.hidden = false; document.body.classList.add("picking");
