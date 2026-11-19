@@ -192,8 +192,8 @@ body.one .toast { top: calc(env(safe-area-inset-top, 0px) + 64px); bottom: auto 
 .o-empty { position: absolute; inset: 0; display: grid; place-content: center; gap: 12px; text-align: center; padding: 16px; color: #B8B8C2; font-size: 14px; border: 1px dashed #2E2F38; border-radius: 10px }
 .o-empty b { color: #F4F4F8; font-size: 16px }
 .o-row { display: grid; gap: 6px; flex: none }
-.o-way { position: relative; height: 52px; min-width: 0; border-radius: 10px; border: 1.5px solid transparent; background: #24252D; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0 6px }
-.o-way .wn { font-size: 13px; font-weight: 600; color: #F4F4F8; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.o-way { position: relative; height: 52px; min-width: 0; border-radius: 10px; border: 1.5px solid transparent; background: #24252D; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0 4px }
+.o-way .wn { font-size: 12.5px; letter-spacing: -.01em; font-weight: 600; color: #F4F4F8; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .o-way .wh { font-size: 11px; color: #B8B8C2; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .o-way[aria-pressed="true"] { background: #F4F4F8; border-color: #F4F4F8 } .o-way[aria-pressed="true"] .wn { color: #0E0F13 } .o-way[aria-pressed="true"] .wh { color: #3A3B46 }
 .o-way .bdg { position: absolute; top: 4px; right: 5px; width: 16px; height: 16px; border-radius: 999px; background: #39FF14; color: #0E0F13; font: 700 10px/16px var(--mono); text-align: center }
@@ -926,8 +926,13 @@ function wayName(o, first) {
   const v = o.data.variant;
   if (v && v.mix && MIXN[v.mix]) return [MIXN[v.mix], `v${v.n}${v.what && v.what !== MIXN[v.mix] ? " · " + v.what.replace(MIXN[v.mix] + ", ", "") : ""}`];
   if (v) return [`v${v.n} · ${v.by === "you" ? "your idea" : "TCM's try"}`, v.what || ""];
-  const k = o.data.custom ? "Your pair" : KIND[o.data.kind] || "Way", sa = o.data.sa || {}, sbx = o.data.sb || {};
-  return first ? ["Best spot", `${sa.label || "?"} → ${sbx.label || "?"}`] : [k, `${sa.label || "?"} → ${sbx.label || "?"}`];   // where it mixes; the styles say how
+  // where it mixes, by the two songs' sections (the styles say how); underneath, only what adds to that
+  const sa = o.data.sa || {}, sbx = o.data.sb || {}, tags = [];
+  if (first) tags.push("★ Best");
+  if (o.data.custom) tags.push("Your pair");
+  if (o.data.kind === "layer") tags.push("Vocal over");
+  const sh = l => ({ Breakdown: "Break" }[l] || l || "?");   // fits three across a phone
+  return [`${sh(sa.label)} → ${sh(sbx.label)}`, tags.join(" · ") || `bar ${sa.bar ?? "?"} → ${sbx.bar ?? "?"}`];
 }
 
 let OL = [], OP = null;   // pairs in this playlist at or above the threshold; the pair on screen
