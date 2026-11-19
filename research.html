@@ -196,6 +196,15 @@ body.one .toast { top: calc(env(safe-area-inset-top, 0px) + 64px); bottom: auto 
 .o-way .wn { font-size: 12.5px; letter-spacing: -.01em; font-weight: 600; color: #F4F4F8; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .o-way .wh { font-size: 11px; color: #B8B8C2; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .o-way[aria-pressed="true"] { background: #F4F4F8; border-color: #F4F4F8 } .o-way[aria-pressed="true"] .wn { color: #0E0F13 } .o-way[aria-pressed="true"] .wh { color: #3A3B46 }
+.o-way.mapped { gap: 4px; padding: 0 7px }
+.o-way .map { position: relative; display: block; width: 100%; height: 26px }
+.o-way .trk { position: absolute; left: 0; right: 0; top: 0; height: 9px; display: flex; gap: 1px; border-radius: 2px; overflow: hidden }
+.o-way .trk i { display: block; height: 100%; opacity: .35 }
+.o-way .trk i.hl { opacity: 1; outline: 1.5px solid #fff; outline-offset: -1.5px }
+.o-way .map svg { position: absolute; inset: 0; overflow: visible } .o-way .map line { stroke: #39FF14 }
+.o-way[aria-pressed="true"] .trk i.hl { outline-color: #0E0F13 } .o-way[aria-pressed="true"] .map line { stroke: #0E0F13 }
+.o-way .wc { font-size: 11px; color: #B8B8C2; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.o-way[aria-pressed="true"] .wc { color: #3A3B46 }
 .o-way .bdg { position: absolute; top: 4px; right: 5px; width: 16px; height: 16px; border-radius: 999px; background: #39FF14; color: #0E0F13; font: 700 10px/16px var(--mono); text-align: center }
 .o-way .rt { position: absolute; top: 5px; left: 6px; width: 8px; height: 8px; border-radius: 50% }
 .o-line { flex: none; display: flex; align-items: center; gap: 8px; min-height: 22px; font-size: 11.5px; color: #B8B8C2 }
@@ -936,6 +945,20 @@ function wayName(o, first) {
 }
 
 let OL = [], OP = null;   // pairs in this playlist at or above the threshold; the pair on screen
+// a spot as two tiny song maps: A's sections on top, B's underneath, where A leaves and B comes in outlined and joined
+const SECC = { Peak: "#ffa62a", Groove: "#35a095", "Bass out": "#899198", Breakdown: "#8a4554", Fade: "#596168", Intro: "#596168", Outro: "#596168", Build: "#3f8290" };
+function spotMap(o) {
+  const A = song(o.a).sections || [], B = song(o.b).sections || [];
+  if (!A.length || !B.length) return "";
+  const len = s => Math.max(1, s.bars || (s.t1 != null && s.t0 != null ? s.t1 - s.t0 : 1));
+  const bar = (secs, hi) => { const tot = secs.reduce((x, s) => x + len(s), 0); let at = 0, mid = 50;
+    const html = secs.map(s => { const w = len(s) / tot * 100, on = s.i === hi; if (on) mid = (at + w / 2); at += w;
+      return `<i class="${on ? "hl" : ""}" style="flex:${len(s)};background:${SECC[s.label] || "#3f8290"}"></i>`; }).join("");
+    return { html, mid }; };
+  const a = bar(A, o.data.a_sec), b = bar(B, o.data.b_sec);
+  return `<span class="map" aria-hidden="true"><span class="trk">${a.html}</span><span class="trk" style="top:17px">${b.html}</span>
+    <svg width="100%" height="26"><line x1="${a.mid.toFixed(1)}%" y1="9" x2="${b.mid.toFixed(1)}%" y2="17" stroke-width="1.5"/></svg></span>`;
+}
 function renderOne() {
   document.body.classList.add("one");
   const main = $("main");
@@ -999,7 +1022,9 @@ function renderOne() {
   $("oRow").style.gridTemplateColumns = `repeat(${Math.max(1, row.length)}, minmax(0, 1fr))`;
   const tried = ui.cmp ? ui.cmp.tried : [];
   $("oRow").innerHTML = row.map(w => { const [nm, h] = wayName(w, bi === 0 && w === W[0] && !w.data.variant), r = rating(w.id), ti = tried.indexOf(w.id);
-    return `<button type="button" class="o-way" data-way="${esc(w.id)}" aria-pressed="${w.id === ui.sel}">${r ? `<span class="rt" style="background:${OR[r - 1][0]}" title="Rated ${RATE[r - 1].l}"></span>` : ""}<span class="wn">${esc(nm)}</span><span class="wh">${esc(h)}</span>${ti >= 0 ? `<span class="bdg">${ti + 1}</span>` : ""}</button>`; }).join("");
+    const map = w.data.variant ? "" : spotMap(w), sa = w.data.sa || {}, sbx = w.data.sb || {};
+    const body = map ? `${map}<span class="wc">${esc(sa.label || "?")} → ${esc(sbx.label || "?")}</span>` : `<span class="wn">${esc(nm)}</span><span class="wh">${esc(h)}</span>`;
+    return `<button type="button" class="o-way${map ? " mapped" : ""}" data-way="${esc(w.id)}" aria-pressed="${w.id === ui.sel}" aria-label="${esc(nm + ", " + h)}">${r ? `<span class="rt" style="background:${OR[r - 1][0]}" title="Rated ${RATE[r - 1].l}"></span>` : ""}${body}${ti >= 0 ? `<span class="bdg">${ti + 1}</span>` : ""}</button>`; }).join("");
   $("oRow").querySelectorAll("[data-way]").forEach(b => b.onclick = () => { if (ui.cmp) ui.cmp.run = false; oSelect(b.dataset.way, true); });
   const rest = W.length + (OP ? OP.opts.filter(x => !playable(x)).length : 0);
   $("oMore").textContent = OP && rest > row.length ? `All ways (${rest}) ▾` : "";
