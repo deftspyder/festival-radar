@@ -219,10 +219,13 @@ body.one .toast { top: calc(env(safe-area-inset-top, 0px) + 64px); bottom: auto 
 .o-try button { position: relative }
 .o-try .rd { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px }
 .o-try .nb { position: absolute; top: -5px; right: -4px; width: 16px; height: 16px; border-radius: 999px; background: #39FF14; color: #0E0F13; font: 700 10px/16px var(--mono); text-align: center }
-.o-try.why { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; gap: 5px }
-.o-try.why .lb { width: 100% } .o-try.why button { height: 30px; padding: 0 10px; font-size: 12px }
-@media (max-height: 720px) {   /* short phones: one row you swipe, so the ratings stay on screen */
-  .o-try.why { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px; padding: 0 16px } .o-try.why .lb { width: auto } }
+.o-why { flex: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 8px }
+.o-why .col { display: grid; gap: 5px; align-content: start }
+.o-why .hd { font-size: 11px; color: #B8B8C2; display: flex; align-items: center; gap: 5px; height: 16px }
+.o-why .hd i { width: 7px; height: 7px; border-radius: 50% }
+.o-why button { height: 30px; border-radius: 8px; border: 1px solid #2E2F38; background: #1A1B21; color: #F4F4F8; font-size: 12px; padding: 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left }
+.o-why button[aria-pressed="true"] { background: #F4F4F8; color: #0E0F13; border-color: #F4F4F8; font-weight: 600 }
+body.picking .o-tr { display: none }   /* while you say what went wrong: the reasons take the transport's place */
 .o-try .lb { flex: none; align-self: center; font-size: 11.5px; color: #B8B8C2; white-space: nowrap }
 .o-tr { flex: none; display: flex; align-items: flex-start; justify-content: center; gap: 20px }
 .o-tr .c { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 10px; font-size: 11px; color: #B8B8C2; width: 58px; text-align: center }
@@ -979,6 +982,7 @@ function renderOne() {
       <div class="o-row" id="oRow"></div>
       <div class="o-line"><span class="s" id="oLine"></span><button type="button" class="o-more" id="oMore"></button></div>
       <div class="o-try" id="oTry" role="group" aria-label="Try another way"></div>
+      <div class="o-why" id="oWhy" role="group" aria-label="What went wrong" hidden></div>
       <div class="o-tr">
         <div class="c"><button type="button" id="oBack" aria-label="Back to B in">${ICON.back}</button>B in</div>
         <button type="button" class="o-play" id="oPlay" aria-label="Play">${ICON.play}</button>
@@ -1070,8 +1074,10 @@ function oPrompt() {
   const W = OP ? ways(OP) : [], nm = liveOK(o) ? MIXN[STYLE_SPEC[ui.style] ? ui.style : "tower"] : wayName(o, W[0] === o && !o.data.variant)[0];
   if (ui.pend) {
     const left = Math.max(1, Math.ceil((ui.pend.wait - (Date.now() - ui.pend.t0)) / 1000)), R = RATE[ui.pend.r - 1];
-    el.innerHTML = `<span><b style="color:${OR[ui.pend.r - 1][0]}">${R.l === "Go-around" ? "Go around" : R.l}</b> with ${esc(nm)} · next in ${left}s</span><button type="button" id="oDet">Details</button><button type="button" id="oUndo">Undo</button>`;
+    const low = LOW(ui.pend.r), n = low ? ui.pend.why.size : 0;
+    el.innerHTML = `<span><b style="color:${OR[ui.pend.r - 1][0]}">${R.l === "Go-around" ? "Go around" : R.l}</b> with ${esc(nm)}${low ? (n ? ` · ${n} picked` : " · what went wrong?") : ""} · ${left}s</span>${low && !n ? `<button type="button" id="oUnsure">Not sure</button>` : ""}<button type="button" id="oDet">Details</button><button type="button" id="oUndo">Undo</button>`;
     $("oDet").onclick = oDetails; $("oUndo").onclick = oUndo;
+    if ($("oUnsure")) $("oUnsure").onclick = () => { ui.pend.why = new Set(["unsure"]); oCommit(); };
     return;
   }
   const c = ui.cmp, n = Math.max(2, Math.min(5, SET.n)), more = cmpItems().slice(((c ? c.bi || 0 : 0) + 1) * n).length;
@@ -1258,8 +1264,8 @@ audio.addEventListener("pause", () => { if (PL.mode === "mp3") { PL.paused = tru
 // the styles strip: with live mixing every style plays at once; without it, styles are asked of your PC
 function renderStyles(o) {
   if (ui.pend && LOW(ui.pend.r) && o) return renderWhy();
+  endWhy();
   const el = $("oTry"), sug = (META.feedback && META.feedback.suggest) || [];
-  el.classList.remove("why");
   if (!o) { el.hidden = true; el.innerHTML = ""; return; }
   el.hidden = false;
   const others = sug.filter(x => !(x.mix || /^mix_/.test(x.id)));
@@ -1517,20 +1523,18 @@ function oRate(n) {
 const LOW = r => r <= 3;
 function whyWait() { const p = ui.pend; if (!p) return; if (!LOW(p.r)) p.why.clear(); p.wait = LOW(p.r) ? 7000 : 3000; p.t0 = Date.now(); }
 const WHY_C = { preview: "#ffb547", mix: "#3fe0c5", songs: "#c58cff", other: "#B8B8C2" };   // the preview, the mix, the songs themselves
+const WHY_GROUPS = [["preview", "The preview"], ["mix", "The mix"], ["songs", "The songs"]];
+const WHY_SHORT = { click: "Click or gap", moment: "Weird moment", long: "Too long", fit: "Don't fit" };
 function renderWhy() {
-  const el = $("oTry"), p = ui.pend, sy = ((META.feedback || {}).symptoms || []);
-  el.hidden = false; el.classList.add("why");
-  el.innerHTML = `<span class="lb" style="color:#F4F4F8">What went wrong?</span>` + sy.map(x => `<button type="button" data-why="${esc(x.id)}" aria-pressed="${p.why.has(x.id)}" class="${p.why.has(x.id) ? "on" : ""}" style="border-color:${WHY_C[x.group] || "#3A3B46"}">${esc(x.id === "unsure" ? "Not sure" : x.label)}</button>`).join("");
-  el.querySelectorAll("[data-why]").forEach(b => b.onclick = () => {
-    const k = b.dataset.why, on = !p.why.has(k);
-    if (k === "unsure" && on) p.why.clear(); else if (on) p.why.delete("unsure");
-    on ? p.why.add(k) : p.why.delete(k);
-    p.t0 = Date.now(); p.wait = 4000;     // a few more seconds after each tap, to pick another
-    renderWhy(); oPrompt();
-  });
+  const el = $("oWhy"), p = ui.pend, sy = ((META.feedback || {}).symptoms || []);
+  $("oTry").hidden = true; el.hidden = false; document.body.classList.add("picking");
+  el.innerHTML = WHY_GROUPS.map(([g, label]) => `<div class="col"><span class="hd"><i style="background:${WHY_C[g]}"></i>${label}</span>${sy.filter(x => x.group === g).map(x =>
+    `<button type="button" data-why="${esc(x.id)}" aria-pressed="${p.why.has(x.id)}" title="${esc(x.label)}">${esc(WHY_SHORT[x.id] || x.label)}</button>`).join("")}</div>`).join("");
+  el.querySelectorAll("[data-why]").forEach(b => b.onclick = () => { const k = b.dataset.why; p.why.has(k) ? p.why.delete(k) : p.why.add(k); p.why.delete("unsure"); p.t0 = Date.now(); p.wait = 4000; renderWhy(); oPrompt(); });
 }
+function endWhy() { $("oWhy").hidden = true; $("oWhy").innerHTML = ""; document.body.classList.remove("picking"); }
 async function oCommit() {
-  const p = ui.pend; if (!p) return; clearInterval(p.timer); ui.pend = null;
+  const p = ui.pend; if (!p) return; clearInterval(p.timer); ui.pend = null; endWhy();
   const row = await send(Object.assign({ option_id: p.id, kind: "rate", rating: p.r, note: null, symptoms: LOW(p.r) ? [...p.why] : [], good: [], suggest: [] }, p.style ? { style: p.style } : {}));
   if (!row) { renderOne(); return; }
   oNextPair();
