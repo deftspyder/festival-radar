@@ -219,18 +219,20 @@ body.one .toast { top: calc(env(safe-area-inset-top, 0px) + 64px); bottom: auto 
 .o-try button { position: relative }
 .o-try .rd { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px }
 .o-try .nb { position: absolute; top: -5px; right: -4px; width: 16px; height: 16px; border-radius: 999px; background: #39FF14; color: #0E0F13; font: 700 10px/16px var(--mono); text-align: center }
-.o-why { flex: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 8px }
+.o-why { flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px 6px }
 .o-why .col { display: grid; gap: 5px; align-content: start }
 .o-why .leg { grid-column: 1 / -1; display: flex; gap: 14px; font-size: 11px; color: #B8B8C2; height: 18px; align-items: center }
 .o-why .leg i, .o-why button i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; flex: none }
 .o-why button[aria-pressed="true"] i { outline: 1.5px solid #0E0F13 }
 @media (max-width: 360px) { .o-why button i { display: none } .o-why button { padding: 0 5px } }   /* narrow phones: room for the words */
-.o-why button { height: 30px; border-radius: 8px; border: 1px solid #2E2F38; background: #1A1B21; color: #F4F4F8; font-size: 12px; padding: 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left }
+.o-why button { height: 30px; border-radius: 8px; border: 1px solid #2E2F38; background: #1A1B21; color: #F4F4F8; font-size: 12px; padding: 0 4px 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left }
 .o-why button[aria-pressed="true"] { background: #F4F4F8; color: #0E0F13; border-color: #F4F4F8; font-weight: 600 }
 .o-why { margin-top: 4px }
 @media (max-height: 720px) { body.picking .o-tr { display: none } .o-why button { height: 27px } .o-why .col { gap: 4px } }   /* short phones: the reasons take the transport's place for a moment */
 .o-try .lb { flex: none; align-self: center; font-size: 11.5px; color: #B8B8C2; white-space: nowrap }
-.o-tr { flex: none; display: flex; align-items: flex-start; justify-content: center; gap: 20px }
+.o-tr { flex: none; display: flex; align-items: flex-start; justify-content: center; gap: 14px }
+#oBars b { font: 700 16px var(--mono) }
+@media (max-width: 360px) { .o-tr { gap: 6px } .o-tr .c { width: 50px } }
 .o-tr .c { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 10px; font-size: 11px; color: #B8B8C2; width: 58px; text-align: center }
 .o-tr .c button { width: 44px; height: 44px; border-radius: 999px; border: none; background: #24252D; color: #F4F4F8; display: grid; place-items: center }
 .o-tr .c button.on { background: #3A3B46; color: #5DCAA5; box-shadow: inset 0 0 0 1.5px #5DCAA5 }
@@ -990,6 +992,7 @@ function renderOne() {
         <button type="button" class="o-play" id="oPlay" aria-label="Play">${ICON.play}</button>
         <div class="c"><button type="button" id="oLoop" aria-label="Loop: play it again from the top">${ICON.loop}</button>Loop</div>
         <div class="c"><button type="button" id="oCmp" aria-label="Compare the ways">${ICON.cmp}</button><span id="oCmpL">Compare</span></div>
+        <div class="c" id="oBarsC" hidden><button type="button" id="oBars" aria-label="Overlap length: tap for another"><b id="oBarsN"></b></button>bars</div>
       </div>
       <div class="o-prompt" id="oPrompt" aria-live="polite"></div>
       <div class="o-rates" id="oRates">${RATE.map((x, i) => `<button type="button" data-or="${x.n}" style="--rc:${OR[i][0]};--rt:${OR[i][1]}" aria-label="${x.n} ${x.l}: ${x.m}"><i></i>${x.l === "Go-around" ? "Go around" : x.l}</button>`).join("")}</div>
@@ -1001,6 +1004,7 @@ function renderOne() {
     $("oBack").onclick = () => { const o = OPTS[ui.sel], gm = o && geom(heard(o)); if (gm) oSeek(gm.bIn); };
     $("oLoop").onclick = () => { SET.loop = !SET.loop; lsSet("tcr-loop", SET.loop ? "1" : "0"); oControls(); };
     $("oCmp").onclick = oCompareBtn;
+    $("oBars").onclick = oBarsNext;
     $("oMore").onclick = waysSheet;
     $("oRates").querySelectorAll("[data-or]").forEach(b => b.onclick = () => oRate(+b.dataset.or));
     const cv = $("oWave");
@@ -1065,6 +1069,8 @@ function oControls() {
   const playing = PL.playing(OPTS[ui.sel]);
   $("oPlay").innerHTML = playing ? ICON.pause : ICON.play; $("oPlay").setAttribute("aria-label", playing ? "Pause" : "Play");
   $("oLoop").classList.toggle("on", SET.loop); $("oLoop").setAttribute("aria-pressed", String(SET.loop));
+  const ob = OPTS[ui.sel], live = liveOK(ob) && barsChoices(ob).length > 1;
+  $("oBarsC").hidden = !live; if (live) $("oBarsN").textContent = barsFor(ob);
   const W = OP ? cmpItems() : [], n = Math.max(2, Math.min(5, SET.n)), c = ui.cmp, bi = c ? c.bi || 0 : 0, nextLen = W.slice((bi + 1) * n, (bi + 2) * n).length;
   $("oCmpL").textContent = !c ? "Compare" : c.run ? "Comparing" : nextLen ? `${nextLen} more` : "All tried";
   $("oCmp").disabled = !OPTS[ui.sel] || W.length < 2 || !!(c && !c.run && !nextLen);
@@ -1136,12 +1142,29 @@ function heard(o) {
   const style = STYLE_SPEC[ui.style] ? ui.style : "tower", pv = o.data.pv, st = pv.st;
   // a Vocal over spot's own mix (Tower) lets both parts play at full for a long while, bass swap near the end
   const [vol, eq, flt] = style === "tower" && o.data.kind === "layer" ? ["overlap", "end", null] : STYLE_SPEC[style];
-  const bt = st.beat_t, n = bt.length - 1, s0 = st.b_at, end = bt[n];
+  // the files are made at full length; a shorter overlap mixes over its first bars and A leaves there
+  const btAll = st.beat_t, L = barsFor(o), nb = Math.min(btAll.length - 1, L * 4), bt = btAll.slice(0, nb + 1), n = nb;
+  const s0 = st.b_at, end = bt[n], tail = st.secs - btAll[btAll.length - 1];
   const half = vol === "hard" ? end : bt[Math.round(n * (eq === "end" ? 0.9 : 0.5))];
   const rate = song(o.a).bpm / song(o.b).bpm, bE = pv.b_src0 != null ? pv.b_src0 : o.data.b_entry_t;
-  const v = Object.assign({}, pv, { secs: st.secs, b_starts_at: s0, swap_at: half, a_out_at: end, fx: [], mix: style === "tower" ? (o.data.kind === "layer" ? "layer" : null) : style,
+  const v = Object.assign({}, pv, { secs: end + tail, b_starts_at: s0, bars: L, swap_at: half, a_out_at: end, fx: [], mix: style === "tower" ? (o.data.kind === "layer" ? "layer" : null) : style,
     vol, eq, flt, style: vol === "hard" ? "cut" : "blend", b_src0: vol === "hard" && bE != null ? bE - (end - s0) / rate : bE });
-  return Object.assign({}, o, { data: Object.assign({}, o.data, { pv: v }), live: style });
+  return Object.assign({}, o, { data: Object.assign({}, o.data, { pv: v }), live: style + ":" + L });
+}
+// the overlap lengths a spot's files allow, and the one playing (TCM's own pick until you change it)
+function barsChoices(o) { const st = ((o || {}).data || {}).pv && o.data.pv.st, full = st ? Math.round((st.beat_t.length - 1) / 4) : 0; return [4, 8, 16, 32].filter(b => b <= full); }
+function barsFor(o) {
+  const ch = barsChoices(o); if (!ch.length) return 16;
+  const want = ui.bars || tcmBars(o);
+  return ch.reduce((a, b) => Math.abs(b - want) < Math.abs(a - want) ? b : a, ch[0]);
+}
+function tcmBars(o) { const ch = barsChoices(o); return o.data.pv.ov_tcm || ch[ch.length - 1] || 16; }
+function oBarsNext() {
+  const o = OPTS[ui.sel]; if (!liveOK(o)) return;
+  const ch = barsChoices(o), cur = barsFor(o), keep = PL.is(o) && !PL.paused ? PL.time : null;
+  ui.bars = ch[(ch.indexOf(cur) + 1) % ch.length];
+  renderOne();
+  if (keep != null) PL.start(o, Math.min(keep, geom(heard(o)).secs - 0.1));   // hear the new length straight away
 }
 let actx = null;
 function ctx() {
@@ -1163,7 +1186,7 @@ function stemBuf(path) {
 const PL = {   // one player for both kinds: live (two stems) or a rendered preview (the <audio> element)
   mode: null, id: null, style: null, paused: true, t0: 0, pos: 0, nodes: [], timer: 0, secs: 0, token: 0,
   get time() { return this.mode === "mp3" ? audio.currentTime || 0 : this.paused ? this.pos : Math.min(this.secs, actx.currentTime - this.t0); },
-  is(o) { return !!o && this.id === o.id && (this.mode === "mp3" || this.style === (ui.style || "tower")); },
+  is(o) { return !!o && this.id === o.id && (this.mode === "mp3" || this.style === heard(o).live); },
   playing(o) { return this.is(o) && !this.paused && (this.mode !== "mp3" || !audio.paused); },
   stop() {
     clearTimeout(this.timer);
@@ -1516,7 +1539,8 @@ function oRate(n) {
   if (!ui.sel) return;
   if (ui.cmp && ui.cmp.run) ui.cmp.run = false;
   if (ui.pend) { ui.pend.r = n; whyWait(); oPrompt(); renderStyles(OPTS[ui.sel]); return; }
-  ui.pend = { id: ui.sel, r: n, t0: Date.now(), why: new Set(), style: liveOK(OPTS[ui.sel]) ? (STYLE_SPEC[ui.style] ? ui.style : "tower") : null };
+  const ro = OPTS[ui.sel], rs = liveOK(ro) ? (STYLE_SPEC[ui.style] ? ui.style : "tower") : null, rl = rs ? barsFor(ro) : null;
+  ui.pend = { id: ui.sel, r: n, t0: Date.now(), why: new Set(), style: rs ? rs + (rl !== tcmBars(ro) ? ":" + rl : "") : null };
   whyWait();
   ui.pend.timer = setInterval(() => { if (!ui.pend) return; if (Date.now() - ui.pend.t0 >= ui.pend.wait) oCommit(); else oPrompt(); }, 200);
   oPrompt(); oControls(); renderStyles(OPTS[ui.sel]);
@@ -1526,16 +1550,17 @@ function oRate(n) {
 const LOW = r => r <= 3;
 function whyWait() { const p = ui.pend; if (!p) return; if (!LOW(p.r)) p.why.clear(); p.wait = LOW(p.r) ? 7000 : 3000; p.t0 = Date.now(); }
 const WHY_C = { preview: "#ffb547", mix: "#3fe0c5", songs: "#c58cff", other: "#B8B8C2" };   // the preview, the mix, the songs themselves
+const WHY_OFF = ["long", "short"];   // the length is yours to set now (the bars control), so these aren't needed
 const WHY_GROUPS = [["preview", "The preview"], ["mix", "The mix"], ["songs", "The songs"]];
 const WHY_SHORT = { click: "Glitch", moment: "Bad entry", long: "Too long", fit: "Don't fit" };
 function renderWhy() {
   const el = $("oWhy"), p = ui.pend, sy = ((META.feedback || {}).symptoms || []);
   el.hidden = false; document.body.classList.add("picking");
-  // three even columns of three, in order (the preview, the mix, the songs); a dot on each says whose fault it is
-  const items = WHY_GROUPS.flatMap(([g]) => sy.filter(x => x.group === g)), per = Math.ceil(items.length / 3);
-  const btn = x => `<button type="button" data-why="${esc(x.id)}" aria-pressed="${p.why.has(x.id)}" title="${esc(x.label)}"><i style="background:${WHY_C[x.group]}"></i>${esc(WHY_SHORT[x.id] || x.label)}</button>`;
+  // one even grid, row by row in order (the preview, the mix, the songs); a dot on each says whose fault it is
+  const items = WHY_GROUPS.flatMap(([g]) => sy.filter(x => x.group === g && !x.hidden && !WHY_OFF.includes(x.id)));
+  el.style.gridTemplateColumns = `repeat(${items.length > 6 && innerWidth > 360 ? 4 : 3}, minmax(0, 1fr))`;   // narrow phones: 3 across
   el.innerHTML = `<div class="leg">${WHY_GROUPS.map(([g, label]) => `<span><i style="background:${WHY_C[g]}"></i>${label}</span>`).join("")}</div>`
-    + [0, 1, 2].map(c => `<div class="col">${items.slice(c * per, c * per + per).map(btn).join("")}</div>`).join("");
+    + items.map(x => `<button type="button" data-why="${esc(x.id)}" aria-pressed="${p.why.has(x.id)}" title="${esc(x.label)}" style="border-left:3px solid ${WHY_C[x.group]}">${esc(WHY_SHORT[x.id] || x.label)}</button>`).join("");
   el.querySelectorAll("[data-why]").forEach(b => b.onclick = () => { const k = b.dataset.why; p.why.has(k) ? p.why.delete(k) : p.why.add(k); p.why.delete("unsure"); p.t0 = Date.now(); p.wait = 4000; renderWhy(); oPrompt(); });
 }
 function endWhy() { $("oWhy").hidden = true; $("oWhy").innerHTML = ""; document.body.classList.remove("picking"); }
@@ -1551,7 +1576,7 @@ function oDetails() {
   ui.sheetReturn = $("oRates"); openRate(p.id, p.r); if (ui.fv) { ui.fv.style = p.style; if (p.why) { p.why.forEach(k => ui.fv.chips.add(k)); rateSheet(); } } ui.afterRate = oNextPair;
 }
 function oNextPair() {
-  const was = ui.cp; PL.stop(); PL.paused = true; PL.pos = 0; ui.style = "tower";
+  const was = ui.cp; PL.stop(); PL.paused = true; PL.pos = 0; ui.style = "tower"; ui.bars = null;
   const all = pairings(); OL = pairsIn(ui.pl, all);
   const nx = OL.find(p => p.key !== was && needs(p));
   ui.cp = nx ? nx.key : null; ui.sel = null; ui.bi = 0; ui.cmp = null;
