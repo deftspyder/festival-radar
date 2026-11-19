@@ -916,6 +916,7 @@ function ways(p) {
 const KIND = { section: "Section", end: "End to start", layer: "Layer" };
 function wayName(o, first) {
   const v = o.data.variant;
+  if (v && v.mix && MIXN[v.mix]) return [MIXN[v.mix], `v${v.n}${v.what && v.what !== MIXN[v.mix] ? " · " + v.what.replace(MIXN[v.mix] + ", ", "") : ""}`];
   if (v) return [`v${v.n} · ${v.by === "you" ? "your idea" : "TCM's try"}`, v.what || ""];
   const k = o.data.custom ? "Your pair" : KIND[o.data.kind] || "Way", sa = o.data.sa || {}, sbx = o.data.sb || {};
   return first ? ["Tower pick", k] : [k, `${sa.label || "?"} → ${sbx.label || "?"}`];
@@ -1039,8 +1040,23 @@ function renderTry(o) {
   if (!o || !sug.length) { el.hidden = true; el.innerHTML = ""; return; }
   el.hidden = false;
   const asked = id => { const r = mine().filter(x => x.option_id === o.id && x.kind === "suggest" && (x.suggest || []).includes(id)).pop(); return r ? (r.synced_at ? "making" : "sent") : null; };
-  el.innerHTML = `<span class="lb">${ADMIN ? "Try" : "Suggest"}</span>` + sug.map(x => { const a = asked(x.id);
-    return `<button type="button" data-try="${esc(x.id)}" class="${a ? "sent" : ""}" title="${esc(x.what || "")}"${a ? ' aria-disabled="true"' : ""}>${a ? (a === "making" ? "Making: " : "Sent: ") : ""}${esc(x.label.replace(/^Try (an? )?/, "").replace(/^./, c => c.toUpperCase()))}</button>`; }).join("");
+  // a style already made for this pair: play it from here
+  const made = m => (OP ? OP.opts : []).find(x => x.data.variant && x.data.variant.mix === m);
+  const styles = sug.filter(x => x.mix || /^mix_/.test(x.id)), others = sug.filter(x => !styles.includes(x));
+  const chip = x => {
+    const m = x.id.replace(/^mix_/, ""), mv = styles.includes(x) ? made(m) : null, cur = (o.data.pv || {}).mix === m;
+    const name = x.label.replace(/^Try (an? )?/, "").replace(/^./, c => c.toUpperCase());
+    if (cur) return `<button type="button" class="sent" aria-pressed="true" style="border-style:solid;color:#0E0F13;background:#F4F4F8;border-color:#F4F4F8" title="${esc(x.what || "")}">${esc(name)}</button>`;
+    if (mv) return playable(mv) ? `<button type="button" data-play="${esc(mv.id)}" title="${esc(x.what || "")}">▶ ${esc(name)}</button>`
+      : `<button type="button" class="sent" aria-disabled="true" data-try="${esc(x.id)}" title="${esc(x.what || "")}">Making: ${esc(name)}</button>`;
+    const a = asked(x.id);
+    return `<button type="button" data-try="${esc(x.id)}" class="${a ? "sent" : ""}" title="${esc(x.what || "")}"${a ? ' aria-disabled="true"' : ""}>${a ? (a === "making" ? "Making: " : "Sent: ") : ""}${esc(name)}</button>`;
+  };
+  el.innerHTML = (styles.length ? `<span class="lb">Styles</span>` + styles.map(chip).join("") : "") + (others.length ? `<span class="lb" style="margin-left:6px">${ADMIN ? "Try" : "Suggest"}</span>` + others.map(chip).join("") : "");
+  el.querySelectorAll("[data-play]").forEach(b => b.onclick = () => {
+    const id = b.dataset.play, W = ways(OP), i = W.findIndex(x => x.id === id), n = Math.max(2, Math.min(5, SET.n));
+    if (ui.cmp) ui.cmp.run = false; ui.bi = Math.max(0, Math.floor(i / n)); oSelect(id, true);
+  });
   el.querySelectorAll("[data-try]").forEach(b => b.onclick = async () => {
     if (b.getAttribute("aria-disabled") === "true") return toast(ADMIN ? "Already asked: it joins the row when your PC has made it." : "Already sent to Bill.");
     const id = b.dataset.try, x = sug.find(q => q.id === id);
@@ -1149,29 +1165,56 @@ const EXIT_FX = ["echo", "reverb", "brake", "loop_roll"];
 const FXN = { echo: "echo out", reverb: "reverb wash", brake: "brake", loop_roll: "loop roll", flanger: "flanger on A", filter_sweep: "filter sweep on A" };
 const PALS = { neon: { name: "Neon City", v: "#39FF14", e: "#FF00FF", f: "#00F0FF" }, synth: { name: "Synthwave", v: "#FF2E97", e: "#00E5FF", f: "#FFE14D" }, outrun: { name: "Outrun", v: "#FF6EC7", e: "#B967FF", f: "#FF9E2C" } };
 SET.pal = PALS[lsGet("tcr-pal")] ? lsGet("tcr-pal") : "neon";
+const MIXN = { glide: "Glide", cruise: "Cruise", climb: "Climb", formation: "Formation", descent: "Descent", handoff: "Hand-off", merge: "Merge", direct: "Direct" };
 function mixOf(o, gm) {
-  const pv = o.data.pv || {}, cut = pv.style === "cut", fx = pv.fx || [], ex = fx.some(f => EXIT_FX.includes(f));
-  const s0 = gm.bIn, half = cut ? gm.aOut : gm.swap, end = gm.aOut, beat = 60 / (song(o.a).bpm || 120);
-  const cl = v => Math.max(0, Math.min(1, v));
-  return { cut, fx,
-    gA: t => cut ? (t < end ? 1 : 0) : t < half ? 1 : t < end ? 1 - (1 - (ex ? .55 : 0)) * cl((t - half) / (end - half)) : 0,
-    gB: t => cut ? (t < end ? 0 : 1) : t < s0 ? 0 : t < half ? cl((t - s0) / (half - s0)) : 1,
-    bA: t => cut ? 1 : 1 - cl((t - half) / beat),
-    bB: t => cut ? 1 : cl((t - half) / beat),
-    fA: fx.includes("filter_sweep") ? t => t < (cut ? s0 : half) ? 0 : t < end ? cl((t - (cut ? s0 : half)) / (end - (cut ? s0 : half))) : null : null };
+  const pv = o.data.pv || {}, fx = pv.fx || [], ex = fx.some(f => EXIT_FX.includes(f)), vol = pv.vol, eq = pv.eq, flt = pv.flt;
+  const cut = vol ? vol === "hard" : pv.style === "cut";
+  const s0 = gm.bIn, end = gm.aOut, half = cut ? end : gm.swap, beat = 60 / (song(o.a).bpm || 120);
+  const cl = v => Math.max(0, Math.min(1, v)), lin = (t, a, b) => cl((t - a) / Math.max(.001, b - a));
+  let gA, gB;
+  if (!vol) {   // the PC's original blend and cut
+    gA = t => cut ? (t < end ? 1 : 0) : t < half ? 1 : t < end ? 1 - (1 - (ex ? .55 : 0)) * lin(t, half, end) : 0;
+    gB = t => cut ? (t < end ? 0 : 1) : lin(t, s0, half);
+  } else if (vol === "smooth") { gA = t => Math.cos(lin(t, s0, end) * Math.PI / 2); gB = t => Math.sin(lin(t, s0, end) * Math.PI / 2); }
+  else if (vol === "fifo") { gA = t => 1 - lin(t, s0, end); gB = t => lin(t, s0, end); }
+  else if (vol === "center") { gA = t => t < half ? 1 : 0; gB = t => t < half ? 0 : 1; }
+  else if (vol === "hard") { gA = t => t < end ? 1 : 0; gB = t => t < end ? 0 : 1; }
+  else { gA = t => t < end ? 1 : 0; gB = vol === "ficut" ? t => lin(t, s0, half) : t => lin(t, s0, s0 + beat); }   // overlap, ficut
+  // per band (low, mid, high) on top of the volume: the bass swap, or Formation's three hand-overs
+  const t1 = s0 + (end - s0) / 3, t2 = s0 + 2 * (end - s0) / 3;
+  let bandA = () => [1, 1, 1], bandB = () => [1, 1, 1], eqLine = null;
+  if (eq === "band3") {
+    bandA = t => [1 - lin(t, t2, t2 + beat), 1 - lin(t, t1, t2), 1 - lin(t, s0, t1)];
+    bandB = t => [lin(t, t2, t2 + beat), lin(t, t1, t2), lin(t, s0, t1)];
+    eqLine = [t => 1 - lin(t, t2, t2 + beat), t => lin(t, t2, t2 + beat)];
+  } else if (!cut && (vol ? eq === "center" || eq === "end" : true)) {   // the original blend, Glide, Cruise, Climb, Descent, Merge
+    bandA = t => [1 - lin(t, half, half + beat), 1, 1]; bandB = t => [lin(t, half, half + beat), 1, 1];
+    eqLine = [t => 1 - lin(t, half, half + beat), t => lin(t, half, half + beat)];
+  }
+  // filters, drawn as how far the filter is in (0 = open)
+  let fA = null, fB = null;
+  if (flt === "lp_lp" || flt === "lp_hp" || flt === "hp_hp") { fB = t => 1 - lin(t, s0, half); fA = t => lin(t, half, end); }
+  else if (flt === "hp_half") fA = t => .5 * lin(t, half, end);
+  else if (fx.includes("filter_sweep")) fA = t => lin(t, cut ? s0 : half, end);
+  return { cut, fx, gA, gB, bandA, bandB, eqLine, fA, fB };
 }
 function mixWords(o) {
   const pv = o.data.pv || {}, P = PALS[SET.pal], fx = pv.fx || [];
-  const v = pv.style === "cut" ? "Quick cut at A out" : "B fades in, A fades out", e = pv.style === "cut" ? "" : "bass swap at Swap";
-  const f = fx.filter(x => !["filter_sweep"].includes(x)).map(x => FXN[x] || x);
-  return `<span style="color:${P.v}">${v}</span>${e ? ` · <span style="color:${P.e}">${e}</span>` : ""}${fx.includes("filter_sweep") ? ` · <span style="color:${P.f}">filter sweep on A</span>` : ""}${f.length ? " · " + esc(f.join(", ")) : ""}`;
+  const V = { smooth: "smooth crossfade", overlap: "both play full", fifo: "B fades in, A fades out", center: "cut halfway", ficut: "B fades in, A cuts at the end", hard: "A to the end, then B" };
+  const E = { center: "bass swap at Swap", end: "bass swap at Swap, near the end", band3: "highs, mids, then bass hand over" };
+  const F = { lp_lp: "B opens from a low-pass, A closes into one", lp_hp: "B opens from a low-pass, A thins out", hp_hp: "B fills in from a high-pass, A thins out", hp_half: "A thins out" };
+  const v = pv.vol ? V[pv.vol] : pv.style === "cut" ? "Quick cut at A out" : "B fades in, A fades out";
+  const e = pv.vol ? E[pv.eq] : pv.style === "cut" ? "" : "bass swap at Swap";
+  const f = pv.flt ? F[pv.flt] : fx.includes("filter_sweep") ? "filter sweep on A" : "";
+  const other = fx.filter(x => x !== "filter_sweep").map(x => FXN[x] || x);
+  return `${pv.mix && MIXN[pv.mix] ? `<b>${MIXN[pv.mix]}</b> · ` : ""}<span style="color:${P.v}">${v}</span>${e ? ` · <span style="color:${P.e}">${e}</span>` : ""}${f ? ` · <span style="color:${P.f}">${f}</span>` : ""}${other.length ? " · " + esc(other.join(", ")) : ""}`;
 }
 function waveBody(c, w, h, o, gm, wa, wb) {
   const top = 16, mid = top + (h - top) / 2, amp = (h - top) / 2 - 2, S = SKINS[SET.skin] || SKINS.syn, x0 = gm.bIn / gm.secs * w, x1 = gm.aOut / gm.secs * w;
   const MX = mixOf(o, gm), P = PALS[SET.pal];
   c.fillStyle = "rgba(93,202,165,0.08)"; c.fillRect(x0, top, x1 - x0, h - top);
   // gain(t) and bass(t) reshape the waveform the way the mix does: you see A thin out and B fill in
-  const half = (wv, map, dir, from, gain, bass) => {
+  const half = (wv, map, dir, from, gain, band) => {
     if (!wv || wv.state !== "ok") return false;
     // band levels for every pixel column, then scale this half so its loudest column (before the fades) fills it:
     // a quiet part (a bass-out section, say) still reads clearly on a phone
@@ -1189,15 +1232,15 @@ function waveBody(c, w, h, o, gm, wa, wb) {
     let mx = 0; for (const q of cols) mx = Math.max(mx, q[2], q[3], q[4]);
     const k = amp * .96 / Math.max(mx, .4);
     for (const [x, m, l, md, hi, t] of cols) {
-      const g = gain(t), bl = bass(t);
+      const g = gain(t), [bl, bm, bh] = band(t);
       const bar = (hgt, col) => { if (hgt < .4) return; c.fillStyle = col; c.fillRect(x, dir < 0 ? mid - hgt : mid, 1, hgt); };
       if (S.blend) { const tot = m[0] * bl + m[1] + m[2] || 1; bar(Math.max(l * bl, md, hi) * k * g, `rgb(${Math.min(255, m[0] * bl / tot * 330) | 0},${Math.min(255, m[1] / tot * 276) | 0},${Math.min(255, m[2] / tot * 357) | 0})`); }
-      else { bar(l * bl * k * g, S.c[0]); bar(md * k * g, S.c[1]); bar(hi * k * g, S.c[2]); }
+      else { bar(l * bl * k * g, S.c[0]); bar(md * bm * k * g, S.c[1]); bar(hi * bh * k * g, S.c[2]); }
     }
     return true;
   };
   c.globalAlpha = .55;
-  const okA = half(wa, gm.mapA, -1, null, MX.gA, MX.bA), okB = half(wb, gm.mapB, 1, gm.bHeard, MX.gB, MX.bB);
+  const okA = half(wa, gm.mapA, -1, null, MX.gA, MX.bandA), okB = half(wb, gm.mapB, 1, gm.bHeard, MX.gB, MX.bandB);
   c.globalAlpha = 1;
   if (!okA || !okB) { c.fillStyle = "#8A8A96"; c.font = "12px system-ui"; c.textAlign = "center"; c.fillText(wa.state === "loading" || wb.state === "loading" ? "Loading the waveform…" : "No waveform for this song yet", w / 2, okA ? mid + amp / 2 : mid - amp / 2); }
   c.strokeStyle = "#34343E"; c.lineWidth = .5; c.beginPath(); c.moveTo(0, mid + .5); c.lineTo(w, mid + .5); c.stroke();
@@ -1211,8 +1254,9 @@ function waveBody(c, w, h, o, gm, wa, wb) {
     c.strokeStyle = "rgba(255,255,255,.55)"; c.lineWidth = .75; path(); c.stroke(); c.restore();
   };
   const onA = fn => t => t > gm.aOut + .05 ? null : fn(t), onB = fn => t => t < gm.bHeard - .05 ? null : fn(t);   // each line only while its song plays
-  if (!MX.cut) { line(onA(MX.bA), -1, P.e, 6); line(onB(MX.bB), 1, P.e, 6); }
+  if (MX.eqLine) { line(onA(MX.eqLine[0]), -1, P.e, 6); line(onB(MX.eqLine[1]), 1, P.e, 6); }
   if (MX.fA) line(onA(MX.fA), -1, P.f, 10);
+  if (MX.fB) line(onB(MX.fB), 1, P.f, 10);
   line(onA(MX.gA), -1, P.v, 2); line(onB(MX.gB), 1, P.v, 2);
   c.setLineDash([3, 3]); c.strokeStyle = "#8A8A96"; c.lineWidth = .75; c.fillStyle = "#C9C9D2"; c.font = "11px system-ui"; c.textAlign = "center";
   for (const [t, l] of [[gm.bIn, "B in"], [gm.swap, "Swap"], [gm.aOut, "A out"]]) {
