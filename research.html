@@ -941,7 +941,7 @@ function renderOne() {
       <div class="o-tr">
         <div class="c"><button type="button" id="oBack" aria-label="Back to B in">${ICON.back}</button>B in</div>
         <button type="button" class="o-play" id="oPlay" aria-label="Play">${ICON.play}</button>
-        <div class="c"><button type="button" id="oLoop" aria-label="Loop the overlap">${ICON.loop}</button>Loop</div>
+        <div class="c"><button type="button" id="oLoop" aria-label="Loop: play it again from B in">${ICON.loop}</button>Loop</div>
         <div class="c"><button type="button" id="oCmp" aria-label="Compare the ways">${ICON.cmp}</button><span id="oCmpL">Compare</span></div>
       </div>
       <div class="o-prompt" id="oPrompt" aria-live="polite"></div>
@@ -1126,11 +1126,7 @@ function oLoop() {
   const step = () => {
     oRaf = 0;
     if (ui.view !== "one" || audio.paused) { oDraw(); return; }
-    const o = OPTS[ui.sel], gm = o && audio.dataset.id === o.id && geom(o), t = audio.currentTime;
-    if (gm) {
-      if (ui.cmp && ui.cmp.run) { if (t >= gm.aOut + 0.4) return oNextInCompare(); }
-      else if (SET.loop && t >= gm.aOut + 0.6) { try { audio.currentTime = gm.bIn; } catch (e) {} }
-    }
+    // each preview plays to its end (B's landing included); Loop and Compare take over when it ends (oEnded)
     oDraw(); oRaf = requestAnimationFrame(step);
   };
   oRaf = requestAnimationFrame(step);
