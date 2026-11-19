@@ -206,6 +206,10 @@ body.one .toast { top: calc(env(safe-area-inset-top, 0px) + 64px); bottom: auto 
 .o-try::-webkit-scrollbar { display: none }
 .o-try button { flex: none; height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid #3A3B46; background: #1A1B21; color: #F4F4F8; font-size: 12.5px; font-weight: 500; white-space: nowrap }
 .o-try button.sent { border-style: dashed; color: #8fe3ff; border-color: #2c4a52 }
+.o-try button.on { background: #F4F4F8; color: #0E0F13; border-color: #F4F4F8; font-weight: 600 }
+.o-try button { position: relative }
+.o-try .rd { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px }
+.o-try .nb { position: absolute; top: -5px; right: -4px; width: 16px; height: 16px; border-radius: 999px; background: #39FF14; color: #0E0F13; font: 700 10px/16px var(--mono); text-align: center }
 .o-try .lb { flex: none; align-self: center; font-size: 11.5px; color: #B8B8C2; white-space: nowrap }
 .o-tr { flex: none; display: flex; align-items: flex-start; justify-content: center; gap: 20px }
 .o-tr .c { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 10px; font-size: 11px; color: #B8B8C2; width: 58px; text-align: center }
@@ -365,7 +369,8 @@ const sec = (tid, i) => (song(tid).sections || []).find(s => s.i === i);
 const fam = o => o.data.fam || o.id;
 const vn = o => o.data.vn || 1;
 const fixingNow = o => !!o.data.fixing_now;
-const hasPv = o => !!o.preview_path;
+const hasStems = o => !!(o.data.stems && o.data.stems.a && o.data.pv && o.data.pv.st);
+const hasPv = o => !!o.preview_path || hasStems(o);
 const rankKey = o => { const r = rating(o.id); return r == null ? 2.5 : r >= 3 ? r : r - 10; };
 function canCompare(o) {
   const v = o.data.variant;
@@ -724,7 +729,9 @@ async function urlFor(path) {
 }
 const audio = $("audio");
 async function play(id, keepQueue) {
-  const o = OPTS[id]; if (!o || !o.preview_path) return;
+  const o = OPTS[id]; if (!o) return;
+  if (!o.preview_path && hasStems(o)) { ui.cp = o.pair_code; ui.sel = o.id; return setView("one"); }   // mixed live there
+  if (!o.preview_path) return;
   if (!keepQueue && ui.playing !== id) ui.queue = [];
   if (ui.playing === id) { stop(); return; }
   ui.opt = id; ui.playing = id;
@@ -899,7 +906,7 @@ const playable = o => hasPv(o) && !o.data.held && !fixingNow(o);
 const wanted = o => playable(o) && !pending(o.id) && (rating(o.id) == null || (ADMIN && o.status === "ready"));
 function needs(p) {
   const rated = p.opts.some(o => rating(o.id) != null);
-  return p.opts.some(o => wanted(o) && (!rated || o.data.variant || o.status === "ready"));
+  return p.opts.some(o => wanted(o) && !styleOnly(o) && (!rated || o.data.variant || o.status === "ready"));
 }
 function pairsIn(plKey, all) {
   const k = String(plKey || "all"), pl = k === "all" ? null : PLS.find(x => String(x.id) === k), ps = pl ? new Set(pl.tracks) : null;
@@ -909,8 +916,9 @@ function tally(list) {
   const done = list.filter(p => !needs(p) && p.opts.some(o => rating(o.id) != null)).length;
   return { done, total: list.length, noPv: list.filter(p => !needs(p) && !p.opts.some(o => rating(o.id) != null)).length };
 }
+const styleOnly = o => { const v = o.data.variant; if (!v || !v.mix) return false; const b = OPTS[v.base]; return !!(b && hasStems(b)); };
 function ways(p) {
-  const pl = p.opts.filter(playable), w = pl.filter(wanted);
+  const pl = p.opts.filter(o => playable(o) && !styleOnly(o)), w = pl.filter(wanted);
   return [...w, ...pl.filter(o => !w.includes(o))];
 }
 const KIND = { section: "Section", end: "End to start", layer: "Layer" };
@@ -919,7 +927,7 @@ function wayName(o, first) {
   if (v && v.mix && MIXN[v.mix]) return [MIXN[v.mix], `v${v.n}${v.what && v.what !== MIXN[v.mix] ? " · " + v.what.replace(MIXN[v.mix] + ", ", "") : ""}`];
   if (v) return [`v${v.n} · ${v.by === "you" ? "your idea" : "TCM's try"}`, v.what || ""];
   const k = o.data.custom ? "Your pair" : KIND[o.data.kind] || "Way", sa = o.data.sa || {}, sbx = o.data.sb || {};
-  return first ? ["Tower pick", k] : [k, `${sa.label || "?"} → ${sbx.label || "?"}`];
+  return first ? ["Best spot", `${sa.label || "?"} → ${sbx.label || "?"}`] : [k, `${sa.label || "?"} → ${sbx.label || "?"}`];   // where it mixes; the styles say how
 }
 
 let OL = [], OP = null;   // pairs in this playlist at or above the threshold; the pair on screen
@@ -949,15 +957,14 @@ function renderOne() {
     </div>`;
     $("oPick").onclick = plSheet;
     $("oGear").onclick = setSheet;
-    $("oPlay").onclick = () => audio.paused ? oHear() : audio.pause();
-    $("oBack").onclick = () => { const o = OPTS[ui.sel], gm = o && geom(o); if (gm) oSeek(gm.bIn); };
+    $("oPlay").onclick = () => PL.playing(OPTS[ui.sel]) ? PL.pause() : oHear();
+    $("oBack").onclick = () => { const o = OPTS[ui.sel], gm = o && geom(heard(o)); if (gm) oSeek(gm.bIn); };
     $("oLoop").onclick = () => { SET.loop = !SET.loop; lsSet("tcr-loop", SET.loop ? "1" : "0"); oControls(); };
     $("oCmp").onclick = oCompareBtn;
     $("oMore").onclick = waysSheet;
     $("oRates").querySelectorAll("[data-or]").forEach(b => b.onclick = () => oRate(+b.dataset.or));
     const cv = $("oWave");
-    cv.onclick = e => { const o = OPTS[ui.sel], gm = o && geom(o); if (!gm) return; const r = cv.getBoundingClientRect(); oSeek((e.clientX - r.left) / r.width * gm.secs, true); };
-    audio.addEventListener("play", oControls); audio.addEventListener("pause", oControls);
+    cv.onclick = e => { const o = OPTS[ui.sel], gm = o && geom(heard(o)); if (!gm) return; const r = cv.getBoundingClientRect(); oSeek((e.clientX - r.left) / r.width * gm.secs, true); };
   }
   const all = pairings(); pairsCache = all;
   OL = pairsIn(ui.pl, all);
@@ -995,15 +1002,17 @@ function renderOne() {
   // the line under the row: what this way does
   if (o) {
     const r = rating(o.id), why = (o.data.why || {}).short || "";
-    $("oLine").innerHTML = `${mixWords(o)}${why ? " · " + esc(why) : ""}${r ? ` · <span style="color:${OR[r - 1][0]}">rated ${RATE[r - 1].l}</span>` : ""}${o.data.beats_off ? ` · <span style="color:#ffb0a8">kicks don't line up in this preview</span>` : ""}`;
+    const ro = liveOK(o) && ui.style && ui.style !== "tower" ? null : r;
+    $("oLine").innerHTML = `${mixWords(heard(o))}${why ? " · " + esc(why) : ""}${ro ? ` · <span style="color:${OR[ro - 1][0]}">rated ${RATE[ro - 1].l}</span>` : ""}${o.data.beats_off ? ` · <span style="color:#ffb0a8">kicks don't line up in this preview</span>` : ""}`;
     const A = song(o.a), B = song(o.b);
     $("oScore").textContent = `Score ${Math.round(o.score)}`;
     $("oA").innerHTML = `<b>A</b>${esc(shortT(A))} · ${esc(A.cam || "")} · ${Math.round(A.bpm)}`;
     $("oB").innerHTML = `<b>B</b>${esc(shortT(B))} · ${esc(B.cam || "")} · ${Math.round(B.bpm)}`;
     signAhead(OP.opts); waveGet(o.a); waveGet(o.b);
+    if (liveOK(o)) { stemBuf(o.data.stems.a).catch(() => {}); stemBuf(o.data.stems.b).catch(() => {}); }   // ready before you tap play
     const nx = OL.find(p => p !== OP && needs(p)); if (nx) { signAhead(nx.opts.filter(playable)); waveGet(nx.a); waveGet(nx.b); }
   } else { $("oLine").textContent = ""; $("oScore").textContent = ""; $("oA").innerHTML = ""; $("oB").innerHTML = ""; }
-  renderTry(o);
+  renderStyles(o);
   for (const id of ["oScore", "oA", "oB", "oTime"]) $(id).hidden = !o;
   $("oRates").classList.toggle("off", !o);
   for (const id of ["oPlay", "oBack", "oLoop"]) $(id).disabled = !o;
@@ -1011,10 +1020,10 @@ function renderOne() {
 }
 function oControls() {
   if (ui.view !== "one" || !$("oPlay")) return;
-  const playing = !audio.paused && audio.dataset.id === ui.sel;
+  const playing = PL.playing(OPTS[ui.sel]);
   $("oPlay").innerHTML = playing ? ICON.pause : ICON.play; $("oPlay").setAttribute("aria-label", playing ? "Pause" : "Play");
   $("oLoop").classList.toggle("on", SET.loop); $("oLoop").setAttribute("aria-pressed", String(SET.loop));
-  const W = OP ? ways(OP) : [], n = Math.max(2, Math.min(5, SET.n)), c = ui.cmp, bi = ui.bi || 0, nextLen = W.slice((bi + 1) * n, (bi + 2) * n).length;
+  const W = OP ? cmpItems() : [], n = Math.max(2, Math.min(5, SET.n)), c = ui.cmp, bi = c ? c.bi || 0 : 0, nextLen = W.slice((bi + 1) * n, (bi + 2) * n).length;
   $("oCmpL").textContent = !c ? "Compare" : c.run ? "Comparing" : nextLen ? `${nextLen} more` : "All tried";
   $("oCmp").disabled = !OPTS[ui.sel] || W.length < 2 || !!(c && !c.run && !nextLen);
   if (playing) oLoop();
@@ -1023,14 +1032,14 @@ function oPrompt() {
   const el = $("oPrompt"), o = OPTS[ui.sel];
   $("oRates").querySelectorAll("[data-or]").forEach(b => b.setAttribute("aria-pressed", String(!!(ui.pend && ui.pend.r === +b.dataset.or))));
   if (!o) { el.textContent = ""; return; }
-  const W = OP ? ways(OP) : [], nm = wayName(o, W[0] === o && !o.data.variant)[0];
+  const W = OP ? ways(OP) : [], nm = liveOK(o) ? MIXN[STYLE_SPEC[ui.style] ? ui.style : "tower"] : wayName(o, W[0] === o && !o.data.variant)[0];
   if (ui.pend) {
     const left = Math.max(1, 3 - Math.floor((Date.now() - ui.pend.t0) / 1000)), R = RATE[ui.pend.r - 1];
     el.innerHTML = `<span><b style="color:${OR[ui.pend.r - 1][0]}">${R.l === "Go-around" ? "Go around" : R.l}</b> with ${esc(nm)} · next in ${left}s</span><button type="button" id="oDet">Details</button><button type="button" id="oUndo">Undo</button>`;
     $("oDet").onclick = oDetails; $("oUndo").onclick = oUndo;
     return;
   }
-  const c = ui.cmp, n = Math.max(2, Math.min(5, SET.n)), more = W.slice(((ui.bi || 0) + 1) * n).length;
+  const c = ui.cmp, n = Math.max(2, Math.min(5, SET.n)), more = cmpItems().slice(((c ? c.bi || 0 : 0) + 1) * n).length;
   el.textContent = c && !c.run ? (more ? "Tap the winner and rate it, or try more" : "Tap the winner and rate it") : c && c.run ? `Comparing: ${nm}` : `How did it land with ${nm}?`;
 }
 
@@ -1067,65 +1076,257 @@ function renderTry(o) {
   });
 }
 
+// ---------- live mixing: the PC uploads A and B lined up (stems), the phone mixes any style from them ----------
+// The same recipes as the PC's renderer (analysis/render_clip.py MIXES), so a style sounds the same here and there.
+const STYLES = ["tower", "glide", "cruise", "climb", "formation", "descent", "handoff", "merge", "direct"];
+const STYLE_SPEC = {   // volume, EQ, filter (null = TCM's own blend: B in to the Swap, bass swap, A out from the Swap)
+  tower: [null, null, null], glide: ["smooth", "center", null], cruise: ["overlap", "center", "lp_lp"], climb: ["overlap", "end", "lp_hp"],
+  formation: ["overlap", "band3", null], descent: ["fifo", "center", "hp_hp"], handoff: ["center", null, null],
+  merge: ["ficut", "end", "hp_half"], direct: ["hard", null, null] };
+const STYLE_HINT = { tower: "TCM's blend", glide: "Smooth fade", cruise: "Long, filtered", climb: "Builds up", formation: "3-band blend",
+  descent: "Winds down", handoff: "Cut halfway", merge: "Fade, then cut", direct: "Straight cut" };
+const liveOK = o => !!o && hasStems(o) && !((o.data.pv || {}).fx || []).length && !(o.data.variant && o.data.variant.mix);
+// the option as you hear it: with live mixing, its timing and curves follow the chosen style
+function heard(o) {
+  if (!liveOK(o)) return o;
+  const style = STYLE_SPEC[ui.style] ? ui.style : "tower", [vol, eq, flt] = STYLE_SPEC[style], pv = o.data.pv, st = pv.st;
+  const bt = st.beat_t, n = bt.length - 1, s0 = st.b_at, end = bt[n];
+  const half = vol === "hard" ? end : bt[Math.round(n * (eq === "end" ? 0.9 : 0.5))];
+  const rate = song(o.a).bpm / song(o.b).bpm, bE = pv.b_src0 != null ? pv.b_src0 : o.data.b_entry_t;
+  const v = Object.assign({}, pv, { secs: st.secs, b_starts_at: s0, swap_at: half, a_out_at: end, fx: [], mix: style === "tower" ? null : style,
+    vol, eq, flt, style: vol === "hard" ? "cut" : "blend", b_src0: vol === "hard" && bE != null ? bE - (end - s0) / rate : bE });
+  return Object.assign({}, o, { data: Object.assign({}, o.data, { pv: v }), live: style });
+}
+let actx = null;
+function ctx() {
+  if (!actx) { const C = window.AudioContext || window.webkitAudioContext; actx = C ? new C() : null; }
+  if (actx && actx.state === "suspended") actx.resume().catch(() => {});
+  return actx;
+}
+const BUF = new Map();   // storage path -> Promise<AudioBuffer>, the last few pairs
+function stemBuf(path) {
+  if (BUF.has(path)) { const b = BUF.get(path); BUF.delete(path); BUF.set(path, b); return b; }
+  const c = ctx();
+  const pr = urlFor(path).then(u => { if (!u) throw new Error("no link"); return fetch(u); }).then(r => r.arrayBuffer())
+    .then(ab => new Promise((res, rej) => { const q = c.decodeAudioData(ab, res, rej); if (q && q.then) q.then(res, rej); }));
+  pr.catch(() => BUF.delete(path));
+  BUF.set(path, pr);
+  while (BUF.size > 16) BUF.delete(BUF.keys().next().value);
+  return pr;
+}
+const PL = {   // one player for both kinds: live (two stems) or a rendered preview (the <audio> element)
+  mode: null, id: null, style: null, paused: true, t0: 0, pos: 0, nodes: [], timer: 0, secs: 0, token: 0,
+  get time() { return this.mode === "mp3" ? audio.currentTime || 0 : this.paused ? this.pos : Math.min(this.secs, actx.currentTime - this.t0); },
+  is(o) { return !!o && this.id === o.id && (this.mode === "mp3" || this.style === (ui.style || "tower")); },
+  playing(o) { return this.is(o) && !this.paused && (this.mode !== "mp3" || !audio.paused); },
+  stop() {
+    clearTimeout(this.timer);
+    for (const n of this.nodes) { try { if (n.stop) n.stop(); } catch (e) {} try { n.disconnect(); } catch (e) {} }
+    this.nodes = [];
+    if (this.mode === "mp3") audio.pause();
+  },
+  pause() { if (this.mode !== "mp3") this.pos = this.time; this.stop(); this.paused = true; oControls(); oDraw(); },
+  async start(o, from) {
+    const tok = ++this.token, hv = heard(o);
+    this.stop(); this.paused = false;
+    if (hv.live) {
+      const c = ctx(); if (!c) return toast("This browser can't mix live. Try Chrome or Safari.");
+      this.mode = "live"; this.id = o.id; this.style = hv.live; this.secs = hv.data.pv.secs; this.pos = from;
+      oControls();
+      let bufs;
+      try { bufs = await Promise.all([stemBuf(o.data.stems.a), stemBuf(o.data.stems.b)]); }
+      catch (e) { this.paused = true; oControls(); return toast("Couldn't load this mix. Try again in a moment."); }
+      if (tok !== this.token) return;
+      this.build(hv, bufs, from);
+    } else {
+      this.mode = "mp3"; this.style = null;
+      if (audio.dataset.id !== o.id) {
+        const url = await urlFor(o.preview_path);
+        if (tok !== this.token) return;
+        if (!url) { this.paused = true; oControls(); return toast("Couldn't get the preview. Try again in a moment."); }
+        audio.preload = "auto"; audio.src = url; audio.dataset.id = o.id;
+      }
+      this.id = o.id;
+      const seek = () => { try { audio.currentTime = from; } catch (e) {} };
+      if (audio.readyState >= 1) seek(); else audio.addEventListener("loadedmetadata", seek, { once: true });
+      audio.play().catch(() => { this.paused = true; oControls(); toast("Tap play to start"); });
+    }
+    oControls();
+  },
+  seek(t) {
+    const o = OPTS[this.id];
+    if (this.mode === "mp3") { try { audio.currentTime = t; } catch (e) {} return; }
+    this.pos = t;
+    if (!this.paused && o) this.start(o, t);
+  },
+  build(hv, [bufA, bufB], from) {
+    const c = this.ctx || actx, pv = hv.data.pv, gm = geom(hv), MX = mixOf(hv, gm), secs = this.secs, st = pv.st;
+    if (secs - from < 0.05) { this.paused = true; this.pos = 0; return oEnded(); }
+    const when = c.currentTime + 0.05, dur = secs - from, N = Math.max(2, Math.ceil(dur * 100));
+    this.t0 = when - from;
+    const curve = (param, fn) => {
+      const a = new Float32Array(N);
+      for (let i = 0; i < N; i++) a[i] = fn(from + dur * i / (N - 1));
+      param.setValueAtTime(a[0], c.currentTime); param.setValueCurveAtTime(a, when, dur);
+    };
+    const node = n => { this.nodes.push(n); return n; };
+    const out = node(c.createGain()), lim = node(c.createDynamicsCompressor());
+    lim.threshold.value = -1.5; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.002; lim.release.value = 0.12;
+    const fo = 4 * (st.tail_beat || 0.5);
+    curve(out.gain, t => Math.min(1, t / 0.05, Math.max(0, (secs - t) / fo)));
+    out.connect(lim); lim.connect(c.destination);
+    const top = c.sampleRate * 0.45, lin = (t, a, b) => Math.max(0, Math.min(1, (t - a) / Math.max(0.001, b - a)));
+    const sweep = (f0, f1, a, b) => t => Math.min(top, f0 * Math.pow(f1 / f0, lin(t, a, b)));
+    const s0 = gm.bIn, half = gm.swap, end = gm.aOut, flt = pv.flt, BW = -3.0103;
+    const biq = (type, f, steps) => {   // steps 2: like the PC's zero-phase filters (sosfiltfilt), 24 dB an octave
+      const a = node(c.createBiquadFilter()); a.type = type; a.frequency.value = f; a.Q.value = BW;
+      if (steps < 2) return [a, a];
+      const b = node(c.createBiquadFilter()); b.type = type; b.frequency.value = f; b.Q.value = BW; a.connect(b); return [a, b];
+    };
+    const track = (buf, at, gain, band, filt) => {
+      if (from >= at + buf.duration) return;
+      const src = node(c.createBufferSource()); src.buffer = buf;
+      const sum = node(c.createGain());
+      if (pv.eq === "band3") {          // lows, mids (the rest) and highs on their own faders, like the PC's split
+        const [loIn, lo] = biq("lowpass", 180, 2), [hiIn, hi] = biq("highpass", 2500, 2), mid = node(c.createGain());
+        const gL = node(c.createGain()), gM = node(c.createGain()), gH = node(c.createGain()), invL = node(c.createGain()), invH = node(c.createGain());
+        invL.gain.value = -1; invH.gain.value = -1;
+        src.connect(loIn); src.connect(hiIn); src.connect(mid); lo.connect(invL); invL.connect(mid); hi.connect(invH); invH.connect(mid);
+        lo.connect(gL); mid.connect(gM); hi.connect(gH); gL.connect(sum); gM.connect(sum); gH.connect(sum);
+        curve(gL.gain, t => band(t)[0]); curve(gM.gain, t => band(t)[1]); curve(gH.gain, t => band(t)[2]);
+      } else {                           // bass swap: the full track crossfades into the track without its bass
+        const full = node(c.createGain()), [hpIn, hp] = biq("highpass", 180, 2), noBass = node(c.createGain());
+        src.connect(full); src.connect(hpIn); hp.connect(noBass); full.connect(sum); noBass.connect(sum);
+        curve(full.gain, t => band(t)[0]); curve(noBass.gain, t => 1 - band(t)[0]);
+      }
+      let last = sum;
+      if (filt) { const f = node(c.createBiquadFilter()); f.type = filt[0]; f.Q.value = BW; curve(f.frequency, filt[1]); last.connect(f); last = f; }
+      const g = node(c.createGain()); curve(g.gain, gain); last.connect(g); g.connect(out);
+      src.start(when + Math.max(0, at - from), Math.max(0, from - at));
+    };
+    const fA = flt === "lp_lp" ? ["lowpass", sweep(18000, 250, half, end)] : flt === "lp_hp" || flt === "hp_hp" ? ["highpass", sweep(30, 2000, half, end)]
+      : flt === "hp_half" ? ["highpass", sweep(30, 400, half, end)] : null;
+    const fB = flt === "lp_lp" || flt === "lp_hp" ? ["lowpass", sweep(250, 18000, s0, half)] : flt === "hp_hp" ? ["highpass", sweep(1200, 20, s0, half)] : null;
+    track(bufA, 0, MX.gA, MX.bandA, fA);
+    track(bufB, pv.vol === "hard" ? end : st.b_at, MX.gB, MX.bandB, fB);
+    this.timer = setTimeout(() => { if (this.token && !this.paused) { this.stop(); this.paused = true; this.pos = 0; oEnded(); } }, (dur + 0.08) * 1000);
+    oLoop();
+  },
+};
+document.addEventListener("visibilitychange", () => { if (document.hidden && PL.mode === "live" && !PL.paused) PL.pause(); });
+if (/[?&]tctest\b/.test(location.search)) window.TC_TEST = { heard, PL, OPTS: () => OPTS, ui, stemBuf, setCtx: c => { actx = c; } };   // for checking the live mix against the PC's render
+audio.addEventListener("play", () => { if (PL.mode === "mp3") { PL.paused = false; oControls(); } });
+audio.addEventListener("pause", () => { if (PL.mode === "mp3") { PL.paused = true; oControls(); } });
+
+// the styles strip: with live mixing every style plays at once; without it, styles are asked of your PC
+function renderStyles(o) {
+  const el = $("oTry"), sug = (META.feedback && META.feedback.suggest) || [];
+  if (!o) { el.hidden = true; el.innerHTML = ""; return; }
+  el.hidden = false;
+  const others = sug.filter(x => !(x.mix || /^mix_/.test(x.id)));
+  if (liveOK(o)) {
+    const cur = STYLE_SPEC[ui.style] ? ui.style : "tower", fam0 = fam(o);
+    const ratedIn = s => { if (s === "tower") return rating(o.id); const v = (OP ? OP.opts : []).find(x => x.data.variant && x.data.variant.mix === s && x.data.variant.base === fam0); return v ? rating(v.id) : null; };
+    const tried = ui.cmp ? ui.cmp.tried : [];
+    el.innerHTML = `<span class="lb">Styles</span>` + STYLES.map(s => { const r = ratedIn(s), ti = tried.indexOf(o.id + "|" + s);
+      return `<button type="button" data-style="${s}" aria-pressed="${s === cur}" class="${s === cur ? "on" : ""}" title="${esc(STYLE_HINT[s])}">${r ? `<i class="rd" style="background:${OR[r - 1][0]}"></i>` : ""}${esc(MIXN[s])}${ti >= 0 ? `<span class="nb">${ti + 1}</span>` : ""}</button>`; }).join("")
+      + (others.length ? `<span class="lb" style="margin-left:6px">${ADMIN ? "Try" : "Suggest"}</span>` + others.map(x => tryChip(o, x)).join("") : "");
+    el.querySelectorAll("[data-style]").forEach(b => b.onclick = () => { if (ui.cmp) ui.cmp.run = false; oStyle(b.dataset.style, true); });
+  } else {
+    renderTry(o);
+    return;
+  }
+  bindTry(o, el, sug);
+  const on = el.querySelector(".on"); if (on && on.scrollIntoView && !el.dataset.scrolled) { on.scrollIntoView({ block: "nearest", inline: "nearest" }); }
+}
+function tryChip(o, x) {
+  const r = mine().filter(q => q.option_id === o.id && q.kind === "suggest" && (q.suggest || []).includes(x.id)).pop(), a = r ? (r.synced_at ? "making" : "sent") : null;
+  const name = x.label.replace(/^Try (an? )?/, "").replace(/^./, c => c.toUpperCase());
+  return `<button type="button" data-try="${esc(x.id)}" class="${a ? "sent" : ""}" title="${esc(x.what || "")}"${a ? ' aria-disabled="true"' : ""}>${a ? (a === "making" ? "Making: " : "Sent: ") : ""}${esc(name)}</button>`;
+}
+function bindTry(o, el, sug) {
+  el.querySelectorAll("[data-try]").forEach(b => b.onclick = async () => {
+    if (b.getAttribute("aria-disabled") === "true") return toast(ADMIN ? "Already asked: it joins the row when your PC has made it." : "Already sent to Bill.");
+    const id = b.dataset.try, x = sug.find(q => q.id === id);
+    if (await send({ option_id: o.id, kind: "suggest", suggest: [id], note: null })) {
+      toast(ADMIN ? `${x.label}: your PC makes it on its next sync, then it joins the row to compare.` : "Sent to Bill.");
+      renderOne();
+    }
+  });
+}
+function oStyle(s, play) {
+  const o = OPTS[ui.sel], keep = PL.is(o) && !PL.paused ? PL.time : null;
+  ui.style = s; lsSet("tcr-style", s);
+  renderOne();
+  if (play && o) { ui.heard = ui.heard || new Set(); ui.heard.add(ui.cp); PL.start(o, keep != null ? keep : geom(heard(o)).bIn); }   // switch styles in place, to hear the difference
+}
+
 // audio
 function oSelect(id, play) {
   ui.sel = id; renderOne();
   if (play) oLoadPlay(OPTS[id]);
 }
-async function oLoadPlay(o, from) {
+function oLoadPlay(o, from) {
   if (!o) return;
-  const gm = geom(o), t0 = from != null ? from : gm ? gm.bIn : 0;
-  if (audio.dataset.id !== o.id) {
-    const url = await urlFor(o.preview_path);
-    if (!url) return toast("Couldn't get the preview. Try again in a moment.");
-    if (ui.sel !== o.id) return;
-    audio.preload = "auto"; audio.src = url; audio.dataset.id = o.id;
-  }
-  const seek = () => { try { audio.currentTime = t0; } catch (e) {} };
-  if (audio.readyState >= 1) seek(); else audio.addEventListener("loadedmetadata", seek, { once: true });
-  audio.play().catch(() => toast("Tap play to start"));   // straight away, so a phone still counts it as your tap
+  const gm = geom(heard(o));
   ui.heard = ui.heard || new Set(); ui.heard.add(ui.cp);
+  PL.start(o, from != null ? from : gm ? gm.bIn : 0);
+}
+// what Compare steps through: the ways in the row, or, when there's one way that mixes live, the styles
+function cmpItems() {
+  const W = OP ? ways(OP) : [];
+  if (W.length > 1 || !W.length || !liveOK(W[0])) return W.map(o => ({ id: o.id, style: null }));
+  return STYLES.map(s => ({ id: W[0].id, style: s }));
 }
 function oHear() {
-  // the first time you hear a pair, Compare plays its ways in turn
-  const W = OP ? ways(OP) : [];
+  ctx();   // a tap: lets the phone play live mixes from here on
+  const items = cmpItems();
   ui.heard = ui.heard || new Set();
-  if (OP && !ui.heard.has(OP.key) && !ui.cmp && W.length > 1) return oCompare(0);
-  if (audio.dataset.id === ui.sel && audio.readyState >= 1) { audio.play().catch(() => toast("Tap play to start")); return; }
-  oLoadPlay(OPTS[ui.sel]);
+  if (OP && !ui.heard.has(OP.key) && !ui.cmp && items.length > 1) return oCompare(0);
+  const o = OPTS[ui.sel]; if (!o) return;
+  if (PL.is(o) && PL.mode === "mp3" && audio.readyState >= 1) { PL.paused = false; audio.play().catch(() => toast("Tap play to start")); return; }
+  if (PL.is(o) && PL.mode === "live" && PL.pos > 0) return PL.start(o, PL.pos);
+  oLoadPlay(o);
 }
 function oSeek(t, play) {
   const o = OPTS[ui.sel]; if (!o) return;
-  if (audio.dataset.id !== o.id) return oLoadPlay(o, t);
-  try { audio.currentTime = Math.max(0, t); } catch (e) {}
-  if (play && audio.paused) audio.play().catch(() => {});
+  if (!PL.is(o)) return oLoadPlay(o, t);
+  if (PL.paused && play) return PL.start(o, Math.max(0, t));
+  PL.seek(Math.max(0, t));
   oDraw();
 }
+function cmpGo(it) {
+  if (it.style) { ui.style = it.style; lsSet("tcr-style", it.style); }
+  oSelect(it.id, true);
+}
 function oCompare(bi) {
-  const W = ways(OP), n = Math.max(2, Math.min(5, SET.n)), seq = W.slice(bi * n, bi * n + n).map(o => o.id);
+  const items = cmpItems(), n = Math.max(2, Math.min(5, SET.n)), seq = items.slice(bi * n, bi * n + n);
   if (!seq.length) return;
-  ui.bi = bi; ui.cmp = { run: true, seq, i: 0, tried: ui.cmp ? ui.cmp.tried : [] };
-  ui.cmp.tried.push(seq[0]);
-  oSelect(seq[0], true);
+  const key = it => it.id + "|" + (it.style || "");
+  ui.bi = cmpItems()[0] && cmpItems()[0].style ? 0 : bi;
+  ui.cmp = { run: true, seq, i: 0, bi, tried: ui.cmp ? ui.cmp.tried : [], key };
+  ui.cmp.tried.push(key(seq[0]).replace(/\|$/, ""));
+  cmpGo(seq[0]);
 }
 function oCompareBtn() {
+  ctx();
   const c = ui.cmp;
   if (!c) return oCompare(0);
   if (c.run) { c.run = false; renderOne(); return; }
-  oCompare((ui.bi || 0) + 1);
+  oCompare((c.bi || 0) + 1);
 }
 function oNextInCompare() {
   const c = ui.cmp; c.i++;
-  if (c.i >= c.seq.length) { c.run = false; audio.pause(); renderOne(); return; }
-  c.tried.push(c.seq[c.i]); oSelect(c.seq[c.i], true);
+  if (c.i >= c.seq.length) { c.run = false; PL.pause(); renderOne(); return; }
+  c.tried.push(c.key(c.seq[c.i]).replace(/\|$/, "")); cmpGo(c.seq[c.i]);
 }
-function oEnded() { if (ui.cmp && ui.cmp.run) return oNextInCompare(); const o = OPTS[ui.sel], gm = o && geom(o); if (SET.loop && gm) oSeek(gm.bIn, true); else oControls(); }
+function oEnded() { if (ui.cmp && ui.cmp.run) return oNextInCompare(); const o = OPTS[ui.sel], gm = o && geom(heard(o)); if (SET.loop && gm) { PL.paused = true; PL.start(o, gm.bIn); } else { PL.paused = true; PL.pos = 0; oControls(); } }
 let oRaf = 0;
 function oLoop() {
   if (oRaf) return;
   const step = () => {
     oRaf = 0;
-    if (ui.view !== "one" || audio.paused) { oDraw(); return; }
+    if (ui.view !== "one" || PL.paused) { oDraw(); return; }
     // each preview plays to its end (B's landing included); Loop and Compare take over when it ends (oEnded)
     oDraw(); oRaf = requestAnimationFrame(step);
   };
@@ -1136,10 +1337,10 @@ function oLoop() {
 let oCache = null;
 function oDraw(full) {
   const cv = $("oWave"); if (!cv || ui.view !== "one") return;
-  const o = OPTS[ui.sel], gm = o && geom(o);
+  const o0 = OPTS[ui.sel], o = o0 && heard(o0), gm = o && geom(o);
   const { g, w, h } = canvasOf(cv);
   const wa = gm && waveGet(o.a), wb = gm && waveGet(o.b);
-  const key = [o && o.id, w, h, SET.skin, SET.pal, wa && wa.state, wb && wb.state].join("|");
+  const key = [o && o.id, o && o.live, w, h, SET.skin, SET.pal, wa && wa.state, wb && wb.state].join("|");
   if (full || !oCache || oCache.key !== key) {
     const off = document.createElement("canvas"), r = window.devicePixelRatio || 1;
     off.width = Math.round(w * r); off.height = Math.round(h * r);
@@ -1149,8 +1350,8 @@ function oDraw(full) {
     oCache = { key, off };
   }
   g.clearRect(0, 0, w, h); g.drawImage(oCache.off, 0, 0, w, h);
-  if (gm && audio.dataset.id === o.id) {
-    const t = audio.currentTime || 0, x = Math.round(t / gm.secs * w) + .5;
+  if (gm && PL.is(o0)) {
+    const t = PL.time || 0, x = Math.round(t / gm.secs * w) + .5;
     g.strokeStyle = "#FFFFFF"; g.lineWidth = 1.5; g.beginPath(); g.moveTo(x, 16); g.lineTo(x, h); g.stroke();
     $("oTime").textContent = fmt(t);
   } else if (gm) $("oTime").textContent = fmt(gm.bIn);
@@ -1161,7 +1362,7 @@ const EXIT_FX = ["echo", "reverb", "brake", "loop_roll"];
 const FXN = { echo: "echo out", reverb: "reverb wash", brake: "brake", loop_roll: "loop roll", flanger: "flanger on A", filter_sweep: "filter sweep on A" };
 const PALS = { neon: { name: "Neon City", v: "#39FF14", e: "#FF00FF", f: "#00F0FF" }, synth: { name: "Synthwave", v: "#FF2E97", e: "#00E5FF", f: "#FFE14D" }, outrun: { name: "Outrun", v: "#FF6EC7", e: "#B967FF", f: "#FF9E2C" } };
 SET.pal = PALS[lsGet("tcr-pal")] ? lsGet("tcr-pal") : "neon";
-const MIXN = { glide: "Glide", cruise: "Cruise", climb: "Climb", formation: "Formation", descent: "Descent", handoff: "Hand-off", merge: "Merge", direct: "Direct" };
+const MIXN = { tower: "Tower", glide: "Glide", cruise: "Cruise", climb: "Climb", formation: "Formation", descent: "Descent", handoff: "Hand-off", merge: "Merge", direct: "Direct" };
 function mixOf(o, gm) {
   const pv = o.data.pv || {}, fx = pv.fx || [], ex = fx.some(f => EXIT_FX.includes(f)), vol = pv.vol, eq = pv.eq, flt = pv.flt;
   const cut = vol ? vol === "hard" : pv.style === "cut";
@@ -1267,13 +1468,13 @@ function oRate(n) {
   if (!ui.sel) return;
   if (ui.cmp && ui.cmp.run) ui.cmp.run = false;
   if (ui.pend) { ui.pend.r = n; oPrompt(); return; }
-  ui.pend = { id: ui.sel, r: n, t0: Date.now() };
+  ui.pend = { id: ui.sel, r: n, t0: Date.now(), style: liveOK(OPTS[ui.sel]) ? (STYLE_SPEC[ui.style] ? ui.style : "tower") : null };
   ui.pend.timer = setInterval(() => { if (!ui.pend) return; if (Date.now() - ui.pend.t0 >= 3000) oCommit(); else oPrompt(); }, 200);
   oPrompt(); oControls();
 }
 async function oCommit() {
   const p = ui.pend; if (!p) return; clearInterval(p.timer); ui.pend = null;
-  const row = await send({ option_id: p.id, kind: "rate", rating: p.r, note: null, symptoms: [], good: [], suggest: [] });
+  const row = await send(Object.assign({ option_id: p.id, kind: "rate", rating: p.r, note: null, symptoms: [], good: [], suggest: [] }, p.style ? { style: p.style } : {}));
   if (!row) { renderOne(); return; }
   oNextPair();
 }
@@ -1283,7 +1484,7 @@ function oDetails() {
   ui.sheetReturn = $("oRates"); openRate(p.id, p.r); ui.afterRate = oNextPair;
 }
 function oNextPair() {
-  const was = ui.cp; audio.pause();
+  const was = ui.cp; PL.stop(); PL.paused = true; PL.pos = 0; ui.style = "tower";
   const all = pairings(); OL = pairsIn(ui.pl, all);
   const nx = OL.find(p => p.key !== was && needs(p));
   ui.cp = nx ? nx.key : null; ui.sel = null; ui.bi = 0; ui.cmp = null;
@@ -1306,7 +1507,7 @@ function plSheet() {
   sheet(`<div style="display:flex;justify-content:space-between;align-items:center"><h2 class="h" id="shTitle">Playlist</h2><button type="button" class="btn" data-close>Close</button></div>
     <div class="small muted">Reviewed / pairs scoring ${SET.thr} or higher</div><div class="o-list">${rows}</div>`);
   $("sheetRoot").querySelectorAll("[data-pl]").forEach(b => b.onclick = () => {
-    ui.pl = b.dataset.pl; lsSet("tcr-pl", ui.pl); audio.pause(); ui.cp = null; ui.sel = null; ui.cmp = null; ui.bi = 0; closeSheet(); renderOne();
+    ui.pl = b.dataset.pl; lsSet("tcr-pl", ui.pl); PL.stop(); PL.paused = true; ui.cp = null; ui.sel = null; ui.cmp = null; ui.bi = 0; closeSheet(); renderOne();
   });
 }
 function waysSheet() {
@@ -1344,7 +1545,7 @@ function setSheet() {
       <div style="display:flex;gap:8px;flex-wrap:wrap">${ADMIN ? `<button type="button" class="btn" id="sPeople">People</button>` : ""}<a class="btn" href="./" style="display:inline-grid;place-items:center;text-decoration:none;color:var(--ink)">← Festival Radar</a></div></div>`);
   const root = $("sheetRoot");
   $("sThr").oninput = e => { SET.thr = +e.target.value; $("sThrV").textContent = SET.thr; lsSet("tcr-thr", SET.thr); };
-  $("sThr").onchange = () => { audio.pause(); ui.cp = null; ui.cmp = null; ui.bi = 0; renderOne(); };
+  $("sThr").onchange = () => { PL.stop(); PL.paused = true; ui.cp = null; ui.cmp = null; ui.bi = 0; renderOne(); };
   const step = d => { SET.n = Math.max(2, Math.min(5, SET.n + d)); $("sN").textContent = SET.n; lsSet("tcr-n", SET.n); ui.bi = 0; renderOne(); };
   $("sDec").onclick = () => step(-1); $("sInc").onclick = () => step(1);
   root.querySelectorAll("[data-skin]").forEach(b => b.onclick = () => { SET.skin = b.dataset.skin; lsSet("tcr-skin", SET.skin); root.querySelectorAll("[data-skin]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); oDraw(true); });
@@ -1353,7 +1554,7 @@ function setSheet() {
   if ($("sPeople")) $("sPeople").onclick = () => { closeSheet(); ui.sheetReturn = $("oGear"); people(); };
 }
 function setView(v) {
-  ui.view = v; lsSet("tcr-view", v); audio.pause();
+  ui.view = v; lsSet("tcr-view", v); PL.stop(); PL.paused = true;
   document.body.classList.toggle("one", v === "one");
   $("main").dataset.built = ""; render();
   window.scrollTo({ top: 0 });
