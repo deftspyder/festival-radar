@@ -1125,7 +1125,7 @@ function heard(o) {
   const bt = st.beat_t, n = bt.length - 1, s0 = st.b_at, end = bt[n];
   const half = vol === "hard" ? end : bt[Math.round(n * (eq === "end" ? 0.9 : 0.5))];
   const rate = song(o.a).bpm / song(o.b).bpm, bE = pv.b_src0 != null ? pv.b_src0 : o.data.b_entry_t;
-  const v = Object.assign({}, pv, { secs: st.secs, b_starts_at: s0, swap_at: half, a_out_at: end, fx: [], mix: style === "tower" ? null : style,
+  const v = Object.assign({}, pv, { secs: st.secs, b_starts_at: s0, swap_at: half, a_out_at: end, fx: [], mix: style === "tower" ? (o.data.kind === "layer" ? "layer" : null) : style,
     vol, eq, flt, style: vol === "hard" ? "cut" : "blend", b_src0: vol === "hard" && bE != null ? bE - (end - s0) / rate : bE });
   return Object.assign({}, o, { data: Object.assign({}, o.data, { pv: v }), live: style });
 }
