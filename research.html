@@ -219,6 +219,10 @@ body.one .toast { top: calc(env(safe-area-inset-top, 0px) + 64px); bottom: auto 
 .o-try button { position: relative }
 .o-try .rd { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px }
 .o-try .nb { position: absolute; top: -5px; right: -4px; width: 16px; height: 16px; border-radius: 999px; background: #39FF14; color: #0E0F13; font: 700 10px/16px var(--mono); text-align: center }
+.o-try.why { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; gap: 5px }
+.o-try.why .lb { width: 100% } .o-try.why button { height: 30px; padding: 0 10px; font-size: 12px }
+@media (max-height: 720px) {   /* short phones: one row you swipe, so the ratings stay on screen */
+  .o-try.why { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px; padding: 0 16px } .o-try.why .lb { width: auto } }
 .o-try .lb { flex: none; align-self: center; font-size: 11.5px; color: #B8B8C2; white-space: nowrap }
 .o-tr { flex: none; display: flex; align-items: flex-start; justify-content: center; gap: 20px }
 .o-tr .c { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 10px; font-size: 11px; color: #B8B8C2; width: 58px; text-align: center }
@@ -713,6 +717,7 @@ async function sendRate(skip) {
   const low = fv.r <= 3, note = skip ? "" : (($("fbNote") || {}).value || "").trim();
   const row = { option_id: fv.id, kind: "rate", rating: fv.r, note: note || null,
     symptoms: skip || !low ? [] : [...fv.chips], good: skip || low ? [] : [...fv.good], suggest: skip || fv.r !== 4 ? [] : [...fv.sugg] };
+  if (fv.style) row.style = fv.style;
   const ok = await send(row);
   if (!ok) { fv.sent = false; return; }
   const after = ui.afterRate;
@@ -1064,7 +1069,7 @@ function oPrompt() {
   if (!o) { el.textContent = ""; return; }
   const W = OP ? ways(OP) : [], nm = liveOK(o) ? MIXN[STYLE_SPEC[ui.style] ? ui.style : "tower"] : wayName(o, W[0] === o && !o.data.variant)[0];
   if (ui.pend) {
-    const left = Math.max(1, 3 - Math.floor((Date.now() - ui.pend.t0) / 1000)), R = RATE[ui.pend.r - 1];
+    const left = Math.max(1, Math.ceil((ui.pend.wait - (Date.now() - ui.pend.t0)) / 1000)), R = RATE[ui.pend.r - 1];
     el.innerHTML = `<span><b style="color:${OR[ui.pend.r - 1][0]}">${R.l === "Go-around" ? "Go around" : R.l}</b> with ${esc(nm)} · next in ${left}s</span><button type="button" id="oDet">Details</button><button type="button" id="oUndo">Undo</button>`;
     $("oDet").onclick = oDetails; $("oUndo").onclick = oUndo;
     return;
@@ -1252,7 +1257,9 @@ audio.addEventListener("pause", () => { if (PL.mode === "mp3") { PL.paused = tru
 
 // the styles strip: with live mixing every style plays at once; without it, styles are asked of your PC
 function renderStyles(o) {
+  if (ui.pend && LOW(ui.pend.r) && o) return renderWhy();
   const el = $("oTry"), sug = (META.feedback && META.feedback.suggest) || [];
+  el.classList.remove("why");
   if (!o) { el.hidden = true; el.innerHTML = ""; return; }
   el.hidden = false;
   const others = sug.filter(x => !(x.mix || /^mix_/.test(x.id)));
@@ -1499,21 +1506,39 @@ function waveBody(c, w, h, o, gm, wa, wb) {
 function oRate(n) {
   if (!ui.sel) return;
   if (ui.cmp && ui.cmp.run) ui.cmp.run = false;
-  if (ui.pend) { ui.pend.r = n; oPrompt(); return; }
-  ui.pend = { id: ui.sel, r: n, t0: Date.now(), style: liveOK(OPTS[ui.sel]) ? (STYLE_SPEC[ui.style] ? ui.style : "tower") : null };
-  ui.pend.timer = setInterval(() => { if (!ui.pend) return; if (Date.now() - ui.pend.t0 >= 3000) oCommit(); else oPrompt(); }, 200);
-  oPrompt(); oControls();
+  if (ui.pend) { ui.pend.r = n; whyWait(); oPrompt(); renderStyles(OPTS[ui.sel]); return; }
+  ui.pend = { id: ui.sel, r: n, t0: Date.now(), why: new Set(), style: liveOK(OPTS[ui.sel]) ? (STYLE_SPEC[ui.style] ? ui.style : "tower") : null };
+  whyWait();
+  ui.pend.timer = setInterval(() => { if (!ui.pend) return; if (Date.now() - ui.pend.t0 >= ui.pend.wait) oCommit(); else oPrompt(); }, 200);
+  oPrompt(); oControls(); renderStyles(OPTS[ui.sel]);
+}
+// a low rating asks what went wrong (the chips replace the styles strip for a moment): your PC needs the why
+// to know what to fix; without it, all it can do is push the pair down
+const LOW = r => r <= 3;
+function whyWait() { const p = ui.pend; if (!p) return; if (!LOW(p.r)) p.why.clear(); p.wait = LOW(p.r) ? 7000 : 3000; p.t0 = Date.now(); }
+const WHY_C = { preview: "#ffb547", mix: "#3fe0c5", songs: "#c58cff", other: "#B8B8C2" };   // the preview, the mix, the songs themselves
+function renderWhy() {
+  const el = $("oTry"), p = ui.pend, sy = ((META.feedback || {}).symptoms || []);
+  el.hidden = false; el.classList.add("why");
+  el.innerHTML = `<span class="lb" style="color:#F4F4F8">What went wrong?</span>` + sy.map(x => `<button type="button" data-why="${esc(x.id)}" aria-pressed="${p.why.has(x.id)}" class="${p.why.has(x.id) ? "on" : ""}" style="border-color:${WHY_C[x.group] || "#3A3B46"}">${esc(x.id === "unsure" ? "Not sure" : x.label)}</button>`).join("");
+  el.querySelectorAll("[data-why]").forEach(b => b.onclick = () => {
+    const k = b.dataset.why, on = !p.why.has(k);
+    if (k === "unsure" && on) p.why.clear(); else if (on) p.why.delete("unsure");
+    on ? p.why.add(k) : p.why.delete(k);
+    p.t0 = Date.now(); p.wait = 4000;     // a few more seconds after each tap, to pick another
+    renderWhy(); oPrompt();
+  });
 }
 async function oCommit() {
   const p = ui.pend; if (!p) return; clearInterval(p.timer); ui.pend = null;
-  const row = await send(Object.assign({ option_id: p.id, kind: "rate", rating: p.r, note: null, symptoms: [], good: [], suggest: [] }, p.style ? { style: p.style } : {}));
+  const row = await send(Object.assign({ option_id: p.id, kind: "rate", rating: p.r, note: null, symptoms: LOW(p.r) ? [...p.why] : [], good: [], suggest: [] }, p.style ? { style: p.style } : {}));
   if (!row) { renderOne(); return; }
   oNextPair();
 }
-function oUndo() { if (ui.pend) clearInterval(ui.pend.timer); ui.pend = null; oPrompt(); }
+function oUndo() { if (ui.pend) clearInterval(ui.pend.timer); ui.pend = null; oPrompt(); renderStyles(OPTS[ui.sel]); }
 function oDetails() {
-  const p = ui.pend; if (!p) return; clearInterval(p.timer); ui.pend = null; oPrompt();
-  ui.sheetReturn = $("oRates"); openRate(p.id, p.r); ui.afterRate = oNextPair;
+  const p = ui.pend; if (!p) return; clearInterval(p.timer); ui.pend = null; oPrompt(); renderStyles(OPTS[ui.sel]);
+  ui.sheetReturn = $("oRates"); openRate(p.id, p.r); if (ui.fv) { ui.fv.style = p.style; if (p.why) { p.why.forEach(k => ui.fv.chips.add(k)); rateSheet(); } } ui.afterRate = oNextPair;
 }
 function oNextPair() {
   const was = ui.cp; PL.stop(); PL.paused = true; PL.pos = 0; ui.style = "tower";
