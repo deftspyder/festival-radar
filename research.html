@@ -921,7 +921,7 @@ function ways(p) {
   const pl = p.opts.filter(o => playable(o) && !styleOnly(o)), w = pl.filter(wanted);
   return [...w, ...pl.filter(o => !w.includes(o))];
 }
-const KIND = { section: "Section", end: "End to start", layer: "Layer" };
+const KIND = { section: "Section", end: "End to start", layer: "Vocal over" };
 function wayName(o, first) {
   const v = o.data.variant;
   if (v && v.mix && MIXN[v.mix]) return [MIXN[v.mix], `v${v.n}${v.what && v.what !== MIXN[v.mix] ? " · " + v.what.replace(MIXN[v.mix] + ", ", "") : ""}`];
@@ -1089,7 +1089,9 @@ const liveOK = o => !!o && hasStems(o) && !((o.data.pv || {}).fx || []).length &
 // the option as you hear it: with live mixing, its timing and curves follow the chosen style
 function heard(o) {
   if (!liveOK(o)) return o;
-  const style = STYLE_SPEC[ui.style] ? ui.style : "tower", [vol, eq, flt] = STYLE_SPEC[style], pv = o.data.pv, st = pv.st;
+  const style = STYLE_SPEC[ui.style] ? ui.style : "tower", pv = o.data.pv, st = pv.st;
+  // a Vocal over spot's own mix (Tower) lets both parts play at full for a long while, bass swap near the end
+  const [vol, eq, flt] = style === "tower" && o.data.kind === "layer" ? ["overlap", "end", null] : STYLE_SPEC[style];
   const bt = st.beat_t, n = bt.length - 1, s0 = st.b_at, end = bt[n];
   const half = vol === "hard" ? end : bt[Math.round(n * (eq === "end" ? 0.9 : 0.5))];
   const rate = song(o.a).bpm / song(o.b).bpm, bE = pv.b_src0 != null ? pv.b_src0 : o.data.b_entry_t;
@@ -1362,7 +1364,7 @@ const EXIT_FX = ["echo", "reverb", "brake", "loop_roll"];
 const FXN = { echo: "echo out", reverb: "reverb wash", brake: "brake", loop_roll: "loop roll", flanger: "flanger on A", filter_sweep: "filter sweep on A" };
 const PALS = { neon: { name: "Neon City", v: "#39FF14", e: "#FF00FF", f: "#00F0FF" }, synth: { name: "Synthwave", v: "#FF2E97", e: "#00E5FF", f: "#FFE14D" }, outrun: { name: "Outrun", v: "#FF6EC7", e: "#B967FF", f: "#FF9E2C" } };
 SET.pal = PALS[lsGet("tcr-pal")] ? lsGet("tcr-pal") : "neon";
-const MIXN = { tower: "Tower", glide: "Glide", cruise: "Cruise", climb: "Climb", formation: "Formation", descent: "Descent", handoff: "Hand-off", merge: "Merge", direct: "Direct" };
+const MIXN = { tower: "Tower", layer: "Vocal over", glide: "Glide", cruise: "Cruise", climb: "Climb", formation: "Formation", descent: "Descent", handoff: "Hand-off", merge: "Merge", direct: "Direct" };
 function mixOf(o, gm) {
   const pv = o.data.pv || {}, fx = pv.fx || [], ex = fx.some(f => EXIT_FX.includes(f)), vol = pv.vol, eq = pv.eq, flt = pv.flt;
   const cut = vol ? vol === "hard" : pv.style === "cut";
