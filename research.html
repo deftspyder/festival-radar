@@ -1053,7 +1053,10 @@ function renderOne() {
   if (o) {
     const r = rating(o.id), why = (o.data.why || {}).short || "";
     const ro = liveOK(o) && ui.style && ui.style !== "tower" ? null : r;
-    $("oLine").innerHTML = `${mixWords(heard(o))}${why ? " · " + esc(why) : ""}${ro ? ` · <span style="color:${OR[ro - 1][0]}">rated ${RATE[ro - 1].l}</span>` : ""}${o.data.beats_off ? ` · <span style="color:#ffb0a8">kicks don't line up in this preview</span>` : ""}`;
+    // just the name of what's playing; what each style does is in Settings > Styles
+    const hp = heard(o).data.pv || {}, v = o.data.variant;
+    const nm = liveOK(o) ? MIXN[hp.mix] || MIXN.tower : v ? (v.mix && MIXN[v.mix]) || v.what || "" : MIXN[hp.mix] || (hp.style === "cut" ? "Quick cut" : MIXN.tower);
+    $("oLine").innerHTML = `<b>${esc(nm)}</b>${ro ? ` · <span style="color:${OR[ro - 1][0]}">rated ${RATE[ro - 1].l}</span>` : ""}${o.data.beats_off ? ` · <span style="color:#ffb0a8">beats off</span>` : ""}`;
     const A = song(o.a), B = song(o.b);
     $("oScore").textContent = `Score ${Math.round(o.score)}`;
     $("oA").innerHTML = `<b>A</b>${esc(shortT(A))} · ${esc(A.cam || "")} · ${Math.round(A.bpm)}`;
@@ -1136,7 +1139,7 @@ const STYLE_SPEC = {   // volume, EQ, filter (null = TCM's own blend: B in to th
   formation: ["overlap", "band3", null], descent: ["fifo", "center", "hp_hp"], handoff: ["center", null, null],
   merge: ["ficut", "end", "hp_half"], direct: ["hard", null, null] };
 const STYLE_HINT = { tower: "B in, bass swap halfway, A out", glide: "Smooth fade across the overlap", cruise: "B opens from a low-pass, A closes into one", climb: "B opens up, A thins out, bass swap late", formation: "Highs, mids, then bass hand over",
-  descent: "Winds down", handoff: "Cut halfway", merge: "Fade, then cut", direct: "Straight cut" };
+  descent: "B fills in from a high-pass, A fades and thins away", handoff: "A cut, B in, halfway", merge: "B fades in, A thins out, then cuts", direct: "A plays to the end, B lands on the downbeat" };
 const liveOK = o => !!o && hasStems(o) && !((o.data.pv || {}).fx || []).length && !(o.data.variant && o.data.variant.mix);
 // the option as you hear it: with live mixing, its timing and curves follow the chosen style
 function heard(o) {
@@ -1641,6 +1644,9 @@ function setSheet() {
       <div class="o-step"><button type="button" id="sDec" aria-label="Fewer">−</button><b id="sN">${SET.n}</b><button type="button" id="sInc" aria-label="More">+</button></div></div>
     <div class="o-set"><div class="t">Waveform style</div>
       <div class="o-skins">${Object.entries(SKINS).map(([k, S]) => `<button type="button" class="o-skin" data-skin="${k}" aria-pressed="${SET.skin === k}" aria-label="${S.label}" style="--sp:${S.p}">${S.c.map(c => `<i style="background:${c}"></i>`).join("")}${S.name}</button>`).join("")}</div></div>
+    <div class="o-set"><div class="t">Styles</div>
+      <div style="display:grid;grid-template-columns:auto auto 1fr;gap:6px 10px;align-items:baseline;font-size:12.5px">${STYLES.map(k => `<b style="font:700 12px var(--mono);color:#F4F4F8">${MIXC[k]}</b><span style="color:#F4F4F8;white-space:nowrap">${esc(MIXN[k])}</span><span class="d">${esc(STYLE_HINT[k])}</span>`).join("")}</div>
+      <div class="d">On the waveform: <span style="color:${PALS[SET.pal].v}">volume</span> · <span style="color:${PALS[SET.pal].e}">bass (EQ)</span> · <span style="color:${PALS[SET.pal].f}">filter</span></div></div>
     <div class="o-set"><div class="t">Curve colours</div><div class="d">Volume, bass (EQ) and filter lines over the waveform.</div>
       <div class="o-skins">${Object.entries(PALS).map(([k, P]) => `<button type="button" class="o-skin" data-pal="${k}" aria-pressed="${SET.pal === k}" style="--sp:${P.v};font-family:var(--body);letter-spacing:0;font-weight:600">${[P.v, P.e, P.f].map(c => `<i style="background:${c};height:16px;width:6px"></i>`).join("")}${P.name}</button>`).join("")}</div></div>
     <div class="o-set"><div class="t">Every pairing</div><div class="d">The full list: compare cards, ideas for the next try, and going back to ones you've rated.</div>
