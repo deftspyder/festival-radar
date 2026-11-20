@@ -1439,7 +1439,7 @@ SET.pal = PALS[lsGet("tcr-pal")] ? lsGet("tcr-pal") : "neon";
 // the styles by what they are on a mixer (19 Nov 2026: plain names replaced Tower, Glide, Cruise and the rest)
 const MIXN = { tower: "Bass swap", layer: "Vocal over", glide: "Crossfade", cruise: "Low-pass blend", climb: "Filter build", formation: "3-band blend",
   descent: "High-pass blend", handoff: "Hard swap", merge: "Fade in, cut out", direct: "Drop swap" };
-const MIXC = { tower: "BSW", glide: "XFD", cruise: "LPF", climb: "BLD", formation: "3BD", descent: "HPF", handoff: "HSW", merge: "FCO", direct: "DSW" };
+const MIXC = { tower: "BSW", glide: "XFD", cruise: "LPB", climb: "FBD", formation: "3BD", descent: "HPB", handoff: "HSW", merge: "FCO", direct: "DSW" };   // the names' initials
 function mixOf(o, gm) {
   const pv = o.data.pv || {}, fx = pv.fx || [], ex = fx.some(f => EXIT_FX.includes(f)), vol = pv.vol, eq = pv.eq, flt = pv.flt;
   const cut = vol ? vol === "hard" : pv.style === "cut";
