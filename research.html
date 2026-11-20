@@ -229,6 +229,10 @@ body.one .toast { top: calc(env(safe-area-inset-top, 0px) + 64px); bottom: auto 
 .o-why button[aria-pressed="true"] { background: #F4F4F8; color: #0E0F13; border-color: #F4F4F8; font-weight: 600 }
 .o-why { margin-top: 4px }
 @media (max-height: 720px) { body.picking .o-tr { display: none } .o-why button { height: 27px } .o-why .col { gap: 4px } }   /* short phones: the reasons take the transport's place for a moment */
+.o-try.codes { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 5px; overflow: visible; margin: 0; padding: 0 }
+.o-try.codes button { padding: 0; height: 36px; justify-content: center; min-width: 0; font: 700 12.5px var(--mono); letter-spacing: .03em }
+.o-try.codes .rd { position: absolute; left: 4px; top: 4px; margin: 0; width: 6px; height: 6px }
+@media (max-width: 360px) { .o-try.codes { gap: 3px } .o-try.codes button { font-size: 11px; letter-spacing: 0 } }
 .o-try .lb { flex: none; align-self: center; font-size: 11.5px; color: #B8B8C2; white-space: nowrap }
 .o-tr { flex: none; display: flex; align-items: flex-start; justify-content: center; gap: 14px }
 #oBars b { font: 700 16px var(--mono) }
@@ -1043,8 +1047,8 @@ function renderOne() {
     return `<button type="button" class="o-way${map ? " mapped" : ""}" data-way="${esc(w.id)}" aria-pressed="${w.id === ui.sel}" aria-label="${esc(nm + ", " + h)}">${r ? `<span class="rt" style="background:${OR[r - 1][0]}" title="Rated ${RATE[r - 1].l}"></span>` : ""}${body}${ti >= 0 ? `<span class="bdg">${ti + 1}</span>` : ""}</button>`; }).join("");
   $("oRow").querySelectorAll("[data-way]").forEach(b => b.onclick = () => { if (ui.cmp) ui.cmp.run = false; oSelect(b.dataset.way, true); });
   const rest = W.length + (OP ? OP.opts.filter(x => !playable(x)).length : 0);
-  $("oMore").textContent = OP && rest > row.length ? `All ways (${rest}) ▾` : "";
-  $("oMore").hidden = !(OP && rest > row.length);
+  $("oMore").textContent = OP ? (rest > row.length ? `All ways (${rest}) ▾` : "More ▾") : "";
+  $("oMore").hidden = !OP;
   // the line under the row: what this way does
   if (o) {
     const r = rating(o.id), why = (o.data.why || {}).short || "";
@@ -1131,7 +1135,7 @@ const STYLE_SPEC = {   // volume, EQ, filter (null = TCM's own blend: B in to th
   tower: [null, null, null], glide: ["smooth", "center", null], cruise: ["overlap", "center", "lp_lp"], climb: ["overlap", "end", "lp_hp"],
   formation: ["overlap", "band3", null], descent: ["fifo", "center", "hp_hp"], handoff: ["center", null, null],
   merge: ["ficut", "end", "hp_half"], direct: ["hard", null, null] };
-const STYLE_HINT = { tower: "TCM's blend", glide: "Smooth fade", cruise: "Long, filtered", climb: "Builds up", formation: "3-band blend",
+const STYLE_HINT = { tower: "B in, bass swap halfway, A out", glide: "Smooth fade across the overlap", cruise: "B opens from a low-pass, A closes into one", climb: "B opens up, A thins out, bass swap late", formation: "Highs, mids, then bass hand over",
   descent: "Winds down", handoff: "Cut halfway", merge: "Fade, then cut", direct: "Straight cut" };
 const liveOK = o => !!o && hasStems(o) && !((o.data.pv || {}).fx || []).length && !(o.data.variant && o.data.variant.mix);
 // the option as you hear it: with live mixing, its timing and curves follow the chosen style
@@ -1297,15 +1301,16 @@ function renderStyles(o) {
     const cur = STYLE_SPEC[ui.style] ? ui.style : "tower", fam0 = fam(o);
     const ratedIn = s => { if (s === "tower") return rating(o.id); const v = (OP ? OP.opts : []).find(x => x.data.variant && x.data.variant.mix === s && x.data.variant.base === fam0); return v ? rating(v.id) : null; };
     const tried = ui.cmp ? ui.cmp.tried : [];
-    el.innerHTML = `<span class="lb">Styles</span>` + STYLES.map(s => { const r = ratedIn(s), ti = tried.indexOf(o.id + "|" + s);
-      return `<button type="button" data-style="${s}" aria-pressed="${s === cur}" class="${s === cur ? "on" : ""}" title="${esc(STYLE_HINT[s])}">${r ? `<i class="rd" style="background:${OR[r - 1][0]}"></i>` : ""}${esc(MIXN[s])}${ti >= 0 ? `<span class="nb">${ti + 1}</span>` : ""}</button>`; }).join("")
-      + (others.length ? `<span class="lb" style="margin-left:6px">${ADMIN ? "Try" : "Suggest"}</span>` + others.map(x => tryChip(o, x)).join("") : "");
+    // all nine in one row, by their short code; the full name of the one playing leads the line above
+    el.classList.add("codes");
+    el.innerHTML = STYLES.map(s => { const r = ratedIn(s), ti = tried.indexOf(o.id + "|" + s);
+      return `<button type="button" data-style="${s}" aria-pressed="${s === cur}" aria-label="${esc(MIXN[s])}" class="${s === cur ? "on" : ""}" title="${esc(MIXN[s] + ": " + STYLE_HINT[s])}">${r ? `<i class="rd" style="background:${OR[r - 1][0]}"></i>` : ""}${esc(MIXC[s])}${ti >= 0 ? `<span class="nb">${ti + 1}</span>` : ""}</button>`; }).join("");
     el.querySelectorAll("[data-style]").forEach(b => b.onclick = () => { if (ui.cmp) ui.cmp.run = false; oStyle(b.dataset.style, true); });
   } else {
+    el.classList.remove("codes");
     renderTry(o);
     return;
   }
-  bindTry(o, el, sug);
   const on = el.querySelector(".on"); if (on && on.scrollIntoView && !el.dataset.scrolled) { on.scrollIntoView({ block: "nearest", inline: "nearest" }); }
 }
 function tryChip(o, x) {
@@ -1431,7 +1436,10 @@ const EXIT_FX = ["echo", "reverb", "brake", "loop_roll"];
 const FXN = { echo: "echo out", reverb: "reverb wash", brake: "brake", loop_roll: "loop roll", flanger: "flanger on A", filter_sweep: "filter sweep on A" };
 const PALS = { neon: { name: "Neon City", v: "#39FF14", e: "#FF00FF", f: "#00F0FF" }, synth: { name: "Synthwave", v: "#FF2E97", e: "#00E5FF", f: "#FFE14D" }, outrun: { name: "Outrun", v: "#FF6EC7", e: "#B967FF", f: "#FF9E2C" } };
 SET.pal = PALS[lsGet("tcr-pal")] ? lsGet("tcr-pal") : "neon";
-const MIXN = { tower: "Tower", layer: "Vocal over", glide: "Glide", cruise: "Cruise", climb: "Climb", formation: "Formation", descent: "Descent", handoff: "Hand-off", merge: "Merge", direct: "Direct" };
+// the styles by what they are on a mixer (19 Nov 2026: plain names replaced Tower, Glide, Cruise and the rest)
+const MIXN = { tower: "Bass swap", layer: "Vocal over", glide: "Crossfade", cruise: "Low-pass blend", climb: "Filter build", formation: "3-band blend",
+  descent: "High-pass blend", handoff: "Hard swap", merge: "Fade in, cut out", direct: "Drop swap" };
+const MIXC = { tower: "BSW", glide: "XFD", cruise: "LPF", climb: "BLD", formation: "3BD", descent: "HPF", handoff: "HSW", merge: "FCO", direct: "DSW" };
 function mixOf(o, gm) {
   const pv = o.data.pv || {}, fx = pv.fx || [], ex = fx.some(f => EXIT_FX.includes(f)), vol = pv.vol, eq = pv.eq, flt = pv.flt;
   const cut = vol ? vol === "hard" : pv.style === "cut";
@@ -1603,14 +1611,19 @@ function plSheet() {
 }
 function waysSheet() {
   if (!OP) return;
-  const W = ways(OP), other = OP.opts.filter(o => !playable(o));
+  const W = ways(OP), other = OP.opts.filter(o => !playable(o)), cur = OPTS[ui.sel];
+  // ideas your PC can make (echo out, longer blend...): here, so the main screen stays simple
+  const sug = (META.feedback && META.feedback.suggest) || [], ideas = sug.filter(x => !(x.mix || /^mix_/.test(x.id)) && x.id !== "longer" && x.id !== "shorter");
   const li = (o, i) => { const [nm, h] = wayName(o, i === 0 && !o.data.variant), r = rating(o.id);
     return `<button type="button" class="o-li" data-w="${esc(o.id)}"><span class="nm"><span>${esc(nm)}${h ? " · " + esc(h) : ""}</span><small>${esc(who(o.data.name))} · score ${Math.round(o.score)}</small></span><span class="ct" style="font-size:12px;color:${r ? OR[r - 1][0] : "#B8B8C2"}">${r ? RATE[r - 1].l : o.id === ui.sel ? "playing" : ""}</span></button>`; };
   ui.sheetReturn = $("oMore");
   sheet(`<div style="display:flex;justify-content:space-between;align-items:center"><h2 class="h" id="shTitle">Every way to mix it</h2><button type="button" class="btn" data-close>Close</button></div>
     <div class="pairnm">${esc(OP.key)} · ${esc(shortT(song(OP.a)))} → ${esc(shortT(song(OP.b)))}</div>
-    <div class="o-list">${W.map(li).join("")}${other.map(o => `<div class="o-li"><span class="nm"><span>${esc(who(o.data.name))}</span><small>${esc(o.data.out || "")}</small></span>${pvBtn(o)}</div>`).join("")}</div>`);
+    <div class="o-list">${W.map(li).join("")}${other.map(o => `<div class="o-li"><span class="nm"><span>${esc(who(o.data.name))}</span><small>${esc(o.data.out || "")}</small></span>${pvBtn(o)}</div>`).join("")}</div>
+    ${ideas.length && cur ? `<div class="lab" style="margin-top:6px">${ADMIN ? "Ask your PC for another version" : "Suggest to Bill"}</div>
+    <div class="o-try" id="shTry" style="flex-wrap:wrap;margin:0;padding:0;overflow:visible">${ideas.map(x => tryChip(cur, x)).join("")}</div>` : ""}`);
   const root = $("sheetRoot");
+  if ($("shTry")) bindTry(cur, $("shTry"), sug);
   root.querySelectorAll("[data-w]").forEach(b => b.onclick = () => { const id = b.dataset.w, i = W.findIndex(o => o.id === id), n = Math.max(2, Math.min(5, SET.n)); ui.bi = Math.floor(i / n); if (ui.cmp) ui.cmp.run = false; closeSheet(); oSelect(id, true); });
   root.querySelectorAll("[data-ask]").forEach(b => b.onclick = () => { askPreview(b.dataset.ask); b.outerHTML = `<span class="pv ask">Asked</span>`; });
 }
