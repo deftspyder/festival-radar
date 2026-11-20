@@ -185,8 +185,8 @@ body.one .toast { top: calc(env(safe-area-inset-top, 0px) + 64px); bottom: auto 
 .o-wave { position: relative; flex: 1 1 auto; min-height: 100px; max-height: 200px }
 .o-wave canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: manipulation }
 .o-tag { position: absolute; font-size: 12px; background: rgba(14,15,19,.78); padding: 2px 6px; border-radius: 4px; pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
-.o-time { right: 4px; top: 22px; min-width: 44px; text-align: center; font-family: var(--mono) }
-.o-key { position: absolute; right: 4px; top: 46px; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; pointer-events: none }
+.o-time { right: 4px; top: 6px; min-width: 44px; text-align: center; font-family: var(--mono) }
+.o-key { position: absolute; right: 4px; top: 30px; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; pointer-events: none }
 .o-key b { font: 700 10.5px var(--mono); letter-spacing: .06em; background: rgba(14,15,19,.78); padding: 1px 5px; border-radius: 3px }
 .o-names { position: absolute; left: 4px; right: 4px; bottom: 6px; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; pointer-events: none }
 .o-names .o-tag { position: static; max-width: 64% }
@@ -1433,7 +1433,7 @@ function oDraw(full) {
   g.clearRect(0, 0, w, h); g.drawImage(oCache.off, 0, 0, w, h);
   if (gm && PL.is(o0)) {
     const t = PL.time || 0, x = Math.round(t / gm.secs * w) + .5;
-    g.strokeStyle = "#FFFFFF"; g.lineWidth = 1.5; g.beginPath(); g.moveTo(x, 16); g.lineTo(x, h); g.stroke();
+    g.strokeStyle = "#FFFFFF"; g.lineWidth = 1.5; g.beginPath(); g.moveTo(x, 2); g.lineTo(x, h); g.stroke();
     $("oTime").textContent = fmt(t);
   } else if (gm) $("oTime").textContent = fmt(gm.bIn);
 }
@@ -1491,7 +1491,8 @@ function mixWords(o) {
   return `${pv.mix && MIXN[pv.mix] ? `<b>${MIXN[pv.mix]}</b> · ` : ""}<span style="color:${P.v}">${v}</span>${e ? ` · <span style="color:${P.e}">${e}</span>` : ""}${f ? ` · <span style="color:${P.f}">${f}</span>` : ""}${other.length ? " · " + esc(other.join(", ")) : ""}`;
 }
 function waveBody(c, w, h, o, gm, wa, wb) {
-  const top = 16, mid = top + (h - top) / 2, amp = (h - top) / 2 - 2, S = SKINS[SET.skin] || SKINS.syn, x0 = gm.bIn / gm.secs * w, x1 = gm.aOut / gm.secs * w;
+  // no labels over the lines (B in, Swap, A out): the waveform shows them, so it gets the full height
+  const top = 2, mid = top + (h - top) / 2, amp = (h - top) / 2 - 2, S = SKINS[SET.skin] || SKINS.syn, x0 = gm.bIn / gm.secs * w, x1 = gm.aOut / gm.secs * w;
   const MX = mixOf(o, gm), P = PALS[SET.pal];
   c.fillStyle = "rgba(93,202,165,0.08)"; c.fillRect(x0, top, x1 - x0, h - top);
   // gain(t) and bass(t) reshape the waveform the way the mix does: you see A thin out and B fill in
@@ -1542,7 +1543,7 @@ function waveBody(c, w, h, o, gm, wa, wb) {
   c.setLineDash([3, 3]); c.strokeStyle = "#8A8A96"; c.lineWidth = .75; c.fillStyle = "#C9C9D2"; c.font = "11px system-ui"; c.textAlign = "center";
   for (const [t, l] of [[gm.bIn, "B in"], [gm.swap, "Swap"], [gm.aOut, "A out"]]) {
     if (t == null) continue; const x = Math.round(t / gm.secs * w) + .5;
-    c.beginPath(); c.moveTo(x, top); c.lineTo(x, h); c.stroke(); c.fillText(l, Math.min(w - 16, Math.max(16, x)), 11);
+    c.beginPath(); c.moveTo(x, top); c.lineTo(x, h); c.stroke();
   }
   c.setLineDash([]);
 }
