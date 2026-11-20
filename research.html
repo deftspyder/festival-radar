@@ -186,6 +186,8 @@ body.one .toast { top: calc(env(safe-area-inset-top, 0px) + 64px); bottom: auto 
 .o-wave canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: manipulation }
 .o-tag { position: absolute; font-size: 12px; background: rgba(14,15,19,.78); padding: 2px 6px; border-radius: 4px; pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .o-time { right: 4px; top: 22px; min-width: 44px; text-align: center; font-family: var(--mono) }
+.o-key { position: absolute; right: 4px; top: 46px; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; pointer-events: none }
+.o-key b { font: 700 10.5px var(--mono); letter-spacing: .06em; background: rgba(14,15,19,.78); padding: 1px 5px; border-radius: 3px }
 .o-names { position: absolute; left: 4px; right: 4px; bottom: 6px; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; pointer-events: none }
 .o-names .o-tag { position: static; max-width: 64% }
 .o-names b { font-weight: 600; color: #B8B8C2; margin-right: 4px }
@@ -986,6 +988,7 @@ function renderOne() {
         <button type="button" class="o-gear" id="oGear" aria-label="Settings">${ICON.gear}</button></div>
       <div class="o-wave" id="oWaveBox"><canvas id="oWave" aria-label="Track A on top fading out, track B underneath coming in. Tap to jump."></canvas>
         <span class="o-tag o-time" id="oTime"></span>
+        <span class="o-key" id="oKey" aria-hidden="true"></span>
         <div class="o-names"><span class="o-tag" id="oScore" style="color:#5DCAA5;font-weight:600"></span><span class="o-tag" id="oA"></span><span class="o-tag" id="oB"></span></div>
         <div class="o-empty" id="oEmpty" hidden></div></div>
       <div class="o-row" id="oRow"></div>
@@ -1066,7 +1069,8 @@ function renderOne() {
     const nx = OL.find(p => p !== OP && needs(p)); if (nx) { signAhead(nx.opts.filter(playable)); waveGet(nx.a); waveGet(nx.b); }
   } else { $("oLine").textContent = ""; $("oScore").textContent = ""; $("oA").innerHTML = ""; $("oB").innerHTML = ""; }
   renderStyles(o);
-  for (const id of ["oScore", "oA", "oB", "oTime"]) $(id).hidden = !o;
+  for (const id of ["oScore", "oA", "oB", "oTime", "oKey"]) $(id).hidden = !o;
+  const P = PALS[SET.pal]; $("oKey").innerHTML = `<b style="color:${P.v}">VOL</b><b style="color:${P.e}">BAS</b><b style="color:${P.f}">FIL</b>`;   // what the lines are
   $("oRates").classList.toggle("off", !o);
   for (const id of ["oPlay", "oBack", "oLoop"]) $(id).disabled = !o;
   oControls(); oPrompt(); oDraw(true);
