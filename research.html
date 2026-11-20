@@ -1083,10 +1083,8 @@ function oPrompt() {
   const W = OP ? ways(OP) : [], nm = liveOK(o) ? MIXN[STYLE_SPEC[ui.style] ? ui.style : "tower"] : wayName(o, W[0] === o && !o.data.variant)[0];
   if (ui.pend) {
     const left = Math.max(1, Math.ceil((ui.pend.wait - (Date.now() - ui.pend.t0)) / 1000)), R = RATE[ui.pend.r - 1];
-    const low = LOW(ui.pend.r), n = low ? ui.pend.why.size : 0;
-    el.innerHTML = `<span><b style="color:${OR[ui.pend.r - 1][0]}">${R.l === "Go-around" ? "Go around" : R.l}</b>${low ? (n ? ` · ${n} picked` : "") : ` with ${esc(nm)}`} · ${left}s</span>${low && !n ? `<button type="button" id="oUnsure">Not sure</button>` : ""}<button type="button" id="oDet">Details</button><button type="button" id="oUndo">Undo</button>`;
-    $("oDet").onclick = oDetails; $("oUndo").onclick = oUndo;
-    if ($("oUnsure")) $("oUnsure").onclick = () => { ui.pend.why = new Set(["unsure"]); oCommit(); };
+    // the highlighted rating says what you picked (tap it again to take it back); this line is just the countdown
+    el.innerHTML = `<span>Next pair in ${left}s</span>`;
     return;
   }
   const c = ui.cmp, n = Math.max(2, Math.min(5, SET.n)), more = cmpItems().slice(((c ? c.bi || 0 : 0) + 1) * n).length;
@@ -1538,6 +1536,7 @@ function waveBody(c, w, h, o, gm, wa, wb) {
 function oRate(n) {
   if (!ui.sel) return;
   if (ui.cmp && ui.cmp.run) ui.cmp.run = false;
+  if (ui.pend && ui.pend.r === n) return oUndo();      // the same rating again: taken back
   if (ui.pend) { ui.pend.r = n; whyWait(); oPrompt(); renderStyles(OPTS[ui.sel]); return; }
   const ro = OPTS[ui.sel], rs = liveOK(ro) ? (STYLE_SPEC[ui.style] ? ui.style : "tower") : null, rl = rs ? barsFor(ro) : null;
   ui.pend = { id: ui.sel, r: n, t0: Date.now(), why: new Set(), style: rs ? rs + (rl !== tcmBars(ro) ? ":" + rl : "") : null };
@@ -1566,7 +1565,7 @@ function renderWhy() {
 function endWhy() { $("oWhy").hidden = true; $("oWhy").innerHTML = ""; document.body.classList.remove("picking"); }
 async function oCommit() {
   const p = ui.pend; if (!p) return; clearInterval(p.timer); ui.pend = null; endWhy();
-  const row = await send(Object.assign({ option_id: p.id, kind: "rate", rating: p.r, note: null, symptoms: LOW(p.r) ? [...p.why] : [], good: [], suggest: [] }, p.style ? { style: p.style } : {}));
+  const row = await send(Object.assign({ option_id: p.id, kind: "rate", rating: p.r, note: null, symptoms: LOW(p.r) ? (p.why.size ? [...p.why] : ["unsure"]) : [], good: [], suggest: [] }, p.style ? { style: p.style } : {}));
   if (!row) { renderOne(); return; }
   oNextPair();
 }
