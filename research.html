@@ -175,6 +175,22 @@ body.one .wrap { display: block; padding: 0; max-width: none }
 body.one .toast { top: calc(env(safe-area-inset-top, 0px) + 64px); bottom: auto }
 .o { height: 100vh; height: 100dvh; max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px;
   padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px calc(env(safe-area-inset-bottom, 0px) + 12px); color: #E8E8EC; overflow: hidden; width: 100%; min-width: 0 }
+body.one.has-next .o { height: calc(100vh - 48px); height: calc(100dvh - 48px) }   /* the Up next heading peeks in */
+.o-next { max-width: 520px; margin: 0 auto; padding: 8px 16px calc(env(safe-area-inset-bottom, 0px) + 24px); color: #E8E8EC }
+.o-next .hd { display: flex; justify-content: space-between; align-items: baseline; height: 26px; font-size: 15px; border-top: 1px solid #2E2F38; padding-top: 8px; box-sizing: content-box }
+.o-next .hd span { font: 600 12.5px var(--mono); color: #5DCAA5 }
+.o-next .sub { font-size: 12.5px; color: #B8B8C2; margin: 4px 0 10px }
+.o-next ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px }
+.o-next li button { width: 100%; min-height: 52px; display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: center; text-align: left; padding: 6px 12px 6px 10px;
+  border-radius: 10px; border: 1px dashed #2E2F38; background: transparent; color: #6E6F7A }
+.o-next li button.rd { border: 1px solid #3A3B46; background: #24252D; color: #F4F4F8 }
+.o-next li button:disabled { opacity: 1 }
+.o-next .n { font: 600 12px var(--mono); text-align: right }
+.o-next .t { display: grid; min-width: 0; font-size: 13px; line-height: 1.3 }
+.o-next .t span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.o-next .t span + span { font-size: 12.5px; opacity: .8 }
+.o-next .st { font-size: 11.5px; white-space: nowrap }
+.o-next li button.rd .st { color: #5DCAA5 }
 .o-top { display: flex; gap: 8px; flex: none }
 .o-pick { flex: 1; min-width: 0; height: 44px; border: none; border-radius: 8px; background: #3A3B46; color: #F4F4F8; padding: 0 10px 0 12px; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500 }
 .o-pick.done { background: #10302b; color: #8ff0df }
@@ -936,6 +952,15 @@ function needs(p) {
   const rated = p.opts.some(o => rating(o.id) != null);
   return p.opts.some(o => wanted(o) && !styleOnly(o) && (!rated || o.data.variant || o.status === "ready"));
 }
+// up next: your PC's order (the pairs that best complete a set on the template), ready ones first
+function upRank() { const m = new Map(); ((META.up_next || {}).pairs || []).forEach((k, i) => m.set(k, i)); return m; }
+const spots = p => p.opts.filter(o => !o.data.variant && rating(o.id) !== 1 && rating(o.id) !== 2);
+const allReady = p => { const s = spots(p); return s.length > 0 && s.every(playable); };
+function pickNext(skip) {
+  const rk = upRank(), at = p => rk.has(p.key) ? rk.get(p.key) : 1e6;
+  const L = OL.filter(p => p.key !== skip && needs(p)).sort((x, y) => at(x) - at(y));
+  return L.find(p => rk.has(p.key) && allReady(p)) || L[0] || null;
+}
 function pairsIn(plKey, all) {
   const k = String(plKey || "all"), pl = k === "all" ? null : PLS.find(x => String(x.id) === k), ps = pl ? new Set(pl.tracks) : null;
   return all.filter(p => (!ps || (ps.has(p.a) && ps.has(p.b))) && p.best >= SET.thr);
@@ -1004,7 +1029,8 @@ function renderOne() {
       <div class="o-prompt" id="oPrompt" aria-live="polite"></div>
       <div class="o-rates" id="oRates">${RATE.map((x, i) => `<button type="button" data-or="${x.n}" style="--rc:${OR[i][0]};--rt:${OR[i][1]}" aria-label="${x.n} ${x.l}: ${x.m}"><i></i>${x.l === "Go-around" ? "Go around" : x.l}</button>`).join("")}</div>
       <div class="o-why" id="oWhy" role="group" aria-label="What went wrong" hidden></div>
-    </div>`;
+    </div>
+    <section class="o-next" id="oNext" aria-label="Up next" hidden></section>`;
     $("oPick").onclick = plSheet;
     $("oGear").onclick = setSheet;
     $("oPlay").onclick = () => PL.playing(OPTS[ui.sel]) ? PL.pause() : oHear();
@@ -1026,7 +1052,7 @@ function renderOne() {
   $("oPick").setAttribute("aria-label", `Playlist ${plName}, ${t.done} of ${t.total} reviewed. Change playlist`);
   // the pair on screen stays put until you rate it or pick another
   OP = OL.find(p => p.key === ui.cp) || null;
-  if (!OP && !ui.pend) { OP = OL.find(needs) || null; ui.cp = OP ? OP.key : null; ui.sel = null; ui.bi = 0; ui.cmp = null; }
+  if (!OP && !ui.pend) { OP = pickNext() || null; ui.cp = OP ? OP.key : null; ui.sel = null; ui.bi = 0; ui.cmp = null; }
   const W = OP ? ways(OP) : [];
   if (OP && !W.some(o => o.id === ui.sel)) ui.sel = W.length ? W[0].id : null;
   const o = OPTS[ui.sel];
@@ -1066,14 +1092,38 @@ function renderOne() {
     $("oB").innerHTML = `<b>B</b>${esc(shortT(B))} · ${esc(B.cam || "")} · ${Math.round(B.bpm)}`;
     signAhead(OP.opts); waveGet(o.a); waveGet(o.b);
     if (stemOK(o)) { stemBuf(o.data.stems.a).catch(() => {}); stemBuf(o.data.stems.b).catch(() => {}); }   // ready before you tap play
-    const nx = OL.find(p => p !== OP && needs(p)); if (nx) { signAhead(nx.opts.filter(playable)); waveGet(nx.a); waveGet(nx.b); }
+    const nx = pickNext(OP.key); if (nx) { signAhead(nx.opts.filter(playable)); waveGet(nx.a); waveGet(nx.b); }
   } else { $("oLine").textContent = ""; $("oScore").textContent = ""; $("oA").innerHTML = ""; $("oB").innerHTML = ""; }
   renderStyles(o);
   for (const id of ["oScore", "oA", "oB", "oTime", "oKey"]) $(id).hidden = !o;
   const P = PALS[SET.pal]; $("oKey").innerHTML = `<b style="color:${P.v}">VOL</b><b style="color:${P.e}">BAS</b><b style="color:${P.f}">FIL</b>`;   // what the lines are
   $("oRates").classList.toggle("off", !o);
   for (const id of ["oPlay", "oBack", "oLoop"]) $(id).disabled = !o;
-  oControls(); oPrompt(); oDraw(true);
+  oControls(); oPrompt(); oDraw(true); renderUpNext();
+}
+// under the main screen: the pairs up next, solid when every spot is on your phone, greyed while the PC makes them
+function renderUpNext() {
+  const el = $("oNext"), u = META.up_next; if (!el) return;
+  const by = new Map(OL.map(p => [p.key, p]));
+  const list = ((u && u.pairs) || []).map(k => by.get(k)).filter(p => p && p !== OP && (needs(p) || !p.opts.some(o => rating(o.id) != null || pending(o.id))));
+  document.body.classList.toggle("has-next", !!list.length);
+  el.hidden = !list.length; if (!list.length) return;
+  const nReady = list.filter(allReady).length, s = META.sync, ago = s && s.at ? Date.now() / 1000 - s.at : null;
+  const off = ago != null && ago > 600 && nReady < list.length;
+  el.innerHTML = `<div class="hd"><b>Up next</b><span>${nReady} ready</span></div>
+    <div class="sub">${esc(u.name || "Peak time")}: the pairs that best complete your set, in order. Greyed ones are being made on your PC.</div>
+    <ol>${list.map((p, i) => { const sp = spots(p), ok = sp.filter(playable).length, rd = ok === sp.length && ok > 0;
+      return `<li><button type="button" class="${rd ? "rd" : ""}" data-up="${esc(p.key)}" ${rd || ok ? "" : "disabled"} aria-label="${esc(shortT(song(p.a)) + " into " + shortT(song(p.b)))}${rd ? "" : ", being made"}">
+        <span class="n">${i + 1}</span><span class="t"><span>${esc(shortT(song(p.a)))}</span><span>→ ${esc(shortT(song(p.b)))}</span></span>
+        <span class="st">${rd ? `${sp.length} spot${sp.length > 1 ? "s" : ""}` : ok ? `${ok} of ${sp.length}` : "Making"}</span></button></li>`; }).join("")}</ol>
+    ${off ? `<div class="sub">Your PC last synced ${ago > 7200 ? Math.round(ago / 3600) + " hours" : Math.round(ago / 60) + " min"} ago: it makes the greyed ones when it's on.</div>` : ""}`;
+  el.querySelectorAll("[data-up]").forEach(b => b.onclick = () => oGo(b.dataset.up));
+}
+function oGo(key) {
+  if (ui.pend) return toast("Finish this rating first");
+  PL.stop(); PL.paused = true; PL.pos = 0; ui.style = "tower"; ui.bars = null;
+  ui.cp = key; ui.sel = null; ui.bi = 0; ui.cmp = null; window.scrollTo({ top: 0, behavior: "smooth" });
+  renderOne(); oHear();
 }
 function oControls() {
   if (ui.view !== "one" || !$("oPlay")) return;
@@ -1597,7 +1647,7 @@ function oDetails() {
 function oNextPair() {
   const was = ui.cp; PL.stop(); PL.paused = true; PL.pos = 0; ui.style = "tower"; ui.bars = null;
   const all = pairings(); OL = pairsIn(ui.pl, all);
-  const nx = OL.find(p => p.key !== was && needs(p));
+  const nx = pickNext(was);
   ui.cp = nx ? nx.key : null; ui.sel = null; ui.bi = 0; ui.cmp = null;
   renderOne();
   if (nx) oHear();
