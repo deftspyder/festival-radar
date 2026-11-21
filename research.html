@@ -1065,7 +1065,7 @@ function renderOne() {
     $("oA").innerHTML = `<b>A</b>${esc(shortT(A))} · ${esc(A.cam || "")} · ${Math.round(A.bpm)}`;
     $("oB").innerHTML = `<b>B</b>${esc(shortT(B))} · ${esc(B.cam || "")} · ${Math.round(B.bpm)}`;
     signAhead(OP.opts); waveGet(o.a); waveGet(o.b);
-    if (liveOK(o)) { stemBuf(o.data.stems.a).catch(() => {}); stemBuf(o.data.stems.b).catch(() => {}); }   // ready before you tap play
+    if (stemOK(o)) { stemBuf(o.data.stems.a).catch(() => {}); stemBuf(o.data.stems.b).catch(() => {}); }   // ready before you tap play
     const nx = OL.find(p => p !== OP && needs(p)); if (nx) { signAhead(nx.opts.filter(playable)); waveGet(nx.a); waveGet(nx.b); }
   } else { $("oLine").textContent = ""; $("oScore").textContent = ""; $("oA").innerHTML = ""; $("oB").innerHTML = ""; }
   renderStyles(o);
@@ -1144,11 +1144,14 @@ const STYLE_SPEC = {   // volume, EQ, filter (null = TCM's own blend: B in to th
   merge: ["ficut", "end", "hp_half"], direct: ["hard", null, null] };
 const STYLE_HINT = { tower: "B in, bass swap halfway, A out", glide: "Smooth fade across the overlap", cruise: "B opens from a low-pass, A closes into one", climb: "B opens up, A thins out, bass swap late", formation: "Highs, mids, then bass hand over",
   descent: "B fills in from a high-pass, A fades and thins away", handoff: "A cut, B in, halfway", merge: "B fades in, A thins out, then cuts", direct: "A plays to the end, B lands on the downbeat" };
-const liveOK = o => !!o && hasStems(o) && !((o.data.pv || {}).fx || []).length && !(o.data.variant && o.data.variant.mix);
+const liveOK = o => !!o && hasStems(o) && !((o.data.pv || {}).fx || []).length && !(o.data.variant && o.data.variant.mix);   // any style, from the strip
+// can be mixed live at all: also a version your PC made in one style (it plays in that style)
+const stemOK = o => !!o && hasStems(o) && !((o.data.pv || {}).fx || []).length;
 // the option as you hear it: with live mixing, its timing and curves follow the chosen style
 function heard(o) {
-  if (!liveOK(o)) return o;
-  const style = STYLE_SPEC[ui.style] ? ui.style : "tower", pv = o.data.pv, st = pv.st;
+  if (!stemOK(o)) return o;
+  const vm = o.data.variant && o.data.variant.mix;
+  const style = vm && STYLE_SPEC[vm] ? vm : STYLE_SPEC[ui.style] ? ui.style : "tower", pv = o.data.pv, st = pv.st;
   // a Vocal over spot's own mix (Tower) lets both parts play at full for a long while, bass swap near the end
   const [vol, eq, flt] = style === "tower" && o.data.kind === "layer" ? ["overlap", "end", null] : STYLE_SPEC[style];
   // the files are made at full length; a shorter overlap mixes over its first bars and A leaves there
@@ -1218,6 +1221,7 @@ const PL = {   // one player for both kinds: live (two stems) or a rendered prev
       this.build(hv, bufs, from);
     } else {
       this.mode = "mp3"; this.style = null;
+      if (!o.preview_path) { this.paused = true; oControls(); return toast("This version isn't on your phone yet. Your PC uploads it on its next sync."); }
       if (audio.dataset.id !== o.id) {
         const url = await urlFor(o.preview_path);
         if (tok !== this.token) return;
