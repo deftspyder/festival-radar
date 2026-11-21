@@ -249,7 +249,7 @@ body.one.has-next .o { height: calc(100vh - 48px); height: calc(100dvh - 48px) }
 @media (max-height: 720px) { body.picking .o-tr { display: none } .o-why button { height: 27px } .o-why .col { gap: 4px } }   /* short phones: the reasons take the transport's place for a moment */
 .o-try.codes { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 5px; overflow: visible; margin: 0; padding: 0 }
 .o-try.codes button { padding: 0; height: 36px; justify-content: center; min-width: 0; font: 700 12.5px var(--mono); letter-spacing: .03em }
-.o-try.codes .rd { position: absolute; left: 4px; top: 4px; margin: 0; width: 6px; height: 6px }
+.o-try.codes .rd { position: absolute; left: 3px; top: 3px; margin: 0; width: 8px; height: 8px; box-shadow: 0 0 0 1.5px #0E0F13 }
 @media (max-width: 360px) { .o-try.codes { gap: 3px } .o-try.codes button { font-size: 11px; letter-spacing: 0 } }
 .o-try .lb { flex: none; align-self: center; font-size: 11.5px; color: #B8B8C2; white-space: nowrap }
 .o-tr { flex: none; display: flex; align-items: flex-start; justify-content: center; gap: 14px }
@@ -259,7 +259,9 @@ body.one.has-next .o { height: calc(100vh - 48px); height: calc(100dvh - 48px) }
 .o-tr .c button { width: 44px; height: 44px; border-radius: 999px; border: none; background: #24252D; color: #F4F4F8; display: grid; place-items: center }
 .o-tr .c button.on { background: #3A3B46; color: #5DCAA5; box-shadow: inset 0 0 0 1.5px #5DCAA5 }
 .o-play { width: 64px; height: 64px; border-radius: 999px; border: none; background: #F4F4F8; display: grid; place-items: center }
-.o-prompt { flex: none; min-height: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 12.5px; color: #B8B8C2; white-space: nowrap; overflow: hidden }
+.o-prompt { flex: none; min-height: 40px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 12.5px; color: #B8B8C2; white-space: nowrap; overflow: hidden; position: relative }
+.o-prompt .pt { flex: 1; min-width: 0; text-align: center; overflow: hidden; text-overflow: ellipsis }
+.o-prompt .o-skip { flex: none; height: 40px; padding: 0 12px 0 14px; border-radius: 10px; border: 1px solid #3A3B46; background: #24252D; color: #F4F4F8; font-size: 13px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 4px }
 .o-prompt button { background: none; border: none; color: #8fe3ff; font-size: 12.5px; padding: 2px 0; text-decoration: underline; min-height: 24px }
 .o-rates { flex: none; display: flex; gap: 6px }
 .o-rates button { flex: 1; min-width: 0; height: 62px; border-radius: 10px; border: none; background: #24252D; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: #F4F4F8; font-size: 11.5px; font-weight: 600; line-height: 1.1 }
@@ -364,7 +366,7 @@ async function loadAll() {
   await loadRatings();
 }
 async function loadRatings() {
-  RAT = await all(() => sb.from("tc_ratings").select("id,option_id,user_id,kind,rating,winner,symptoms,good,suggest,note,created_at,synced_at,result").order("id"));
+  RAT = await all(() => sb.from("tc_ratings").select("id,option_id,user_id,kind,rating,winner,symptoms,good,suggest,note,style,created_at,synced_at,result").order("id"));
 }
 async function refresh() {
   if (document.hidden) return;
@@ -658,7 +660,7 @@ function renderSuggest(p, keep) {
 
 /* ---------- sending: a row in tc_ratings, which the PC picks up ---------- */
 async function send(row) {
-  const { data, error } = await sb.from("tc_ratings").insert(row).select("id,option_id,user_id,kind,rating,winner,symptoms,good,suggest,note,created_at,synced_at,result").single();
+  const { data, error } = await sb.from("tc_ratings").insert(row).select("id,option_id,user_id,kind,rating,winner,symptoms,good,suggest,note,style,created_at,synced_at,result").single();
   if (error) { toast("Couldn't send: " + (error.message || "check your connection")); return null; }
   RAT.push(data); watch(data.id); renderSync();
   return data;
@@ -948,10 +950,24 @@ const ICON = {
 // which pairs and ways still need you
 const playable = o => hasPv(o) && !o.data.held && !fixingNow(o);
 const wanted = o => playable(o) && !pending(o.id) && (rating(o.id) == null || (ADMIN && o.status === "ready"));
-function needs(p) {
-  const rated = p.opts.some(o => rating(o.id) != null);
-  return p.opts.some(o => wanted(o) && !styleOnly(o) && (!rated || o.data.variant || o.status === "ready"));
+// a pair is done when one of its ways got Smooth or G6, you skipped it, or a Crash said the songs don't fit.
+// A low rating alone doesn't finish it (Bill, 21 Nov 2026): you stay and try its other spots and styles.
+const inPair = (p, r) => { const o = OPTS[r.option_id]; return !!o && o.pair_code === p.key; };
+function pairDone(p) {
+  if (p.opts.some(o => (rating(o.id) || 0) >= 4)) return true;
+  return mine().some(r => inPair(p, r) && (r.kind === "skip" || (r.kind === "rate" && r.rating === 1 && (r.symptoms || []).includes("fit"))));
 }
+function needs(p) { return !pairDone(p) && p.opts.some(o => playable(o) && !pending(o.id) && !styleOnly(o)); }
+// what you rated a way in a style (its own rating, or the version your PC made in that style); null = not tried
+function triedIn(o, s) {
+  const mr = mine().filter(r => r.kind === "rate" && r.option_id === o.id && (String(r.style || "tower").split(":")[0]) === s).pop();
+  if (mr) return mr.rating;
+  if (s === "tower") return (o.data.pv || {}).mix || mine().some(r => r.kind === "rate" && r.option_id === o.id) ? null : o.rating;
+  const v = Object.values(OPTS).find(x => x.data.variant && x.data.variant.mix === s && x.data.variant.base === fam(o));
+  return v ? rating(v.id) : null;
+}
+const triedAny = o => liveOK(o) ? STYLES.some(s => triedIn(o, s) != null) : rating(o.id) != null;
+const dotC = r => r <= 3 ? "#E5484D" : OR[r - 1][0];   // tried and not good enough: red
 // up next: your PC's order (the pairs that best complete a set on the template), ready ones first
 function upRank() { const m = new Map(); ((META.up_next || {}).pairs || []).forEach((k, i) => m.set(k, i)); return m; }
 const spots = p => p.opts.filter(o => !o.data.variant && rating(o.id) !== 1 && rating(o.id) !== 2);
@@ -966,13 +982,12 @@ function pairsIn(plKey, all) {
   return all.filter(p => (!ps || (ps.has(p.a) && ps.has(p.b))) && p.best >= SET.thr);
 }
 function tally(list) {
-  const done = list.filter(p => !needs(p) && p.opts.some(o => rating(o.id) != null)).length;
-  return { done, total: list.length, noPv: list.filter(p => !needs(p) && !p.opts.some(o => rating(o.id) != null)).length };
+  const done = list.filter(pairDone).length;
+  return { done, total: list.length, noPv: list.filter(p => !pairDone(p) && !needs(p)).length };
 }
 const styleOnly = o => { const v = o.data.variant; if (!v || !v.mix) return false; const b = OPTS[v.base]; return !!(b && hasStems(b)); };
 function ways(p) {
-  const pl = p.opts.filter(o => playable(o) && !styleOnly(o)), w = pl.filter(wanted);
-  return [...w, ...pl.filter(o => !w.includes(o))];
+  return p.opts.filter(o => playable(o) && !styleOnly(o));   // best first, and they stay put while you try them
 }
 const KIND = { section: "Section", end: "End to start", layer: "Vocal over" };
 function wayName(o, first) {
@@ -1070,10 +1085,11 @@ function renderOne() {
   const n = Math.max(2, Math.min(5, SET.n)), bi = ui.bi || 0, row = W.slice(bi * n, bi * n + n);
   $("oRow").style.gridTemplateColumns = `repeat(${Math.max(1, row.length)}, minmax(0, 1fr))`;
   const tried = ui.cmp ? ui.cmp.tried : [];
-  $("oRow").innerHTML = row.map(w => { const [nm, h] = wayName(w, bi === 0 && w === W[0] && !w.data.variant), r = rating(w.id), ti = tried.indexOf(w.id);
+  $("oRow").innerHTML = row.map(w => { const [nm, h] = wayName(w, bi === 0 && w === W[0] && !w.data.variant), ti = tried.indexOf(w.id);
+    const r = liveOK(w) ? STYLES.map(s => triedIn(w, s)).filter(x => x != null).reduce((m, x) => Math.max(m, x), 0) || null : rating(w.id);
     const map = w.data.variant ? "" : spotMap(w), sa = w.data.sa || {}, sbx = w.data.sb || {};
     const body = map ? `${map}<span class="wc">${esc(sa.label || "?")} → ${esc(sbx.label || "?")}</span>` : `<span class="wn">${esc(nm)}</span><span class="wh">${esc(h)}</span>`;
-    return `<button type="button" class="o-way${map ? " mapped" : ""}" data-way="${esc(w.id)}" aria-pressed="${w.id === ui.sel}" aria-label="${esc(nm + ", " + h)}">${r ? `<span class="rt" style="background:${OR[r - 1][0]}" title="Rated ${RATE[r - 1].l}"></span>` : ""}${body}${ti >= 0 ? `<span class="bdg">${ti + 1}</span>` : ""}</button>`; }).join("");
+    return `<button type="button" class="o-way${map ? " mapped" : ""}" data-way="${esc(w.id)}" aria-pressed="${w.id === ui.sel}" aria-label="${esc(nm + ", " + h)}">${r ? `<span class="rt" style="background:${dotC(r)}" title="Tried: best was ${RATE[r - 1].l}"></span>` : ""}${body}${ti >= 0 ? `<span class="bdg">${ti + 1}</span>` : ""}</button>`; }).join("");
   $("oRow").querySelectorAll("[data-way]").forEach(b => b.onclick = () => { if (ui.cmp) ui.cmp.run = false; oSelect(b.dataset.way, true); });
   const rest = W.length + (OP ? OP.opts.filter(x => !playable(x)).length : 0);
   $("oMore").textContent = OP ? (rest > row.length ? `All ways (${rest}) ▾` : "More ▾") : "";
@@ -1105,7 +1121,7 @@ function renderOne() {
 function renderUpNext() {
   const el = $("oNext"), u = META.up_next; if (!el) return;
   const by = new Map(OL.map(p => [p.key, p]));
-  const list = ((u && u.pairs) || []).map(k => by.get(k)).filter(p => p && p !== OP && (needs(p) || !p.opts.some(o => rating(o.id) != null || pending(o.id))));
+  const list = ((u && u.pairs) || []).map(k => by.get(k)).filter(p => p && p !== OP && !pairDone(p));
   document.body.classList.toggle("has-next", !!list.length);
   el.hidden = !list.length; if (!list.length) return;
   const nReady = list.filter(allReady).length, s = META.sync, ago = s && s.at ? Date.now() / 1000 - s.at : null;
@@ -1145,12 +1161,17 @@ function oPrompt() {
   if (ui.pend) {
     const left = Math.max(1, Math.ceil((ui.pend.wait - (Date.now() - ui.pend.t0)) / 1000)), R = RATE[ui.pend.r - 1];
     // the highlighted rating says what you picked (tap it again to take it back); this line is just the countdown
-    el.innerHTML = `<span>Next pair in ${left}s</span>`;
+    const moves = ui.pend.r >= 4 || (ui.pend.r === 1 && ui.pend.why.has("fit"));
+    el.innerHTML = `<span class="pt">${moves ? `Next pair in ${left}s` : `Saving in ${left}s, then try another`}</span>${skipBtn()}`;
+    $("oSkip").onclick = oSkip;
     return;
   }
   const c = ui.cmp, n = Math.max(2, Math.min(5, SET.n)), more = cmpItems().slice(((c ? c.bi || 0 : 0) + 1) * n).length;
-  el.textContent = c && !c.run ? (more ? "Tap the winner and rate it, or try more" : "Tap the winner and rate it") : c && c.run ? `Comparing: ${nm}` : `How did it land with ${nm}?`;
+  const tx = c && !c.run ? (more ? "Tap the winner and rate it, or try more" : "Tap the winner and rate it") : c && c.run ? `Comparing: ${nm}` : `How did it land with ${nm}?`;
+  el.innerHTML = `<span class="pt">${esc(tx)}</span>${skipBtn()}`;
+  $("oSkip").onclick = oSkip;
 }
+const skipBtn = () => `<button type="button" class="o-skip" id="oSkip" aria-label="Skip this pair">Skip pair ${ICON.next || "›"}</button>`;
 
 // "Try another way": your PC makes a new version of this mix (a re-proposal), which joins the row when it's ready
 function renderTry(o) {
@@ -1360,12 +1381,12 @@ function renderStyles(o) {
   const others = sug.filter(x => !(x.mix || /^mix_/.test(x.id)));
   if (liveOK(o)) {
     const cur = STYLE_SPEC[ui.style] ? ui.style : "tower", fam0 = fam(o);
-    const ratedIn = s => { if (s === "tower") return rating(o.id); const v = (OP ? OP.opts : []).find(x => x.data.variant && x.data.variant.mix === s && x.data.variant.base === fam0); return v ? rating(v.id) : null; };
+    const ratedIn = s => triedIn(o, s);
     const tried = ui.cmp ? ui.cmp.tried : [];
     // all nine in one row, by their short code; the full name of the one playing leads the line above
     el.classList.add("codes");
     el.innerHTML = STYLES.map(s => { const r = ratedIn(s), ti = tried.indexOf(o.id + "|" + s);
-      return `<button type="button" data-style="${s}" aria-pressed="${s === cur}" aria-label="${esc(MIXN[s])}" class="${s === cur ? "on" : ""}" title="${esc(MIXN[s] + ": " + STYLE_HINT[s])}">${r ? `<i class="rd" style="background:${OR[r - 1][0]}"></i>` : ""}${esc(MIXC[s])}${ti >= 0 ? `<span class="nb">${ti + 1}</span>` : ""}</button>`; }).join("");
+      return `<button type="button" data-style="${s}" aria-pressed="${s === cur}" aria-label="${esc(MIXN[s])}" class="${s === cur ? "on" : ""}" title="${esc(MIXN[s] + ": " + STYLE_HINT[s])}">${r ? `<i class="rd" style="background:${dotC(r)}" title="Tried: ${RATE[r - 1].l}"></i>` : ""}${esc(MIXC[s])}${ti >= 0 ? `<span class="nb">${ti + 1}</span>` : ""}</button>`; }).join("");
     el.querySelectorAll("[data-style]").forEach(b => b.onclick = () => { if (ui.cmp) ui.cmp.run = false; oStyle(b.dataset.style, true); });
   } else {
     el.classList.remove("codes");
@@ -1637,7 +1658,14 @@ async function oCommit() {
   const p = ui.pend; if (!p) return; clearInterval(p.timer); ui.pend = null; endWhy();
   const row = await send(Object.assign({ option_id: p.id, kind: "rate", rating: p.r, note: null, symptoms: LOW(p.r) ? (p.why.size ? [...p.why] : ["unsure"]) : [], good: [], suggest: [] }, p.style ? { style: p.style } : {}));
   if (!row) { renderOne(); return; }
-  oNextPair();
+  if (p.r >= 4 || (p.r === 1 && p.why.has("fit"))) return oNextPair();
+  renderOne();                       // not this one: stay on the pair and try another style or spot (or Skip)
+}
+async function oSkip() {
+  if (!OP) return;
+  if (ui.pend) { clearInterval(ui.pend.timer); ui.pend = null; endWhy(); }
+  const row = await send({ option_id: OP.opts[0].id, kind: "skip" });
+  if (row) oNextPair();
 }
 function oUndo() { if (ui.pend) clearInterval(ui.pend.timer); ui.pend = null; oPrompt(); renderStyles(OPTS[ui.sel]); }
 function oDetails() {
