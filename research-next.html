@@ -1477,10 +1477,12 @@ function bindTry(o, el, sug) {
   });
 }
 function oStyle(s, play) {
-  const o = OPTS[ui.sel], keep = PL.is(o) && !PL.paused ? PL.time : null;
+  const o = OPTS[ui.sel];
   ui.style = s; lsSet("tcr-style", s);
   renderOne();
-  if (play && o) { ui.heard = ui.heard || new Set(); ui.heard.add(ui.cp); PL.start(o, keep != null ? keep : 0); }   // switch styles in place, to hear the difference
+  // a new style plays from one bar before B comes in (Bill, 26 Nov 2026), so every style is heard from the same spot
+  if (play && o) { ui.heard = ui.heard || new Set(); ui.heard.add(ui.cp); const gm = geom(heard(o)), bar = 240 / (song(o.a).bpm || 120);
+    PL.start(o, gm ? Math.max(0, gm.bIn - bar) : 0); }
 }
 
 // audio
