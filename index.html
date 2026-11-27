@@ -1186,6 +1186,7 @@ dialog.sheet .linkbox { font-size: 13px; word-break: break-all; background: var(
       <button type="button" data-go="chats">Chats<span class="tab-n" id="dn-chats-n" hidden></span></button>
       <button type="button" data-go="admin" id="dn-admin" hidden>Admin</button>
       <a href="research.html" id="dn-research" hidden>Research</a>
+      <a href="research-next.html" id="dn-research2" hidden>Research v2 (test)</a>
     </div>
     <div class="dn-right">
       <button type="button" class="abtn alt" id="dn-invite" hidden>Invite friends</button>
@@ -3356,6 +3357,8 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
       // Crew activity feed: admin only (Bill, Nov 3, 2026: it could feel creepy to members).
       const ca = document.getElementById('crew-activity'); if (ca) { ca.hidden = false; const cd = document.getElementById('crew-dash'); if (cd) cd.classList.remove('one'); }
       const da = document.getElementById('dn-admin'); if (da) da.hidden = false; const ma = document.getElementById('mn-admin'); if (ma) ma.hidden = false;
+      // Research v2 (research-next.html): the test version of Research, shown to admins only until it replaces research.html
+      ['dn-research2', 'mn-research2'].forEach(id => { const x = document.getElementById(id); if (x) x.hidden = false; });
       if (window.FRTabFromHash && FRTabFromHash() === 'admin' && window.FRTab) FRTab('admin', { push: false, scroll: false });
       loadAdmin().catch(() => {}); loadReports().catch(() => {}); loadFeedbackAdmin().catch(() => {});
     }
@@ -7032,6 +7035,7 @@ const pinSvg = () => { const s = mk('span', 'ch-pin'); s.innerHTML = '<svg width
     const ad = document.createElement('button'); ad.type = 'button'; ad.textContent = 'Admin'; ad.id = 'mn-admin'; ad.hidden = true; ad.style.order = 5;
     ad.addEventListener('click', () => go('admin')); panel.appendChild(ad);
     const rs = document.createElement('a'); rs.href = 'research.html'; rs.id = 'mn-research'; rs.hidden = true; rs.textContent = 'Tower Control Research'; rs.style.order = 6; panel.appendChild(rs);
+    const rs2 = document.createElement('a'); rs2.href = 'research-next.html'; rs2.id = 'mn-research2'; rs2.hidden = true; rs2.textContent = 'Tower Control Research v2 (test)'; rs2.style.order = 6; panel.appendChild(rs2);
     const extra = document.getElementById('mn-extra-link');
     if (extra) { const sep = document.createElement('div'); sep.className = 'mn-sep'; panel.appendChild(sep); const a = extra.cloneNode(true); a.removeAttribute('id'); a.hidden = false; a.className = 'mn-cta'; panel.appendChild(a); }
     btn.addEventListener('click', e => { e.stopPropagation(); panel.hidden ? open() : close(); });
